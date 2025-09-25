@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<fields name="params" addfieldpath="/components/com_splms/models/fields">
+		<fieldset name="basic" label="COM_SPLMS_FIELDSET_COURSES">
+			<field name="category_id" type="coursecategories" default="" label="COM_SPLMS_FIELD_SELECT_CATEGORY" description="COM_SPLMS_FIELD_SELECT_CATEGORY_DESC" />
+			<field name="item_type" type="list" class="btn-group" default="0" label="COM_SPLMS_SHOW_ITEM_TYPE" description="COM_SPLMS_SHOW_ITEM_TYPE_DESC">
+				<option value="0">COM_SPLMS_SHOW_ITEM_ALL</option>
+				<option value="1">COM_SPLMS_SHOW_ITEM_FEATURED</option>
+			</field>
+			<field name="ordering_type" type="list" class="btn-group" default="ordering" label="COM_SPLMS_ORDERING" description="COM_SPLMS_ORDERING_DESC">
+				<option value="created">COM_SPLMS_ORDERING_LATEST</option>
+				<option value="ordering">COM_SPLMS_ORDERING_ORDERING</option>
+			</field>
+			<field name="ordering" type="list" class="btn-group" default="DESC" label="COM_SPLMS_ORDERING_DIRECTION" description="COM_SPLMS_ORDERING_DIRECTION_DESC">
+				<option value="ASC">COM_SPLMS_ORDER_ASCENDING</option>
+				<option value="DESC">COM_SPLMS_ORDER_DESCENDING</option>
+			</field>
+			<field name="columns" type="list" default="4" label="COM_SPLMS_FIELD_COLUMN" description="COM_SPLMS_FIELD_COLUMNS_DESC">
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="6">6</option>
+			</field>
+			<field name="limit" type="number" default="12" label="COM_SPLMS_FIELD_LIMIT" description="COM_SPLMS_FIELD_LIMIT_DESC" />
+			
+			<field name="show_course_filter" type="list" useglobal="true" label="COM_SPLMS_SHOW_COURSE_FILTER" description="COM_SPLMS_SHOW_COURSE_FILTER_DESC" class="radio btn-group btn-group-yesno">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+
+			<field name="course_filter_position" type="list" class="btn-group" useglobal="true" label="COM_SPLMS_SHOW_COURSE_FILTER_POSITION" description="COM_SPLMS_SHOW_COURSE_FILTER_POSITION_DESC">
+				<option value="left">COM_SPLMS_SHOW_COURSE_FILTER_POSITION_LEFT</option>
+				<option value="right">COM_SPLMS_SHOW_COURSE_FILTER_POSITION_RIGHT</option>
+				<option value="top">COM_SPLMS_SHOW_COURSE_FILTER_POSITION_TOP</option>
+			</field>
+			
+			<field name="hide_pagination" type="radio" class="btn-group" default="0" label="COM_SPLMS_HIDE_PAGINATION" description="COM_SPLMS_HIDE_PAGINATION_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="readmore_text" type="text" default="Course Details" label="COM_SPLMS_COUSE_READMORE_TEXT" description="COM_SPLMS_COUSE_READMORE_TEXT_DESC" />
+			<field name="show_subcategory" type="radio" class="btn-group" default="0" label="COM_SPLMS_SHOW_SUBCATEGORY" description="COM_SPLMS_SHOW_SUBCATEGORY_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+		</fieldset>
+	</fields>
+</metadata>

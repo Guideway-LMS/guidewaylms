@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset id="translator" name="translator" addfieldprefix="JExtstore\Component\Gptranslate\Administrator\Field">
+		<field type="spacer" class="badge bg-primary spacer" label="COM_GPTRANSLATE_AUTO_UPDATER" />
+		<field name="registration_email" type="text" datavalidation="email" default="" size="50" label="COM_GPTRANSLATE_REGISTRATION_EMAIL_FORUPDATES" description="COM_GPTRANSLATE_REGISTRATION_EMAIL_FORUPDATES_DESC" />
+		
+		<field type="spacer" class="badge bg-primary spacer" label="COM_GPTRANSLATE_CONFIG_TRANSLATION_ENGINE"/>
+		
+		<field name="google_translate_engine" type="list" default="0" label="COM_GPTRANSLATE_CHATGPT_TRANSLATION_ENGINE" description="COM_GPTRANSLATE_CHATGPT_TRANSLATION_ENGINE_DESC">
+			<option value="0">COM_GPTRANSLATE_CHATGPT_TRANSLATION_ENGINE_CHATGPT</option>
+			<option value="1">COM_GPTRANSLATE_CHATGPT_TRANSLATION_ENGINE_GTRANSLATE</option>
+		</field>
+		<field name="chatgpt_apikey" type="text" size="60" default="" class="chatgpt_ctrl" label="COM_GPTRANSLATE_CHATGPT_APIKEY" description="COM_GPTRANSLATE_CHATGPT_APIKEY_DESC" hint="COM_GPTRANSLATE_CHATGPT_APIKEY_HINT" />
+       	<field name="chatgpt_model" type="list" default="gpt-3.5-turbo" class="chatgpt_ctrl" label="COM_GPTRANSLATE_CHATGPT_MODEL" description="COM_GPTRANSLATE_CHATGPT_MODEL_DESC">
+            <option value="gpt-3.5-turbo">GPT-3.5-Turbo</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4">GPT-4</option>
+        </field>
+		<field name="chatgpt_request_message" type="textarea" cols="60" rows="10" class="chatgpt_ctrl" default="Compile this JSON object key-value pairs adding the translation into '{{target}}' language to the empty value from the original '{{source}}' language of the key and return me only a parsable JSON object without any surrounding characters, preserve and return in the JSON object the key in the original '{{source}}' language within double quotes: '{{translations}}'. Pay attention to not skip any key and translate all keys." label="COM_GPTRANSLATE_CHATGPT_REQUEST_MESSAGE" description="COM_GPTRANSLATE_CHATGPT_REQUEST_MESSAGE_DESC"/>
+		<field name="chatgpt_request_conversation_mode" type="list" default="user" class="chatgpt_ctrl" label="COM_GPTRANSLATE_CHATGPT_REQUEST_CONVERSATION_MODE" description="COM_GPTRANSLATE_CHATGPT_REQUEST_CONVERSATION_MODE_DESC">
+			<option value="user">COM_GPTRANSLATE_CHATGPT_REQUEST_CONVERSATION_MODE_USER</option>
+			<option value="system">COM_GPTRANSLATE_CHATGPT_REQUEST_CONVERSATION_MODE_SYSTEM</option>
+		</field>
+		<field name="max_translations_per_request" type="text" default="100" class="chatgpt_ctrl" label="COM_GPTRANSLATE_MAX_NUMBER_TRANSLATIONS_PER_REQUEST" description="COM_GPTRANSLATE_MAX_NUMBER_TRANSLATIONS_PER_REQUEST_DESC" />
+		<field name="max_characters_per_request" type="text" default="2048" class="chatgpt_ctrl" label="COM_GPTRANSLATE_MAX_NUMBER_CHARACTERS_PER_REQUEST" description="COM_GPTRANSLATE_MAX_NUMBER_CHARACTERS_PER_REQUEST_DESC" />
+		<field name="language" type="list" default="en" label="COM_GPTRANSLATE_CHATGPT_ORIGINAL_LANGUAGE" description="COM_GPTRANSLATE_CHATGPT_ORIGINAL_LANGUAGE_DESC">
+			<option value="af">COM_GPTRANSLATE_LANGUAGE_NAME_AF</option>
+			<option value="sq">COM_GPTRANSLATE_LANGUAGE_NAME_SQ</option>
+			<option value="am">COM_GPTRANSLATE_LANGUAGE_NAME_AM</option>
+			<option value="ar">COM_GPTRANSLATE_LANGUAGE_NAME_AR</option>
+			<option value="hy">COM_GPTRANSLATE_LANGUAGE_NAME_HY</option>
+			<option value="az">COM_GPTRANSLATE_LANGUAGE_NAME_AZ</option>
+			<option value="eu">COM_GPTRANSLATE_LANGUAGE_NAME_EU</option>
+			<option value="be">COM_GPTRANSLATE_LANGUAGE_NAME_BE</option>
+			<option value="bn">COM_GPTRANSLATE_LANGUAGE_NAME_BN</option>
+			<option value="bs">COM_GPTRANSLATE_LANGUAGE_NAME_BS</option>
+			<option value="bg">COM_GPTRANSLATE_LANGUAGE_NAME_BG</option>
+			<option value="ca">COM_GPTRANSLATE_LANGUAGE_NAME_CA</option>
+			<option value="ceb">COM_GPTRANSLATE_LANGUAGE_NAME_CEB</option>
+			<option value="ny">COM_GPTRANSLATE_LANGUAGE_NAME_NY</option>
+			<option value="zh-CN">COM_GPTRANSLATE_LANGUAGE_NAME_ZH_CN</option>
+			<option value="zh-TW">COM_GPTRANSLATE_LANGUAGE_NAME_ZH_TW</option>
+			<option value="co">COM_GPTRANSLATE_LANGUAGE_NAME_CO</option>
+			<option value="hr">COM_GPTRANSLATE_LANGUAGE_NAME_HR</option>
+			<option value="cs">COM_GPTRANSLATE_LANGUAGE_NAME_CS</option>
+			<option value="da">COM_GPTRANSLATE_LANGUAGE_NAME_DA</option>
+			<option value="nl">COM_GPTRANSLATE_LANGUAGE_NAME_NL</option>
+			<option value="en">COM_GPTRANSLATE_LANGUAGE_NAME_EN</option>
+			<option value="eo">COM_GPTRANSLATE_LANGUAGE_NAME_EO</option>
+			<option value="et">COM_GPTRANSLATE_LANGUAGE_NAME_ET</option>
+			<option value="tl">COM_GPTRANSLATE_LANGUAGE_NAME_TL</option>
+			<option value="fi">COM_GPTRANSLATE_LANGUAGE_NAME_FI</option>
+			<option value="fr">COM_GPTRANSLATE_LANGUAGE_NAME_FR</option>
+			<option value="fy">COM_GPTRANSLATE_LANGUAGE_NAME_FY</option>
+			<option value="gl">COM_GPTRANSLATE_LANGUAGE_NAME_GL</option>
+			<option value="ka">COM_GPTRANSLATE_LANGUAGE_NAME_KA</option>
+			<option value="de">COM_GPTRANSLATE_LANGUAGE_NAME_DE</option>
+			<option value="el">COM_GPTRANSLATE_LANGUAGE_NAME_EL</option>
+			<option value="gu">COM_GPTRANSLATE_LANGUAGE_NAME_GU</option>
+			<option value="ht">COM_GPTRANSLATE_LANGUAGE_NAME_HT</option>
+			<option value="ha">COM_GPTRANSLATE_LANGUAGE_NAME_HA</option>
+			<option value="haw">COM_GPTRANSLATE_LANGUAGE_NAME_HAW</option>
+			<option value="iw">COM_GPTRANSLATE_LANGUAGE_NAME_IW</option>
+			<option value="hi">COM_GPTRANSLATE_LANGUAGE_NAME_HI</option>
+			<option value="hmn">COM_GPTRANSLATE_LANGUAGE_NAME_HMN</option>
+			<option value="hu">COM_GPTRANSLATE_LANGUAGE_NAME_HU</option>
+			<option value="is">COM_GPTRANSLATE_LANGUAGE_NAME_IS</option>
+			<option value="ig">COM_GPTRANSLATE_LANGUAGE_NAME_IG</option>
+			<option value="id">COM_GPTRANSLATE_LANGUAGE_NAME_ID</option>
+			<option value="ga">COM_GPTRANSLATE_LANGUAGE_NAME_GA</option>
+			<option value="it">COM_GPTRANSLATE_LANGUAGE_NAME_IT</option>
+			<option value="ja">COM_GPTRANSLATE_LANGUAGE_NAME_JA</option>
+			<option value="jw">COM_GPTRANSLATE_LANGUAGE_NAME_JW</option>
+			<option value="kn">COM_GPTRANSLATE_LANGUAGE_NAME_KN</option>
+			<option value="kk">COM_GPTRANSLATE_LANGUAGE_NAME_KK</option>
+			<option value="km">COM_GPTRANSLATE_LANGUAGE_NAME_KM</option>
+			<option value="ko">COM_GPTRANSLATE_LANGUAGE_NAME_KO</option>
+			<option value="ku">COM_GPTRANSLATE_LANGUAGE_NAME_KU</option>
+			<option value="ky">COM_GPTRANSLATE_LANGUAGE_NAME_KY</option>
+			<option value="lo">COM_GPTRANSLATE_LANGUAGE_NAME_LO</option>
+			<option value="la">COM_GPTRANSLATE_LANGUAGE_NAME_LA</option>
+			<option value="lv">COM_GPTRANSLATE_LANGUAGE_NAME_LV</option>
+			<option value="lt">COM_GPTRANSLATE_LANGUAGE_NAME_LT</option>
+			<option value="lb">COM_GPTRANSLATE_LANGUAGE_NAME_LB</option>
+			<option value="mk">COM_GPTRANSLATE_LANGUAGE_NAME_MK</option>
+			<option value="mg">COM_GPTRANSLATE_LANGUAGE_NAME_MG</option>
+			<option value="ms">COM_GPTRANSLATE_LANGUAGE_NAME_MS</option>
+			<option value="ml">COM_GPTRANSLATE_LANGUAGE_NAME_ML</option>
+			<option value="mt">COM_GPTRANSLATE_LANGUAGE_NAME_MT</option>
+			<option value="mi">COM_GPTRANSLATE_LANGUAGE_NAME_MI</option>
+			<option value="mr">COM_GPTRANSLATE_LANGUAGE_NAME_MR</option>
+			<option value="mn">COM_GPTRANSLATE_LANGUAGE_NAME_MN</option>
+			<option value="my">COM_GPTRANSLATE_LANGUAGE_NAME_MY</option>
+			<option value="ne">COM_GPTRANSLATE_LANGUAGE_NAME_NE</option>
+			<option value="no">COM_GPTRANSLATE_LANGUAGE_NAME_NO</option>
+			<option value="ps">COM_GPTRANSLATE_LANGUAGE_NAME_PS</option>
+			<option value="fa">COM_GPTRANSLATE_LANGUAGE_NAME_FA</option>
+			<option value="pl">COM_GPTRANSLATE_LANGUAGE_NAME_PL</option>
+			<option value="pt">COM_GPTRANSLATE_LANGUAGE_NAME_PT</option>
+			<option value="pa">COM_GPTRANSLATE_LANGUAGE_NAME_PA</option>
+			<option value="ro">COM_GPTRANSLATE_LANGUAGE_NAME_RO</option>
+			<option value="ru">COM_GPTRANSLATE_LANGUAGE_NAME_RU</option>
+			<option value="sm">COM_GPTRANSLATE_LANGUAGE_NAME_SM</option>
+			<option value="gd">COM_GPTRANSLATE_LANGUAGE_NAME_GD</option>
+			<option value="sr">COM_GPTRANSLATE_LANGUAGE_NAME_SR</option>
+			<option value="st">COM_GPTRANSLATE_LANGUAGE_NAME_ST</option>
+			<option value="sn">COM_GPTRANSLATE_LANGUAGE_NAME_SN</option>
+			<option value="sd">COM_GPTRANSLATE_LANGUAGE_NAME_SD</option>
+			<option value="si">COM_GPTRANSLATE_LANGUAGE_NAME_SI</option>
+			<option value="sk">COM_GPTRANSLATE_LANGUAGE_NAME_SK</option>
+			<option value="sl">COM_GPTRANSLATE_LANGUAGE_NAME_SL</option>
+			<option value="so">COM_GPTRANSLATE_LANGUAGE_NAME_SO</option>
+			<option value="es">COM_GPTRANSLATE_LANGUAGE_NAME_ES</option>
+			<option value="su">COM_GPTRANSLATE_LANGUAGE_NAME_SU</option>
+			<option value="sw">COM_GPTRANSLATE_LANGUAGE_NAME_SW</option>
+			<option value="sv">COM_GPTRANSLATE_LANGUAGE_NAME_SV</option>
+			<option value="tg">COM_GPTRANSLATE_LANGUAGE_NAME_TG</option>
+			<option value="ta">COM_GPTRANSLATE_LANGUAGE_NAME_TA</option>
+			<option value="te">COM_GPTRANSLATE_LANGUAGE_NAME_TE</option>
+			<option value="th">COM_GPTRANSLATE_LANGUAGE_NAME_TH</option>
+			<option value="tr">COM_GPTRANSLATE_LANGUAGE_NAME_TR</option>
+			<option value="uk">COM_GPTRANSLATE_LANGUAGE_NAME_UK</option>
+			<option value="ur">COM_GPTRANSLATE_LANGUAGE_NAME_UR</option>
+			<option value="uz">COM_GPTRANSLATE_LANGUAGE_NAME_UZ</option>
+			<option value="vi">COM_GPTRANSLATE_LANGUAGE_NAME_VI</option>
+			<option value="cy">COM_GPTRANSLATE_LANGUAGE_NAME_CY</option>
+			<option value="xh">COM_GPTRANSLATE_LANGUAGE_NAME_XH</option>
+			<option value="yi">COM_GPTRANSLATE_LANGUAGE_NAME_YI</option>
+			<option value="yo">COM_GPTRANSLATE_LANGUAGE_NAME_YO</option>
+			<option value="zu">COM_GPTRANSLATE_LANGUAGE_NAME_ZU</option>
+		</field>
+		<field name="detect_current_language" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_DETECT_CURRENT_LANGUAGE" description="COM_GPTRANSLATE_DETECT_CURRENT_LANGUAGE_DESC">
+   			<option value="1">JYES</option>
+   			<option value="0">JNO</option>              
+   		</field>
+   		<field name="detect_default_language" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_DETECT_DEFAULT_LANGUAGE" description="COM_GPTRANSLATE_DETECT_DEFAULT_LANGUAGE_DESC">
+   			<option value="1">JYES</option>
+   			<option value="0">JNO</option>              
+   		</field>
+		<field name="detect_browser_language" type="radio" default="0" class="btn-group" filter="intval" label="COM_GPTRANSLATE_DETECT_BROWSER_LANGUAGE" description="COM_GPTRANSLATE_DETECT_BROWSER_LANGUAGE_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="rewrite_language_url" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_REWRITE_LANGUAGE_URL" description="COM_GPTRANSLATE_REWRITE_LANGUAGE_URL_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="rewrite_default_language_url" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_REWRITE_DEFAULT_LANGUAGE_URL" description="COM_GPTRANSLATE_REWRITE_DEFAULT_LANGUAGE_URL_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="rewrite_page_links" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_REWRITE_PAGE_LINKS" description="COM_GPTRANSLATE_REWRITE_PAGE_LINKS_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="translate_metadata" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_TRANSLATE_METADATA" description="COM_GPTRANSLATE_TRANSLATE_METADATA_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="set_html_lang" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_SET_HTML_LANG" description="COM_GPTRANSLATE_SET_HTML_LANG_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="add_canonical" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_ADD_CANONICAL" description="COM_GPTRANSLATE_ADD_CANONICAL_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="add_alternate" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_ADD_ALTERNATE" description="COM_GPTRANSLATE_ADD_ALTERNATE_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="default_language_first" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_DEFAULT_LANGUAGE_FIRST" description="COM_GPTRANSLATE_DEFAULT_LANGUAGE_FIRST_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="autotranslate_detected_language" type="radio" default="0" class="btn-group" filter="intval" label="COM_GPTRANSLATE_AUTOTRANSLATE_DETECTED_LANGUAGE" description="COM_GPTRANSLATE_AUTOTRANSLATE_DETECTED_LANGUAGE_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="always_detect_autotranslated_language" type="radio" default="0" class="btn-group" filter="intval" label="COM_GPTRANSLATE_ALWAYS_DETECT_AUTOTRANSLATED_LANGUAGE" description="COM_GPTRANSLATE_ALWAYS_DETECT_AUTOTRANSLATED_LANGUAGE_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+        <field name="alt_flags" type="list" multiple="multiple" size="8" label="COM_GPTRANSLATE_ALT_FLAGS" description="COM_GPTRANSLATE_ALT_FLAGS_DESC">
+            <option value="usa">COM_GPTRANSLATE_ALT_FLAG_USA</option>
+            <option value="canada">COM_GPTRANSLATE_ALT_FLAG_CANADA</option>
+            <option value="brazil">COM_GPTRANSLATE_ALT_FLAG_BRAZIL</option>
+            <option value="mexico">COM_GPTRANSLATE_ALT_FLAG_MEXICO</option>
+            <option value="argentina">COM_GPTRANSLATE_ALT_FLAG_ARGENTINA</option>
+            <option value="colombia">COM_GPTRANSLATE_ALT_FLAG_COLOMBIA</option>
+            <option value="quebec">COM_GPTRANSLATE_ALT_FLAG_QUEBEC</option>
+        </field>
+		<field name="languages" type="list" multiple="multiple" size="20" label="COM_GPTRANSLATE_ENABLED_LANGUAGES" description="COM_GPTRANSLATE_ENABLED_LANGUAGES_DESC" default="en,es,de,it,fr">
+			<option value="af">COM_GPTRANSLATE_LANGUAGE_NAME_AF</option>
+			<option value="sq">COM_GPTRANSLATE_LANGUAGE_NAME_SQ</option>
+			<option value="am">COM_GPTRANSLATE_LANGUAGE_NAME_AM</option>
+			<option value="ar">COM_GPTRANSLATE_LANGUAGE_NAME_AR</option>
+			<option value="hy">COM_GPTRANSLATE_LANGUAGE_NAME_HY</option>
+			<option value="az">COM_GPTRANSLATE_LANGUAGE_NAME_AZ</option>
+			<option value="eu">COM_GPTRANSLATE_LANGUAGE_NAME_EU</option>
+			<option value="be">COM_GPTRANSLATE_LANGUAGE_NAME_BE</option>
+			<option value="bn">COM_GPTRANSLATE_LANGUAGE_NAME_BN</option>
+			<option value="bs">COM_GPTRANSLATE_LANGUAGE_NAME_BS</option>
+			<option value="bg">COM_GPTRANSLATE_LANGUAGE_NAME_BG</option>
+			<option value="ca">COM_GPTRANSLATE_LANGUAGE_NAME_CA</option>
+			<option value="ceb">COM_GPTRANSLATE_LANGUAGE_NAME_CEB</option>
+			<option value="ny">COM_GPTRANSLATE_LANGUAGE_NAME_NY</option>
+			<option value="zh-CN">COM_GPTRANSLATE_LANGUAGE_NAME_ZH_CN</option>
+			<option value="zh-TW">COM_GPTRANSLATE_LANGUAGE_NAME_ZH_TW</option>
+			<option value="co">COM_GPTRANSLATE_LANGUAGE_NAME_CO</option>
+			<option value="hr">COM_GPTRANSLATE_LANGUAGE_NAME_HR</option>
+			<option value="cs">COM_GPTRANSLATE_LANGUAGE_NAME_CS</option>
+			<option value="da">COM_GPTRANSLATE_LANGUAGE_NAME_DA</option>
+			<option value="nl">COM_GPTRANSLATE_LANGUAGE_NAME_NL</option>
+			<option value="en">COM_GPTRANSLATE_LANGUAGE_NAME_EN</option>
+			<option value="eo">COM_GPTRANSLATE_LANGUAGE_NAME_EO</option>
+			<option value="et">COM_GPTRANSLATE_LANGUAGE_NAME_ET</option>
+			<option value="tl">COM_GPTRANSLATE_LANGUAGE_NAME_TL</option>
+			<option value="fi">COM_GPTRANSLATE_LANGUAGE_NAME_FI</option>
+			<option value="fr">COM_GPTRANSLATE_LANGUAGE_NAME_FR</option>
+			<option value="fy">COM_GPTRANSLATE_LANGUAGE_NAME_FY</option>
+			<option value="gl">COM_GPTRANSLATE_LANGUAGE_NAME_GL</option>
+			<option value="ka">COM_GPTRANSLATE_LANGUAGE_NAME_KA</option>
+			<option value="de">COM_GPTRANSLATE_LANGUAGE_NAME_DE</option>
+			<option value="el">COM_GPTRANSLATE_LANGUAGE_NAME_EL</option>
+			<option value="gu">COM_GPTRANSLATE_LANGUAGE_NAME_GU</option>
+			<option value="ht">COM_GPTRANSLATE_LANGUAGE_NAME_HT</option>
+			<option value="ha">COM_GPTRANSLATE_LANGUAGE_NAME_HA</option>
+			<option value="haw">COM_GPTRANSLATE_LANGUAGE_NAME_HAW</option>
+			<option value="iw">COM_GPTRANSLATE_LANGUAGE_NAME_IW</option>
+			<option value="hi">COM_GPTRANSLATE_LANGUAGE_NAME_HI</option>
+			<option value="hmn">COM_GPTRANSLATE_LANGUAGE_NAME_HMN</option>
+			<option value="hu">COM_GPTRANSLATE_LANGUAGE_NAME_HU</option>
+			<option value="is">COM_GPTRANSLATE_LANGUAGE_NAME_IS</option>
+			<option value="ig">COM_GPTRANSLATE_LANGUAGE_NAME_IG</option>
+			<option value="id">COM_GPTRANSLATE_LANGUAGE_NAME_ID</option>
+			<option value="ga">COM_GPTRANSLATE_LANGUAGE_NAME_GA</option>
+			<option value="it">COM_GPTRANSLATE_LANGUAGE_NAME_IT</option>
+			<option value="ja">COM_GPTRANSLATE_LANGUAGE_NAME_JA</option>
+			<option value="jw">COM_GPTRANSLATE_LANGUAGE_NAME_JW</option>
+			<option value="kn">COM_GPTRANSLATE_LANGUAGE_NAME_KN</option>
+			<option value="kk">COM_GPTRANSLATE_LANGUAGE_NAME_KK</option>
+			<option value="km">COM_GPTRANSLATE_LANGUAGE_NAME_KM</option>
+			<option value="ko">COM_GPTRANSLATE_LANGUAGE_NAME_KO</option>
+			<option value="ku">COM_GPTRANSLATE_LANGUAGE_NAME_KU</option>
+			<option value="ky">COM_GPTRANSLATE_LANGUAGE_NAME_KY</option>
+			<option value="lo">COM_GPTRANSLATE_LANGUAGE_NAME_LO</option>
+			<option value="la">COM_GPTRANSLATE_LANGUAGE_NAME_LA</option>
+			<option value="lv">COM_GPTRANSLATE_LANGUAGE_NAME_LV</option>
+			<option value="lt">COM_GPTRANSLATE_LANGUAGE_NAME_LT</option>
+			<option value="lb">COM_GPTRANSLATE_LANGUAGE_NAME_LB</option>
+			<option value="mk">COM_GPTRANSLATE_LANGUAGE_NAME_MK</option>
+			<option value="mg">COM_GPTRANSLATE_LANGUAGE_NAME_MG</option>
+			<option value="ms">COM_GPTRANSLATE_LANGUAGE_NAME_MS</option>
+			<option value="ml">COM_GPTRANSLATE_LANGUAGE_NAME_ML</option>
+			<option value="mt">COM_GPTRANSLATE_LANGUAGE_NAME_MT</option>
+			<option value="mi">COM_GPTRANSLATE_LANGUAGE_NAME_MI</option>
+			<option value="mr">COM_GPTRANSLATE_LANGUAGE_NAME_MR</option>
+			<option value="mn">COM_GPTRANSLATE_LANGUAGE_NAME_MN</option>
+			<option value="my">COM_GPTRANSLATE_LANGUAGE_NAME_MY</option>
+			<option value="ne">COM_GPTRANSLATE_LANGUAGE_NAME_NE</option>
+			<option value="no">COM_GPTRANSLATE_LANGUAGE_NAME_NO</option>
+			<option value="ps">COM_GPTRANSLATE_LANGUAGE_NAME_PS</option>
+			<option value="fa">COM_GPTRANSLATE_LANGUAGE_NAME_FA</option>
+			<option value="pl">COM_GPTRANSLATE_LANGUAGE_NAME_PL</option>
+			<option value="pt">COM_GPTRANSLATE_LANGUAGE_NAME_PT</option>
+			<option value="pa">COM_GPTRANSLATE_LANGUAGE_NAME_PA</option>
+			<option value="ro">COM_GPTRANSLATE_LANGUAGE_NAME_RO</option>
+			<option value="ru">COM_GPTRANSLATE_LANGUAGE_NAME_RU</option>
+			<option value="sm">COM_GPTRANSLATE_LANGUAGE_NAME_SM</option>
+			<option value="gd">COM_GPTRANSLATE_LANGUAGE_NAME_GD</option>
+			<option value="sr">COM_GPTRANSLATE_LANGUAGE_NAME_SR</option>
+			<option value="st">COM_GPTRANSLATE_LANGUAGE_NAME_ST</option>
+			<option value="sn">COM_GPTRANSLATE_LANGUAGE_NAME_SN</option>
+			<option value="sd">COM_GPTRANSLATE_LANGUAGE_NAME_SD</option>
+			<option value="si">COM_GPTRANSLATE_LANGUAGE_NAME_SI</option>
+			<option value="sk">COM_GPTRANSLATE_LANGUAGE_NAME_SK</option>
+			<option value="sl">COM_GPTRANSLATE_LANGUAGE_NAME_SL</option>
+			<option value="so">COM_GPTRANSLATE_LANGUAGE_NAME_SO</option>
+			<option value="es">COM_GPTRANSLATE_LANGUAGE_NAME_ES</option>
+			<option value="su">COM_GPTRANSLATE_LANGUAGE_NAME_SU</option>
+			<option value="sw">COM_GPTRANSLATE_LANGUAGE_NAME_SW</option>
+			<option value="sv">COM_GPTRANSLATE_LANGUAGE_NAME_SV</option>
+			<option value="tg">COM_GPTRANSLATE_LANGUAGE_NAME_TG</option>
+			<option value="ta">COM_GPTRANSLATE_LANGUAGE_NAME_TA</option>
+			<option value="te">COM_GPTRANSLATE_LANGUAGE_NAME_TE</option>
+			<option value="th">COM_GPTRANSLATE_LANGUAGE_NAME_TH</option>
+			<option value="tr">COM_GPTRANSLATE_LANGUAGE_NAME_TR</option>
+			<option value="uk">COM_GPTRANSLATE_LANGUAGE_NAME_UK</option>
+			<option value="ur">COM_GPTRANSLATE_LANGUAGE_NAME_UR</option>
+			<option value="uz">COM_GPTRANSLATE_LANGUAGE_NAME_UZ</option>
+			<option value="vi">COM_GPTRANSLATE_LANGUAGE_NAME_VI</option>
+			<option value="cy">COM_GPTRANSLATE_LANGUAGE_NAME_CY</option>
+			<option value="xh">COM_GPTRANSLATE_LANGUAGE_NAME_XH</option>
+			<option value="yi">COM_GPTRANSLATE_LANGUAGE_NAME_YI</option>
+			<option value="yo">COM_GPTRANSLATE_LANGUAGE_NAME_YO</option>
+			<option value="zu">COM_GPTRANSLATE_LANGUAGE_NAME_ZU</option>
+		</field>
+		<field name="css_selector_leafnodes_excluded" type="textarea" default="" cols="100" rows="8" label="COM_GPTRANSLATE_CSS_SELECTOR_LEAFNODES_EXCLUDED" description="COM_GPTRANSLATE_CSS_SELECTOR_LEAFNODES_EXCLUDED_DESC" />
+		<field name="words_leafnodes_excluded" type="text" default="" size="100" label="COM_GPTRANSLATE_WORDS_LEAFNODES_EXCLUDED" description="COM_GPTRANSLATE_WORDS_LEAFNODES_EXCLUDED_DESC" />
+		<field name="words_leafnodes_excluded_bylanguage_repeatable" type="subform" label="COM_GPTRANSLATE_WORDS_LEAFNODES_EXCLUDED_BYLANGUAGE_REPEATABLE" description="COM_GPTRANSLATE_WORDS_LEAFNODES_EXCLUDED_BYLANGUAGE_REPEATABLE_DESC" layout="joomla.form.field.subform.repeatable-table" icon="list" multiple="true">
+			<form hidden="true" name="words_leafnodes_excluded_bylanguage_form" repeat="true">
+				<field name="words_leafnodes_excluded_bylanguage" type="text" default="" size="50" label="COM_GPTRANSLATE_WORDS_LEAFNODES_EXCLUDED" description="COM_GPTRANSLATE_WORDS_LEAFNODES_EXCLUDED_DESC" />
+				<field name="words_leafnodes_excluded_bylanguage_language_original" type="list" default="" label="COM_GPTRANSLATE_CHATGPT_ORIGINAL_LANGUAGE" description="COM_GPTRANSLATE_CHATGPT_ORIGINAL_LANGUAGE_DESC">
+					<option value="*">COM_GPTRANSLATE_ALL_LANGUAGES</option>
+					<option value="af">COM_GPTRANSLATE_LANGUAGE_NAME_AF</option>
+					<option value="sq">COM_GPTRANSLATE_LANGUAGE_NAME_SQ</option>
+					<option value="am">COM_GPTRANSLATE_LANGUAGE_NAME_AM</option>
+					<option value="ar">COM_GPTRANSLATE_LANGUAGE_NAME_AR</option>
+					<option value="hy">COM_GPTRANSLATE_LANGUAGE_NAME_HY</option>
+					<option value="az">COM_GPTRANSLATE_LANGUAGE_NAME_AZ</option>
+					<option value="eu">COM_GPTRANSLATE_LANGUAGE_NAME_EU</option>
+					<option value="be">COM_GPTRANSLATE_LANGUAGE_NAME_BE</option>
+					<option value="bn">COM_GPTRANSLATE_LANGUAGE_NAME_BN</option>
+					<option value="bs">COM_GPTRANSLATE_LANGUAGE_NAME_BS</option>
+					<option value="bg">COM_GPTRANSLATE_LANGUAGE_NAME_BG</option>
+					<option value="ca">COM_GPTRANSLATE_LANGUAGE_NAME_CA</option>
+					<option value="ceb">COM_GPTRANSLATE_LANGUAGE_NAME_CEB</option>
+					<option value="ny">COM_GPTRANSLATE_LANGUAGE_NAME_NY</option>
+					<option value="zh-CN">COM_GPTRANSLATE_LANGUAGE_NAME_ZH_CN</option>
+					<option value="zh-TW">COM_GPTRANSLATE_LANGUAGE_NAME_ZH_TW</option>
+					<option value="co">COM_GPTRANSLATE_LANGUAGE_NAME_CO</option>
+					<option value="hr">COM_GPTRANSLATE_LANGUAGE_NAME_HR</option>
+					<option value="cs">COM_GPTRANSLATE_LANGUAGE_NAME_CS</option>
+					<option value="da">COM_GPTRANSLATE_LANGUAGE_NAME_DA</option>
+					<option value="nl">COM_GPTRANSLATE_LANGUAGE_NAME_NL</option>
+					<option value="en">COM_GPTRANSLATE_LANGUAGE_NAME_EN</option>
+					<option value="eo">COM_GPTRANSLATE_LANGUAGE_NAME_EO</option>
+					<option value="et">COM_GPTRANSLATE_LANGUAGE_NAME_ET</option>
+					<option value="tl">COM_GPTRANSLATE_LANGUAGE_NAME_TL</option>
+					<option value="fi">COM_GPTRANSLATE_LANGUAGE_NAME_FI</option>
+					<option value="fr">COM_GPTRANSLATE_LANGUAGE_NAME_FR</option>
+					<option value="fy">COM_GPTRANSLATE_LANGUAGE_NAME_FY</option>
+					<option value="gl">COM_GPTRANSLATE_LANGUAGE_NAME_GL</option>
+					<option value="ka">COM_GPTRANSLATE_LANGUAGE_NAME_KA</option>
+					<option value="de">COM_GPTRANSLATE_LANGUAGE_NAME_DE</option>
+					<option value="el">COM_GPTRANSLATE_LANGUAGE_NAME_EL</option>
+					<option value="gu">COM_GPTRANSLATE_LANGUAGE_NAME_GU</option>
+					<option value="ht">COM_GPTRANSLATE_LANGUAGE_NAME_HT</option>
+					<option value="ha">COM_GPTRANSLATE_LANGUAGE_NAME_HA</option>
+					<option value="haw">COM_GPTRANSLATE_LANGUAGE_NAME_HAW</option>
+					<option value="iw">COM_GPTRANSLATE_LANGUAGE_NAME_IW</option>
+					<option value="hi">COM_GPTRANSLATE_LANGUAGE_NAME_HI</option>
+					<option value="hmn">COM_GPTRANSLATE_LANGUAGE_NAME_HMN</option>
+					<option value="hu">COM_GPTRANSLATE_LANGUAGE_NAME_HU</option>
+					<option value="is">COM_GPTRANSLATE_LANGUAGE_NAME_IS</option>
+					<option value="ig">COM_GPTRANSLATE_LANGUAGE_NAME_IG</option>
+					<option value="id">COM_GPTRANSLATE_LANGUAGE_NAME_ID</option>
+					<option value="ga">COM_GPTRANSLATE_LANGUAGE_NAME_GA</option>
+					<option value="it">COM_GPTRANSLATE_LANGUAGE_NAME_IT</option>
+					<option value="ja">COM_GPTRANSLATE_LANGUAGE_NAME_JA</option>
+					<option value="jw">COM_GPTRANSLATE_LANGUAGE_NAME_JW</option>
+					<option value="kn">COM_GPTRANSLATE_LANGUAGE_NAME_KN</option>
+					<option value="kk">COM_GPTRANSLATE_LANGUAGE_NAME_KK</option>
+					<option value="km">COM_GPTRANSLATE_LANGUAGE_NAME_KM</option>
+					<option value="ko">COM_GPTRANSLATE_LANGUAGE_NAME_KO</option>
+					<option value="ku">COM_GPTRANSLATE_LANGUAGE_NAME_KU</option>
+					<option value="ky">COM_GPTRANSLATE_LANGUAGE_NAME_KY</option>
+					<option value="lo">COM_GPTRANSLATE_LANGUAGE_NAME_LO</option>
+					<option value="la">COM_GPTRANSLATE_LANGUAGE_NAME_LA</option>
+					<option value="lv">COM_GPTRANSLATE_LANGUAGE_NAME_LV</option>
+					<option value="lt">COM_GPTRANSLATE_LANGUAGE_NAME_LT</option>
+					<option value="lb">COM_GPTRANSLATE_LANGUAGE_NAME_LB</option>
+					<option value="mk">COM_GPTRANSLATE_LANGUAGE_NAME_MK</option>
+					<option value="mg">COM_GPTRANSLATE_LANGUAGE_NAME_MG</option>
+					<option value="ms">COM_GPTRANSLATE_LANGUAGE_NAME_MS</option>
+					<option value="ml">COM_GPTRANSLATE_LANGUAGE_NAME_ML</option>
+					<option value="mt">COM_GPTRANSLATE_LANGUAGE_NAME_MT</option>
+					<option value="mi">COM_GPTRANSLATE_LANGUAGE_NAME_MI</option>
+					<option value="mr">COM_GPTRANSLATE_LANGUAGE_NAME_MR</option>
+					<option value="mn">COM_GPTRANSLATE_LANGUAGE_NAME_MN</option>
+					<option value="my">COM_GPTRANSLATE_LANGUAGE_NAME_MY</option>
+					<option value="ne">COM_GPTRANSLATE_LANGUAGE_NAME_NE</option>
+					<option value="no">COM_GPTRANSLATE_LANGUAGE_NAME_NO</option>
+					<option value="ps">COM_GPTRANSLATE_LANGUAGE_NAME_PS</option>
+					<option value="fa">COM_GPTRANSLATE_LANGUAGE_NAME_FA</option>
+					<option value="pl">COM_GPTRANSLATE_LANGUAGE_NAME_PL</option>
+					<option value="pt">COM_GPTRANSLATE_LANGUAGE_NAME_PT</option>
+					<option value="pa">COM_GPTRANSLATE_LANGUAGE_NAME_PA</option>
+					<option value="ro">COM_GPTRANSLATE_LANGUAGE_NAME_RO</option>
+					<option value="ru">COM_GPTRANSLATE_LANGUAGE_NAME_RU</option>
+					<option value="sm">COM_GPTRANSLATE_LANGUAGE_NAME_SM</option>
+					<option value="gd">COM_GPTRANSLATE_LANGUAGE_NAME_GD</option>
+					<option value="sr">COM_GPTRANSLATE_LANGUAGE_NAME_SR</option>
+					<option value="st">COM_GPTRANSLATE_LANGUAGE_NAME_ST</option>
+					<option value="sn">COM_GPTRANSLATE_LANGUAGE_NAME_SN</option>
+					<option value="sd">COM_GPTRANSLATE_LANGUAGE_NAME_SD</option>
+					<option value="si">COM_GPTRANSLATE_LANGUAGE_NAME_SI</option>
+					<option value="sk">COM_GPTRANSLATE_LANGUAGE_NAME_SK</option>
+					<option value="sl">COM_GPTRANSLATE_LANGUAGE_NAME_SL</option>
+					<option value="so">COM_GPTRANSLATE_LANGUAGE_NAME_SO</option>
+					<option value="es">COM_GPTRANSLATE_LANGUAGE_NAME_ES</option>
+					<option value="su">COM_GPTRANSLATE_LANGUAGE_NAME_SU</option>
+					<option value="sw">COM_GPTRANSLATE_LANGUAGE_NAME_SW</option>
+					<option value="sv">COM_GPTRANSLATE_LANGUAGE_NAME_SV</option>
+					<option value="tg">COM_GPTRANSLATE_LANGUAGE_NAME_TG</option>
+					<option value="ta">COM_GPTRANSLATE_LANGUAGE_NAME_TA</option>
+					<option value="te">COM_GPTRANSLATE_LANGUAGE_NAME_TE</option>
+					<option value="th">COM_GPTRANSLATE_LANGUAGE_NAME_TH</option>
+					<option value="tr">COM_GPTRANSLATE_LANGUAGE_NAME_TR</option>
+					<option value="uk">COM_GPTRANSLATE_LANGUAGE_NAME_UK</option>
+					<option value="ur">COM_GPTRANSLATE_LANGUAGE_NAME_UR</option>
+					<option value="uz">COM_GPTRANSLATE_LANGUAGE_NAME_UZ</option>
+					<option value="vi">COM_GPTRANSLATE_LANGUAGE_NAME_VI</option>
+					<option value="cy">COM_GPTRANSLATE_LANGUAGE_NAME_CY</option>
+					<option value="xh">COM_GPTRANSLATE_LANGUAGE_NAME_XH</option>
+					<option value="yi">COM_GPTRANSLATE_LANGUAGE_NAME_YI</option>
+					<option value="yo">COM_GPTRANSLATE_LANGUAGE_NAME_YO</option>
+					<option value="zu">COM_GPTRANSLATE_LANGUAGE_NAME_ZU</option>
+				</field>
+				<field name="words_leafnodes_excluded_bylanguage_language_target" type="list" default="" label="COM_GPTRANSLATE_TRANSLATED_LANGUAGE" description="COM_GPTRANSLATE_TRANSLATED_LANGUAGE_DESC">
+					<option value="*">COM_GPTRANSLATE_ALL_LANGUAGES</option>
+					<option value="af">COM_GPTRANSLATE_LANGUAGE_NAME_AF</option>
+					<option value="sq">COM_GPTRANSLATE_LANGUAGE_NAME_SQ</option>
+					<option value="am">COM_GPTRANSLATE_LANGUAGE_NAME_AM</option>
+					<option value="ar">COM_GPTRANSLATE_LANGUAGE_NAME_AR</option>
+					<option value="hy">COM_GPTRANSLATE_LANGUAGE_NAME_HY</option>
+					<option value="az">COM_GPTRANSLATE_LANGUAGE_NAME_AZ</option>
+					<option value="eu">COM_GPTRANSLATE_LANGUAGE_NAME_EU</option>
+					<option value="be">COM_GPTRANSLATE_LANGUAGE_NAME_BE</option>
+					<option value="bn">COM_GPTRANSLATE_LANGUAGE_NAME_BN</option>
+					<option value="bs">COM_GPTRANSLATE_LANGUAGE_NAME_BS</option>
+					<option value="bg">COM_GPTRANSLATE_LANGUAGE_NAME_BG</option>
+					<option value="ca">COM_GPTRANSLATE_LANGUAGE_NAME_CA</option>
+					<option value="ceb">COM_GPTRANSLATE_LANGUAGE_NAME_CEB</option>
+					<option value="ny">COM_GPTRANSLATE_LANGUAGE_NAME_NY</option>
+					<option value="zh-CN">COM_GPTRANSLATE_LANGUAGE_NAME_ZH_CN</option>
+					<option value="zh-TW">COM_GPTRANSLATE_LANGUAGE_NAME_ZH_TW</option>
+					<option value="co">COM_GPTRANSLATE_LANGUAGE_NAME_CO</option>
+					<option value="hr">COM_GPTRANSLATE_LANGUAGE_NAME_HR</option>
+					<option value="cs">COM_GPTRANSLATE_LANGUAGE_NAME_CS</option>
+					<option value="da">COM_GPTRANSLATE_LANGUAGE_NAME_DA</option>
+					<option value="nl">COM_GPTRANSLATE_LANGUAGE_NAME_NL</option>
+					<option value="en">COM_GPTRANSLATE_LANGUAGE_NAME_EN</option>
+					<option value="eo">COM_GPTRANSLATE_LANGUAGE_NAME_EO</option>
+					<option value="et">COM_GPTRANSLATE_LANGUAGE_NAME_ET</option>
+					<option value="tl">COM_GPTRANSLATE_LANGUAGE_NAME_TL</option>
+					<option value="fi">COM_GPTRANSLATE_LANGUAGE_NAME_FI</option>
+					<option value="fr">COM_GPTRANSLATE_LANGUAGE_NAME_FR</option>
+					<option value="fy">COM_GPTRANSLATE_LANGUAGE_NAME_FY</option>
+					<option value="gl">COM_GPTRANSLATE_LANGUAGE_NAME_GL</option>
+					<option value="ka">COM_GPTRANSLATE_LANGUAGE_NAME_KA</option>
+					<option value="de">COM_GPTRANSLATE_LANGUAGE_NAME_DE</option>
+					<option value="el">COM_GPTRANSLATE_LANGUAGE_NAME_EL</option>
+					<option value="gu">COM_GPTRANSLATE_LANGUAGE_NAME_GU</option>
+					<option value="ht">COM_GPTRANSLATE_LANGUAGE_NAME_HT</option>
+					<option value="ha">COM_GPTRANSLATE_LANGUAGE_NAME_HA</option>
+					<option value="haw">COM_GPTRANSLATE_LANGUAGE_NAME_HAW</option>
+					<option value="iw">COM_GPTRANSLATE_LANGUAGE_NAME_IW</option>
+					<option value="hi">COM_GPTRANSLATE_LANGUAGE_NAME_HI</option>
+					<option value="hmn">COM_GPTRANSLATE_LANGUAGE_NAME_HMN</option>
+					<option value="hu">COM_GPTRANSLATE_LANGUAGE_NAME_HU</option>
+					<option value="is">COM_GPTRANSLATE_LANGUAGE_NAME_IS</option>
+					<option value="ig">COM_GPTRANSLATE_LANGUAGE_NAME_IG</option>
+					<option value="id">COM_GPTRANSLATE_LANGUAGE_NAME_ID</option>
+					<option value="ga">COM_GPTRANSLATE_LANGUAGE_NAME_GA</option>
+					<option value="it">COM_GPTRANSLATE_LANGUAGE_NAME_IT</option>
+					<option value="ja">COM_GPTRANSLATE_LANGUAGE_NAME_JA</option>
+					<option value="jw">COM_GPTRANSLATE_LANGUAGE_NAME_JW</option>
+					<option value="kn">COM_GPTRANSLATE_LANGUAGE_NAME_KN</option>
+					<option value="kk">COM_GPTRANSLATE_LANGUAGE_NAME_KK</option>
+					<option value="km">COM_GPTRANSLATE_LANGUAGE_NAME_KM</option>
+					<option value="ko">COM_GPTRANSLATE_LANGUAGE_NAME_KO</option>
+					<option value="ku">COM_GPTRANSLATE_LANGUAGE_NAME_KU</option>
+					<option value="ky">COM_GPTRANSLATE_LANGUAGE_NAME_KY</option>
+					<option value="lo">COM_GPTRANSLATE_LANGUAGE_NAME_LO</option>
+					<option value="la">COM_GPTRANSLATE_LANGUAGE_NAME_LA</option>
+					<option value="lv">COM_GPTRANSLATE_LANGUAGE_NAME_LV</option>
+					<option value="lt">COM_GPTRANSLATE_LANGUAGE_NAME_LT</option>
+					<option value="lb">COM_GPTRANSLATE_LANGUAGE_NAME_LB</option>
+					<option value="mk">COM_GPTRANSLATE_LANGUAGE_NAME_MK</option>
+					<option value="mg">COM_GPTRANSLATE_LANGUAGE_NAME_MG</option>
+					<option value="ms">COM_GPTRANSLATE_LANGUAGE_NAME_MS</option>
+					<option value="ml">COM_GPTRANSLATE_LANGUAGE_NAME_ML</option>
+					<option value="mt">COM_GPTRANSLATE_LANGUAGE_NAME_MT</option>
+					<option value="mi">COM_GPTRANSLATE_LANGUAGE_NAME_MI</option>
+					<option value="mr">COM_GPTRANSLATE_LANGUAGE_NAME_MR</option>
+					<option value="mn">COM_GPTRANSLATE_LANGUAGE_NAME_MN</option>
+					<option value="my">COM_GPTRANSLATE_LANGUAGE_NAME_MY</option>
+					<option value="ne">COM_GPTRANSLATE_LANGUAGE_NAME_NE</option>
+					<option value="no">COM_GPTRANSLATE_LANGUAGE_NAME_NO</option>
+					<option value="ps">COM_GPTRANSLATE_LANGUAGE_NAME_PS</option>
+					<option value="fa">COM_GPTRANSLATE_LANGUAGE_NAME_FA</option>
+					<option value="pl">COM_GPTRANSLATE_LANGUAGE_NAME_PL</option>
+					<option value="pt">COM_GPTRANSLATE_LANGUAGE_NAME_PT</option>
+					<option value="pa">COM_GPTRANSLATE_LANGUAGE_NAME_PA</option>
+					<option value="ro">COM_GPTRANSLATE_LANGUAGE_NAME_RO</option>
+					<option value="ru">COM_GPTRANSLATE_LANGUAGE_NAME_RU</option>
+					<option value="sm">COM_GPTRANSLATE_LANGUAGE_NAME_SM</option>
+					<option value="gd">COM_GPTRANSLATE_LANGUAGE_NAME_GD</option>
+					<option value="sr">COM_GPTRANSLATE_LANGUAGE_NAME_SR</option>
+					<option value="st">COM_GPTRANSLATE_LANGUAGE_NAME_ST</option>
+					<option value="sn">COM_GPTRANSLATE_LANGUAGE_NAME_SN</option>
+					<option value="sd">COM_GPTRANSLATE_LANGUAGE_NAME_SD</option>
+					<option value="si">COM_GPTRANSLATE_LANGUAGE_NAME_SI</option>
+					<option value="sk">COM_GPTRANSLATE_LANGUAGE_NAME_SK</option>
+					<option value="sl">COM_GPTRANSLATE_LANGUAGE_NAME_SL</option>
+					<option value="so">COM_GPTRANSLATE_LANGUAGE_NAME_SO</option>
+					<option value="es">COM_GPTRANSLATE_LANGUAGE_NAME_ES</option>
+					<option value="su">COM_GPTRANSLATE_LANGUAGE_NAME_SU</option>
+					<option value="sw">COM_GPTRANSLATE_LANGUAGE_NAME_SW</option>
+					<option value="sv">COM_GPTRANSLATE_LANGUAGE_NAME_SV</option>
+					<option value="tg">COM_GPTRANSLATE_LANGUAGE_NAME_TG</option>
+					<option value="ta">COM_GPTRANSLATE_LANGUAGE_NAME_TA</option>
+					<option value="te">COM_GPTRANSLATE_LANGUAGE_NAME_TE</option>
+					<option value="th">COM_GPTRANSLATE_LANGUAGE_NAME_TH</option>
+					<option value="tr">COM_GPTRANSLATE_LANGUAGE_NAME_TR</option>
+					<option value="uk">COM_GPTRANSLATE_LANGUAGE_NAME_UK</option>
+					<option value="ur">COM_GPTRANSLATE_LANGUAGE_NAME_UR</option>
+					<option value="uz">COM_GPTRANSLATE_LANGUAGE_NAME_UZ</option>
+					<option value="vi">COM_GPTRANSLATE_LANGUAGE_NAME_VI</option>
+					<option value="cy">COM_GPTRANSLATE_LANGUAGE_NAME_CY</option>
+					<option value="xh">COM_GPTRANSLATE_LANGUAGE_NAME_XH</option>
+					<option value="yi">COM_GPTRANSLATE_LANGUAGE_NAME_YI</option>
+					<option value="yo">COM_GPTRANSLATE_LANGUAGE_NAME_YO</option>
+					<option value="zu">COM_GPTRANSLATE_LANGUAGE_NAME_ZU</option>
+				</field>
+			</form>
+		</field>
+		<field name="words_min_length" type="number" default="" min="1" label="COM_GPTRANSLATE_WORDS_MIN_LENGTH" description="COM_GPTRANSLATE_WORDS_MIN_LENGTH_DESC" />
+   		<field name="chatgpt_gtranslate_request_delay" type="list" default="0" label="COM_GPTRANSLATE_REQUEST_DELAY" description="COM_GPTRANSLATE_REQUEST_DELAY_DESC">
+			<option value="0">COM_GPTRANSLATE_REQUEST_NODELAY</option>
+			<option value="5">COM_GPTRANSLATE_REQUEST_DELAY_VERYFAST</option>
+			<option value="10">COM_GPTRANSLATE_REQUEST_DELAY_FAST</option>
+			<option value="50">COM_GPTRANSLATE_REQUEST_DELAY_MEDIUM</option>
+			<option value="100">COM_GPTRANSLATE_REQUEST_DELAY_SLOW</option>
+			<option value="200">COM_GPTRANSLATE_REQUEST_DELAY_VERYSLOW</option>
+		</field>
+		<field name="realtime_translations" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_REALTIME_TRANSLATIONS" description="COM_GPTRANSLATE_REALTIME_TRANSLATIONS_DESC">
+   			<option value="1">JYES</option>
+   			<option value="0">JNO</option>              
+   		</field>
+   		<field name="ignore_querystring" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_IGNORE_QUERYSTRING" description="COM_GPTRANSLATE_IGNORE_QUERYSTRING_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>              
+   		</field>
+   		<field name="enable_indexer" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_ENABLE_INDEXER" description="COM_GPTRANSLATE_ENABLE_INDEXER_DESC">
+   			<option value="1">JYES</option>
+   			<option value="0">JNO</option>              
+   		</field>
+   		<field name="subfolder_installation" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_SUBFOLDER_INSTALLATION" description="COM_GPTRANSLATE_SUBFOLDER_INSTALLATION_DESC">
+   			<option value="1">JYES</option>
+   			<option value="0">JNO</option>              
+   		</field>
+	</fieldset>
+	
+	<fieldset id="reader" name="reader" addfieldprefix="JExtstore\Component\Gptranslate\Administrator\Field">
+		<field type="spacer" class="badge bg-primary spacer" label="COM_GPTRANSLATE_CONFIG_READER"/>
+		<field name="enable_reader" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_ENABLE_READER" description="COM_GPTRANSLATE_ENABLE_READER_DESC">
+   			<option value="1">JYES</option>
+   			<option value="0">JNO</option>              
+   		</field>
+		<field name="responsivevoice_apikey" type="text" default="MXQg7jpJ" label="COM_GPTRANSLATE_RESPONSIVEVOICE_APIKEY" description="COM_GPTRANSLATE_RESPONSIVEVOICE_APIKEY_DESC" />
+		<field name="responsivevoice_language_gender" type="list" default="auto" label="COM_GPTRANSLATE_RESPONSIVEVOICE_LANGUAGE_GENDER" description="COM_GPTRANSLATE_RESPONSIVEVOICE_LANGUAGE_GENDER_DESC">
+			<option value="auto">COM_GPTRANSLATE_RESPONSIVEVOICE_LANGUAGE_GENDER_AUTO</option>
+			<option value="male">COM_GPTRANSLATE_RESPONSIVEVOICE_LANGUAGE_GENDER_MALE</option>
+			<option value="female">COM_GPTRANSLATE_RESPONSIVEVOICE_LANGUAGE_GENDER_FEMALE</option>
+		</field>
+		
+		<field name="responsivevoice_volume_tts" type="list" default="100" label="COM_GPTRANSLATE_VOLUME" description="COM_GPTRANSLATE_VOLUME_DESC">
+			<option value="20">20%</option>
+			<option value="40">40%</option>
+			<option value="60">60%</option>
+			<option value="80">80%</option>
+			<option value="100">100%</option>
+		</field>
+				
+		<field name="responsivevoice_voice_speed" type="list" default="normal" label="COM_GPTRANSLATE_RESPONSIVEVOICE_VOICE_SPEED" description="COM_GPTRANSLATE_RESPONSIVEVOICE_VOICE_SPEED_DESC">
+			<option value="veryslow">COM_GPTRANSLATE_VOICE_SPEED_VERYSLOW</option>
+			<option value="slow">COM_GPTRANSLATE_VOICE_SPEED_SLOW</option>
+			<option value="normal">COM_GPTRANSLATE_VOICE_SPEED_NORMAL</option>
+			<option value="fast">COM_GPTRANSLATE_VOICE_SPEED_FAST</option>
+			<option value="veryfast">COM_GPTRANSLATE_VOICE_SPEED_VERYFAST</option>
+			<option value="extremelyfast">COM_GPTRANSLATE_VOICE_SPEED_EXTREMELYFAST</option>
+		</field>
+				
+		<field name="mainpage_selector" type="text" default="*[name*=main], *[class*=main], *[id*=main], *[id*=container], *[class*=container]" size="100" label="COM_GPTRANSLATE_MAINPAGE_SELECTOR" description="COM_GPTRANSLATE_MAINPAGE_SELECTOR_DESC" />
+		<field name="elements_toexclude_custom" type="text" default="" size="100" label="COM_GPTRANSLATE_ELEMENTS_TOEXCLUDE_CUSTOM" description="COM_GPTRANSLATE_ELEMENTS_TOEXCLUDE_CUSTOM_DESC" />
+		
+		<field name="proxy_responsive_loading_script" type="list" default="1" label="COM_GPTRANSLATE_RESPONSIVE_LOADING_SCRIPT" description="COM_GPTRANSLATE_RESPONSIVE_LOADING_SCRIPT_DESC">
+			<option value="0">COM_GPTRANSLATE_RESPONSIVE_LOADING_SCRIPT_REMOTE</option>
+			<option value="1">COM_GPTRANSLATE_RESPONSIVE_LOADING_SCRIPT_LOCAL</option>
+		</field>
+		<field name="chunksize" type="list" default="200" label="COM_GPTRANSLATE_CHUNKSIZE" description="COM_GPTRANSLATE_CHUNKSIZE_DESC">
+			<option value="20">20</option>
+			<option value="40">40</option>
+			<option value="60">60</option>
+			<option value="80">80</option>
+			<option value="90">90</option>
+			<option value="100">100</option>
+			<option value="120">120</option>
+			<option value="140">140</option>
+			<option value="160">160</option>
+			<option value="180">180</option>
+			<option value="200">200</option>
+			<option value="220">220</option>
+			<option value="240">240</option>
+			<option value="260">260</option>
+			<option value="280">280</option>
+			<option value="300">300</option>
+			<option value="400">400</option>
+			<option value="500">500</option>
+			<option value="600">600</option>
+			<option value="700">700</option>
+			<option value="800">800</option>
+			<option value="900">900</option>
+			<option value="1000">1000</option>
+		</field>
+	</fieldset>
+	
+	<fieldset id="appearance" name="appearance" addfieldprefix="JExtstore\Component\Gptranslate\Administrator\Field">
+		<field type="spacer" class="badge bg-primary spacer" label="COM_GPTRANSLATE_CONFIG_ASPECT"/>
+		<field name="widget_text_color" type="color" default="#000000" label="COM_GPTRANSLATE_WIDGET_TEXT_COLOR" description="COM_GPTRANSLATE_WIDGET_TEXT_COLOR_DESC" />
+		<field name="widget_background_color" type="color" default="#FFFFFF" label="COM_GPTRANSLATE_WIDGET_BACKGROUND_COLOR" description="COM_GPTRANSLATE_WIDGET_BACKGROUND_COLOR_DESC" />		
+		<field name="popup_border_radius" type="list" default="0" label="COM_GPTRANSLATE_WIDGET_BORDER_RADIUS" description="COM_GPTRANSLATE_WIDGET_BORDER_RADIUS_DESC">
+			<option value="0">0px</option>
+			<option value="1">1px</option>
+			<option value="2">2px</option>
+			<option value="3">3px</option>
+			<option value="4">4px</option>
+			<option value="5">5px</option>
+			<option value="6">6px</option>
+			<option value="7">7px</option>
+			<option value="8">8px</option>
+			<option value="9">9px</option>
+			<option value="10">10px</option>
+			<option value="12">12px</option>
+			<option value="14">14px</option>
+			<option value="16">16px</option>
+			<option value="18">18px</option>
+			<option value="20">20px</option>
+		</field>
+		<field name="popup_fontsize" type="list" default="20" label="COM_GPTRANSLATE_WIDGET_POPUP_FONTSIZE" description="COM_GPTRANSLATE_WIDGET_POPUP_FONTSIZE_DESC">
+			<option value="8">8px</option>
+			<option value="9">9px</option>
+			<option value="10">10px</option>
+			<option value="11">11px</option>
+			<option value="12">12px</option>
+			<option value="13">13px</option>
+			<option value="14">14px</option>
+			<option value="15">15px</option>
+			<option value="16">16px</option>
+			<option value="17">17px</option>
+			<option value="18">18px</option>
+			<option value="19">19px</option>
+			<option value="20">20px</option>
+			<option value="22">22px</option>
+			<option value="24">24px</option>
+			<option value="26">26px</option>
+		</field>
+		
+		<field name="popup_iconsize" type="list" default="32" label="COM_GPTRANSLATE_WIDGET_POPUP_ICONSIZE" description="COM_GPTRANSLATE_WIDGET_POPUP_ICONSIZE_DESC">
+			<option value="16">16px</option>
+			<option value="18">18px</option>
+			<option value="20">20px</option>
+			<option value="22">22px</option>
+			<option value="24">24px</option>
+			<option value="26">26px</option>
+			<option value="28">28px</option>
+			<option value="30">30px</option>
+			<option value="32">32px</option>
+			<option value="34">34px</option>
+			<option value="36">36px</option>
+		</field>
+
+		<field name="float_position" type="radio" label="COM_GPTRANSLATE_POSITION" description="COM_GPTRANSLATE_POSITION_DESC" class="btn-group" default="bottom-left">
+			<option value="bottom-left">COM_GPTRANSLATE_POSITION_BL</option>
+			<option value="bottom-right">COM_GPTRANSLATE_POSITION_BR</option>
+			<option value="top-left">COM_GPTRANSLATE_POSITION_TL</option>
+			<option value="top-right">COM_GPTRANSLATE_POSITION_TR</option>
+			<option value="inline">COM_GPTRANSLATE_POSITION_INLINE</option>
+		</field>
+
+		<field name="float_switcher_open_direction" type="radio" label="COM_GPTRANSLATE_OPEN_DIRECTION" description="COM_GPTRANSLATE_OPEN_DIRECTION_DESC" class="btn-group" default="top">
+			<option value="left">Left</option>
+			<option value="right">Right</option>
+			<option value="top">Top</option>
+			<option value="bottom">Bottom</option>
+		</field>
+		
+		<field name="flag_style" type="radio" label="COM_GPTRANSLATE_FLAG_STYLE" description="COM_GPTRANSLATE_FLAG_STYLE_DESC" class="btn-group" default="2d">
+			<option value="2d">COM_GPTRANSLATE_FLAG_STYLE_2D</option>
+			<option value="3d">COM_GPTRANSLATE_FLAG_STYLE_3D</option>
+		</field>
+		
+		<field name="flag_loading" type="list" label="COM_GPTRANSLATE_FLAG_LOCATION" description="COM_GPTRANSLATE_FLAG_LOCATION_DESC" class="btn-group" default="local">
+			<option value="local">COM_GPTRANSLATE_FLAG_LOCAL</option>
+			<option value="cdn">COM_GPTRANSLATE_FLAG_CDN</option>
+		</field>
+		
+		<field name="show_language_titles" type="radio" label="COM_GPTRANSLATE_SHOW_LANGUAGE_TITLES" description="COM_GPTRANSLATE_SHOW_LANGUAGE_TITLES_DESC" class="btn-group" default="1">
+			<option value="1">JYES</option>
+   			<option value="0">JNO</option> 
+		</field>
+		
+		<field name="enable_dropdown" type="radio" label="COM_GPTRANSLATE_ENABLE_DROPDOWN" description="COM_GPTRANSLATE_ENABLE_DROPDOWN_DESC" class="btn-group" default="1">
+			<option value="1">JYES</option>
+   			<option value="0">JNO</option> 
+		</field>
+		
+		<field name="equal_widths" type="radio" label="COM_GPTRANSLATE_EQUAL_WIDTHS" description="COM_GPTRANSLATE_EQUAL_WIDTHS_DESC" class="btn-group" default="0">
+			<option value="1">JYES</option>
+   			<option value="0">JNO</option> 
+		</field>
+		
+		<field name="reader_button_position" type="list" label="COM_GPTRANSLATE_READER_BUTTON_POSITION" description="COM_GPTRANSLATE_READER_BUTTON_POSITION_DESC" class="btn-group" default="top">
+			<option value="top">COM_GPTRANSLATE_READER_BUTTON_POSITION_TOP</option>
+			<option value="bottom">COM_GPTRANSLATE_READER_BUTTON_POSITION_BOTTOM</option>
+		</field>
+		
+		<field name="widget_max_height" type="number" default="260" label="COM_GPTRANSLATE_WIDGET_MAX_HEIGHT" description="COM_GPTRANSLATE_WIDGET_MAX_HEIGHT_DESC" />
+		<field name="wrapper_selector" type="text" default=".gptranslate_wrapper" size="50" label="COM_GPTRANSLATE_CSS_WRAPPER_ELEMENT" description="COM_GPTRANSLATE_CSS_WRAPPER_ELEMENT_DESC" />
+		<field name="draggable_widget" class="btn-group" type="radio" default="0" label="COM_GPTRANSLATE_DRAGGABLE_WIDGET" description="COM_GPTRANSLATE_DRAGGABLE_WIDGET_DESC">
+   			<option value="1">JYES</option>
+   			<option value="0">JNO</option>
+   		</field>
+		<field name="disable_control" type="radio" label="COM_GPTRANSLATE_DISABLE_CONTROL" description="COM_GPTRANSLATE_DISABLE_CONTROL_DESC" class="btn-group" default="0">
+			<option value="1">JYES</option>
+   			<option value="0">JNO</option> 
+		</field>
+		<field name="custom_css" type="textarea" default="" label="COM_GPTRANSLATE_CUSTOM_CSS" description="COM_GPTRANSLATE_CUSTOM_CSS_DESC" rows="10" cols="50" filter="raw" />
+		
+		<field name="disable_bootstrap_css" type="radio" label="COM_GPTRANSLATE_DISABLE_BOOTSTRAP_CSS" description="COM_GPTRANSLATE_DISABLE_BOOTSTRAP_CSS_DESC" class="btn-group" default="0">
+			<option value="1">JYES</option>
+   			<option value="0">JNO</option> 
+		</field>
+	</fieldset>
+</config>

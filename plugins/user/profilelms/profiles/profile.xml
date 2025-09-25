@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="profilelms">
+		<fieldset name="profilelms" label="PLG_USER_PROFILELMS_SLIDER_LABEL" addfieldpath="/administrator/components/com_splms/models/fields">
+			<field name="lms_avatar" id="lms_avatar" type="sbfile" label="LMS Avatar" />
+		</fieldset>
+	</fields>
+</form>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field name="specialist_text"
+   type="inputbox"
+   label="COM_SPLMS_TITLE_TEACHER_SPECIALIST_TEXT"
+   
+  />
+  <field name="specialist_number"
+   type="number"
+   label="COM_SPLMS_TITLE_TEACHER_SPECIALIST_PERCENTAGE_NUMBER"
+   
+  />
+</form>

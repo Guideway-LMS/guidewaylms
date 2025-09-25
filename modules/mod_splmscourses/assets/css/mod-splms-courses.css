@@ -1,0 +1,31 @@
+/**
+ * @package     SPLMS
+ * @subpackage  mod_splmscourses
+ *
+ * @copyright   Copyright (c) 2010 - 2021 JoomShaper. All rights reserved.
+ * @license     GNU General Public License version 2 or later.
+ */
+ 
+.mod-splms-courses ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.mod-splms-courses ul>li {
+	display: block;
+	margin-top: 15px;
+}
+
+.mod-splms-courses ul>li:first-child {
+	margin-top: 0;
+}
+
+.mod-splms-courses ul>li .splms-course-img{
+	float: left;
+	margin-right: 15px;
+}
+.mod-splms-courses ul>li .img-wrapper{
+	position: relative;
+	display: block;
+}

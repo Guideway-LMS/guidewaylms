@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field name="info_text"
+   type="inputbox"
+   label="COM_SPLMS_TITLE_COURSE_INFO_LABEL"   
+  />
+  <field name="info_number"
+   type="text"
+   label="COM_SPLMS_TITLE_COURSE_INFO_VALUE"
+  />
+   <field name="icon_image" type="list" label="COM_SPLMS_MEDIA_TYPE" description="COM_SPLMS_MEDIA_TYPE_DESC" default="icon">
+        <option value="icon">COM_SPLMS_ICON</option>
+        <option value="image">COM_SPLMS_TITLE_IMAGE</option>
+    </field>
+    <field name="icon" type="text" label="COM_SPLMS_ICON" hint="COM_SPLMS_ICON_HINT" description="COM_SPLMS_ICON_HINT_DESC" showon="icon_image:icon" />
+    <field name="image" type="media" label="COM_SPLMS_TITLE_IMAGE" showon="icon_image:image" />
+</form>

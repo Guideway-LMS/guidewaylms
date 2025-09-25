@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+	
+	<fieldset name="basic" label="COM_SPLMS_FIELDSET_BASIC_LABEL">
+		<field name="subcategory_enabled" type="radio" label="COM_SPLMS_SUBCATEGORY" default="0" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+
+		<field name="disable_gmap" type="radio" label="COM_SPLMS_MAP_DISABLE" default="0" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+		
+		<field name="select_map" type="list" label="COM_SPLMS_GOOGLE_MAP_DISABLE" default="0" showon="disable_gmap:0"  class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_GOOGLE_MAP</option>
+			<option value="1">COM_SPLMS_OPEN_MAP</option>
+		</field>
+
+		<field name="gmap_api" type="text" label="COM_SPLMS_GOOGLE_MAP_API" default="" showon="select_map:0[AND]disable_gmap:0" />
+		<field name="gmap_api_note" type="note" description="COM_SPLMS_GOOGLE_MAP_API_DESC" showon="select_map:0[AND]disable_gmap:0" />
+
+		<field name="mapbox_api" type="text" label="COM_SPLMS_MAPBOX_API" default="" showon="select_map:1[AND]disable_gmap:0" />
+		<field name="mapbox_api_note" type="note" description="COM_SPLMS_MAPBOX_API_DESC" showon="select_map:1[AND]disable_gmap:0" />
+		<field type="spacer" hr="true" />
+
+		<field name="related_course" type="radio" default="0" label="COM_SPLMS_SHOW_RELATED_COURSE" description="COM_SPLMS_SHOW_RELATED_COURSE_DESC" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+
+		<field name="related_courses_count" type="number" class="btn-group btn-group-yesno" default="4" label="COM_SPLMS_RELATED_COURSES_COUNT" showon="related_course:1" />
+
+		<field name="show_discount" type="radio" default="1" label="COM_SPLMS_SHOW_DISCOUNT_PERCENTAGE" description="COM_SPLMS_SHOW_DISCOUNT_PERCENTAGE_DESC" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+
+		<field name="review" type="radio" default="0" label="COM_SPLMS_ENABLE_REVIEW" description="COM_SPLMS_ENABLE_REVIEW_DESC" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+
+		<field name="show_course_filter" type="radio" default="1" label="COM_SPLMS_SHOW_COURSE_FILTER" description="COM_SPLMS_SHOW_COURSE_FILTER_DESC" class="radio btn-group btn-group-yesno">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+
+		<field name="course_filter_position" type="list" class="btn-group" default="left" label="COM_SPLMS_SHOW_COURSE_FILTER_POSITION" description="COM_SPLMS_SHOW_COURSE_FILTER_POSITION_DESC" showon="show_course_filter:1">
+			<option value="left">COM_SPLMS_SHOW_COURSE_FILTER_POSITION_LEFT</option>
+			<option value="right">COM_SPLMS_SHOW_COURSE_FILTER_POSITION_RIGHT</option>
+			<option value="top">COM_SPLMS_SHOW_COURSE_FILTER_POSITION_TOP</option>
+		</field>
+
+		<field name="hide_course_filter_search" type="radio" default="0" label="COM_SPLMS_HIDE_COURSE_FILTER_SEARCH" description="COM_SPLMS_HIDE_COURSE_FILTER_SEARCH_DESC" class="radio btn-group btn-group-yesno" showon="show_course_filter:1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+
+		<field type="spacer" hr="true" />
+		<field name="teachers_filter" type="radio" default="1" label="COM_SPLMS_SHOW_TEACHERS_FILTER" class="radio btn-group btn-group-yesno">
+			 <option value="0">COM_SPLMS_NO</option>
+			 <option value="1">COM_SPLMS_YES</option>
+		</field>
+		<field name="teacher_contact" type="radio" default="0" label="COM_SPLMS_SHOW_TEACHER_CONTACT_FORM" description="COM_SPLMS_SHOW_TEACHER_CONTACT_FORM_DESC" class="radio btn-group btn-group-yesno">
+			 <option value="0">COM_SPLMS_NO</option>
+			 <option value="1">COM_SPLMS_YES</option>
+		</field>
+		<field name="teacher_contact_recaptcha" type="radio" default="0" showon="teacher_contact:1" label="COM_SPLMS_RECAPTCHA_TEACHER_CONTACT_FORM" description="COM_SPLMS_RECAPTCHA_TEACHER_CONTACT_FORM_DESC" class="radio btn-group btn-group-yesno">
+			 <option value="0">COM_SPLMS_NO</option>
+			 <option value="1">COM_SPLMS_YES</option>
+		</field>
+		<field name="follow_teacher" type="radio" default="0" label="COM_SPLMS_ENABLE_TEACHER_FOLLOW" description="COM_SPLMS_ENABLE_TEACHER_FOLLOW_DESC" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+		<field name="skills_layout" type="list" default="pie" label="COM_SPLMS_TEACHER_SKILLS_LAYOUT" class="radio btn-group btn-group-yesno">
+			<option value="pie">COM_SPLMS_TEACHER_SKILLS_LAYOUT_PIE</option>
+			<option value="progress">COM_SPLMS_TEACHER_SKILLS_LAYOUT_PROGRESS</option>
+			<option value="badge">COM_SPLMS_TEACHER_SKILLS_LAYOUT_BADGE</option>
+		</field>
+		<field type="spacer" hr="true" />
+
+		<field name="sef_ids" type="radio" class="btn-group btn-group-yesno" default="0" label="JGLOBAL_SEF_NOIDS_LABEL" description="JGLOBAL_SEF_NOIDS_DESC" filter="integer">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+
+		<field name="contact_tac" type="radio" class="btn-group btn-group-yesno" default="1" label="COM_SPLMS_TEACHER_CONTACT_TAC" description="COM_SPLMS_TEACHER_CONTACT_TAC_DESC" filter="integer">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+
+		<field name="contact_tac_text" type="textarea" label="COM_SPLMS_TEACHER_CONTACT_TAC_TEXT" description="COM_SPLMS_TEACHER_CONTACT_TAC_TEXT_DESC" cols="30" rows="8" showon="contact_tac:1" filter="raw" default='I agree with the &lt;a href="https://www.joomshaper.com/terms-of-use"&gt;Terms of Use&lt;/a&gt; and &lt;a href="https://www.joomshaper.com/privacy-policy"&gt;Privacy Policy&lt;/a&gt; and I declare that I have read the information that is required in accordance with &lt;a href="http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2016.119.01.0001.01.ENG&amp;toc=OJ:L:2016:119:TOC" target="_blank"&gt;Article 13 of GDPR.&lt;/a&gt;'/>
+
+		<field type="spacer" hr="true" />
+		<field name="disable_styling" type="radio" class="btn-group btn-group-yesno" default="0" label="COM_SPLMS_DISABLE_STYLING" description="COM_SPLMS_DISABLE_STYLING_DESC" filter="integer">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+
+		<field name="show_rounds_price" type="radio" label="COM_SPLMS_ROUNDS_PRICE" description="COM_SPLMS_ROUNDS_PRICE_DESC" class="btn-group btn-group-yesno" default="0" >
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+
+		<field name="use_number_format" type="radio" label="COM_SPLMS_NUMBER_FORMAT" description="COM_SPLMS_NUMBER_FORMAT_DESC" class="btn-group btn-group-yesno" default="0" >
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		
+	</fieldset>
+
+	<fieldset name="media" label="COM_SPLMS_FIELDSET_IMAGE_LABEL">
+		<field name="course_thumbnail" type="text" label="COM_SPLMS_COURSE_THUMBNAIL" description="COM_SPLMS_COURSE_THUMBNAIL_DESC" default="480X300" />
+		<field name="course_thumbnail_small" type="text" label="COM_SPLMS_COURSE_THUMBNAIL_SMALL" description="COM_SPLMS_COURSE_THUMBNAIL_SMALL_DESC" default="100X60" />
+		<field type="spacer" hr="true" />
+		<field name="event_thumbnail" type="text" label="COM_SPLMS_EVENT_THUMBNAIL" description="COM_SPLMS_EVENT_THUMBNAIL_DESC" default="480X300" />
+		<field name="event_thumbnail_small" type="text" label="COM_SPLMS_EVENT_THUMBNAIL_SMALL" description="COM_SPLMS_EVENT_THUMBNAIL_SMALL_DESC" default="100X60" />
+	</fieldset>
+
+	<fieldset name="payment" label="COM_SPLMS_FIELDSET_PAYMENT_LABEL" description="COM_SPLMS_PAYMENT_METHOD_DESC">
+		<field name="payment_method" type="checkboxes" label="COM_SPLMS_PAYMENT_METHOD" default="direct" description="COM_SPLMS_PAYMENT_METHOD_DESC">
+		    <option value="paypal">COM_SPLMS_PAYMENT_METHOD_PAYPAL</option>
+			<option value="stripe">COM_SPLMS_PAYMENT_METHOD_STRIPE</option>
+			<option value="razorpay">COM_SPLMS_PAYMENT_METHOD_RAZORPAY</option>
+			<option value="bank">COM_SPLMS_PAYMENT_METHOD_BANK_TRANSFER</option>
+		    <option value="direct">COM_SPLMS_PAYMENT_METHOD_DIRECT</option>
+		</field>
+
+		<field type="spacer" name="paypal_spacer" label="COM_SPLMS_SHOP_PAYPAL_SETTINGS" showon="payment_method:paypal"/>
+		<field name="shop_environment" type="radio" class="btn-group" label="COM_SPLMS_SHOP_ENVIRONMENT" description="COM_SPLMS_SHOP_ENVIRONMENT_DESC" default="sandbox" showon="payment_method:paypal">
+			<option value="production">COM_SPLMS_SHOP_ENVIRONMENT_PRODUCTION</option>
+			<option value="sandbox">COM_SPLMS_SHOP_ENVIRONMENT_SANDBOX</option>
+		</field>
+		<field name="paypal_id" type="email" default="example@example.com" label="COM_SPLMS_PAYPAL_MERCHANT_EMAIL" description="COM_SPLMS_PAYPAL_MERCHANT_EMAIL_DESC" showon="payment_method:paypal"/>
+
+		<field name="stripe_api_key" type="text" label="COM_SPLMS_STRIPE_API_KEY" description="COM_SPLMS_STRIPE_API_KEY_DESC" showon="payment_method:stripe"/>
+		<field name="razorpay_key_id" type="text" label="COM_SPLMS_RAZORPAY_KEY_ID" description="COM_SPLMS_RAZORPAY_KEY_ID_DESC" showon="payment_method:razorpay"/>
+		<field name="razorpay_key_secret" type="text" label="COM_SPLMS_RAZORPAY_KEY_SECRET" description="COM_SPLMS_RAZORPAY_KEY_SECRET_DESC" showon="payment_method:razorpay"/>
+		<field name="razorpay_store_name" type="text" label="COM_SPLMS_RAZORPAY_STORE_NAME" description="COM_SPLMS_RAZORPAY_STORE_NAME_DESC" showon="payment_method:razorpay"/>
+		<field name="razorpay_store_desc" type="text" label="COM_SPLMS_RAZORPAY_STORE_DESC" description="COM_SPLMS_RAZORPAY_STORE_DESC_DESC" showon="payment_method:razorpay"/>
+		<field name="razorpay_store_logo" type="media" label="COM_SPLMS_RAZORPAY_STORE_LOGO" description="COM_SPLMS_RAZORPAY_STORE_LOGO_DESC" showon="payment_method:razorpay"/>
+
+		<field type="spacer" name="bank_spacer" label="COM_SPLMS_SHOP_BANK_TRANSFER" showon="payment_method:bank"/>
+		<field name="bank_info" type="textarea" hint="COM_SPLMS_PAYMENT_BANK_INFO_HINTS" label="COM_SPLMS_PAYMENT_BANK_INFO" description="COM_SPLMS_PAYMENT_BANK_INFO_DESC" showon="payment_method:bank" cols="30" rows="8" filter="raw"/>
+
+		<field name="currency" type="currency" label="COM_SPLMS_CURRENCY" description="COM_SPLMS_CURRENCY_DESC" default="USD:$" addfieldpath="administrator/components/com_splms/models/fields">
+			<option value="">Select</option>
+		</field>
+		<field name="currency_position" type="radio" class="btn-group" label="COM_SPLMS_CURRENCY_POSITION" default="before">
+			<option value="before">COM_SPLMS_CURRENCY_POSITION_BEFORE</option>
+			<option value="after">COM_SPLMS_CURRENCY_POSITION_AFTER</option>
+		</field>
+	</fieldset>
+
+	<fieldset name="orders" label="COM_SPLMS_FIELDSET_ORDERS_LABEL">
+		<field name="notify_name" type="text" default="LMS" label="COM_SPLMS_PAYMENT_NOTIFIER_NAME" description="COM_SPLMS_PAYMENT_NOTIFIER_NAME_DESC"/>
+		<field name="notify_mail" type="email" default="example@example.com" label="COM_SPLMS_PAYMENT_NOTIFIER_MAIL" description="COM_SPLMS_PAYMENT_NOTIFIER_MAIL_DESC"/>
+		<field name="confirmation_txt" type="textarea" hint="COM_SPLMS_PAYMENT_CONFIRMATION_TEXT_DESC" label="COM_SPLMS_PAYMENT_CONFIRMATION_TEXT" description="COM_SPLMS_PAYMENT_CONFIRMATION_TEXT_DESC" cols="30" rows="8" default="Hi, You have successfully purchased following courses: {courses}. Your total cost is: {total_price}. Thanks" filter="raw"/>
+	</fieldset>
+
+	<fieldset name="events_settings" label="COM_SPLMS_FIELDSET_EVENTS_SETTINGS_LABEL">
+		<field name="events_filter" type="radio" default="0" label="COM_SPLMS_SHOW_EVENTS_FILTER" description="COM_SPLMS_SHOW_EVENTS_FILTER_DESC" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+	</fieldset>
+
+	<fieldset name="certificate" label="COM_SPLMS_FIELDSET_CERTIFICATE_LABEL">
+		<field name="certificate_logo" type="media" label="COM_SPLMS_FIELDSET_CERTIFICATE_LOGO_LABEL" description="" />
+		<field name="certificate_prefix" type="text" label="COM_SPLMS_CERTIFICATE_NO_PREFIX" description="" />
+		<field name="organization" type="text" label="COM_SPLMS_ORGANIZATION" description="" />
+	</fieldset>
+
+	<fieldset name="social_share" label="COM_SPLMS_FIELDSET_SOCIAL_SHARE">
+		<field name="course_social_share" type="radio" default="1" label="COM_SPLMS_FIELDSET_COURSE_SOCIAL_SHARE" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+		<field name="event_social_share" type="radio" default="1" label="COM_SPLMS_FIELDSET_EVENT_SOCIAL_SHARE" class="radio btn-group btn-group-yesno">
+			<option value="0">COM_SPLMS_NO</option>
+			<option value="1">COM_SPLMS_YES</option>
+		</field>
+
+		<field name="social_share_media" type="checkboxes" label="COM_SPLMS_FIELDSET_SOCIAL_SHARE_MEDIUM" class="span3 col-md-3">
+		    <option value="facebook">COM_SPLMS_SOCIAL_FACEBOOK</option>
+			<option value="twitter">COM_SPLMS_SOCIAL_TWITTER</option>
+		    <option value="linkedin">COM_SPLMS_SOCIAL_LINKEDIN</option>
+		    <option value="reddit">COM_SPLMS_SOCIAL_REDDIT</option>
+		    <option value="digg">COM_SPLMS_SOCIAL_DIGG</option>
+		    <option value="vk">COM_SPLMS_SOCIAL_VK</option>
+		</field>
+	</fieldset>
+
+	<fieldset name="licenseupdate">
+		<field name="joomshaper_email" type="email" label="COM_SPLMS_CONF_JOOMSHAPER_EMAIL" description="COM_SPLMS_CONF_JOOMSHAPER_EMAIL_DESC" />
+		<field name="joomshaper_license_key" type="password" label="COM_SPLMS_CONF_JOOMSHAPER_LICENSE_KEY" description="COM_SPLMS_CONF_JOOMSHAPER_LICENSE_KEY_DESC" />
+	</fieldset>
+
+	<fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
+		<field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL" class="inputbox" filter="rules" component="com_splms" section="component" />
+	</fieldset>
+
+</config>

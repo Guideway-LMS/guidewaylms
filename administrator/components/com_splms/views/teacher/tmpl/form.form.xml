@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form validate="true" serverside_validate="true" tabbed="1">
+	<fieldset name="basic_configuration" label="COM_SPLMS_TEACHER_TOP_TITLE" addfieldpath="/administrator/components/com_splms/fields" class="tab-pane active " innerclass="span6">
+
+		<field name="title" type="text"
+			class="inputbox"
+			label="COM_SPLMS_TEACHER_FIELD_NAME"
+			
+			required="true"
+			size="50"
+		 />
+
+		 <field name="slug" type="text"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_ALIAS"
+			description="COM_SPLMS_FIELD_ALIAS_DESC"
+			
+			size="50"
+		 />
+
+		 <field name="designation" type="text"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_DESIGNATION"
+			description="COM_SPLMS_FIELD_DESIGNATION_DESC"
+			
+			size="50"
+		 />
+
+		 <field name="description" type="editor"
+			class="inputbox span6"
+			label="COM_SPLMS_TITLE_DESCRIPTION"
+			
+			required="true"
+			rows="5"
+			cols="5"
+			filter="JComponentHelper::filterText"
+		 />
+
+		 <field name="image"
+		 	type="media"
+		 	directory="lms/lessions"
+			class="inputbox"
+			label="COM_SPLMS_TITLE_IMAGE"
+			
+		 />
+
+		 <field name="website" type="url"
+		 	default="http://www.example.com"
+			class="inputbox"
+			label="COM_SPLMS_TITLE_WEBSITE"
+			
+			size="50"
+		 />
+
+		<field name="email" type="email"
+			class="inputbox"
+			label="COM_SPLMS_TITLE_EMAIL"
+			
+			validate="email"
+			size="30"
+		 />
+
+		 <field name="experience" type="text"
+			class="inputbox"
+			label="COM_SPLMS_TEACHER_FIELD_EXPERIENCE"
+			
+			size="50"
+		 />
+
+		 <field name="specialist_in" type="subform"
+     formsource="/administrator/components/com_splms/fields/specialistin.xml" multiple="true"
+     label="COM_SPLMS_TEACHER_FIELD_SKILLS" description="COM_SPLMS_TEACHER_FIELD_SKILLS_DESC" />
+
+		<field name="enabled"
+			type="list"
+			label="JSTATUS"
+			class="inputbox"
+			filter="intval"
+			default="1">
+				<option value="1">JPUBLISHED</option>
+				<option value="0">JUNPUBLISHED</option>
+		</field>
+		<field name="language" type="language" label="JFIELD_LANGUAGE_LABEL">
+			<option value="*">JALL_LANGUAGE</option>
+		</field>
+		<field name="access" type="accesslevel" label="JFIELD_ACCESS_LABEL" />
+	</fieldset>
+
+	<fieldset name="teacher_social" label="COM_SPLMS_TEACHER_FIELD_SOCIAL" addfieldpath="/administrator/components/com_splms/fields" class="tab-pane another-class">
+		<field name="social_facebook" type="text"
+			class="inputbox"
+			label="COM_SPLMS_TEACHER_FIELD_FACEBOOK"
+			labelclass="splms-label float-left splms-label-main"
+			size="50"
+		 />
+		 <field name="social_twitter" type="text"
+			class="inputbox"
+			label="COM_SPLMS_TEACHER_FIELD_TWITTER"
+			labelclass="splms-label float-left splms-label-main"
+			size="50"
+		 />
+		 <field name="social_youtube" type="text"
+			class="inputbox"
+			label="COM_SPLMS_TEACHER_FIELD_GOOGLE_PLUS"
+			
+			size="50"
+		 />
+		 <field name="social_linkedin" type="text"
+			class="inputbox"
+			label="COM_SPLMS_TEACHER_FIELD_LINKEDIN"
+			
+			size="50"
+		 />
+
+	</fieldset>
+</form>

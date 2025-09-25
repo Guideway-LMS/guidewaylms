@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="basic">
+
+		<field name="id"
+		 	type="readonly"
+		 	readonly="true"
+			class="inputbox"
+			label="COM_SPLMS_ORDER_FIELD_ID"
+			
+			rows="5"
+			cols="5"
+		 />
+
+		<field name="order_user_id"
+			label="COM_SPLMS_FIELD_STUDENT_NAME"
+			type="user"
+    />
+
+		<field name="course_id"
+			label="COM_SPLMS_ORDER_FIELD_ORDER_COURSE_ID"
+			type="sql"
+			translate="false"
+			query="SELECT id, title FROM #__splms_courses WHERE published = 1"
+			key_field="id"
+			value_field="title"
+			layout="joomla.form.field.list-fancy-select"
+    />
+
+		 <field name="order_price"
+		 	type="inputbox"
+			class="inputbox"
+			label="COM_SPLMS_ORDER_FIELD_ORDER_PRICE"
+			
+			required="true"
+			rows="5"
+			cols="5"
+			filter="raw"
+		 />
+
+		<field name="order_payment_id"
+		 	type="inputbox"
+			class="inputbox"
+			label="COM_SPLMS_ORDER_FIELD_PAYMENT_ID"
+			
+			required="true"
+			rows="5"
+			cols="5"
+			filter="raw"
+		 />
+
+		 <field name="invoice_id"
+		 	type="inputbox"
+			class="inputbox"
+			label="COM_SPLMS_ORDER_FIELD_ORDER_INVOICE_ID"
+			
+			required="true"
+			rows="5"
+			cols="5"
+			filter="raw"
+		 />
+
+		 <field name="order_payment_method"
+		 	type="inputbox"
+			class="inputbox"
+			label="COM_SPLMS_ORDER_FIELD_ORDER_PAYMENT_METHOD"
+			
+			required="true"
+		 />
+
+		 <field name="order_payment_price"
+		 	type="inputbox"
+			class="inputbox"
+			label="COM_SPLMS_ORDER_FIELD_PAYMENT_PRICE"
+			
+			required="true"
+		 />
+
+		 <field name="payment_note"
+			type="textarea"
+			label="COM_SPLMS_TITLE_PAYMENT_NOTE"
+			cols="30"
+			rows="7"
+			filter="raw"
+		 />
+
+		 <field name="published" type="list" label="COM_SPLMS_TITLE_STATUS" class="inputbox" filter="intval" default="0">
+			<option value="1">JPUBLISHED</option>
+			<option value="0">JUNPUBLISHED</option>
+		</field>
+
+ </fieldset>
+
+
+</form>

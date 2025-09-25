@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field name="image"
+   type="media"
+   class="inputbox"
+   label="COM_SPLMS_TITLE_IMAGE"
+ />
+  <field name="text"
+   type="inputbox"
+   label="COM_SPLMS_TITLE_TEXT"
+   
+  />
+</form>

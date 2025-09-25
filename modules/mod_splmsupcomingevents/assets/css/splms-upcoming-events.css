@@ -1,0 +1,60 @@
+/**
+ * @package     SPLMS
+ * @subpackage  mod_splmupcomingevents
+ *
+ * @copyright   Copyright (c) 2010 - 2021 JoomShaper. All rights reserved.
+ * @license     GNU General Public License version 2 or later.
+ */
+ 
+.mod-splms-upcoming-events ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.mod-splms-upcoming-events ul>li {
+	display: block;
+	margin-top: 15px;
+}
+
+.mod-splms-upcoming-events ul>li .splms-upcoming-event-date{
+	display: block;
+}
+
+.mod-splms-upcoming-events ul>li:first-child {
+	margin-top: 0;
+}
+
+.mod-splms-upcoming-events ul>li .splms-event-img{
+	float: left;
+	margin-right: 15px;
+}
+
+/* Update */
+.mod-splms-upcoming-events .splms-upcoming-event-speakers-wrap{
+	width: 100%;
+	margin-bottom: 5px;
+	margin-top: 23px;
+	overflow: hidden;
+}
+.mod-splms-upcoming-events .splms-upcoming-event-speakers-wrap .splms-upcoming-event-speaker{
+	display: flex;
+	align-items: center;
+}
+.mod-splms-upcoming-events .splms-upcoming-event-speakers-wrap .splms-upcoming-event-speaker .splms-ue-speaker-media{
+	margin-right: 15px;
+}
+.mod-splms-upcoming-events .splms-upcoming-event-speakers-wrap .splms-upcoming-event-speaker .splms-ue-speaker-media img{
+	width: 50px;
+	border-radius: 100%;
+}
+.mod-splms-upcoming-events .splms-upcoming-event-speakers-wrap .splms-ue-speaker-info .splms-ue-speaker-name{
+	margin: 0;
+	font-weight: 500;
+}
+.mod-splms-upcoming-events .splms-upcoming-event-speakers-wrap .splms-ue-speaker-info .splms-ue-speaker-name small{
+	display: block;
+	font-size: 13px;
+	opacity: 0.6;
+	font-weight: 400;
+}

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.4" type="component" method="upgrade">
+	<name>SP LMS</name>
+	<creationDate>Mar 2016</creationDate>
+	<author>JoomShaper</author>
+	<authorEmail>support@joomshaper.com</authorEmail>
+	<authorUrl>http://www.joomshaper.com</authorUrl>
+	<copyright>Copyright (c) 2010- 2024 JoomShaper. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later</license>
+	<version>4.1.2</version>
+	<description>SP Learning Management System Component for Joomla</description>
+	<scriptfile>installer.script.php</scriptfile>
+
+	<updateservers>
+		<server type="extension" priority="1" name="SP LMS">https://www.joomshaper.com/updates/com-sp-lms.xml</server>
+	</updateservers>
+
+	<files folder="site">
+		<filename>controller.php</filename>
+		<filename>router.php</filename>
+		<filename>splms.php</filename>
+		<folder>assets</folder>
+		<folder>controllers</folder>
+		<folder>helpers</folder>
+		<folder>layouts</folder>
+		<folder>models</folder>
+		<folder>views</folder>
+	</files>
+
+	<languages folder="language/site">
+		<language tag="en-GB">en-GB/en-GB.com_splms.ini</language>
+	</languages>
+
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install/mysql/install.sql</file>
+			<file driver="mysql">sql/install/mysql/install.sql</file>
+		</sql>
+	</install>
+
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+			<schemapath type="mysqli">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
+
+	<administration>
+		<menu view="dashboard">COM_SPLMS</menu>
+		<submenu>
+			<menu link="option=com_splms&amp;view=dashboard" view="dashboard">
+				COM_SPLMS_DASHBOARD
+			</menu>
+			<menu link="option=com_splms&amp;view=teachers" view="teachers">
+				COM_SPLMS_TEACHERS
+			</menu>
+			<menu link="option=com_splms&amp;view=coursescategories" view="coursescategories">
+				COM_SPLMS_COURSE_CATEGORIES
+			</menu>
+			<menu link="option=com_splms&amp;view=courses" view="courses">
+				COM_SPLMS_COURSES
+			</menu>
+			<menu link="option=com_splms&amp;view=lessiontopics" view="lessiontopics">
+				COM_SPLMS_LESSON_TOPICS
+			</menu>
+			<menu link="option=com_splms&amp;view=lessons" view="lessons">
+				COM_SPLMS_LESSONS
+			</menu>
+			<menu link="option=com_splms&amp;view=quizquestions" view="quizquestions">
+				COM_SPLMS_TITLE_QUIZQUESTIONS
+			</menu>
+			<menu link="option=com_splms&amp;view=quizresults" view="quizresults">
+				COM_SPLMS_TITLE_QUIZRESULTS
+			</menu>
+			<menu link="option=com_splms&amp;view=certificates" view="certificates">
+				COM_SPLMS_TITLE_CERTIFICATES
+			</menu>
+			<menu link="option=com_splms&amp;view=speakers" view="speakers">
+				COM_SPLMS_SPEAKERS
+			</menu>
+			<menu link="option=com_splms&amp;view=eventcategories" view="eventcategories">
+				COM_SPLMS_EVENT_CATEGORIES
+			</menu>
+			<menu link="option=com_splms&amp;view=events" view="events">
+				COM_SPLMS_EVENTS
+			</menu>
+			<menu link="option=com_splms&amp;view=reviews" view="reviews">
+				COM_SPLMS_REVIEWS
+			</menu>
+			<menu link="option=com_splms&amp;view=orders" view="orders">
+				COM_SPLMS_ORDERS
+			</menu>
+		</submenu>
+		<files folder="admin">
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>splms.php</filename>
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+		</files>
+
+		<languages folder="language/admin">
+			<language tag="en-GB">en-GB/en-GB.com_splms.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_splms.sys.ini</language>
+		</languages>
+	</administration>
+
+</extension>

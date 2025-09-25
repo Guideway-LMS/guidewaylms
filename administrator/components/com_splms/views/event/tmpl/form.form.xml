@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form validate="true" serverside_validate="true">
+	<fieldset name="basic_configuration" label="COM_SPLMS_TITLE_EVENTS_EDIT" addfieldpath="/administrator/components/com_splms/fields" class="span8">
+
+		<field name="title" type="text"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_TITLE"
+			required="true"
+			size="50"
+		 />
+
+		 <field name="slug" type="text"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_ALIAS"
+			description="COM_SPLMS_FIELD_ALIAS_DESC"
+			size="50"
+		 />
+
+		 <field name="description" type="editor"
+			class="inputbox span6"
+			label="COM_SPLMS_TITLE_DESCRIPTION"
+			required="true"
+			rows="5"
+			cols="5"
+			filter="JComponentHelper::filterText"
+		 />
+
+		 <field name="splms_eventcategory_id"
+		 		label="COM_SPLMS_TITLE_EVENTCATEGORIES"
+      	type="sql"
+      	translate="false"
+      	query="SELECT splms_eventcategory_id, title FROM #__splms_eventcategories WHERE enabled = 1"
+      	key_field="splms_eventcategory_id"
+      	value_field="title"
+      />
+
+
+		 <field name="image"
+		 	type="media"
+		 	directory=""
+			class="inputbox"
+			label="COM_SPLMS_TITLE_IMAGE"
+		/>
+
+		<field name="event_start_date"
+		 	type="calendar"
+		 	default="2015-10-05"
+		 	label="COM_SPLMS_EVENT_FIELD_START_DATE"
+		 	description="COM_SPLMS_EVENT_FIELD_START_DATE_DESC"
+		 	format="%Y-%m-%d"
+		/>
+
+		<field name="event_time"
+			type="inputbox"
+			default="00:00"
+			label="COM_SPLMS_EVENT_FIELD_EVENT_START_TIME"
+			description="COM_SPLMS_EVENT_FIELD_EVENT_TIME_DESC"
+		/>
+
+		 <field name="event_end_date"
+			type="calendar"
+			default="2015-11-10"
+			label="COM_SPLMS_EVENT_FIELD_END_DATE"
+			description="COM_SPLMS_EVENT_FIELD_END_DATE_DESC"
+			format="%Y-%m-%d"
+		/>
+
+		<field name="event_end_time"
+			type="inputbox"
+			default="12:50:00"
+			label="COM_SPLMS_EVENT_FIELD_EVENT_END_TIME"
+			description="COM_SPLMS_EVENT_FIELD_EVENT_END_TIME_DESC"
+		/>
+
+		<field name="price" type="number"
+			class="inputbox"
+			label="COM_SPLMS_EVENT_FIELD_PRICE"
+			required="true"
+			size="50"
+		/>
+
+		<field name="buy_url" type="url"
+			class="inputbox"
+			label="COM_SPLMS_EVENT_FIELD_BUY_URL"
+			size="50"
+		/>
+
+		 <field name="splms_speaker_id"
+        	type="sql"
+        	translate="false"
+        	query="SELECT * FROM #__splms_speakers WHERE enabled = 1"
+        	key_field="splms_speaker_id"
+        	label="COM_SPLMS_TITLE_SPEAKERS"
+        	value_field="title"
+        	multiple="multiple"
+        />
+
+		<field name="event_address" type="textarea"
+			class="inputbox"
+			label="COM_SPLMS_EVENT_FIELD_EVENT_ADDRESS"
+			description="COM_SPLMS_EVENT_FIELD_EVENT_ADDRESS_DESC"
+			size="50"
+		/>
+
+		<field name="map"
+			type="gmap"
+			label="COM_SPLMS_EVENT_FIELD_EVENT_MAP"
+			default="40.7324319, -73.82480799999996"
+			required="true"
+		/>
+
+		<field name="topics" type="subform" class="class_schedule"
+		formsource="/administrator/components/com_splms/fields/eventtopic.xml" multiple="true"
+		label="COM_SPLMS_FIELD_EVENT_TOPICS" description="COM_SPLMS_FIELD_EVENT_TOPICS_DESC" />
+
+		<field name="gallery" type="subform" class="class_schedule"
+		formsource="/administrator/components/com_splms/fields/gallery.xml" multiple="true"
+		label="COM_SPLMS_FIELD_EVENT_GALLERY" description="COM_SPLMS_FIELD_EVENT_GALLERY_DESC" />
+
+		<field name="pricing_tables" type="subform"
+		formsource="/administrator/components/com_splms/fields/pricingtable.xml" multiple="true"
+		label="COM_SPLMS_FIELD_EVENT_PRICING_TABLE" description="COM_SPLMS_FIELD_EVENT_PRICING_TABLE_DESC" />
+
+		<field name="enabled"
+			type="list"
+			label="JSTATUS"
+			filter="intval"
+			default="1">
+			<option value="1">JPUBLISHED</option>
+			<option value="0">JUNPUBLISHED</option>
+		</field>
+		<field name="language" type="language" label="JFIELD_LANGUAGE_LABEL">
+			<option value="*">JALL_LANGUAGE</option>
+		</field>
+		<field name="access" type="accesslevel" label="JFIELD_ACCESS_LABEL" />
+	</fieldset>
+
+</form>
