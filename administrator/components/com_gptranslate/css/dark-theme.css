@@ -1,0 +1,132 @@
+[data-bs-theme=dark] {
+	table.table.adminlist th {
+		color: #FFF;
+	}
+	table.admintable {
+		background-color: #FFF;
+		color: #000;
+	}
+	table.admintable input, table.admintable textarea {
+		color: #000;
+	}
+	table.headerlist input,
+	table.admintable input:-webkit-autofill,
+	table.headerlist input:-webkit-autofill,
+	#uploadrow input:-webkit-autofill,
+	div.controls input:-webkit-autofill,
+	div.google_login input[type=text]:-webkit-autofill,
+	#focus_keyword:-webkit-autofill {
+		color: #000;
+		-webkit-text-fill-color: #000;
+		-webkit-box-shadow: 0 0 0px 1000px #FFF inset;
+		background: #FFF;
+	}
+	.row.tablestats .accordion-body {
+	    background-color: #212529;
+	}
+	#content *.bg-primary, #content *.badge-primary {
+	    color: #fff !important;
+	    background-color: #3d618f !important;
+	}
+	/* Styling for Edge */
+	table.headerlist input,
+	table.admintable input:-ms-input-placeholder,
+	table.headerlist input:-ms-input-placeholder,
+	#uploadrow input:-ms-input-placeholder,
+	div.controls input:-ms-input-placeholder,
+	div.google_login input[type=text]:-ms-input-placeholder,
+	#focus_keyword:-ms-input-placeholder {
+		color: #000;
+		-webkit-text-fill-color: #000;
+		-webkit-box-shadow: 0 0 0px 1000px #FFF inset;
+		background: #FFF;
+	}
+	table.admintable td.left_title label,
+	table.admintable td.left_title_pattern label,
+	div.jmap-sample-text,
+	td.center_td_regex p {
+		color: #212529;
+	}
+	
+	table.adminlist textarea.metainfo,
+	table.adminlist div.input-group input,
+	table.headerlist div.input-group input[type=text],
+	table.headerlist span.input-group input[type=text],
+	div.control-label label,
+	div.controls input[type=text],
+	input.ordering_input,
+	span.hasCookieValue span,
+	ul.analysis-results-domains span {
+		color: #000;
+	}
+	div.accordion-custom-params div.control-label label {
+		color: #FFF;
+	}
+	table.adminlist div.input-group input:focus,
+	div.controls input[type=text]  {
+		background-color: #FFF;
+	}
+	
+	table.table-showdetails.table-striped tbody > tr:nth-child(odd) > td:not(.table-cell-info), .table-striped tbody > tr:nth-child(odd) > th {
+	    background-color: #f9f9f9;
+	}
+
+	table.table-showdetails.table-striped tbody > tr:nth-child(even) > td:not(.table-cell-info), .table-striped tbody > tr:nth-child(even) > th {
+	    background-color: #ffffff;
+	}
+	
+	h3.popover-header {
+		color: #FFF;
+		background-color: #343a40;
+	}
+	div.tooltip-inner {
+		background-color: #000;
+		color: #FFF;
+	}
+	div.bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow:before, div.bs-tooltip-top .tooltip-arrow:before {
+    	border-top-color: #000;
+	}
+	div.bs-tooltip-auto[data-popper-placement^=left] .tooltip-arrow:before, .bs-tooltip-start .tooltip-arrow:before {
+		border-left-color: #000;
+	}
+	div.popover input.popover-body {
+		color: #000;
+	}
+	#content table.adminlist span.bg-primary {
+		background-color: #2a5ea1 !important;
+	}
+	div.controls input:focus {
+		color: #000;
+		background: #FFF;
+	}
+	select.form-select[multiple] {
+		background-color: var(--body-bg) !important;
+	}
+	div.single_stat_container div.statcircle > span:before {
+		color: #000;
+	}
+	select#limit {
+		background-color: #000000;
+	}
+	#audit_dialog ul.analysis-results-cookies li:first-child span, #audit_dialog ul.analysis-results-domains li:first-child span {
+		color: #000;
+	}
+	a.hasAuditTooltip {
+	    color: #2a69b8;
+	}
+	ul.nav-tabs a.nav-link:focus, ul.nav-tabs a.nav-link:hover {
+	    border-color: #cfcfcf;
+	}
+	.bs-tooltip-auto[data-popper-placement^=right] .tooltip-arrow:before, .bs-tooltip-end .tooltip-arrow:before {
+    	border-right-color: #010204 !important;
+	}
+	div.card.card-body,
+	#ga-dash .table-striped tbody tr:nth-of-type(odd),
+	div.google-visualization-table th,
+	div.google-visualization-table td {
+		color: #000;
+	}
+	#ga-dash .table-striped tbody tr:nth-of-type(even):hover {
+		color: #000;
+	}
+}

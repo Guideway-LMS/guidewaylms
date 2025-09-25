@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" client="site" method="upgrade">
+    <name>GPTranslate module</name>
+   	<author>JExtensions Store</author>
+	<creationDate>2024-11-24</creationDate>
+	<copyright>Copyright (C) 2024 - Joomla! Extensions Store. All Rights Reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<authorEmail>info@storejextensions.org</authorEmail>
+	<authorUrl>https://storejextensions.org</authorUrl>
+	<version>2.6</version>
+    <description>MOD_GPTRANSLATE_DESCRIPTION</description>
+    <namespace>JExtStore\Module\Gptranslate</namespace>
+
+    <files>
+        <filename module="mod_gptranslate">mod_gptranslate.php</filename>
+        <filename>index.html</filename>
+        <folder>Helper</folder>
+        <folder>language</folder>
+        <folder>tmpl</folder>
+    </files>
+
+    <config>
+        <fields name="params">
+            <fieldset name="advanced">
+                <field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC">
+                    <option value="1">JGLOBAL_USE_GLOBAL</option>
+                    <option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+                </field>
+                <field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+                <field name="cachemode" type="hidden" default="static">
+                    <option value="static"></option>
+                </field>
+            </fieldset>
+        </fields>
+    </config>
+</extension>
