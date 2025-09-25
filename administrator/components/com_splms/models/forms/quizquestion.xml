@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="basic">
+		<field name="id" type="hidden" />
+		<field name="title" type="text"
+			class="inputbox"
+			label="COM_SPLMS_TITLE_TITLE"
+			
+			required="true"
+			size="50"
+		 />
+
+		 <field name="alias" type="text"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_ALIAS"
+			description="COM_SPLMS_FIELD_ALIAS_DESC"
+			
+			size="50"
+		 />
+
+		 <field name="image"
+ 		 	type="media"
+ 			class="image"
+ 			label="COM_SPLMS_TITLE_IMAGE"
+ 			
+ 		 />
+
+ 		<field name="duration"
+ 			type="number"
+ 			class="inputbox"
+ 			label="COM_SPLMS_FIELD_QUIZ_DURATION"
+ 			description="COM_SPLMS_FIELD_QUIZ_DURATION_DESC"
+ 			
+ 			size="50"
+ 			required="true"
+ 		/>
+
+ 		<field name="course_id"
+	     	type="sql"
+	     	translate="false"
+	     	query="SELECT id,title title FROM #__splms_courses WHERE published = 1"
+	     	key_field="id"
+	     	label="COM_SPLMS_FIELD_COURSE"
+	     	value_field="title"
+	     	required="true"
+			layout="joomla.form.field.list-fancy-select"
+     	/>
+
+ 		<field name="description" type="editor"
+ 			class="inputbox span6"
+ 			label="COM_SPLMS_TITLE_DESCRIPTION"
+ 			required="true"
+ 			rows="5"
+ 			cols="5"
+ 			filter="JComponentHelper::filterText"
+ 		/>
+
+ 		<field name="quiz_type" type="list" label="COM_SPLMS_FIELD_QUIZ_TYPE"
+ 			filter="intval" default="1">
+ 			<option value="0">COM_SPLMS_FREE</option>
+ 			<option value="1">COM_SPLMS_PAID</option>
+ 		</field>
+
+ 		<field name="list_answers" type="subform"
+		formsource="/administrator/components/com_splms/models/fields/quiz_answers.xml" multiple="true"
+		label="COM_SPLMS_TITLE_QUIZQUESTIONS" description="" />
+
+
+	</fieldset>
+
+	<fieldset name="sidebar">
+		<field name="published" type="list" label="JSTATUS" class="inputbox" filter="intval" default="1">
+ 			 <option value="1">JPUBLISHED</option>
+ 			 <option value="0">JUNPUBLISHED</option>
+ 	 </field>
+
+	 <field name="created_by" type="user" label="JGLOBAL_FIELD_CREATED_BY_LABEL" />
+
+	 <field name="created" type="calendar"
+		label="COM_SPLMS_TITLE_CREATED_DATE"
+		translateformat = "true"
+	 />
+
+	 <field name="language" type="language" label="JFIELD_LANGUAGE_LABEL">
+		 <option value="*">JALL_LANGUAGE</option>
+	 </field>
+	 <field name="access" type="accesslevel" label="JFIELD_ACCESS_LABEL" />
+ </fieldset>
+
+
+</form>

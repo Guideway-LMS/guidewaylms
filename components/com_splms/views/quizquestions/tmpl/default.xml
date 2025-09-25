@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<fields name="params">
+		<fieldset name="basic" label="COM_SPLMS_FIELDSET_QUIZ_SETTING">
+			<field name="hide_pagination" type="radio" class="btn-group" default="0" label="COM_SPLMS_HIDE_PAGINATION" description="COM_SPLMS_HIDE_PAGINATION_DESC">
+				<option value="1">JYES</option>	
+				<option value="0">JNO</option>
+			</field>
+			<field name="columns" type="list" default="4" label="COM_SPLMS_FIELD_COLUMN" description="COM_SPLMS_FIELD_COLUMNS_DESC">
+				<option value="2">2</option>
+				<option value="3">3</option>	
+				<option value="4">4</option>	
+				<option value="6">6</option>	
+			</field>
+
+			<field name="limit" type="number" default="12" label="COM_SPLMS_FIELD_LIMIT" description="COM_SPLMS_FIELD_LIMIT_DESC" />
+
+		</fieldset>
+	</fields>
+</metadata>

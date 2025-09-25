@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="basic">
+		<field name="id" type="hidden" />
+		<field name="user_id"
+			label="COM_SPLMS_FIELD_STUDENT_NAME"
+			type="user"
+		/>
+
+		<field name="quizquestion_id"
+			type="sql"
+			translate="false"
+			query="SELECT id, title FROM #__splms_quizquestions WHERE published = 1"
+			key_field="id"
+			label="COM_SPLMS_FIELD_QUIZ_NAME"
+			value_field="title"
+			layout="joomla.form.field.list-fancy-select"
+		/>
+
+		<field name="course_id"
+			type="sql"
+			translate="false"
+			query="SELECT id, title FROM #__splms_courses WHERE published = 1"
+			key_field="id"
+			label="COM_SPLMS_FIELD_COURSE_NAME"
+			value_field="title"
+			layout="joomla.form.field.list-fancy-select"
+		/>
+
+		<field name="point" type="number"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_QUIZ_POINT"
+			labelclass="splms-label"
+			required="true"
+			size="50"
+			/>
+
+			<field name="total_marks" type="number"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_QUIZ_MARKS"
+			labelclass="splms-label"
+			required="true"
+			size="50"
+			/>
+
+	</fieldset>
+
+	<fieldset name="sidebar">
+		<field name="published" type="list" label="JSTATUS" class="inputbox" filter="intval" default="1">
+ 			 <option value="1">JPUBLISHED</option>
+ 			 <option value="0">JUNPUBLISHED</option>
+ 	 </field>
+
+	 <field name="created_by" type="user" label="JGLOBAL_FIELD_CREATED_BY_LABEL" />
+
+	 <field name="created" type="calendar"
+		label="COM_SPLMS_TITLE_CREATED_DATE"
+		translateformat="true"
+	 />
+
+	 <field name="language" type="language" label="JFIELD_LANGUAGE_LABEL">
+		 <option value="*">JALL_LANGUAGE</option>
+	 </field>
+	 <field name="access" type="accesslevel" label="JFIELD_ACCESS_LABEL" />
+ </fieldset>
+
+
+</form>

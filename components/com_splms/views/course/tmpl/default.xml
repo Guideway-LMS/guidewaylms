@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="COM_SPLMS_VIEW_SINGLE_COURSE_TITLE">
+        <message>
+            COM_SPLMS_VIEW_SINGLE_COURSE_TITLE_DESC
+        </message>
+    </layout>
+    <fields name="request">
+    	<fieldset name="request" addfieldpath="/components/com_splms/models/fields">
+    		<field name="id" type="courselist" label="COM_SPLMS_FIELD_SELECT_COURSE"/>
+    	</fieldset>
+    </fields>
+</metadata>

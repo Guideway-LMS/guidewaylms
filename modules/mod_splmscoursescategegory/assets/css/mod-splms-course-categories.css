@@ -1,0 +1,21 @@
+/**
+ * @package     SP LMS
+ * @subpackage  mod_splmscoursescategegory
+ *
+ * @copyright   Copyright (c) 2010 - 2021 JoomShaper. All rights reserved.
+ * @license     GNU General Public License version 2 or later.
+ */
+
+.mod-splms-course-categoies ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.mod-splms-course-categoies ul > li {
+	display: block;
+}
+
+.mod-splms-course-categoies ul > li span {
+	padding-left: 10px;	
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<field name="institute_name"
+		type="text"
+		label="COM_SPLMS_TITLE_TEACHER_EDUCATION_INSTITUTE"
+		
+	/>
+	<field name="institute_logo"
+		type="media"
+		label="COM_SPLMS_TITLE_TEACHER_EDUCATION_INSTITUTE_LOGO"
+		
+	/>
+	<field name="institute_location"
+		type="text"
+		label="COM_SPLMS_TITLE_TEACHER_EDUCATION_INSTITUTE_LOCATION"
+		
+	/>
+	<field name="education_session"
+		type="text"
+		label="COM_SPLMS_TITLE_TEACHER_EDUCATION_INSTITUTE_SESSION"
+		
+	/>
+</form>

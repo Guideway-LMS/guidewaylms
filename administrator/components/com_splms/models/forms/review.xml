@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form validate="true">
+	<fieldset name="basic" class="span12">
+		<field name="id" type="hidden" />
+		<field name="course_id" type="sql" translate="false" query="SELECT * FROM #__splms_courses WHERE published = 1" key_field="id" value_field="title" label="COM_SPLMS_FIELD_COURSE_NAME" />
+        <field name="created_by" label="JAUTHOR" type="user" />
+
+        <field name="rating" type="list" class="inputbox" default="1" label="COM_SPLMS_RATING_USER_FIELD_TITLE" required="true">
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+		</field>
+
+		<field name="review" type="textarea" class="inputbox span8" label="COM_SPLMS_REVIEWS_FIELD_TITLE" description="" rows="15" cols="100"
+		 />
+
+		<field name="enabled" type="list" label="JSTATUS" filter="intval" default="1" class="inputbox">
+			<option value="1">JPUBLISHED</option>
+			<option value="0">JUNPUBLISHED</option>
+		</field>
+	</fieldset>
+</form>

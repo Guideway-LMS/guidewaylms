@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field name="day" type="list" label="COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY" description="COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_DESC">
+    <option value="sunday">COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_SUNDAY</option>
+    <option value="monday">COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_MONDAY</option>
+    <option value="tuesday">COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_TUESDAY</option>
+    <option value="wednesday">COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_WEDNESAY</option>
+    <option value="thursday">COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_THURSDAY</option>
+    <option value="friday">COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_FRIDAY</option>
+    <option value="saturday">COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_SATURDAY</option>
+  </field>
+  <field name="text" type="textarea"
+   class="inputbox"
+   label="COM_SPLMS_FIELD_CLASS_SCHECDULE_DAY_TEXT"
+   labelclass="splms-label"
+   rows="5"
+   cols="5"
+   filter="JComponentHelper::filterText"
+  />
+</form>

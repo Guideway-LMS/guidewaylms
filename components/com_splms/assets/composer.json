@@ -1,0 +1,6 @@
+{
+    "require": {
+        "stripe/stripe-php": "^7.116",
+        "razorpay/razorpay": "^2.8"
+    }
+}

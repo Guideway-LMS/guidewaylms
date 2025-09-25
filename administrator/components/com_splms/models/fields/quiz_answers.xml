@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field name="qes_title"
+    type="text"
+    class="inputbox"
+    label="COM_SPLMS_FIELD_TITLE"
+    size="50"
+  />
+
+  <field name="ans_one"
+    type="text"
+    class="inputbox"
+    label="COM_SPLMS_FIELD_ANS_ONE"
+    size="50"
+  />
+
+  <field name="ans_two"
+    type="text"
+    class="inputbox"
+    label="COM_SPLMS_FIELD_ANS_TWO"
+    size="50"
+  />
+
+  <field name="ans_three"
+    type="text"
+    class="inputbox"
+    label="COM_SPLMS_FIELD_ANS_THREE"
+    size="50"
+  />
+
+  <field name="ans_four"
+    type="text"
+    class="inputbox"
+    label="COM_SPLMS_FIELD_ANS_FOUR"
+    size="50"
+  />
+
+  <field name="right_ans"
+    type="list"
+    label="COM_SPLMS_FIELD_CURRECT_ANS"
+    >
+    <option value="0">COM_SPLMS_FIELD_ANS_ONE</option>
+    <option value="1">COM_SPLMS_FIELD_ANS_TWO</option>
+    <option value="2">COM_SPLMS_FIELD_ANS_THREE</option>
+    <option value="3">COM_SPLMS_FIELD_ANS_FOUR</option>
+  </field>
+</form>

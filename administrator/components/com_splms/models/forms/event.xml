@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="basic">
+		<field name="id" type="hidden" />
+
+		<field name="title" type="text"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_TITLE"
+			
+			required="true"
+			size="50"
+		 />
+
+		 <field name="alias" type="text"
+			class="inputbox"
+			label="COM_SPLMS_FIELD_ALIAS"
+			description="COM_SPLMS_FIELD_ALIAS_DESC"
+			
+			size="50"
+		 />
+
+		 <field name="description" type="editor"
+			class="inputbox span6"
+			label="COM_SPLMS_TITLE_DESCRIPTION"
+			required="true"
+			rows="5"
+			cols="5"
+			filter="JComponentHelper::filterText"
+		 />
+
+ 		<field name="event_start_date"
+ 		 	type="calendar"
+ 		 	label="COM_SPLMS_EVENT_FIELD_START_DATE"
+ 		 	description="COM_SPLMS_EVENT_FIELD_START_DATE_DESC"
+ 		 	format="%Y-%m-%d"
+			translateformat="true"
+ 		/>
+
+ 		<field name="event_time"
+ 			type="text"
+ 			label="COM_SPLMS_EVENT_FIELD_EVENT_START_TIME"
+ 			description="COM_SPLMS_EVENT_FIELD_EVENT_TIME_DESC"
+			hint="hh:mm:ss"
+ 		/>
+
+ 		 <field name="event_end_date"
+ 			type="calendar"
+ 			label="COM_SPLMS_EVENT_FIELD_END_DATE"
+ 			description="COM_SPLMS_EVENT_FIELD_END_DATE_DESC"
+ 			format="%Y-%m-%d"
+			translateformat="true"
+ 		/>
+
+ 		<field name="event_end_time"
+ 			type="text"
+ 			label="COM_SPLMS_EVENT_FIELD_EVENT_END_TIME"
+ 			description="COM_SPLMS_EVENT_FIELD_EVENT_END_TIME_DESC"
+			hint="hh:mm:ss"
+ 		/>
+
+ 		<field name="speaker_id"
+ 			type="sql"
+ 			translate="false"
+ 			query="SELECT * FROM #__splms_speakers WHERE published = 1"
+ 			key_field="id"
+ 			label="COM_SPLMS_TITLE_SPEAKERS"
+ 			value_field="title"
+ 			multiple="multiple"
+			layout="joomla.form.field.list-fancy-select"
+ 		/>
+
+ 		<field name="event_address" type="textarea"
+ 			class="inputbox"
+ 			label="COM_SPLMS_EVENT_FIELD_EVENT_ADDRESS"
+ 			description="COM_SPLMS_EVENT_FIELD_EVENT_ADDRESS_DESC"
+ 			size="50"
+ 		/>
+
+ 		<field name="map"
+ 			type="gmap"
+ 			label="COM_SPLMS_EVENT_FIELD_EVENT_MAP"
+ 			default="40.7324319, -73.82480799999996"
+ 		/>
+
+ 		<field name="topics" type="subform" class="class_schedule"
+		formsource="/administrator/components/com_splms/models/fields/eventtopic.xml" multiple="true"
+		label="COM_SPLMS_FIELD_EVENT_TOPICS" description="COM_SPLMS_FIELD_EVENT_TOPICS_DESC" />
+
+		<field name="gallery" type="subform" class="class_schedule"
+		formsource="/administrator/components/com_splms/models/fields/gallery.xml" multiple="true"
+		label="COM_SPLMS_FIELD_EVENT_GALLERY" description="COM_SPLMS_FIELD_EVENT_GALLERY_DESC" />
+
+		<field name="pricing_tables" type="subform"
+		formsource="/administrator/components/com_splms/models/fields/pricingtable.xml" multiple="true"
+		label="COM_SPLMS_FIELD_EVENT_PRICING_TABLE" description="COM_SPLMS_FIELD_EVENT_PRICING_TABLE_DESC" />
+
+	</fieldset>
+
+
+	<fieldset name="sidebar">
+	 	<field name="eventcategory_id"
+			label="COM_SPLMS_TITLE_COURSECATEGORIES"
+			type="sql"
+			translate="false"
+			query="SELECT id, title FROM #__splms_eventcategories WHERE published = 1"
+			key_field="id"
+			value_field="title"
+			layout="joomla.form.field.list-fancy-select"
+		/>
+
+		<field name="image"
+			type="media"
+			directory=""
+			class="inputbox"
+			label="COM_SPLMS_TITLE_IMAGE"
+		/>
+
+		<field name="price" type="number"
+		 class="inputbox"
+		 label="COM_SPLMS_TITLE_PRICE"
+		 description="COM_SPLMS_DESCRIPTION_PRICE"
+		 
+		 size="50"
+		 filter="raw"
+		/>
+
+		<field name="buy_url" type="url"
+			class="inputbox"
+			label="COM_SPLMS_EVENT_FIELD_BUY_URL"
+			size="50"
+		/>
+
+		 <field name="created_by" type="user" label="JGLOBAL_FIELD_CREATED_BY_LABEL" />
+
+		 <field name="created" type="calendar"
+			label="COM_SPLMS_TITLE_CREATED_DATE"
+			translateformat="true"
+		 />
+
+		 <field name="language" type="language" label="JFIELD_LANGUAGE_LABEL">
+			 <option value="*">JALL_LANGUAGE</option>
+		 </field>
+		 <field name="access" type="accesslevel" label="JFIELD_ACCESS_LABEL" />
+
+		 <field name="published" type="list" label="JSTATUS" class="inputbox" filter="intval" default="1">
+	 			 <option value="1">JPUBLISHED</option>
+	 			 <option value="0">JUNPUBLISHED</option>
+	 	 </field>
+
+	</fieldset>
+
+
+</form>

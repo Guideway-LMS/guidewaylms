@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field name="title"
+   type="inputbox"
+   label="COM_SPLMS_TITLE_TOPICS_SESSION_TITLE"
+   
+  />
+  <field name="time"
+   type="inputbox"
+   label="COM_SPLMS_TITLE_TOPICS_SESSION_TIME"
+   
+  />
+  <field name="speaker_id"
+     type="sql"
+     translate="false"
+     query="SELECT id, title FROM #__splms_speakers WHERE published = 1"
+     key_field="id"
+     label="COM_SPLMS_TITLE_SPEAKERS"
+     value_field="title"
+   />
+   <field name="time"
+    type="inputbox"
+    label="COM_SPLMS_TITLE_TOPICS_SESSION_TIME"
+    
+   />
+
+   <field name="group"
+    type="inputbox"
+    label="COM_SPLMS_TITLE_TOPICS_SESSION_GROUP"
+    
+   />
+</form>

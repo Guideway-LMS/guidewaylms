@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<fields name="params">
+		<fieldset name="basic" label="COM_SPLMS_FIELDSET_EVENTCATEGORIES_SETTINGS">
+			<field name="ordering" type="list" class="btn-group" default="0" label="COM_SPLMS_ORDERING" description="COM_SPLMS_ORDERING_DESC">
+				<option value="ASC">COM_SPLMS_ORDER_ASCENDING</option>
+				<option value="DESC">COM_SPLMS_ORDER_DESCENDING</option>
+			</field>
+			<field name="hide_pagination" type="radio" class="btn-group" default="0" label="COM_SPLMS_HIDE_PAGINATION" description="COM_SPLMS_HIDE_PAGINATION_DESC">
+				<option value="1">JYES</option>	
+				<option value="0">JNO</option>
+			</field>
+
+			<field name="columns" type="list" default="4" label="COM_SPLMS_FIELD_COLUMN" description="COM_SPLMS_FIELD_COLUMNS_DESC">
+				<option value="2">2</option>
+				<option value="3">3</option>	
+				<option value="4">4</option>	
+				<option value="6">6</option>	
+			</field>
+
+			<field name="limit" type="number" default="12" label="COM_SPLMS_FIELD_LIMIT" description="COM_SPLMS_FIELD_LIMIT_DESC" />
+
+			<field type="spacer" name="event_category_hr" hr="true" />
+			<field type="spacer" name="event_category_spacer" label="COM_SPLMS_EVENTCATEGORIES_EVENT_LISTING_SECTION" />
+
+			<field name="intro_limit" type="text" default="120" label="COM_SPLMS_EVENTCATEGORIES_ITEMS_INTRO_TEXT" description="COM_SPLMS_EVENTCATEGORIES_ITEMS_INTRO_TEXT_DESC" />
+
+			<field name="show_readmore" type="radio" class="btn-group" default="1" label="COM_SPLMS_EVENTCATEGORIES_SHOW_READMORE_IN_ITEM_LIST" description="COM_SPLMS_EVENTCATEGORIES_SHOW_READMORE_IN_ITEM_LIST_DESC">
+				<option value="1">JYES</option>	
+				<option value="0">JNO</option>
+			</field>
+			<field name="readmore_text" type="text" default="Details" label="COM_SPLMS_EVENTCATEGORIES_READMORE_TEXT_IN_ITEM_LIST" description="COM_SPLMS_EVENTCATEGORIES_READMORE_TEXT_IN_ITEM_LIST_DESC" />
+
+		</fieldset>
+	</fields>
+</metadata>

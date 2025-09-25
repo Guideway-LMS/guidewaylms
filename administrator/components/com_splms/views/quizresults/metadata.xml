@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<metadata>
+	<view title="COM_SPLMS_TITLE_QUIZRESULTS">
+		<message><![CDATA[COM_SPLMS_TITLE_QUIZRESULTS]]></message>
+	</view>
+	<foflib>
+		<ordering>7</ordering>
+	</foflib>
+</metadata>

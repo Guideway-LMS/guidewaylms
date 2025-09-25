@@ -1,2 +1,0 @@
-# guidewaylms
-Plataforma LMS

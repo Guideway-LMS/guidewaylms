@@ -1,0 +1,156 @@
+/**
+ * @package     SPLMS
+ * @subpackage  mod_splmscourses
+ *
+ * @copyright   Copyright (C) 2010 - 2021 JoomShaper. All rights reserved.
+ * @license     GNU General Public License version 2 or later.
+ */
+ 
+.mod-splms-cart ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.mod-splms-cart ul>li {
+	display: block;
+	margin-top: 15px;
+}
+
+.mod-splms-cart ul>li:first-child {
+	margin-top: 0;
+}
+
+.mod-splms-cart ul>li .splms-course-img{
+	float: left;
+	margin-right: 15px;
+}
+
+
+/* splms Cart list */
+.splms-cart-list{
+  margin-top: 12px;
+}
+
+.splms-cart-list .cart-icon{
+  cursor: pointer;
+  border-radius: 35px;
+  width: 35px;
+  height: 35px;
+  line-height: 32px;
+  text-align: center;
+  transition: .3s;
+}
+.splms-cart-list .cart-icon.active{
+  background: #333;
+  color: #fff;
+}
+
+.splms-cart-list .splms-courses-list-wrap {
+  position: absolute;
+  top: 60px;
+  z-index: 10;
+  min-width: 430px;
+  right: 0;
+  background: #fff;
+  font-size: 12px;
+  border: 1px solid #E8EFF1;
+  display: none;
+}
+.splms-cart-list .splms-courses-list-wrap:before {
+  content: '';
+  position: absolute;
+  right: 60px;
+  top: 0px;
+  width: 0;
+  height: 0;
+  border-width: 5px;
+  border-color: #ededed #ededed transparent transparent;
+  border-style: solid;
+  transform: rotate(-45deg);
+  transform-origin: 0 0;
+  box-sizing: border-box;
+  z-index: 100;
+}
+.splms-cart-list .splms-courses-list-wrap .cart-text-wrap{
+  padding: 10px 22px;
+  font-size: 16px;
+  text-align: center;
+}
+.splms-cart-list ul.splms-courses-list>li {
+  display: -webkit-flex;
+  display: flex;
+  border-bottom: 1px solid #EBEEF5;
+  padding: 7px 12px 5px 12px;
+  margin-top: 0;
+}
+.splms-cart-list ul.splms-courses-list>li:last-child {
+	border-bottom: none;
+}
+.splms-cart-list .splms-course-img{
+	width: 40px;
+	margin-right: 10px;
+	border-radius: 3px;
+}
+.splms-cart-list .splms-course-title{
+  font-size: 13px;
+}
+.splms-cart-list .splms-course-title>a{
+  color: #4B5981;
+}
+.splms-cart-list .splms-course-title>a:hover{
+  color: #000;
+}
+.splms-cart-list .splms-courses-list .course-info{
+	display: flex;
+	color: #B1B8C9;
+  font-size: 12px;
+	line-height: 1.4;
+	margin-top: 2px;
+}
+.splms-cart-list .course-info>li{
+	margin-right: 20px;
+  margin-top: 0px;
+}
+.splms-cart-list .splms-courses-list .course-info>li>a{
+  color: #B1B8C9;
+  line-height: 1.3;
+}
+.splms-cart-list .splms-courses-list .course-info>li>a:hover,
+.splms-cart-list .splms-courses-list .course-info>li>a:focus{
+  color: #000;
+}
+.splms-cart-list .mod-splms-course-price{
+  margin-left: auto;
+}
+.splms-cart-list .mod-splms-course-price .splms-price-box ins{
+	text-decoration: none;
+	color: #4B5981;
+	font-weight: 600;
+	line-height: 1;
+	margin-right: 0;
+}
+.splms-cart-list .mod-splms-course-price .splms-price-box del{
+	color: #B1B8C9;
+	display: inline-block;
+	margin-right: 10px;
+}
+.splms-cart-list .splms-courses-footer{
+  background: #EBEEF5;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+.splms-cart-list .splms-courses-footer .total-cost{
+  text-align: right;
+  color: #B1B8C9;
+}
+.splms-cart-list .splms-courses-footer .title{
+  line-height: 1.5;
+    margin-bottom: 0;
+}
+.splms-cart-list .splms-courses-footer .cost{
+  color: #4B5981;
+  font-size: 16px;
+  line-height: 1.2;
+}
