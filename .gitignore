@@ -1,4 +1,5 @@
 /.htaccess
+/.htaccess.admintools
 /administrator/cache/*
 /administrator/logs/*
 /cache/*
