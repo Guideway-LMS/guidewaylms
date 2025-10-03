@@ -34,6 +34,7 @@ jobs:
           rsync -avz --delete \
             --exclude='/.git/' \
             --exclude='/.github/' \
+            --exclude='/_dumps/' \
             --exclude='/node_modules/' \
             --exclude='/cache/' \
             --exclude='/administrator/cache/' \
@@ -41,7 +42,10 @@ jobs:
             --exclude='/tmp/' \
             --exclude='/.vscode/' \
             --exclude='/configuration.php' \
+            --exclude='/configuration.php - example' \
             --exclude='/.htaccess' \
+            --exclude='/.htaccess.admintools' \
+            --exclude='/.htaccess - example' \
             --exclude='/composer.json' \
             --exclude='/composer.lock' \
             --exclude='/package-lock.json' \
