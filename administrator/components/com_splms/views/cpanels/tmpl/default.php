@@ -124,7 +124,7 @@ $users = SplmsHelper::getUsers();
 				$month 		= $jnow->format('m');
 				$year 		= $jnow->format('Y');
 
-				$days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+				$days = date('t', mktime(0, 0, 0, $month, 1, $year));
 				$data = '';
 
 				for ($i=1; $i<=$days; $i++) {
