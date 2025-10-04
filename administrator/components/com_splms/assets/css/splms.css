@@ -2213,3 +2213,22 @@
     margin-left: 65px;
   }
 }
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .splms-box {
+    background: #2a2a2a;
+    color: #ffffff;
+  }
+  .splms-box h3 {
+    color: #ffffff;
+  }
+  .splms-dashboard-canvas {
+    background: #2a2a2a;
+    color: #ffffff;
+  }
+  .latest-courses ul li .created,
+  .recent-orders ul li .created {
+    color: #cccccc;
+  }
+}
