@@ -32,6 +32,11 @@ SpAddonsConfig::addonConfig([
 							'std' => 'John Doe',
 						],
 
+						'item_visibility' => [
+                            'type' => 'visibility',
+                            'std'  => true,
+                        ],
+
 						'designation' => [
 							'type' => 'text',
 							'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_DESIGNATION'),

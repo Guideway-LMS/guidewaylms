@@ -14,6 +14,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Access\Access;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Helper\TagsHelper;
 use Joomla\Utilities\ArrayHelper;
@@ -48,7 +49,7 @@ abstract class SppagebuilderHelperArticles
 		}
 		return true;
 	}
-	public static function getArticles( $count = 5, $ordering = 'latest', $catid = '', $include_subcategories = true, $post_format = '', $tagids = array(), $state = 1) {
+	public static function getArticles( $count = 5, $ordering = 'latest', $catid = '', $include_subcategories = true, $post_format = '', $tagids = array(), $state = 1, $currentPage = 1) {
 
 		$authorised = Access::getAuthorisedViewLevels(Factory::getUser()->get('id'));
 
@@ -57,15 +58,20 @@ abstract class SppagebuilderHelperArticles
 		$nullDate = $db->quote($db->getNullDate());
 		$nowDate  = $db->quote(Factory::getDate()->toSql());
 
+		$baseUrl = rtrim(\Joomla\CMS\Uri\Uri::root(), '/');
+
 		$query = $db->getQuery(true);
 
 		$query
-		->select('a.*')
+		->select(['a.*', 'u.email as created_by_email', 'CASE WHEN p.profile_value IS NOT NULL THEN CONCAT(' . $db->quote($baseUrl) . ', JSON_UNQUOTE(p.profile_value)) ELSE NULL END as profile_image'])
 		->from($db->quoteName('#__content', 'a'))
 		->select($db->quoteName('b.alias', 'category_alias'))
 		->select($db->quoteName('b.title', 'category'))
 		->join('LEFT', $db->quoteName('#__categories', 'b') . ' ON (' . $db->quoteName('a.catid') . ' = ' . $db->quoteName('b.id') . ')')
-		->where($db->quoteName('b.extension') . ' = ' . $db->quote('com_content'));
+		->join('LEFT', $db->quoteName('#__users', 'u') . ' ON ' . $db->quoteName('u.id') . ' = ' . $db->quoteName('a.created_by') . ' AND ' . $db->quoteName('a.created_by') . ' IS NOT NULL')
+		->join('LEFT', $db->quoteName('#__user_profiles', 'p') . ' ON ' . $db->quoteName('p.user_id') . ' = ' . $db->quoteName('a.created_by') . ' AND ' . $db->quoteName('p.profile_key') . ' = ' . $db->quote('profileimage.profile_image'))
+		->where($db->quoteName('b.extension') . ' = ' . $db->quote('com_content'))
+		->group($db->quoteName('a.id'));
 
 		if($post_format) {
 			$query->where('('.$db->quoteName('a.attribs') . ' LIKE ' . $db->quote('%"post_format":"'. $post_format .'"%') . ' OR ' . $db->quoteName('a.attribs') . ' LIKE ' . $db->quote('%"helix_ultimate_article_format":"'. $post_format .'"%').')');
@@ -85,8 +91,10 @@ abstract class SppagebuilderHelperArticles
 			$categories = self::getCategories($catid, $include_subcategories );
 		
 			$categories = array_filter(array_merge($categories, $catid));
-	
-			$query->where($db->quoteName('a.catid')." IN (" . implode( ',', $categories ) . ")");
+
+			if (!empty($categories)) {
+				$query->where($db->quoteName('a.catid')." IN (" . implode( ',', $categories ) . ")");
+			}
 		}
 
 		// tags filter
@@ -159,10 +167,13 @@ abstract class SppagebuilderHelperArticles
 			$query->where('a.language IN (' . $db->Quote(Factory::getLanguage()->getTag()) . ',' . $db->Quote('*') . ')');
 		}
 
+		$start = ($currentPage - 1) * $count;
+
 		// continue query
 		$query->where($db->quoteName('a.access')." IN (" . implode( ',', $authorised ) . ")");
 		$query->order($db->quoteName('a.created') . ' DESC')
-		->setLimit($count);
+		->setLimit($count, $start);
+		
 		$db->setQuery($query);
 		$items = $db->loadObjectList();
 
@@ -173,6 +184,7 @@ abstract class SppagebuilderHelperArticles
 			$item->slug    	= $item->id . ':' . $item->alias;
 			$item->catslug 	= $item->catid . ':' . $item->category_alias;
 			$item->username = Factory::getUser($item->created_by)->name;
+			$item->profile_image = $item->profile_image ?? '';
 			$item->link 	= Route::_(version_compare($JoomlaVersion, '4.0.0', '>=') ? Joomla\Component\Content\Site\Helper\RouteHelper::getArticleRoute($item->slug, $item->catid, $item->language) : ContentHelperRoute::getArticleRoute($item->slug, $item->catid, $item->language));
 			$attribs 		= json_decode($item->attribs);
 
@@ -430,6 +442,16 @@ abstract class SppagebuilderHelperArticles
 					}
 				}
 			}
+
+			if (empty($item->profile_image)) {
+				$enableGravatar = ComponentHelper::getParams('com_sppagebuilder')->get('enable_gravatar', 1);
+				if ($enableGravatar && !empty($item->created_by_email)) {
+					$gravatarUrl = self::getGravatarUrl($item->created_by_email, 45, '404');
+					if ($gravatarUrl) {
+						$item->profile_image = $gravatarUrl;
+					}
+				}
+			}
 		}
 
 		return $items;
@@ -511,5 +533,16 @@ abstract class SppagebuilderHelperArticles
 		}
 
 		return false;
+	}
+
+	private static function getGravatarUrl($email, $size = 45, $default = '404') {
+		if (empty($email)) {
+			return false;
+		}
+		
+		$hash = md5(strtolower(trim($email)));
+		$url = "https://www.gravatar.com/avatar/{$hash}?s={$size}&d={$default}";
+		
+		return $url;
 	}
 }

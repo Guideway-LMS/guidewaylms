@@ -49,6 +49,8 @@ class SppagebuilderAddonDynamic_content_image extends SppagebuilderAddons
         }
 
         $attributeType = $settings->attribute->type ?? 'image';
+        $attributePath = $settings->attribute->path ?? '';
+        $attributeId = $settings->attribute->id ?? '';
 
         $src = CollectionHelper::getDynamicContentData($settings->attribute, $settings->dynamic_item) ?? '';
         if (isset($settings->dynamic_item['collection_id']) && $settings->dynamic_item['collection_id'] === CollectionIds::ARTICLES_COLLECTION_ID) {
@@ -142,6 +144,15 @@ class SppagebuilderAddonDynamic_content_image extends SppagebuilderAddons
         if (strpos($src, 'http') === false) {
             $src = Uri::root(true) . '/' . $src;
             $poster = Uri::root(true) . '/' . $poster;
+        }
+
+        if ($attributeType === FieldTypes::IMAGE && $attributePath === 'profile_image' && $attributeId === -20) {
+            if (empty($src) || $src === '/') {
+                $avatarColor = "#4285F4";
+                $textColor = $this->getTextColor($avatarColor);
+                $initials = $this->getInitials(!empty($settings->dynamic_item['username']) ? $settings->dynamic_item['username'] : '');
+                $src = $this->toDataUrl($avatarColor, $textColor, $initials);
+            }
         }
 
         $output = '<' . $wrapperSelector . ' class="sppb-dynamic-content-image-wrapper ' . $class . '" style="' . $cssVariables . '" ' . $attributes . '>';
@@ -238,7 +249,16 @@ class SppagebuilderAddonDynamic_content_image extends SppagebuilderAddons
 
             if($src && $src !== '/')
             {
-                $output .= '<img src="' . $src . '" alt="Dynamic Content Image" class="sppb-dynamic-content-image" style="object-fit: ' . $imageFit . '; aspect-ratio: ' . $aspectRatio . ';" />';
+                $output .= '<img src="' . $src . '" alt="Dynamic Content Image" class="sppb-dynamic-content-image" style="object-fit: ' . $imageFit . '; aspect-ratio: ' . $aspectRatio . ';" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />';
+                if ($attributeType === FieldTypes::IMAGE && $attributePath === 'profile_image' && $attributeId === -20) {
+                    if (strpos($src, 'www.gravatar.com') !== false) {
+                        $avatarColor = "#4285F4";
+                        $textColor = $this->getTextColor($avatarColor);
+                        $initials = $this->getInitials(!empty($settings->dynamic_item['username']) ? $settings->dynamic_item['username'] : '');
+                        $src = $this->toDataUrl($avatarColor, $textColor, $initials);
+                        $output .= '<img src="' . $src . '" alt="Dynamic Content Image" class="sppb-dynamic-content-image" style="object-fit: ' . $imageFit . '; aspect-ratio: ' . $aspectRatio . ';" onerror="this.style.display=\'none\';" />';
+                    }
+                }
             }
             
         }
@@ -473,6 +493,57 @@ class SppagebuilderAddonDynamic_content_image extends SppagebuilderAddons
 
 		return $output;
     }
+
+    private function getInitials($name) {
+		$words = explode(' ', trim($name));
+		$initials = '';
+		if (count($words) > 1) {
+			$initials .= strtoupper(substr($words[0], 0, 1));
+			$initials .= strtoupper(substr(end($words), 0, 1));
+		} else {
+			$initials .= strtoupper(substr($name, 0, 1));
+		}
+		return $initials;
+	}
+
+	private function getTextColor($color) {
+		$r = hexdec(substr($color, 1, 2));
+		$g = hexdec(substr($color, 3, 2));
+		$b = hexdec(substr($color, 5, 2));
+
+		$brightness = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+
+		return ($brightness > 128) ? '#000000' : '#FFFFFF';
+	}
+
+    private function toDataUrl(string $avatarColor, string $textColor, string $initials, int $size = 45): string
+    {
+        $avatarColor = trim($avatarColor);
+        $textColor   = trim($textColor);
+        $initialsEsc = htmlspecialchars(strtoupper($initials), ENT_QUOTES, 'UTF-8');
+    
+        $fontSize = (int) round($size * 0.44);
+    
+        $svg = '
+    <svg xmlns="http://www.w3.org/2000/svg" width="' . $size . '" height="' . $size . '" viewBox="0 0 ' . $size . ' ' . $size . '" role="img" aria-label="avatar">
+      <circle cx="' . $size / 2 . '" cy="' . $size / 2 . '" r="' . $size / 2 . '" fill="' . $avatarColor . '" />
+      <text x="50%" y="55%"
+            fill="' . $textColor . '"
+            font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif"
+            font-size="' . $fontSize . '"
+            font-weight="600"
+            text-anchor="middle"
+            dominant-baseline="middle">
+        ' . $initialsEsc . '
+      </text>
+    </svg>
+    ';
+    
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    }    
+    
+    
+    
 
     public function stylesheets()
 	{

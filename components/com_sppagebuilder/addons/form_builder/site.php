@@ -542,7 +542,7 @@ class SppagebuilderAddonForm_builder extends SppagebuilderAddons
             return json_encode($output);
         }
 
-        if (empty($viewid) && $view === 'dynamic') {
+        if ($view === 'dynamic') {
             $viewid = (new SppagebuilderModelDynamic())->getPageIdFromCollectionItemId();
         }
 

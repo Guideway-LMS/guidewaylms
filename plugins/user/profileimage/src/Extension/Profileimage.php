@@ -13,12 +13,14 @@
 // No direct access
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Extension\Component;
 use Joomla\CMS\Version;
 
 $joomlaVersion = defined('JVERSION') ? JVERSION : (new Version())->getShortVersion();
 
 if (version_compare($joomlaVersion, '6.0', '>=')) {
-     if (!class_exists('Joomla\CMS\Filesystem\File')) {
+    if (!class_exists('Joomla\CMS\Filesystem\File')) {
         class_alias('\Joomla\Filesystem\File', 'Joomla\CMS\Filesystem\File');
     }
     if (!class_exists('Joomla\CMS\Filesystem\Folder')) {
@@ -211,10 +213,12 @@ final class Profileimage extends CMSPlugin
 
         // New profile image
         $imageName = self::$uploadedFiles['profileimage']['profile_image']['name'] ?? '';
+        $allowedMediaExtensions = ComponentHelper::getComponent('com_media')->params->get('image_extensions');
+        $allowedMediaExtensions = array_map('trim', explode(',', $allowedMediaExtensions));
 
         if (isset($imageName) && $imageName != '') {
             // Check file extension
-            if (!self::fileExtensionCheck(self::$uploadedFiles, ['png', 'jpg', 'jpeg', 'gif'])) {
+            if (!self::fileExtensionCheck(self::$uploadedFiles, $allowedMediaExtensions)) {
                 throw new RuntimeException(Text::_('PLG_USER_PROFILEIMAGE_ERROR_INVALID_EXTENSION'), 1);
             }
             // Check file size (2MB default)

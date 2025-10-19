@@ -145,6 +145,10 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 
 			foreach ($settings->slideshow_items as $item_key => $item_value)
 			{
+				if(isset($item_value->item_visibility) && $item_value->item_visibility === false) {
+					continue;
+				}
+
 				if(is_int($increasing_addon_id)) {
 					$increasing_addon_id++;
 				}
@@ -185,6 +189,10 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 					{
 						foreach ($item_value->slideshow_inner_items as $inner_item_key => $inner_value)
 						{
+							if(isset($inner_value->item_visibility) && $inner_value->item_visibility === false) {
+								continue;
+							}
+
 							$inner_uniqid = 'sp-slider-inner-item-' . $increasing_addon_id . '-num-' . $inner_item_key . '-key';
 							$content_class = (isset($inner_value->content_class) && $inner_value->content_class) ? ' ' . $inner_value->content_class : '';
 
@@ -1292,7 +1300,10 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 				data.slideshow_items = _.shuffle(data.slideshow_items);
 			}
 		#>
-			<# _.each (data.slideshow_items, function(item_value, item_key) { 
+			<# _.each (data.slideshow_items, function(item_value, item_key) {
+				if (item_value.item_visibility !== undefined && item_value.item_visibility === false) {
+						return;
+				} 
 				var slider_img = {}
 				if (typeof item_value.slider_img !== "undefined" && typeof item_value.slider_img.src !== "undefined") {
 					slider_img = item_value.slider_img
@@ -1444,6 +1455,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 
 		$output .= ' <# if (!_.isEmpty(data.slideshow_items) && data.slideshow_items) {
 			_.each (data.slideshow_items, function(item_value, item_key) {
+				if (item_value.item_visibility !== undefined && item_value.item_visibility === false) {
+					return;
+				}
 			let uniqid = `#sp-slider-item-${data.id}-num-${item_key}-key`; 
 			let content_alignment = (!_.isEmpty(item_value.content_alignment) && item_value.content_alignment) ? item_value.content_alignment : "";
 		#>';
@@ -1487,6 +1501,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 
 				<# if (!_.isEmpty(item_value.slideshow_inner_items)) {
 					_.each (item_value.slideshow_inner_items, function(inner_value, inner_item_key) {
+					if (inner_value.item_visibility !== undefined && inner_value.item_visibility === false) {
+					return;
+				}
 						let inner_uniqid = `#sp-slider-inner-item-${data.id}-num-${inner_item_key}-key`;
 				#>';
 		$output .= '<# if (inner_value.content_type !== "image_content") { #>';
@@ -1725,6 +1742,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 			<#
 				if(!_.isEmpty(data.slideshow_items)){
 					_.each (data.slideshow_items, function(item_value, item_key) {
+					if (item_value.item_visibility !== undefined && item_value.item_visibility === false) {
+						return;
+					}
 						let uniqid = `sp-slider-item-${data.id}-num-${item_key}-key`;
 						let last_field_key = item_key;
 						let activeClass = "";
@@ -1760,6 +1780,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 								<div class="sp-slider-content-align-{{content_alignment}}">
 								<#
 								_.each(item_value.slideshow_inner_items, function(inner_value, inner_item_key){
+									if (inner_value.item_visibility !== undefined && inner_value.item_visibility === false) {
+										return;
+									}
 									let last_field_inner_key = `slideshow_inner_items-${inner_item_key}`;
 									let inner_uniqid = `sp-slider-inner-item-${data.id}-num-${inner_item_key}-key`;
 									let animation_timing_function = (!_.isEmpty(inner_value.animation_timing_function) && inner_value.animation_timing_function) ? inner_value.animation_timing_function : "";
@@ -1882,6 +1905,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 											<div class="sp-slider-content-align-{{content_alignment}}">
 												<#
 												_.each(item_value.slideshow_inner_items, function(inner_value, inner_item_key){
+													if (inner_value.item_visibility !== undefined && inner_value.item_visibility === false) {
+														return;
+													}
 													let last_field_inner_key = `slideshow_inner_items-${inner_item_key}`;
 													let inner_uniqid = `sp-slider-inner-item-${data.id}-num-${inner_item_key}-key`;
 													let animation_timing_function = (!_.isEmpty(inner_value.animation_timing_function) && inner_value.animation_timing_function) ? inner_value.animation_timing_function : "";
@@ -1997,6 +2023,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 											<div class="sp-slider-image-align-{{image_content_alignment}}">
 												<#
 												_.each(item_value.slideshow_inner_items, function(inner_value, inner_item_key){
+													if (inner_value.item_visibility !== undefined && inner_value.item_visibility === false) {
+														return;
+													}
 													let last_field_inner_key = `slideshow_inner_items-${inner_item_key}`;
 													let inner_uniqid = `sp-slider-inner-item-${data.id}-num-${inner_item_key}-key`;
 													let animation_timing_function = (!_.isEmpty(inner_value.animation_timing_function) && inner_value.animation_timing_function) ? inner_value.animation_timing_function : "";
@@ -2061,6 +2090,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 											<div class="sp-slider-image-align-{{image_content_alignment}}">
 												<#
 												_.each(item_value.slideshow_inner_items, function(inner_value, inner_item_key){
+													if (inner_value.item_visibility !== undefined && inner_value.item_visibility === false) {
+														return;
+													}
 													let last_field_inner_key = `slideshow_inner_items-${inner_item_key}`;
 													let inner_uniqid = `sp-slider-inner-item-${data.id}-num-${inner_item_key}-key`;
 													let animation_timing_function = (!_.isEmpty(inner_value.animation_timing_function) && inner_value.animation_timing_function) ? inner_value.animation_timing_function : "";
@@ -2124,6 +2156,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 											<div class="sp-slider-content-align-{{content_alignment}}">
 												<#
 												_.each(item_value.slideshow_inner_items, function(inner_value, inner_item_key){
+													if (inner_value.item_visibility !== undefined && inner_value.item_visibility === false) {
+														return;
+													}
 													let last_field_inner_key = `slideshow_inner_items-${inner_item_key}`;
 													let inner_uniqid = `sp-slider-inner-item-${data.id}-num-${inner_item_key}-key`;
 													let animation_timing_function = (!_.isEmpty(inner_value.animation_timing_function) && inner_value.animation_timing_function) ? inner_value.animation_timing_function : "";
@@ -2286,6 +2321,9 @@ class SppagebuilderAddonJs_slideshow extends SppagebuilderAddons
 							if(_.isArray(item_value.slideshow_inner_items)){
 								let dot_item = 0;
 								_.each(item_value.slideshow_inner_items, function(inner_value, inner_item_key){
+									if (inner_value.item_visibility !== undefined && inner_value.item_visibility === false) {
+										return;
+									}
 									if(inner_value.content_type == "title_content" && dot_item < 2 ) {
 										captionItem.unshift(inner_value);
 									}

@@ -69,7 +69,7 @@ class SppagebuilderAddonGallery extends SppagebuilderAddons
 					}
 
 					$placeholder = $thumb_src == '' ? false : $this->get_image_placeholder($thumb_src);
-					$title = $show_full_desc && isset($value->description) && $value->description ?  'data-title="<div id='. $addon_id . '>' . '<p class=sppb-gallery-desc>' . $description . '</p>' . '</div>"' : '';
+					$title = $show_full_desc && isset($value->description) && $value->description ?  'data-title="<div id='. $addon_id . '>' . '<p class=sppb-gallery-desc>' . $description . '</p>' . '</div>"' : 'data-title=""';
 
 					$output .= '<li>';
 					$output .= ($full_src) ? '<a href="' . $full_src . '" class="sppb-gallery-btn">' : '';

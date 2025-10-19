@@ -33,6 +33,7 @@ final class FieldTypes
     public const EMAIL            = 'email';
     public const PHONE            = 'phone';
     public const NUMBER           = 'number';
+    public const RATING           = 'rating';
     public const SWITCH           = 'switch';
     public const COLOR            = 'color';
     public const OPTION           = 'option';
@@ -61,6 +62,7 @@ final class FieldTypes
             self::DATETIME,
             self::LINK,
             self::NUMBER,
+            self::RATING,
             self::SWITCH,
             self::COLOR,
             self::OPTION,

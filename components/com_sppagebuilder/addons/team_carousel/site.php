@@ -58,6 +58,10 @@ class SppagebuilderAddonTeam_carousel extends SppagebuilderAddons
 
 			foreach ($settings->sp_team_carousel_item as $item_key => $carousel_item)
 			{
+				if (isset($carousel_item->item_visibility) && $carousel_item->item_visibility === false)
+				{
+					continue;
+				}
 				$carousel_img = isset($carousel_item->team_carousel_img) && $carousel_item->team_carousel_img ? $carousel_item->team_carousel_img : '';
 				$carousel_img_src = isset($carousel_img->src) ? $carousel_img->src : $carousel_img;
 				$person_name = isset($carousel_item->person_name) ? $carousel_item->person_name : '';
@@ -110,6 +114,10 @@ class SppagebuilderAddonTeam_carousel extends SppagebuilderAddons
 
 					foreach ($carousel_item->team_carousel_item as $inner_item_key => $inner_item_value)
 					{
+						if (isset($inner_item_value->item_visibility) && $inner_item_value->item_visibility === false)
+						{
+							continue;
+						}
 						$socialUrl = EditorUtils::stringifyLinkItem($inner_item_value->social_url);
 						$innerItemTitle = $inner_item_value->title ?? '';
 						$content .= '<li>';
@@ -446,6 +454,9 @@ class SppagebuilderAddonTeam_carousel extends SppagebuilderAddons
 						data.sp_team_carousel_item = _.shuffle(data.sp_team_carousel_item);
 					}
                     _.each(data.sp_team_carousel_item, function(carousel_item){
+						if(carousel_item.item_visibility !== undefined && carousel_item.item_visibility === false){
+							return;
+						}
 						const profileLink = carousel_item.person_profile_link;
 						const isUrlObject = _.isObject(profileLink) && ( !!profileLink?.url || !!profileLink?.page || !!profileLink?.menu);
 						const isUrlString = _.isString(profileLink) && profileLink !== "";
@@ -502,6 +513,9 @@ class SppagebuilderAddonTeam_carousel extends SppagebuilderAddons
                             if( _.isArray(carousel_item.team_carousel_item)){
                                 content += `<ul class="sppb-carousel-extended-team-social-icon">`;
                                     _.each(carousel_item.team_carousel_item, function(inner_item_value){
+										if(inner_item_value.item_visibility !== undefined && inner_item_value.item_visibility === false){
+											return;
+										}
 										const socialUrl = inner_item_value.social_url;
 										const isUrlObject = _.isObject(socialUrl) && ( !!socialUrl?.url || !!socialUrl?.page || !!socialUrl?.menu);
 										const isUrlString = _.isString(socialUrl) && socialUrl !== "";

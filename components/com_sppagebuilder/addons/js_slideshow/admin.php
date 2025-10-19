@@ -135,6 +135,11 @@ SpAddonsConfig::addonConfig(
                                         'std'   => 'Item number 1',
                                     ],
 
+                                    'item_visibility' => [
+                                        'type' => 'visibility',
+                                        'std'  => true,
+                                    ],
+
                                     'slider_bg_options' => [
                                         'type'   => 'buttons',
                                         'title' => Text::_('COM_SPPAGEBUILDER_ADDON_JS_SLIDER_BACKGROUND_TYPE'),
@@ -342,6 +347,11 @@ SpAddonsConfig::addonConfig(
                                                             'icon_content'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_ICON_NAME'),
                                                         ],
                                                         'std'     => 'title_content',
+                                                    ],
+
+                                                    'item_visibility' => [
+                                                        'type' => 'visibility',
+                                                        'std'  => true,
                                                     ],
 
                                                     // Title Type

@@ -276,3 +276,5 @@ CREATE TABLE IF NOT EXISTS `#__sppagebuilder_likes` (
   FOREIGN KEY (`comment_id`) REFERENCES `#__sppagebuilder_comments`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   KEY `idx_comment_id` (`comment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `#__sppagebuilder` MODIFY `og_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '';

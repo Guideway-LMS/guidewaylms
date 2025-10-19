@@ -8,6 +8,7 @@
 
 namespace JoomShaper\SPPageBuilder\DynamicContent\Services;
 
+use Joomla\CMS\Factory;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\Conditions;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\FieldTypes;
 use JoomShaper\SPPageBuilder\DynamicContent\Model;
@@ -311,8 +312,10 @@ class CollectionDataService
      */
     protected function getCollectionItemsByCollectionId(int $collectionId, string $direction = 'ASC')
     {
+        $langTag = Factory::getLanguage()->getTag();
         $items = CollectionItem::where('collection_id', $collectionId)
             ->where('published', 1)
+            ->whereIn('language', [$langTag, '*'])
             ->orderBy('ordering', $direction)
             ->with([
                 'values' => function ($query) {

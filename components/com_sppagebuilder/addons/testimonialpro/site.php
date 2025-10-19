@@ -64,6 +64,9 @@ class SppagebuilderAddonTestimonialpro extends SppagebuilderAddons
         if ($controls) {
             $output .= '<ol class="sppb-carousel-indicators">';
             foreach ($settings->sp_testimonialpro_item as $key1 => $value) {
+                if(isset($value->item_visibility) && !$value->item_visibility){
+                    continue;
+                }
                 $output .= '<li data-sppb-target="#sppb-carousel-' . $this->addon->id . '" ' . (($key1 == 0) ? ' class="active"' : '') . '  data-sppb-slide-to="' . $key1 . '"></li>' . "\n";
             }
             $output .= '</ol>';
@@ -75,6 +78,9 @@ class SppagebuilderAddonTestimonialpro extends SppagebuilderAddons
         $output .= '<div class="sppb-carousel-inner">';
 
         foreach ($settings->sp_testimonialpro_item as $key => $value) {
+            if(isset($value->item_visibility) && !$value->item_visibility){
+                continue;
+            }
             $output .= '<div class="sppb-item ' . (($key == 0) ? ' active' : '') . '">';
             $name = (isset($value->title) && $value->title) ? $value->title : '';
 
@@ -374,6 +380,9 @@ class SppagebuilderAddonTestimonialpro extends SppagebuilderAddons
                     <ol class="sppb-carousel-indicators">
                     <#
                     _.each(data.sp_testimonialpro_item, function(item,key){
+                        if(typeof item.item_visibility !== "undefined" && !item.item_visibility){
+                            return;
+                        }
                         let activeClass
                         if (key == 0) {
                             activeClass = "class=active"
@@ -392,6 +401,9 @@ class SppagebuilderAddonTestimonialpro extends SppagebuilderAddons
                 <div class="sppb-carousel-inner">
                     <#
                     _.each(data.sp_testimonialpro_item, function(itemSlide, index) {
+                        if(typeof itemSlide.item_visibility !== "undefined" && !itemSlide.item_visibility){
+                            return;
+                        }
                         let slideActClass = ""
                         if (index == 0) {
                             slideActClass = " active"
