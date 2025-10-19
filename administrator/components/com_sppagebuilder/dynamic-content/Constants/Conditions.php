@@ -44,6 +44,7 @@ final class Conditions
     public const IS_BETWEEN_DATE = 'is-between-date';
     public const IS_NOT_BETWEEN_DATE = 'is-not-between-date';
     public const IS_ASSOCIATED_WITH = 'is-associated-with';
+    public const RELATED = 'related';
 
     public const MATCH_ALL = 'all';
     public const MATCH_ANY = 'any';
@@ -137,6 +138,7 @@ final class Conditions
             self::EQUALS_IN_REFERENCE,
             self::NOT_EQUALS_IN_REFERENCE,
             self::IS_ASSOCIATED_WITH,
+            self::RELATED,
         ];
     }
 

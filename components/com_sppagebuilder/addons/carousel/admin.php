@@ -48,6 +48,11 @@ SpAddonsConfig::addonConfig([
 									'std'        => ['xl' => '0px 0px 0px 0px', 'lg' => '', 'md' => '', 'sm' => '', 'xs' => ''],
 									'responsive' => true
 								],
+
+								'item_visibility' => [
+									'type' => 'visibility',
+									'std'  => true,
+								],
 							],
 						],
 

@@ -17,7 +17,9 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Helper\MediaHelper;
+use Joomla\Filesystem\File;
 use Joomla\Filesystem\Folder;
+use Joomla\Filesystem\Path;
 use JoomShaper\SPPageBuilder\DynamicContent\Controllers\CollectionImportExportController;
 
 $productListSeed = JPATH_ROOT . '/components/com_easystore/assets/product-list-seed.json';

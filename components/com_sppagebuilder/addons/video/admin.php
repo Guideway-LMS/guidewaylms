@@ -167,6 +167,18 @@ SpAddonsConfig::addonConfig([
                     'depends' => [['mp4_enable', '=', 0]],
                 ],
 
+                'video_preload' => [
+                    'type' => 'select',
+                    'title' => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_PRELOAD'),
+                    'desc' => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_PRELOAD_DESC'),
+                    'values' => [
+                        'auto' => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_PRELOAD_AUTO'),
+                        'metadata' => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_PRELOAD_METADATA'),
+                        'none' => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_PRELOAD_NONE'),
+                    ],
+                    'depends' => [['mp4_enable', '=', 1]],
+                ],
+
                 'show_control' => [
                     'type'    => 'checkbox',
                     'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_CONTROL'),

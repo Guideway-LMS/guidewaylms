@@ -57,6 +57,11 @@ SpAddonsConfig::addonConfig([
                             'std' => 'Carousel Item Tittle',
                         ],
 
+                        'item_visibility' => [
+                            'type' => 'visibility',
+                            'std'  => true,
+                        ],
+
                         'client_name' => [
                             'type' => 'text',
                             'title' => Text::_('COM_SPPAGEBUILDER_ADDON_TESTIMONIAL_CLIENT_NAME'),

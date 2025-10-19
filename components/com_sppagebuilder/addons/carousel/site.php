@@ -64,6 +64,10 @@ class SppagebuilderAddonCarousel extends SppagebuilderAddons
 		{
 			foreach ($settings->sp_carousel_item as $key => $value)
 			{
+				if(isset($value->item_visibility) && !$value->item_visibility) {
+					continue;
+				}
+				
 				list($button_url, $button_target) = AddonHelper::parseLink($value, 'button_url', ['url' => 'button_url', 'new_tab' => 'button_target']);
 
 				$bg_image = (isset($value->bg) && $value->bg) ? $value->bg : '';
@@ -307,6 +311,9 @@ class SppagebuilderAddonCarousel extends SppagebuilderAddons
 			<# if(data.controllers){ #>
 				<ol class="sppb-carousel-indicators">
 				<# _.each(data.sp_carousel_item, function (carousel_item, key){ #>
+				<# if(typeof carousel_item.item_visibility !== "undefined" && !carousel_item.item_visibility) { #>
+					<#	return; #>
+				<# } #>
 					<# var active = (key == 0) ? "active" : ""; #>
 					<li data-sppb-target="#sppb-carousel-{{ data.id }}"  class="{{ active }}"  data-sppb-slide-to="{{ key }}"></li>
 				<# }); #>
@@ -315,6 +322,9 @@ class SppagebuilderAddonCarousel extends SppagebuilderAddons
 			<div class="sppb-carousel-inner">
 				<#
 				_.each(data.sp_carousel_item, function (carousel_item, key){
+					if(typeof carousel_item.item_visibility !== "undefined" && !carousel_item.item_visibility) {
+						return;
+					}
 					var carouselBg = {}
 					if (typeof carousel_item.bg !== "undefined" && typeof carousel_item.bg.src !== "undefined") {
 						carouselBg = carousel_item.bg
