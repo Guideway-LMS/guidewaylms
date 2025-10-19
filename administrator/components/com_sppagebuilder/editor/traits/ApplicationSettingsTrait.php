@@ -95,7 +95,8 @@ trait ApplicationSettingsTrait
 		$showColorSwitcher = $this->getInput('show_color_switcher', 0, 'INT');
 		$manualCommentApproval = $this->getInput('manual_comment_approval', 0, 'INT');
 		$previouslyApprovedComment = $this->getInput('previously_approved_comment', 0, 'INT');
-
+		$showArticleDetailsPageAsDefault = $this->getInput('show_article_details_page_as_default', 0, 'INT');
+		
 		$params = ComponentHelper::getParams('com_sppagebuilder');
 		$componentId = ComponentHelper::getComponent('com_sppagebuilder')->id;
 
@@ -126,6 +127,7 @@ trait ApplicationSettingsTrait
 		$params->set('show_color_switcher', $showColorSwitcher);
 		$params->set('manual_comment_approval', $manualCommentApproval);
 		$params->set('previously_approved_comment', $previouslyApprovedComment);
+		$params->set('show_article_details_page_as_default', $showArticleDetailsPageAsDefault);
 
 		if(!empty($colorVariables))
 		{

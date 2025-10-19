@@ -26,7 +26,7 @@ SpAddonsConfig::addonConfig([
                 'attribute' => [
                     'type'   => 'attribute',
                     'title'  => Text::_('COM_SPPAGEBUILDER_ADDON_COLLECTION_TEXT_FIELD_SOURCE'),
-                    'allowed_types' => ['title', 'alias', 'text', 'rich-text', 'phone', 'email', 'number', 'option', 'date-time', 'link', 'file', 'created'],
+                    'allowed_types' => ['title', 'alias', 'text', 'rich-text', 'phone', 'email', 'number', 'option', 'date-time', 'link', 'file', 'rating', 'created'],
                     'placeholder' => Text::_('COM_SPPAGEBUILDER_ADDON_COLLECTION_TEXT_FIELD_SOURCE_PLACEHOLDER'),
                 ],
                 'default_text' => [
@@ -57,18 +57,52 @@ SpAddonsConfig::addonConfig([
                     'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_DOWNLOADABLE'),
                     'depends' => [['attribute?.type', '=', 'file']]
                 ],
+                'rating_icon' => [
+                    'type'  => 'icon',
+                    'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_ICON'),
+                    'depends' => [['attribute?.type', '=', 'rating']],
+                ],
+                'rating_max_length' => [
+                    'type'  => 'slider',
+                    'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_RATING_MAX_LENGTH'),
+                    'min' => 1,
+                    'depends' => [['attribute?.type', '=', 'rating']],
+                ],
                 'color' => [
                     'type'  => 'color',
                     'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_COLOR'),
+                    'depends' => [['attribute?.type', '!=', 'rating']],
+                ],
+                'rating_color' => [
+                    'type'  => 'color',
+                    'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_RATING_COLOR'),
+                    'depends' => [['attribute?.type', '=', 'rating']],
+                ],
+                'rating_empty_color' => [
+                    'type'  => 'color',
+                    'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_RATING_EMPTY_COLOR'),
+                    'depends' => [['attribute?.type', '=', 'rating']],
+                ],
+                'rating_size' => [
+                    'type'  => 'text',
+                    'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_SIZE'),
+                    'depends' => [['attribute?.type', '=', 'rating']],
+                ],
+                'rating_gap' => [
+                    'type'  => 'text',
+                    'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_GAP'),
+                    'depends' => [['attribute?.type', '=', 'rating']],
                 ],
                 'typography' => [
                     'type'  => 'typography',
                     'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_TYPOGRAPHY'),
+                    'depends' => [['attribute?.type', '!=', 'rating']],
                 ],
                 'selector' => [
                     'type'  => 'headings',
                     'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_HTML_ELEMENT'),
                     'std'   => 'p',
+                    'depends' => [['attribute?.type', '!=', 'rating']],
                 ],
                 'alignment' => [
                     'type'              => 'alignment',
@@ -84,6 +118,7 @@ SpAddonsConfig::addonConfig([
                     'title'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_TEXT_SHADOW'),
                     'std'    => '0 0 0 transparent',
                     'config' => ['spread' => false],
+                    'depends' => [['attribute?.type', '!=', 'rating']],
                 ],
             ],
         ],

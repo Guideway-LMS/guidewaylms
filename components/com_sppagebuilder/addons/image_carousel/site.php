@@ -105,6 +105,10 @@ class SppagebuilderAddonImage_carousel extends SppagebuilderAddons
 
             foreach ($settings->sp_image_carousel_item as $item_key => $carousel_item)
             {
+                if(isset($carousel_item->item_visibility) && !$carousel_item->item_visibility){
+                    continue;
+                }
+
                 $output .= '<div class="sppb-carousel-extended-item">';
 
 
@@ -616,6 +620,10 @@ class SppagebuilderAddonImage_carousel extends SppagebuilderAddons
 					data.sp_image_carousel_item = _.shuffle(data.sp_image_carousel_item);
 				}
                     _.each(data.sp_image_carousel_item, function(carousel_item){
+
+                        if(carousel_item.item_visibility !== undefined && !carousel_item.item_visibility){
+                            return;
+                        }
                     
                         var carouselImg = {}
                         if (typeof carousel_item.image_carousel_img !== "undefined" && typeof carousel_item.image_carousel_img.src !== "undefined") {

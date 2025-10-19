@@ -34,7 +34,7 @@ class SppagebuilderAddonOptin_form extends SppagebuilderAddons
 		$page_id 	= $input->get('id', 0, 'INT');
 		$view 		= $input->get('view', 'page', 'STRING');
 
-		if (empty($page_id) && $view === 'dynamic') {
+		if ($view === 'dynamic') {
             $page_id = (new SppagebuilderModelDynamic())->getPageIdFromCollectionItemId();
         }
 		

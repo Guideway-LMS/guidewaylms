@@ -27,11 +27,54 @@ class SppagebuilderAddonDynamic_content_text extends SppagebuilderAddons
         libxml_use_internal_errors(true);
     
         $dom = new DOMDocument();
-        $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
     
         libxml_clear_errors();
     
         return $dom->saveHTML();
+    }
+
+    function renderRatingStars($rating, $attribute, $settings) {
+        if (empty($rating) || !is_numeric($rating)) {
+            return '';
+        }
+
+        $rating = floatval($rating);
+        $maxRating = !empty($settings->rating_max_length) ? intval($settings->rating_max_length) : null;
+        $maxRating = $maxRating ?? ceil($rating);
+        $isInteger = isset($attribute->number_format) && $attribute->number_format === 'integer';
+        
+        // Check if custom icon is selected
+        $customIcon = isset($settings->rating_icon) && !empty($settings->rating_icon) ? $settings->rating_icon : null;
+        
+        $output = '<div class="sppb-rating-stars">';
+        
+        for ($i = 1; $i <= $maxRating; $i++) {
+            $isFilled = $rating >= $i;
+            $isHalfFilled = !$isInteger && $rating >= ($i - 0.5) && $rating < $i;
+            
+            $starClass = 'sppb-rating-star';
+            if ($isFilled) {
+                $starClass .= ' sppb-rating-star-filled';
+            } elseif ($isHalfFilled) {
+                $starClass .= ' sppb-rating-star-half';
+            }
+            
+            if ($customIcon) {
+                if ($isHalfFilled) {
+                    $starClass = 'sppb-rating-star sppb-rating-custom-half';
+                    $output .= '<span class="' . $starClass . '"><i class="' . $customIcon . '"></i><i class="' . $customIcon . ' half-overlay"></i></span>';
+                } else {
+                    $output .= '<span class="' . $starClass . '"><i class="' . $customIcon . '"></i></span>';
+                }
+            } else {
+                $output .= '<span class="' . $starClass . '">★</span>';
+            }
+        }
+        
+        $output .= '</div>';
+        
+        return $output;
     }
 
     public function render()
@@ -98,6 +141,8 @@ class SppagebuilderAddonDynamic_content_text extends SppagebuilderAddons
 
         if ($attributeType === FieldTypes::DATETIME) {
             $content = CollectionHelper::formatDate($content, $settings->attribute);
+        } elseif ($attributeType === FieldTypes::RATING) {
+            $content = $this->renderRatingStars($content, $settings->attribute, $settings);
         } elseif ($attributeType === FieldTypes::LINK) {
             $linkOptions = [
                 'url' => $content ?? null,
@@ -110,7 +155,7 @@ class SppagebuilderAddonDynamic_content_text extends SppagebuilderAddons
             $content = (isset($settings->attribute->link) && $settings->attribute->link->text) ? $settings->attribute->link->text : $linkAttributes['href'];
         }
 
-        if (empty(strip_tags($content))) {
+        if (empty(strip_tags($content)) && $attributeType !== FieldTypes::RATING) {
             return '';
         }
 
@@ -146,6 +191,10 @@ class SppagebuilderAddonDynamic_content_text extends SppagebuilderAddons
         if ($attributeType === FieldTypes::RICH_TEXT) {
             $selector = 'div';
             $content = '<div class="sppb-dynamic-content__is-rich-text">' . $this->autocorrect_html($content) . '</div>';
+        }
+
+        if ($attributeType === FieldTypes::RATING) {
+            $selector = 'div';
         }
 
         if (!empty($icon) && !empty(strip_tags($content))) {
@@ -199,6 +248,65 @@ class SppagebuilderAddonDynamic_content_text extends SppagebuilderAddons
         $css .= $cssHelper->typography('.sppb-dynamic-content-text', $settings, 'typography');
         $css .= $iconWrapperStyle . $iconStyle;
 
+        if ($settings->attribute->type === FieldTypes::RATING) {
+            $css .= '
+                .sppb-rating-stars {
+                    display: inline-flex;
+                    gap: ' . (!empty($settings->rating_gap) ? $settings->rating_gap : '2px') . ';
+                    align-items: center;
+                }
+                .sppb-rating-star {
+                    color: ' . (!empty($settings->rating_empty_color) ? $settings->rating_empty_color : '#d1d5db') . ';
+                    font-size: ' . (!empty($settings->rating_size) ? $settings->rating_size : '1.2em') . ';
+                    line-height: 1;
+                    transition: color 0.2s ease;
+                }
+                .sppb-rating-star-filled {
+                    color: ' . (!empty($settings->rating_color) ? $settings->rating_color : '#fbbf24') . ';
+                }
+                .sppb-rating-star-half {
+                    color: ' . (!empty($settings->rating_empty_color) ? $settings->rating_empty_color : '#d1d5db') . ';
+                    position: relative;
+                }
+                .sppb-rating-star-half::after {
+                    content: "★";
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 50%;
+                    height: 100%;
+                    color: ' . (!empty($settings->rating_color) ? $settings->rating_color : '#fbbf24') . ';
+                    overflow: hidden;
+                }
+                /* Custom icon styles */
+                .sppb-rating-star i {
+                    font-size: inherit;
+                    color: inherit;
+                }
+                .sppb-rating-custom-half {
+                    position: relative;
+                }
+                .sppb-rating-custom-half i:first-child {
+                    color: ' . (!empty($settings->rating_empty_color) ? $settings->rating_empty_color : '#d1d5db') . ';
+                    position: relative;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 1;
+                }
+                .sppb-rating-custom-half i.half-overlay {
+                    color: ' . (!empty($settings->rating_color) ? $settings->rating_color : '#fbbf24') . ';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: ' . (!empty($settings->rating_size) ? ('calc(' . $settings->rating_size . ' / 2)') : '0.6em') . ';
+                    height: 100%;
+                    z-index: 1;
+                    overflow: hidden;
+                }
+            ';
+        }
         return $css;
     }
 

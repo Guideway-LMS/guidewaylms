@@ -31,28 +31,41 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 	 */
 	public function render()
 	{
-		if (!\class_exists('SppagebuilderHelperArticles')) {
-			require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
-		}
-		$articleId = Factory::getApplication()->input->get('collection_item_id', null, 'array');
-		$articleId = $articleId ? $articleId[0] : null;
-		$authorised = \SppagebuilderHelperArticles::checkAuthorised($articleId);
+		$input = Factory::getApplication()->input;
+		$collectionType = $input->get('collection_type', null, 'string');
 
-		if (!$authorised) {
-			return "";
+		$viewType = $input->get('view', null, 'string');
+
+		$articleId = $input->get('id', null, 'int');
+
+		if ($collectionType === 'articles') {
+			if (!\class_exists('SppagebuilderHelperArticles')) {
+				require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
+			}
+			$articleId = Factory::getApplication()->input->get('collection_item_id', null, 'array');
+			$articleId = $articleId ? $articleId[0] : null;
+			$authorised = \SppagebuilderHelperArticles::checkAuthorised($articleId);
+	
+			if (!$authorised) {
+				return "";
+			}
 		}
 
 		$commentService = new CommentService();
-		$input = Factory::getApplication()->input;
-		$collectionType = $input->get('collection_type', null, 'string');
+		if ($viewType == 'page') {
+			$articleId = $commentService->getArticleId($articleId);
+		}
 		$itemId = $input->get('collection_item_id', null, 'array');
 		$itemId = $itemId ? $itemId[0] : null;
 
-		if ($collectionType != 'articles') {
+		$itemId = $itemId ? $itemId : $articleId;
+
+		if (($collectionType != 'articles' && $collectionType != 'normal-source') && empty($itemId)) {
 			return "";
 		}
-		$comments = $commentService->getAllComments($itemId);
-		$publishedCommentsCount = $commentService->getPublishedCommentsCount($itemId);
+		$collectionType = $collectionType ? $collectionType : 'articles';
+		$comments = $commentService->getAllComments($itemId, $collectionType);
+		$publishedCommentsCount = $commentService->getPublishedCommentsCount($itemId, $collectionType);
 		$addonId = $this->addon->id;
 
 		$settings = $this->addon->settings;
@@ -901,11 +914,19 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$js = '';
 		$input = Factory::getApplication()->input;
 		$collectionType = $input->get('collection_type', null, 'string');
+		$viewType = $input->get('view', null, 'string');
+		$articleId = $input->get('id', null, 'int');
+		$commentService = new CommentService();
+		if ($viewType == 'page') {
+			$articleId = $commentService->getArticleId($articleId);
+		}
 		$itemId = $input->get('collection_item_id', null, 'array');
 		$itemId = $itemId ? $itemId[0] : null;
-		if ($collectionType != 'articles') {
+		$itemId = $itemId ? $itemId : $articleId;
+		if (($collectionType != 'articles' && $collectionType != 'normal-source') && empty($itemId)) {
 			return "";
 		}
+		$collectionType = $collectionType ? $collectionType : 'articles';
 		$avatarColor = !empty($this->addon->settings->commentator_avatar_color) ? $this->addon->settings->commentator_avatar_color : "#4285F4";
 		$currentUserId = Factory::getUser()->id;
 
@@ -989,6 +1010,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 						comment: {
 							content: commentContent,
 							item_id: ' . $itemId . ',
+							source_type: "'. $collectionType .'",
 							parent_id: null,
 							enable_anonymous_comment: enableAnonymousComment
 						}
@@ -1115,6 +1137,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 						content: replyContent,
 						item_id: ' . $itemId . ',
 						parent_id: commentId,
+						source_type: "'. $collectionType .'",
 						enable_anonymous_comment: enableAnonymousComment
 					}
 				};

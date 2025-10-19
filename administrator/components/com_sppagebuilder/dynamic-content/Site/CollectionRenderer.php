@@ -9,10 +9,13 @@
 namespace JoomShaper\SPPageBuilder\DynamicContent\Site;
 
 use AddonParser;
+use FieldsHelper;
+use JLoader;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Version;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\CollectionIds;
 use JoomShaper\SPPageBuilder\DynamicContent\Services\CollectionDataService;
 use JoomShaper\SPPageBuilder\DynamicContent\Services\CollectionItemsService;
@@ -186,10 +189,20 @@ class CollectionRenderer
 
             $articles = \SppagebuilderHelperArticles::getArticles($limit, $ordering, $catId, true, '', [], $state);
 
+            $version = new Version();
+            $JoomlaVersion = $version->getShortVersion();
+            if ((float) $JoomlaVersion >= 4) {
+                JLoader::registerAlias('FieldsHelper', 'Joomla\Component\Fields\Administrator\Helper\FieldsHelper');
+            } else {
+                JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
+            }
+            
+
             return array_map(function ($article) {
+                $custom_fields = FieldsHelper::getFields('com_content.article', $article);
                 $article->collection_id = CollectionIds::ARTICLES_COLLECTION_ID;
-                $article->introtext = $article->introtext ?? '';
-                $article->fulltext = $article->fulltext ?? '';
+                $article->introtext = $this->replaceFieldShortcodes($article->introtext ?? '', $custom_fields);
+                $article->fulltext = $this->replaceFieldShortcodes($article->fulltext ?? '', $custom_fields);
                 $article->featured_image = $article->featured_image ?? '';
                 $article->image_thumbnail = $article->image_thumbnail ?? $article->featured_image ?? '';
                 $article->username = $article->username ?? '';
@@ -202,6 +215,21 @@ class CollectionRenderer
             return [];
         }
     }
+
+    private function replaceFieldShortcodes($text, $custom_fields) {
+		$fieldMap = [];
+		foreach ($custom_fields as $field) {
+			if (isset($field->id)) {
+				$fieldMap[$field->id] = (isset($field->value) && $field->value) ? $field->value : '';
+			}
+		}
+        
+		return preg_replace_callback('/\{field\s+(\d+)\}/', function($matches) use ($fieldMap) {
+			$fieldId = $matches[1];
+            $value = $fieldMap[$fieldId] ?? '';
+			return isset($fieldMap[$fieldId]) ? $fieldMap[$fieldId] : '';
+		}, $text);
+	}
 
     /**
      * Fetch items with proper data structure
@@ -395,7 +423,8 @@ class CollectionRenderer
         $source = $addon->settings->source ?? -1;
 
         if ($source === CollectionIds::ARTICLES_COLLECTION_ID || $source === CollectionIds::TAGS_COLLECTION_ID) {
-            $items = $this->fetchArticlesOrTagsData($source, $limit, $direction);
+            $articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
+            $items = $this->fetchArticlesOrTagsData($source, $articlesCount, $direction);
             
             $filteredData = (new CollectionData())
                 ->setData($items)
@@ -425,17 +454,19 @@ class CollectionRenderer
                 ->setData($items)
                 ->setLimit($limit)
                 ->setDirection($direction)
-                ->applyFilters($regularFilters)
+                ->applyFilters($regularFilters, $allPaths)
                 ->applyUserFilters($allPaths)
                 ->applyUserSearchFilters($collectionId, $path, $allPaths)
                 ->getData();
         } else {
+            $parentItem = CollectionHelper::getDetailPageData();
             $newData = (new CollectionData())
                 ->setLimit($limit)
                 ->setDirection($direction)
                 ->setCurrentItemId($item['id'])
                 ->loadDataBySource($addon->settings->source)
-                ->applyFilters($addon->settings->filters)
+                ->setParentItem($parentItem ?? null)
+                ->applyFilters($addon->settings->filters, $allPaths)
                 ->applyUserFilters($allPaths)
                 ->applyUserSearchFilters($collectionId, $path, $allPaths)
                 ->getData();
@@ -524,15 +555,17 @@ class CollectionRenderer
                 ->setData($items)
                 ->setLimit($limit)
                 ->setDirection($direction)
-                ->applyFilters($regularFilters)
+                ->applyFilters($regularFilters, $allPaths)
                 ->applyUserFilters($allPaths)
                 ->applyUserSearchFilters($collectionId, $path, $allPaths);
         } else {
+            $parentItem = CollectionHelper::getDetailPageData();
             $data = (new CollectionData())
                 ->setLimit($limit)
                 ->setDirection($direction)
                 ->loadDataBySource($collectionId)
-                ->applyFilters($filters)
+                ->setParentItem($parentItem ?? null)
+                ->applyFilters($filters, $allPaths)
                 ->applyUserFilters($allPaths)
                 ->applyUserSearchFilters($collectionId, $path, $allPaths);
         }
@@ -637,6 +670,7 @@ class CollectionRenderer
         $isPaginationEnabled = $this->addon->settings->pagination ?? false;
         $page = 1;
         $numberOfPages = $this->data->getTotalPages();
+        $parentItem = CollectionHelper::getDetailPageData();
         $output = '';
 
         if ($isPaginationEnabled) {
@@ -652,7 +686,7 @@ class CollectionRenderer
                 if ($paginationType === 'infinite-scroll') {
                     $output .= '<div class="sppb-dynamic-content-collection__pagination-sentinel" data-total-pages="' . $numberOfPages . '">Loading...</div>';
                 } else {
-                    $output .= '<button type="button" data-text="' . $loadMoreButtonText . '" data-sppb-load-more-button data-total-pages="' . $numberOfPages . '" class="sppb-btn btn-sm sppb-btn-' . $loadMoreButtonType . '">' . $loadMoreButtonText . '</button>';
+                    $output .= '<button type="button" data-text="' . $loadMoreButtonText . '" data-sppb-load-more-button data-parent-item="' . htmlspecialchars(json_encode($parentItem), ENT_QUOTES, 'UTF-8') . '" data-total-pages="' . $numberOfPages . '" class="sppb-btn btn-sm sppb-btn-' . $loadMoreButtonType . '">' . $loadMoreButtonText . '</button>';
                 }
                 
                 $output .= '<input type="hidden" name="sppb-dynamic-addon-id" value="' . $this->addon->id . '">';
@@ -680,6 +714,7 @@ class CollectionRenderer
         $settings = $this->addon->settings;
         $isPaginationEnabled = $settings->pagination ?? false;
         $page = 1;
+        $parentItem = CollectionHelper::getDetailPageDataFromArticles();
         
         if (empty($this->data)) {
             return '';
@@ -700,7 +735,7 @@ class CollectionRenderer
                 if ($paginationType === 'infinite-scroll') {
                     $output .= '<div class="sppb-dynamic-content-collection__pagination-sentinel" data-total-pages="' . $numberOfPages . '">Loading...</div>';
                 } else {
-                    $output .= '<button type="button" data-text="' . $loadMoreButtonText . '" data-sppb-load-more-button data-total-pages="' . $numberOfPages . '" class="sppb-btn btn-sm sppb-btn-' . $loadMoreButtonType . '">' . $loadMoreButtonText . '</button>';
+                    $output .= '<button type="button" data-text="' . $loadMoreButtonText . '" data-parent-item="' . htmlspecialchars(json_encode($parentItem), ENT_QUOTES, 'UTF-8') . '" data-sppb-load-more-button data-total-pages="' . $numberOfPages . '" class="sppb-btn btn-sm sppb-btn-' . $loadMoreButtonType . '">' . $loadMoreButtonText . '</button>';
                 }
                 
                 $output .= '<input type="hidden" name="sppb-dynamic-addon-id" value="' . $this->addon->id . '">';

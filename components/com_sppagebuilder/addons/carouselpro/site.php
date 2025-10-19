@@ -103,6 +103,10 @@ class SppagebuilderAddonCarouselpro extends SppagebuilderAddons
 
 		if (isset($settings->sp_carouselpro_item) && count((array) $settings->sp_carouselpro_item)) {
 			foreach ($settings->sp_carouselpro_item as $key => $value) {
+				if (isset($value->item_visibility) && !$value->item_visibility) {
+					continue;
+				}
+
 				$bg_image = (isset($value->bg) && $value->bg) ? $value->bg : '';
 				$bg_image_src = isset($bg_image->src) ? $bg_image->src : $bg_image;
 				$alt_text_fallback = (isset($value->title) && $value->title) ? $value->title : '';
@@ -487,7 +491,11 @@ class SppagebuilderAddonCarouselpro extends SppagebuilderAddons
 			<#
 
 			#>
-			<# _.each (data.sp_carouselpro_item, function(carousel_item, key) { 
+			<# _.each (data.sp_carouselpro_item, function(carousel_item, key) {
+					if(carousel_item.item_visibility !== undefined && !carousel_item.item_visibility){
+						return;
+					}
+
 					let carouselBg = {}
 					if (carousel_item?.bg?.src !== undefined) {
 						carouselBg = carousel_item.bg;
@@ -563,6 +571,9 @@ class SppagebuilderAddonCarouselpro extends SppagebuilderAddons
 			<div class="sppb-carousel-inner">
 				<#
 				_.each(data.sp_carouselpro_item, function (carousel_item, key){
+					if(carousel_item.item_visibility !== undefined && !carousel_item.item_visibility){
+						return;
+					}
 					var carouselBg = {}
 					if (typeof carousel_item.bg !== "undefined" && typeof carousel_item.bg.src !== "undefined") {
 						carouselBg = carousel_item.bg

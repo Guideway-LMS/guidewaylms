@@ -666,6 +666,15 @@ class CollectionsService
                 'option_field_values' => []
             ],
             [
+                'id' => -20,
+                'name' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_AUTHOR_IMAGE'),
+                'type' => 'image',
+                'path' => 'profile_image',
+                'reference_items' => [],
+                'reference_collection_name' => [],
+                'option_field_values' => []
+            ],
+            [
                 'id' => -18,
                 'name' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_CATEGORY'),
                 'type' => 'text',
@@ -973,6 +982,15 @@ class CollectionsService
                 'type' => 'text',
                 'level' => 2,
                 'path' => "username",
+                'fields' => []
+            ],
+            [
+                'id' => -20,
+                'name' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_AUTHOR_IMAGE'),
+                'fullname' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_COLLECTION_ARTICLES') . ' > ' . Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_AUTHOR_IMAGE'),
+                'type' => 'image',
+                'level' => 2,
+                'path' => "profile_image",
                 'fields' => []
             ],
             [
@@ -1505,9 +1523,11 @@ class CollectionsService
     {
         try {
             $fields = CollectionField::where('type', CollectionItemsService::PRIMARY_FIELD_TYPE)
-                ->leftJoin(CollectionItemValue::class, 'field_id', 'id')
-                ->orderBy( 'collection_item_value.item_id', 'ASC')
-                ->get(['id', 'collection_id', 'value', 'item_id']);
+                ->leftJoin(CollectionItemValue::class, 'collection_item_value.field_id', 'collection_field.id')
+                ->leftJoin(CollectionItem::class, 'collection_item_value.item_id', 'collection_item.id')
+                ->orderBy( 'collection_item.ordering', 'ASC')
+                ->where('collection_item.published', 1)
+                ->get(['collection_field.id', 'collection_field.collection_id', 'collection_item_value.value', 'collection_item_value.item_id']);
             $primaryFieldsMap = [];
             foreach ($fields as $field) {
                 if (empty($field->item_id) || empty($field->value)) {

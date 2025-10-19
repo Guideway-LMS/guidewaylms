@@ -229,6 +229,11 @@ SpAddonsConfig::addonConfig([
 									'desc'  => Text::_('COM_SPPAGEBUILDER_ADMIN_LABEL_DESC'),
 								],
 
+								'item_visibility' => [
+									'type' => 'visibility',
+									'std'  => true,
+								],
+
 								'person_name' => [
 									'type'  => 'text',
 									'title' => Text::_('COM_SPPAGEBUILDER_ADDON_PERSON_NAME'),
@@ -270,6 +275,11 @@ SpAddonsConfig::addonConfig([
 													'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_LABEL'),
 													'std'   => 'Facebook'
 												],
+
+												'item_visibility' => [
+													'type' => 'visibility',
+													'std'  => true,
+                                                ],
 
 												'social_url' => [
 													'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_LINK'),

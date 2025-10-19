@@ -51,6 +51,7 @@ class SppagebuilderAddonVideo extends SppagebuilderAddons
 		$vimeo_mute_video  			= (isset($settings->vimeo_mute_video) && $settings->vimeo_mute_video) ? "muted=1" : "muted=0";
 		$vimeo_show_video_title  	= (isset($settings->vimeo_show_video_title) && $settings->vimeo_show_video_title) ? "title=1" : "title=0";
 		$vimeo_show_author_profile  = (isset($settings->vimeo_show_author_profile) && $settings->vimeo_show_author_profile) ? "portrait=1" : "portrait=0";
+		$preload = (isset($settings->video_preload) && $settings->video_preload) ? 'preload="'. $settings->video_preload .'"' : '';
 
 		if ($mp4_video_src && (strpos($mp4_video_src, "http://") !== false || strpos($mp4_video_src, "https://") !== false))
 		{
@@ -182,7 +183,7 @@ class SppagebuilderAddonVideo extends SppagebuilderAddons
 			if ($mp4_video || $ogv_video)
 			{
 				$output .= '<div class="sppb-addon-video-local-video-wrap">';
-				$output .= '<video class="sppb-addon-video-local-source' . ($placeholder ? ' sppb-element-lazy' : '') . '"' . (!empty($video_aria_label) ? ' aria-label="' . $video_aria_label . '"' : '') . (!empty($video_aria_described_by) ? ' aria-describedby="' . $video_aria_described_by . '"' : '') . ($video_loop != 0 ? ' loop' : '') . '' . ($autoplay_video != 0 ? ' autoplay' : '') . '' . ($show_control != 0 ? ' controls' : '') . '' . ($video_mute != 0 ? ' muted' : '') . ' ' . ($lazyload ? 'data-poster="' . $video_poster . '"' : ' poster="' . $video_poster . '"') . ($enable_download ? '' : ' controlsList="nodownload" oncontextmenu="return false;"') . ' playsinline>';
+				$output .= '<video ' . $preload . ' class="sppb-addon-video-local-source' . ($placeholder ? ' sppb-element-lazy' : '') . '"' . (!empty($video_aria_label) ? ' aria-label="' . $video_aria_label . '"' : '') . (!empty($video_aria_described_by) ? ' aria-describedby="' . $video_aria_described_by . '"' : '') . ($video_loop != 0 ? ' loop' : '') . '' . ($autoplay_video != 0 ? ' autoplay' : '') . '' . ($show_control != 0 ? ' controls' : '') . '' . ($video_mute != 0 ? ' muted' : '') . ' ' . ($lazyload ? 'data-poster="' . $video_poster . '"' : ' poster="' . $video_poster . '"') . ($enable_download ? '' : ' controlsList="nodownload" oncontextmenu="return false;"') . ' playsinline>';
 				if (!empty($mp4_video))
 				{
 					$output .= '<source ' . ($lazyload ? 'data-large="' . $mp4_video . '"' : 'src="' . $mp4_video . '"') . ' type="video/mp4">';
