@@ -8,6 +8,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\Session\Session;
@@ -259,7 +260,7 @@ class SppagebuilderControllerDynamic_content extends FormController
                 ->setData($items)
                 ->setLimit($limit)
                 ->setDirection($direction)
-                ->applyFilters($regularFilters)
+                ->applyFilters($regularFilters, $allPaths)
                 ->applyUserFilters($allPaths, $currentLink, false)
                 ->applyUserSearchFilters($id, $path, $allPaths, false)
                 ->getData();
@@ -277,7 +278,8 @@ class SppagebuilderControllerDynamic_content extends FormController
                 ->setDirection($direction)
                 ->loadDataBySource($id)
                 ->setLimit($limit)
-                ->applyFilters($filters)
+                ->setParentItem($parentItem ?? null)
+                ->applyFilters($filters, $allPaths)
                 ->applyUserFilters($allPaths, $currentLink, false)
                 ->applyUserSearchFilters($id, $path, $allPaths, false)
                 ->getData();  
@@ -286,6 +288,7 @@ class SppagebuilderControllerDynamic_content extends FormController
                 ->setDirection($direction)
                 ->loadDataBySource($id)
                 ->setLimit($limit)
+                ->setParentItem($parentItem ?? null)
                 ->applyFilters($filters)
                 ->getData();
             }
@@ -306,6 +309,11 @@ class SppagebuilderControllerDynamic_content extends FormController
         $direction = $data->direction ?? 'ASC';
         $currentLink = $data->currentLink;
         $isSite = $data->isSite ?? true;
+        $parentItem = $data->parent_item ?? null;
+
+        if (!empty($parentItem) && is_string($parentItem)) {
+            $parentItem = json_decode($parentItem, true);
+        }
 
         // Get collection fields with proper handling for articles and tags
         if ($id === CollectionIds::ARTICLES_COLLECTION_ID) {
@@ -382,7 +390,7 @@ class SppagebuilderControllerDynamic_content extends FormController
                     ->setLimit($limit)
                     ->setDirection($direction)
                     ->setPage($page)
-                    ->applyArticleOrTagsFilter($id, null, $filters)
+                    ->applyArticleOrTagsFilter($id, $parentItem, $filters)
                     ->getData();
             } else {
                 $data = (new CollectionData())
@@ -390,7 +398,7 @@ class SppagebuilderControllerDynamic_content extends FormController
                     ->setLimit($limit)
                     ->setDirection($direction)
                     ->setPage($page)
-                    ->applyArticleOrTagsFilter($id, null, $filters)
+                    ->applyArticleOrTagsFilter($id, $parentItem, $filters)
                     ->getData();
             }
         } else {
@@ -402,21 +410,37 @@ class SppagebuilderControllerDynamic_content extends FormController
             
             // Handle regular collections
             if (!empty($isSite)) {
+                [$referenceFilters, $regularFilters, $hasReferenceFilters] = CollectionData::partitionByReferenceFilters($filters);
+
+                if ($hasReferenceFilters) {
+                    $items = (new CollectionDataService)->getCollectionReferenceItemsOnDemand($parentItem, $referenceFilters, $direction);
+                    $data = (new CollectionData())
+                        ->setData($items)
+                        ->setLimit($limit)
+                        ->setDirection($direction)
+                        ->setPage($page)
+                        ->applyFilters($regularFilters, $allPaths)
+                        ->applyUserFilters($allPaths, $currentLink)
+                        ->applyUserSearchFilters($id, $path, $allPaths, $currentLink)
+                        ->getData();
+                } else {
             $data = (new CollectionData())
                     ->setDirection($direction)
                     ->loadDataBySource($id)
                     ->setLimit($limit)
                     ->setPage($page)
-                    ->applyFilters($filters)
+                    ->applyFilters($filters, $allPaths)
                     ->applyUserFilters($allPaths, $currentLink)
                     ->applyUserSearchFilters($id, $path, $allPaths, $currentLink)
                     ->getData();
+                }
             } else {
                 $data = (new CollectionData())
                     ->setDirection($direction)
                     ->loadDataBySource($id)
                     ->setLimit($limit)
                     ->setPage($page)
+                    ->setParentItem($parentItem ?? null)
                     ->applyFilters($filters)
                     ->getData();
             }

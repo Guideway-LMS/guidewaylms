@@ -910,7 +910,7 @@ class AddonParser
 						}
 
 						/** Check for the ACL */
-						if (!self::checkAddonACL($childAddon))
+						if (!self::checkAddonACLView($childAddon))
 						{
 							continue;
 						}
@@ -1040,6 +1040,11 @@ class AddonParser
 		}
 
 		if (!isset($addon->name))
+		{
+			return '';
+		}
+
+		if (!self::checkAddonACLView($addon))
 		{
 			return '';
 		}
@@ -1436,6 +1441,29 @@ class AddonParser
 				}
 			}
 			unset($addon->settings->acl);
+		}
+
+		return $access;
+	}
+
+	public static function checkAddonACLView($addon) {
+		$access = true;
+		if (isset($addon->settings->acl) && $addon->settings->acl)
+		{
+			$access_list = $addon->settings->acl;
+			$access = false;
+
+			if(is_string($access_list)) {
+				$access_list = [$addon->settings->acl];
+			}
+
+			foreach ($access_list as $acl)
+			{
+				if (in_array($acl, self::$authorised))
+				{
+					$access = true;
+				}
+			}
 		}
 
 		return $access;

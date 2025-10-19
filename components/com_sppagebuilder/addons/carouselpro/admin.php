@@ -40,6 +40,11 @@ SpAddonsConfig::addonConfig([
 							'responsive' => true
 						],
 
+						'item_visibility' => [
+							'type' => 'visibility',
+							'std'  => true,
+						],
+
 						'content_separator' => [
 							'type' => 'separator',
 						],

@@ -65,6 +65,11 @@ SpAddonsConfig::addonConfig([
 							'desc'  => Text::_('COM_SPPAGEBUILDER_ADDON_CAROUSEL_ITEM_TITLE_DESC'),
 						],
 
+						'item_visibility' => [
+							'type' => 'visibility',
+							'std'  => true,
+						],
+
 						'item_subtitle' => [
 							'type'  => 'text',
 							'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_SUB_TITLE'),

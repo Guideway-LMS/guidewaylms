@@ -11,10 +11,14 @@ namespace JoomShaper\SPPageBuilder\DynamicContent\Site;
 use AddonParser;
 use ApplicationHelper;
 use DateTime;
+use FieldsHelper;
+use IntlDateFormatter;
+use JLoader;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Version;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\CollectionIds;
 use JoomShaper\SPPageBuilder\DynamicContent\Models\CollectionField;
 use JoomShaper\SPPageBuilder\DynamicContent\Models\CollectionItem;
@@ -353,15 +357,25 @@ class CollectionHelper
 
         $articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
         $articles = \SppagebuilderHelperArticles::getArticles($articlesCount);
+
+        $version = new Version();
+        $JoomlaVersion = $version->getShortVersion();
+        if ((float) $JoomlaVersion >= 4) {
+            JLoader::registerAlias('FieldsHelper', 'Joomla\Component\Fields\Administrator\Helper\FieldsHelper');
+        } else {
+            JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
+        }
+
         foreach ($articles as $article) {
+            $custom_fields = FieldsHelper::getFields('com_content.article', $article);
             if ($article->id == $itemId) {
 
                 $articleData = (array) $article;
                 $articleData['collection_id'] = -2;
                 
 
-                $articleData['introtext'] = $articleData['introtext'] ?? '';
-                $articleData['fulltext'] = $articleData['fulltext'] ?? '';
+                $articleData['introtext'] = self::replaceFieldShortcodes($articleData['introtext'] ?? '', $custom_fields);
+                $articleData['fulltext'] = self::replaceFieldShortcodes($articleData['fulltext'] ?? '', $custom_fields);
                 $articleData['featured_image'] = $articleData['featured_image'] ?? '';
                 $articleData['image_thumbnail'] = $articleData['image_thumbnail'] ?? $articleData['featured_image'] ?? '';
                 $articleData['username'] = $articleData['username'] ?? '';
@@ -371,6 +385,21 @@ class CollectionHelper
             }
         }
     }
+
+    private static function replaceFieldShortcodes($text, $custom_fields) {
+		$fieldMap = [];
+		foreach ($custom_fields as $field) {
+			if (isset($field->id)) {
+				$fieldMap[$field->id] = (isset($field->value) && $field->value) ? $field->value : '';
+			}
+		}
+        
+		return preg_replace_callback('/\{field\s+(\d+)\}/', function($matches) use ($fieldMap) {
+			$fieldId = $matches[1];
+            $value = $fieldMap[$fieldId] ?? '';
+			return isset($fieldMap[$fieldId]) ? $fieldMap[$fieldId] : '';
+		}, $text);
+	}
 
     /**
      * Get the detail page data
@@ -558,6 +587,21 @@ class CollectionHelper
         return $attributes;
     }
 
+    private static function phpToIcu(string $php): string
+{
+    $map = [
+        'd' => 'dd', 'j' => 'd', 'D' => 'EEE', 'l' => 'EEEE',
+        'm' => 'MM', 'n' => 'M', 'M' => 'MMM', 'F' => 'MMMM',
+        'y' => 'yy', 'Y' => 'yyyy',
+        'H' => 'HH', 'G' => 'H', 'h' => 'hh', 'g' => 'h',
+        'i' => 'mm', 's' => 'ss',
+        'A' => 'a', 'a' => 'a',
+    ];
+    return preg_replace_callback('/[djDlmnMFyYHGhgisAa]/', function($m) use ($map) {
+        return $map[$m[0]] ?? $m[0];
+    }, $php);
+}
+
     /**
      * Format the date.
      *
@@ -577,7 +621,6 @@ class CollectionHelper
         if ($format === 'n-time-ago') {
             $date = Date::create($date);
             $now = Date::create('now');
-
             $interval = $now->diff($date);
             $minutes = $interval->days * 24 * 60 + $interval->h * 60 + $interval->i;
 
@@ -604,10 +647,24 @@ class CollectionHelper
         }
 
         $format = $format === 'custom' ? $attribute->date_format_custom : $format;
+        $format = self::phpToIcu($format);
         
+        $lang = Factory::getLanguage()->getTag();
+        $lang = str_replace('-', '_', $lang);
+        $lang .= '@numbers=native';
 
-        $date = new DateTime($date);
-        return $date->format($format);
+        $dateObj = new DateTime($date);
+    
+        $formatter = new IntlDateFormatter(
+            $lang,         
+            IntlDateFormatter::NONE,      
+            IntlDateFormatter::NONE,
+            $dateObj->getTimezone()->getName(),
+            IntlDateFormatter::GREGORIAN,
+            $format
+        );
+    
+        return $formatter->format($dateObj);
     }
 
     /**

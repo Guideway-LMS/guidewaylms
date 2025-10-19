@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'joomshaper/sppagebuilder',
-        'pretty_version' => '6.0.0.x-dev',
-        'version' => '6.0.0.9999999-dev',
-        'reference' => 'e1dc806675bd9e7f2cf02fa56d5b95a901f5f423',
+        'pretty_version' => '6.1.0.x-dev',
+        'version' => '6.1.0.9999999-dev',
+        'reference' => '4439366a16bcd747c094a66946b800df0030d133',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,9 +20,9 @@
             'dev_requirement' => false,
         ),
         'joomshaper/sppagebuilder' => array(
-            'pretty_version' => '6.0.0.x-dev',
-            'version' => '6.0.0.9999999-dev',
-            'reference' => 'e1dc806675bd9e7f2cf02fa56d5b95a901f5f423',
+            'pretty_version' => '6.1.0.x-dev',
+            'version' => '6.1.0.9999999-dev',
+            'reference' => '4439366a16bcd747c094a66946b800df0030d133',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

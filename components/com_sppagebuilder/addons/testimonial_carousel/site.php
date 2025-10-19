@@ -116,6 +116,9 @@ class SppagebuilderAddonTestimonial_carousel extends SppagebuilderAddons
 
             foreach ($settings->sp_testimonial_carousel_item as $item_key => $carousel_item)
             {
+                if(isset($carousel_item->item_visibility) && !$carousel_item->item_visibility){
+                    continue;
+                }
                 $uniqId = 'sppb-testi-' . $this->addon->id . '-carousel-item-key-' . $item_key;
                 $client_details = '';
 
@@ -449,6 +452,9 @@ class SppagebuilderAddonTestimonial_carousel extends SppagebuilderAddons
         {
             foreach ($settings->sp_testimonial_carousel_item as $item_key => $carousel_item)
             {
+                if(isset($carousel_item->item_visibility) && !$carousel_item->item_visibility){
+                    continue;
+                }
                 $uniqId = '#sppb-testi-' . $this->addon->id . '-carousel-item-key-' . $item_key;
                 $css .= $uniqId . '.sppb-carousel-extended-item .sppb-testimonial-carousel-rating:before {';
                 if(isset($carousel_item->client_rating) && $carousel_item->client_rating){
@@ -716,6 +722,9 @@ class SppagebuilderAddonTestimonial_carousel extends SppagebuilderAddons
 					}
 
 				_.each(data.sp_testimonial_carousel_item, function(carousel_item, caro_index){
+                    if(carousel_item.item_visibility !== undefined && carousel_item.item_visibility === false){
+                        return;
+                    }
 					const uniqId = `#sppb-testi-${data.id}-carousel-item-key-${caro_index}`;
 			#>
             <# if (carousel_item.client_rating) { #>
@@ -802,6 +811,9 @@ class SppagebuilderAddonTestimonial_carousel extends SppagebuilderAddons
 				data-item-number-xs="{{carousel_item_number_xs || 1}}">
 				<# if(_.isArray(data.sp_testimonial_carousel_item)){
 					_.each(data.sp_testimonial_carousel_item, function(carousel_item, caro_index){
+                    if(carousel_item.item_visibility !== undefined && carousel_item.item_visibility === false){
+                        return;
+                    }
 					const uniqId= `sppb-testi-${data.id}-carousel-item-key-${caro_index}`;
 					let client_details = "";
 					var carouselImg = {}

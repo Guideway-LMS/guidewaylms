@@ -1696,21 +1696,23 @@ class  plgSystemSppagebuilder extends CMSPlugin
 
 				if ($this->articleDetailsPageContent) {
 					$xpath = new DOMXPath($doc);
-					foreach ($xpath->query('//main') as $node) {
-						while ($node->firstChild) {
-							$node->removeChild($node->firstChild);
+					if (!empty($xpath->query('//main')) && $xpath->query('//main')->length > 0) {
+						foreach ($xpath->query('//main') as $node) {
+							while ($node->firstChild) {
+								$node->removeChild($node->firstChild);
+							}
+							$div = $this->divWithHtml($doc, $this->articleDetailsPageContent);
+							$div->setAttribute('class', 'page-content');
+							$divWrapper = $doc->createElement('div');
+							$divWrapper->setAttribute('id', 'sp-page-builder');
+							$divWrapper->setAttribute('class', 'sp-page-builder');
+							$divWrapper->appendChild($div);
+							$node->appendChild($divWrapper);
 						}
-						$div = $this->divWithHtml($doc, $this->articleDetailsPageContent);
-						$div->setAttribute('class', 'page-content');
-						$divWrapper = $doc->createElement('div');
-						$divWrapper->setAttribute('id', 'sp-page-builder');
-						$divWrapper->setAttribute('class', 'sp-page-builder');
-						$divWrapper->appendChild($div);
-						$node->appendChild($divWrapper);
+						
+						$out = $doc->saveHTML();
+						$app->setBody($out);
 					}
-					
-					$out = $doc->saveHTML();
-					$app->setBody($out);	
 				}
 			} else if ($option === 'com_content' && ($view === 'category' || $view === 'featured' || $view === 'archive')) {
 				$body = $app->getBody();
@@ -1721,21 +1723,23 @@ class  plgSystemSppagebuilder extends CMSPlugin
 
 				if ($this->articleIndexPageContent) {
 					$xpath = new DOMXPath($doc);
-					foreach ($xpath->query('//main') as $node) {
-						while ($node->firstChild) {
-							$node->removeChild($node->firstChild);
+					if (!empty($xpath->query('//main')) && $xpath->query('//main')->length > 0) {
+						foreach ($xpath->query('//main') as $node) {
+							while ($node->firstChild) {
+								$node->removeChild($node->firstChild);
+							}
+							$div = $this->divWithHtml($doc, $this->articleIndexPageContent);
+							$div->setAttribute('class', 'page-content');
+							$divWrapper = $doc->createElement('div');
+							$divWrapper->setAttribute('id', 'sp-page-builder');
+							$divWrapper->setAttribute('class', 'sp-page-builder');
+							$divWrapper->appendChild($div);
+							$node->appendChild($divWrapper);
 						}
-						$div = $this->divWithHtml($doc, $this->articleIndexPageContent);
-						$div->setAttribute('class', 'page-content');
-						$divWrapper = $doc->createElement('div');
-						$divWrapper->setAttribute('id', 'sp-page-builder');
-						$divWrapper->setAttribute('class', 'sp-page-builder');
-						$divWrapper->appendChild($div);
-						$node->appendChild($divWrapper);
+		
+						$out = $doc->saveHTML();
+						$app->setBody($out);
 					}
-	
-					$out = $doc->saveHTML();
-					$app->setBody($out);
 				}
 			}
 		}
@@ -1935,9 +1939,35 @@ class  plgSystemSppagebuilder extends CMSPlugin
 		$app = Factory::getApplication();
 		$input = $app->input;
 		$id = $input->get('id', 0, 'INT');
+
+		$params = ComponentHelper::getParams('com_sppagebuilder');
+		$showArticleDetailsPageAsDefault = $params->get('show_article_details_page_as_default', 0);
 		
 		if (empty($id)) {
 			return;
+		}
+
+		if (!$showArticleDetailsPageAsDefault) {
+			$db = Factory::getDbo();
+			$query = $db->getQuery(true);
+			$query->select(['id, content'])
+				->from($db->quoteName('#__sppagebuilder'))
+				->where($db->quoteName('extension_view') . ' = ' . $db->quote('article'))
+				->where($db->quoteName('view_id') . ' = ' . $db->quote($id))
+				->where($db->quoteName('active') . ' = ' . $db->quote('1'))
+				->where($db->quoteName('published') . ' = 1');
+			$db->setQuery($query);
+
+			$result = $db->loadObject();
+
+			if (!empty($result->content)) {
+				$articleContent = json_decode($result->content);
+
+				if (!empty($articleContent)) {
+					return null;
+				}
+
+			}
 		}
 		
 		$detailsPage = $this->getArticleDetailsPage($id);
@@ -2388,6 +2418,17 @@ class  plgSystemSppagebuilder extends CMSPlugin
 			{
 				$moduleId = array_pop(explode('.', $module->name));
 				$moduleContent = $this->moduleData->content ?? $this->moduleData->text ?? '[]';
+				$moduleContentParsed = json_decode($moduleContent);
+
+				foreach($moduleContentParsed as $section)
+				{
+					if(isset($section->id) && !empty($section->id))
+					{
+						$section->id = $this->uuid();
+					}
+				}
+
+				$moduleContent = json_encode($moduleContentParsed);
 				$user = Factory::getUser();
 				$dateTime = Factory::getDate()->toSql();
 
@@ -2417,6 +2458,18 @@ class  plgSystemSppagebuilder extends CMSPlugin
 		}
 
 	}
+
+	private function uuid()
+    {
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000, // Version 4 UUID
+            mt_rand(0, 0x3fff) | 0x8000, // Variant
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+    }
 
 	public function onPreprocessMenuItems($context, &$items)
 	{

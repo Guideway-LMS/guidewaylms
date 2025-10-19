@@ -296,7 +296,7 @@ class PageSeoSettings
      * @return string
      * @since 5.5.0
      */
-    protected function parseVariable($value)
+    protected function parseVariable($value, $isStripTags = false)
     {
         if (empty($value) || empty($this->collectionData)) {
             return $value;
@@ -315,6 +315,10 @@ class PageSeoSettings
 
             if (is_null($replacement)) {
                 continue;
+            }
+
+            if ($isStripTags) {
+                $replacement = strip_tags($replacement);
             }
 
             $value = str_replace($match, $replacement, $value);
@@ -394,13 +398,13 @@ class PageSeoSettings
         $attributes->og_title = $this->parseVariable($ogTitle);
         $attributes->og_image = $this->parseVariable($ogImage) ?? '';
         $attributes->og_alt = $this->parseVariable($ogAlt);
-        $attributes->meta_description = $this->parseVariable($metaDescription) ?? '';
+        $attributes->meta_description = $this->parseVariable($metaDescription, true) ?? '';
 
         if (stripos($attributes->og_image, 'http') !== 0) {
             $attributes->og_image = Uri::root() . $attributes->og_image;
         }
 
-        $attributes->og_description = $this->parseVariable($ogDescription);
+        $attributes->og_description = $this->parseVariable($ogDescription, true);
         $this->attributes = new Registry($attributes);
         return $this;
     }

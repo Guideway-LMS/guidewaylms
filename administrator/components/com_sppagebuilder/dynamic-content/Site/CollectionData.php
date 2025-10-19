@@ -136,6 +136,20 @@ class CollectionData
     }
 
     /**
+     * Set the parent item.
+     *
+     * @param array $parentItem The parent item to set.
+     * @return self
+     *
+     * @since 6.0.0
+     */
+    public function setParentItem($parentItem)
+    {
+        $this->parentItem = $parentItem;
+        return $this;
+    }
+
+    /**
      * Set data from outside.
      *
      * @param array $data The data to set.
@@ -555,6 +569,10 @@ class CollectionData
         $checker = $condition->condition ?? '';
         $value = $item[$key] ?? null;
 
+        if ($checker === Conditions::RELATED) {
+            return $this->checkRelatedCondition($item, $condition, $this->parentItem);
+        }
+
         if (empty($value) || !is_array($conditionValue)) {
             return false;
         }
@@ -565,6 +583,193 @@ class CollectionData
             case Conditions::IS_NOT_INCLUDE:
                 return !in_array($value, $conditionValue);
         }
+    }
+
+    /**
+     * Check related condition for details pages.
+     * This condition filters items based on matching field values with the current details page item.
+     *
+     * @param array $item The item to check.
+     * @param object $condition The condition to check.
+     * @return bool
+     *
+     * @since 6.0.0
+     */
+    protected function checkRelatedCondition($item, $condition, $parentItem = null)
+    {
+        $associatedFieldPath = $condition->variable ?? '';
+        if (empty($associatedFieldPath)) {
+            return false;
+        }
+
+        if ($item['collection_id'] !== CollectionIds::ARTICLES_COLLECTION_ID) {
+            $currentItem = $this->getCurrentDetailsPageItem();
+            
+            if (empty($currentItem) || $item['id'] === $currentItem['id']) {
+                return false;
+            }
+
+            $currentItemValue = $this->getFieldValueFromItem($currentItem, $associatedFieldPath);
+            
+            if ($currentItemValue === null) {
+                return false;
+            }
+
+            $itemValue = $this->getFieldValueFromItem($item, $associatedFieldPath);
+            
+            if ($itemValue === null) {
+                return false;
+            }
+
+            return $currentItemValue == $itemValue;
+        } elseif ($item['collection_id'] === CollectionIds::ARTICLES_COLLECTION_ID) {
+            $currentItem = $this->getArticlesDetailsPageItem($parentItem);
+
+            if (empty($currentItem) || $item['id'] === $currentItem['id']) {
+                return false;
+            }
+
+            $articleFields = (new CollectionsService)->fetchArticleFields();
+
+            $articleField = array_values(array_filter($articleFields, function ($field) use ($associatedFieldPath) {
+                return $field['id'] == $associatedFieldPath;
+            }));
+
+            $associatedFieldPath = !empty($articleField[0]['path']) ? $articleField[0]['path'] : null;
+
+            if (empty($associatedFieldPath)) {
+                return false;
+            }
+
+            $currentItemValue = $this->getArticleFieldValueFromItem($currentItem, $associatedFieldPath);
+
+            if (empty($currentItemValue)) {
+                return false;
+            }
+
+            $itemValue = $this->getArticleFieldValueFromItem($item, $associatedFieldPath);
+
+            if (empty($itemValue)) {
+                return false;
+            }
+
+            return $currentItemValue == $itemValue;
+        }
+    }
+
+    /**
+     * Get the article field value from item.
+     *
+     * @param array $item The item to get value from.
+     * @param string $fieldPath The field path.
+     * @return mixed The field value or null if not found.
+     */
+    protected function getArticleFieldValueFromItem($item, $fieldPath)
+    {
+        if (empty($fieldPath) || empty($item)) {
+            return null;
+        }
+
+        if (empty($item[$fieldPath])) {
+            return null;
+        }
+        return $item[$fieldPath];
+    }
+
+    /**
+     * Get the articles details page item.
+     *
+     * @param int $itemId The item ID.
+     * @return array|null The articles details page item or null if not available.
+     *
+     * @since 6.0.0
+     */
+    protected function getArticlesDetailsPageItem($parentItem = null)
+    {
+        $currentItemId = $this->currentItemId ?? null;
+        if (empty($currentItemId) && !empty($parentItem)) {
+            $currentItemId = $parentItem['id'];
+        }
+
+        if (empty($currentItemId)) {
+            return null;
+        }
+
+        if (!\class_exists('SppagebuilderHelperArticles')) {
+            require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
+        }
+
+        $articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
+        $articles = \SppagebuilderHelperArticles::getArticles($articlesCount);
+
+        $articles = array_values(array_filter($articles, function ($article) use ($currentItemId) {
+            return $article->id == $currentItemId;
+        }));
+
+        $articles = !empty($articles[0]) ? $articles[0] : null;
+
+        $articles = (array) $articles;
+
+        return $articles;
+    }
+
+    /**
+     * Get the current details page item.
+     *
+     * @return array|null The current details page item or null if not available.
+     *
+     * @since 6.0.0
+     */
+    protected function getCurrentDetailsPageItem()
+    {
+        if (empty($this->currentItemId) && empty($this->parentItem)) {
+            return null;
+        }
+
+        if (empty($this->currentItemId) && !empty($this->parentItem)) {
+            return $this->parentItem;
+        }
+
+        try {
+            $service = new \JoomShaper\SPPageBuilder\DynamicContent\Services\CollectionDataService();
+            return $service->fetchCollectionItemById($this->currentItemId);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get field value from an item by field path.
+     *
+     * @param array $item The item to get value from.
+     * @param string $fieldPath The field path.
+     * @return mixed The field value or null if not found.
+     *
+     * @since 6.0.0
+     */
+    protected function getFieldValueFromItem($item, $fieldPath)
+    {
+        $fieldPath = CollectionItemsService::createFieldKey($fieldPath);
+        if (empty($fieldPath) || empty($item)) {
+            return null;
+        }
+
+        if (isset($item[$fieldPath])) {
+            return $item[$fieldPath];
+        }
+
+        $pathParts = explode('.', $fieldPath);
+        $value = $item;
+        
+        foreach ($pathParts as $part) {
+            if (is_array($value) && isset($value[$part])) {
+                $value = $value[$part];
+            } else {
+                return null;
+            }
+        }
+
+        return $value;
     }
 
     /**
@@ -657,7 +862,7 @@ class CollectionData
      *
      * @since 5.5.0
      */
-    public function applyFilters($filters)
+    public function applyFilters($filters, $allPaths = [])
     {
         $items = $this->items;
 
@@ -672,10 +877,10 @@ class CollectionData
             return $this;
         }
 
-        $items = Arr::make($items)->filter(function ($item) use ($conditions, $match) {
+        $items = Arr::make($items)->filter(function ($item) use ($conditions, $match, $allPaths) {
             return $match === Conditions::MATCH_ALL
-                ? $this->isMatchForAllConditions($item, $conditions)
-                : $this->isMatchForAnyConditions($item, $conditions);
+                ? $this->isMatchForAllConditions($item, $conditions, $allPaths)
+                : $this->isMatchForAnyConditions($item, $conditions, $allPaths);
         })->toArray();
 
         $this->items = $items;
@@ -1125,10 +1330,25 @@ class CollectionData
                 
             case Conditions::IS_ASSOCIATED_WITH:
                 return $this->checkArticleTagAssociation($item, $condition, $parentItem);
+
+            case Conditions::RELATED:
+                return $this->checkArticleTagRelatedCondition($item, $condition, $parentItem);
                 
             default:
                 return false;
         }
+    }
+
+    /**
+     * Check related condition for items
+     *
+     * @param array $item The item to check
+     * @param object $condition The condition to check
+     * @return bool Whether the condition is met
+     */
+    protected function checkArticleTagRelatedCondition($item, $condition, $parentItem = null)
+    {
+        return $this->checkRelatedCondition($item, $condition, $parentItem);
     }
 
     /**

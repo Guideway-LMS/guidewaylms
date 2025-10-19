@@ -382,7 +382,7 @@ class SppagebuilderAddonAjax_contact extends SppagebuilderAddons
             }
         }
 
-        if (empty($viewid) && $view === 'dynamic') {
+        if ($view === 'dynamic') {
             $viewid = (new SppagebuilderModelDynamic())->getPageIdFromCollectionItemId();
         }
 
