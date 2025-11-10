@@ -7,7 +7,7 @@
 	<authorUrl>http://www.joomshaper.com</authorUrl>
 	<copyright>Copyright (c) 2010- 2024 JoomShaper. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later</license>
-	<version>4.1.2</version>
+	<version>4.1.4</version>
 	<description>SP Learning Management System Component for Joomla</description>
 	<scriptfile>installer.script.php</scriptfile>
 
@@ -30,6 +30,9 @@
 	<languages folder="language/site">
 		<language tag="en-GB">en-GB/en-GB.com_splms.ini</language>
 	</languages>
+	<namespaces>
+        <namespace path="src">JoomShaper\Component\Splms\Site</namespace>
+    </namespaces>
 
 	<install>
 		<sql>
@@ -51,6 +54,9 @@
 			<menu link="option=com_splms&amp;view=dashboard" view="dashboard">
 				COM_SPLMS_DASHBOARD
 			</menu>
+			<menu link="option=com_splms&amp;view=announcements" view="announcements">
+                COM_SPLMS_ANNOUNCEMENTS
+            </menu>
 			<menu link="option=com_splms&amp;view=teachers" view="teachers">
 				COM_SPLMS_TEACHERS
 			</menu>
@@ -104,7 +110,9 @@
 			<folder>tables</folder>
 			<folder>views</folder>
 		</files>
-
+		<namespaces>
+            <namespace path="src">JoomShaper\Component\Splms\Administrator</namespace>
+        </namespaces>
 		<languages folder="language/admin">
 			<language tag="en-GB">en-GB/en-GB.com_splms.ini</language>
 			<language tag="en-GB">en-GB/en-GB.com_splms.sys.ini</language>
