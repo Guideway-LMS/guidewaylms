@@ -54,12 +54,13 @@ class SplmsControllerLesson extends FormController {
     
     try {
         $db = Factory::getDbo();
-        $query = "INSERT INTO " . $db->quoteName('#__splms_lesson_progress') . " 
-                  (" . $db->quoteName('user_id') . ", " . $db->quoteName('lesson_id') . ", " . $db->quoteName('status') . ")
-                  VALUES (" . $db->quote($userId) . ", " . $db->quote($itemId) . ", " . $db->quote('concluído') . ")
-                  ON DUPLICATE KEY UPDATE 
-                  " . $db->quoteName('status') . " = " . $db->quote('concluído') . ",
-                  " . $db->quoteName('updated_at') . " = NOW()";
+        $query = "INSERT INTO " . $db->quoteName('#__splms_course_progress') . " 
+    (" . $db->quoteName('user_id') . ", " . $db->quoteName('lesson_id') . ", " . $db->quoteName('status') . ", " . $db->quoteName('progress') . ")
+    VALUES (" . $db->quote($userId) . ", " . $db->quote($itemId) . ", 'Concluido', 100.00)
+    ON DUPLICATE KEY UPDATE 
+        " . $db->quoteName('status') . " = 'Concluido',
+        " . $db->quoteName('progress') . " = 100.00,
+        " . $db->quoteName('updated_at') . " = NOW()";
         
         $db->setQuery($query);
         $result = $db->execute();
@@ -100,14 +101,14 @@ public function hascompleted() {
     $query = $db->getQuery(true);
     
     $query->select($db->quoteName('status'))
-          ->from($db->quoteName('#__splms_lesson_progress'))
+    ->from($db->quoteName('#__splms_course_progress'))
           ->where($db->quoteName('user_id') . ' = ' . $db->quote($userId))
           ->where($db->quoteName('lesson_id') . ' = ' . $db->quote($lessonId));
     
     $db->setQuery($query);
     $status = $db->loadResult();
     
-    $completed = ($status === 'concluído');
+    $completed = ($status === 'Concluido');
     
     $output['completed'] = $completed;
     $output['status'] = $status ? $status : 'não iniciado';

@@ -82,18 +82,19 @@ public function getCourseProgress() {
         $db = Factory::getDbo();
         
         $query = "
-            SELECT 
-                COUNT(DISTINCT l.id) as total_aulas,
-                COUNT(DISTINCT p.lesson_id) as aulas_completas,
-                ROUND(
-                    (COUNT(DISTINCT p.lesson_id) / COUNT(DISTINCT l.id)) * 100, 
-                    0
-                ) as porcentagem
-            FROM " . $db->quoteName('#__splms_lessons') . " l
-            LEFT JOIN " . $db->quoteName('#__splms_lesson_progress') . " p 
-                ON l.id = p.lesson_id 
-                AND p.user_id = " . $db->quote($user->id) . "
-            WHERE l.course_id = " . $db->quote($courseId);
+SELECT 
+    COUNT(DISTINCT l.id) as total_aulas,
+    COUNT(DISTINCT p.lesson_id) as aulas_completas,
+    ROUND(
+        (COUNT(DISTINCT p.lesson_id) / COUNT(DISTINCT l.id)) * 100, 
+        0
+    ) as porcentagem
+FROM " . $db->quoteName('#__splms_lessons') . " l
+LEFT JOIN " . $db->quoteName('#__splms_course_progress') . " p 
+    ON l.id = p.lesson_id 
+    AND p.user_id = " . $db->quote($user->id) . "
+    AND p.status = 'Concluido'
+WHERE l.course_id = " . $db->quote($courseId);
         
         $db->setQuery($query);
         $result = $db->loadObject();
