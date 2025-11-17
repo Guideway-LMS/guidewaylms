@@ -38,8 +38,8 @@ class SplmsViewAnnouncements extends JViewLegacy
         $this->getModel();
 
         // 2. Carrega os dados (Agora $this->get() vai funcionar)
-        $this->items         = $this->get('Items');
-        $this->pagination    = $this->get('Pagination');
+        $this->items = $this->get('Items');
+        $this->pagination = $this->get('Pagination');
         
         // 3. Adiciona a Barra de Ferramentas (Toolbar)
         $this->addToolbar();

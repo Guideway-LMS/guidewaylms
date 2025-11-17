@@ -22,4 +22,5 @@ class SplmsControllerAnnouncement extends JControllerForm
         $this->view_list = 'announcements'; // View para onde voltar ao salvar/cancelar
         parent::__construct($config);
     }
+
 }

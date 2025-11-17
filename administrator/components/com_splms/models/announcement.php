@@ -26,7 +26,7 @@ class SplmsModelAnnouncement extends JModelAdmin
      * Método para carregar o arquivo XML do formulário.
      */
     public function getForm($data = [], $loadData = true)
-    {
+    { 
         $form = $this->loadForm(
             'com_splms.announcement',
             'announcement',
@@ -36,6 +36,7 @@ class SplmsModelAnnouncement extends JModelAdmin
         if (empty($form)) {
             return false;
         }
+
 
         return $form;
     }
