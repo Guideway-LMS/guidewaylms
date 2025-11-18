@@ -18,16 +18,17 @@
         />
 
         <field
-            name="description"
+            name="message"
             type="editor"
-            label="COM_SPLMS_ANNOUNCEMENT_DESCRIPTION_LABEL"
-            description="COM_SPLMS_ANNOUNCEMENT_DESCRIPTION_DESC"
+            label="COM_SPLMS_ANNOUNCEMENT_MESSAGE_LABEL"
+            description="COM_SPLMS_ANNOUNCEMENT_MESSAGE_DESC"
             required="true"
             filter="safehtml"
             buttons="true"
             hide="pagebreak,readmore"
             class="input-xxlarge"
         />
+
 
         <field
             name="course_id"
@@ -78,12 +79,14 @@
         />
 
         <field
-            name="created_on"
+            name="created_at"
             type="calendar"
             label="JGLOBAL_FIELD_CREATED_LABEL"
             readonly="true"
             format="%Y-%m-%d %H:%M:%S"
             filter="unset"
+            type="hidden"
+            default="0"
         />
 
     </fieldset>

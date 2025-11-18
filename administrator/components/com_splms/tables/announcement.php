@@ -40,8 +40,8 @@ class SplmsTableAnnouncement extends JTable
         }
 
         // 2. Validar o 'description' (que é o 'message')
-        if (trim($this->description) === '') {
-            $this->setError(JText::_('COM_SPLMS_ERROR_VALIDATION_DESCRIPTION_REQUIRED'));
+        if (trim($this->message) === '') {
+            $this->setError(JText::_('COM_SPLMS_ERROR_VALIDATION_MESSAGE_REQUIRED'));
             return false;
         }
 
@@ -50,8 +50,8 @@ class SplmsTableAnnouncement extends JTable
             if (empty($this->created_by)) {
                 $this->created_by = JFactory::getUser()->id;
             }
-            if (empty($this->created_on)) {
-                $this->created_on = JFactory::getDate()->toSql();
+            if (empty($this->created_at)) {
+                $this->created_at = JFactory::getDate()->toSql();
             }
         }
 
