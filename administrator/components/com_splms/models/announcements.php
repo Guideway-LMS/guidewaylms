@@ -42,17 +42,15 @@ class SplmsModelAnnouncements extends JModelList
         $db    = $this->getDbo();
         $query = $db->getQuery(true);
         
-        // Seleciona os campos principais (aliás 'a')
+        // 1. SELEÇÃO: Selecionar o ID Primário (a.id) é CRÍTICO para JModelList.
         $query->select(
             $db->quoteName([
-                'a.id', 'a.title', 'a.published', 'a.created_by', 'a.created_on', 'a.course_id'
+                'a.id', 'a.title', 'a.created_by', 'a.created_at', 'a.course_id' // Campos básicos
             ])
         );
 
-        // Seleciona o nome do autor (JOIN com #__users)
+        // 2. JOINS: (Mantidos, mas garantindo que o JOIN não esteja impedindo a busca principal)
         $query->select($db->quoteName('u.name', 'author_name'));
-
-        // Seleciona o nome do curso (JOIN com #__splms_courses)
         $query->select($db->quoteName('c.title', 'course_title'));
 
         // Tabela principal
@@ -70,7 +68,12 @@ class SplmsModelAnnouncements extends JModelList
             $db->quoteName('#__splms_courses', 'c') . ' ON ' . ( $db->quoteName('c.id') . ' = ' . $db->quoteName('a.course_id') )
         );
         
-        // Adiciona a ordenação baseada no 'populateState'
+        // 3. WHERE (Adicione esta linha se houver um campo 'published' na sua tabela)
+        // Isso garante que apenas avisos publicados sejam buscados.
+        // Se a coluna 'a.published' não existir, remova esta linha.
+        // $query->where($db->quoteName('a.published') . ' = 1'); 
+
+        // Adiciona a ordenação
         $query->order($db->escape($this->getState('list.ordering', 'a.id')) . ' ' . $db->escape($this->getState('list.direction', 'DESC')));
 
         return $query;

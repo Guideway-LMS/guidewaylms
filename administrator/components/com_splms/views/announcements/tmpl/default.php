@@ -74,7 +74,7 @@ JHtml::_('behavior.multiselect'); // Habilita a seleção de múltiplos itens
                         </td>
                         
                         <td>
-                            <?php echo JHtml::_('date', $item->created_on, JText::_('DATE_FORMAT_LC4')); ?>
+                            <?php echo JHtml::_('date', $item->created_at, JText::_('DATE_FORMAT_LC4')); ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

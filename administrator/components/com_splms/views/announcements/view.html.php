@@ -35,11 +35,11 @@ class SplmsViewAnnouncements extends JViewLegacy
     {
         // 1. [A CORREÇÃO] Carrega o Model (SplmsModelAnnouncements)
         // Força o carregamento do Model antes de o usarmos
-        $this->getModel();
+        $model = $this->getModel('Announcements');
 
         // 2. Carrega os dados (Agora $this->get() vai funcionar)
-        $this->items = $this->get('Items');
-        $this->pagination = $this->get('Pagination');
+        $this->items = $model->getItems();
+        $this->pagination = $model->getPagination();
         
         // 3. Adiciona a Barra de Ferramentas (Toolbar)
         $this->addToolbar();
