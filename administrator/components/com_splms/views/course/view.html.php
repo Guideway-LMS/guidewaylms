@@ -64,6 +64,10 @@ class SplmsViewCourse extends HtmlView {
 				ToolbarHelper::apply('course.apply', 'JTOOLBAR_APPLY');
 				ToolbarHelper::save('course.save', 'JTOOLBAR_SAVE');
 			}
+			
+			$linkMural = 'index.php?option=com_splms&view=announcements&course_id=' . $this->item->id;
+        	$bar = Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
+        	$bar->appendButton('Link', 'comments', 'Mural de Avisos', $linkMural);
 			ToolbarHelper::cancel('course.cancel', 'JTOOLBAR_CLOSE');
 		}
 	}
