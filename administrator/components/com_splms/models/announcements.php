@@ -93,4 +93,47 @@ class SplmsModelAnnouncements extends JModelList
         // Define a ordenação padrão para que a Paginação funcione
         parent::populateState('a.id', 'DESC');
     }
+    
+    /**
+     * IMPLEMENTAÇÃO OBRIGATÓRIA: Remove um ou mais avisos do banco de dados.
+     * Esta função corrige o erro "Call to undefined method SplmsModelAnnouncements::delete()".
+     *
+     * @param   array  $pks  Um array de IDs (chaves primárias) a serem removidas.
+     *
+     * @return  boolean  True em caso de sucesso, false em caso de falha.
+     */
+    public function delete($pks)
+    {
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+        $pks = (array) $pks; // Garante que seja um array
+
+        // 1. Sanitiza e valida os IDs
+        $cleanPks = array_map('intval', $pks);
+        $cleanPks = array_filter($cleanPks, function ($id) { return $id > 0; });
+
+        if (empty($cleanPks)) {
+            $this->setError(JText::_('JERROR_NO_ITEMS_SELECTED'));
+            return false;
+        }
+
+        // 2. Constrói a query DELETE
+        $query->delete($db->quoteName('#__splms_course_announcements'))
+              ->where($db->quoteName('id') . ' IN (' . implode(',', $cleanPks) . ')');
+
+        // 3. Executa a query
+        $db->setQuery($query);
+
+        try {
+            $db->execute();
+        } catch (\Exception $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
+
+        // 4. Limpa o cache do sistema (obrigatório após alteração no DB)
+        $this->cleanCache();
+        
+        return true;
+    }
 }

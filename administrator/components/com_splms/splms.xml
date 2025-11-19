@@ -64,6 +64,10 @@
 			<menu link="option=com_splms&amp;view=courses" view="courses">
 				COM_SPLMS_COURSES
 			</menu>
+			
+			<!-- inserção do mural de avisos -->
+			<menu view="announcements" img="class:megaphone" link="option=com_splms&amp;view=announcements">COM_SPLMS_ANNOUNCEMENTS</menu>
+
 			<menu link="option=com_splms&amp;view=lessiontopics" view="lessiontopics">
 				COM_SPLMS_LESSON_TOPICS
 			</menu>
