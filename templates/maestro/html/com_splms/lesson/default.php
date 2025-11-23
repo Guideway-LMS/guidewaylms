@@ -15,6 +15,9 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 
+// Linha nova
+JHtml::_('script', 'components/com_splms/assets/js/lesson-complete-handler.js', ['version' => 'auto']);
+
 ?>
 
 <div id="splms" class="splms splms-lessons splms-lesson-details">
