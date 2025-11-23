@@ -23,14 +23,19 @@ class SplmsModelAnnouncements extends JModelList
     {
         $db    = $this->getDbo();
         $query = $db->getQuery(true);
-        
+
         // Pega o ID do curso da URL
         $app = JFactory::getApplication();
-        $courseId = $app->input->getInt('id', 0); 
+        $courseId = $app->input->getInt('id', 0);
 
         // Pega o ID do utilizador logado (Tarefa 1.6)
         $user = JFactory::getUser();
         $userId = (int) $user->id;
+
+        // DEBUG TEMPORÁRIO
+        if (defined('JPATH_BASE') && basename($_SERVER['PHP_SELF']) == 'test_announcements_check.php') {
+            echo "DEBUG: User ID inside Model: " . $userId . "\n";
+        }
 
         // [SEGURANÇA] Se for convidado, não retorna nada
         if ($userId === 0) {
@@ -40,9 +45,16 @@ class SplmsModelAnnouncements extends JModelList
         // Seleciona os campos necessários para o aluno
         $query->select(
             $db->quoteName([
-                'a.id', 'a.title', 'a.description', 'a.created_on'
+                'a.id', 'a.title'
             ])
         );
+        
+        // Aliases para manter compatibilidade com a View
+        // O banco usa 'message', a view espera 'description'
+        $query->select($db->quoteName('a.message', 'description'));
+        // O banco usa 'created_at', a view espera 'created_on'
+        $query->select($db->quoteName('a.created_at', 'created_on'));
+
         // Pega o nome do autor (professor)
         $query->select($db->quoteName('u.name', 'author_name'));
 
@@ -59,22 +71,21 @@ class SplmsModelAnnouncements extends JModelList
         // 1. Apenas para este curso
         $query->where($db->quoteName('a.course_id') . ' = ' . (int) $courseId);
         
-        // 2. Apenas avisos publicados
-        $query->where($db->quoteName('a.published') . ' = 1');
+        // NOTA: A tabela não possui coluna 'published' no schema atual
+        // Todos os avisos serão exibidos (sem filtro de publicação)
         
-        // 3. [SEGURANÇA] Apenas se o aluno estiver matriculado (Tarefa 1.6)
+        // 2. [SEGURANÇA] Apenas se o aluno estiver matriculado (Tarefa 1.5.2)
         $subQuery = $db->getQuery(true)
             ->select('1')
-            ->from($db->quoteName('#__splms_students', 's')) // <-- Confirme o nome desta tabela
-            ->where($db->quoteName('s.course_id') . ' = ' . (int) $courseId)
-            ->where($db->quoteName('s.user_id') . ' = ' . (int) $userId);
-            // NOTA: Pode ser necessário adicionar um status, ex:
-            // ->where($db->quoteName('s.status') . ' = 1');
+            ->from($db->quoteName('#__splms_orders', 'o'))
+            ->where($db->quoteName('o.course_id') . ' = ' . (int) $courseId)
+            ->where($db->quoteName('o.order_user_id') . ' = ' . (int) $userId)
+            ->where($db->quoteName('o.published') . ' = 1');
 
         $query->where('EXISTS (' . $subQuery . ')');
         
-        // Ordena pelo mais recente primeiro
-        $query->order($db->escape('a.created_on DESC'));
+        // Ordena pelo mais recente primeiro (usando o nome real da coluna)
+        $query->order($db->escape('a.created_at DESC'));
 
         return $query;
     }
@@ -90,6 +101,6 @@ class SplmsModelAnnouncements extends JModelList
     protected function populateState($ordering = null, $direction = null)
     {
         // Define a ordenação padrão para que a Paginação funcione
-        parent::populateState('a.created_on', 'DESC');
+        parent::populateState('a.created_at', 'DESC');
     }
 }
