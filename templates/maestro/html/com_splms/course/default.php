@@ -145,6 +145,18 @@ $user = Factory::getUser();
 							</ul>
 						<?php } ?>
 					</div>
+
+					<div class="splms-course-announcements splms-section">
+    					<h3 class="splms-title">Mural de Avisos</h3>
+
+					<?php
+						echo LayoutHelper::render(
+							'announcements.list',
+							['items' => $this->announcements]
+						);
+					?>
+					</div>
+
 				<?php } ?>
 
 				<!-- Has teacher -->

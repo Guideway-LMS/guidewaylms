@@ -45,7 +45,11 @@ class SplmsModelAnnouncements extends JModelList
         // Seleciona os campos necessários para o aluno
         $query->select(
             $db->quoteName([
+<<<<<<< HEAD
                 'a.id', 'a.title'
+=======
+                'a.id', 'a.title', 'a.message', 'a.created_at'
+>>>>>>> 282e9009 (exibir avisos do curso apenas para alunos matriculados)
             ])
         );
         
@@ -71,12 +75,18 @@ class SplmsModelAnnouncements extends JModelList
         // 1. Apenas para este curso
         $query->where($db->quoteName('a.course_id') . ' = ' . (int) $courseId);
         
+<<<<<<< HEAD
         // NOTA: A tabela não possui coluna 'published' no schema atual
         // Todos os avisos serão exibidos (sem filtro de publicação)
+=======
+        // // 2. Apenas avisos publicados
+        // $query->where($db->quoteName('a.published') . ' = 1');
+>>>>>>> 282e9009 (exibir avisos do curso apenas para alunos matriculados)
         
         // 2. [SEGURANÇA] Apenas se o aluno estiver matriculado (Tarefa 1.5.2)
         $subQuery = $db->getQuery(true)
             ->select('1')
+<<<<<<< HEAD
             ->from($db->quoteName('#__splms_orders', 'o'))
             ->where($db->quoteName('o.course_id') . ' = ' . (int) $courseId)
             ->where($db->quoteName('o.order_user_id') . ' = ' . (int) $userId)
@@ -85,6 +95,17 @@ class SplmsModelAnnouncements extends JModelList
         $query->where('EXISTS (' . $subQuery . ')');
         
         // Ordena pelo mais recente primeiro (usando o nome real da coluna)
+=======
+            ->from($db->quoteName('#__splms_orders', 's')) // <-- Confirme o nome desta tabela
+            ->where($db->quoteName('s.course_id') . ' = ' . (int) $courseId)
+            ->where($db->quoteName('s.order_user_id') . ' = ' . (int) $userId);
+            // NOTA: Pode ser necessário adicionar um status, ex:
+            // ->where($db->quoteName('s.status') . ' = 1');
+
+        $query->where('EXISTS (' . $subQuery . ')');
+        
+        // Ordena pelo mais recente primeiro
+>>>>>>> 282e9009 (exibir avisos do curso apenas para alunos matriculados)
         $query->order($db->escape('a.created_at DESC'));
 
         return $query;
