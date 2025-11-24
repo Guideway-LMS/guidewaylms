@@ -146,16 +146,19 @@ $user = Factory::getUser();
 						<?php } ?>
 					</div>
 
-					<div class="splms-course-announcements splms-section">
-    					<h3 class="splms-title">Mural de Avisos</h3>
+					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
+						<div class="splms-course-announcements splms-section">
+							<h3 class="splms-title">Mural de Avisos</h3>
 
-					<?php
-						echo LayoutHelper::render(
-							'announcements.list',
-							['items' => $this->announcements]
-						);
-					?>
-					</div>
+							<?php
+								echo LayoutHelper::render(
+									'announcements.list',
+									['items' => $this->announcements]
+								);
+							?>
+						</div>
+					<?php endif; ?>
+
 
 				<?php } ?>
 

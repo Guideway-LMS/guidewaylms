@@ -34,7 +34,9 @@ class SplmsModelAnnouncements extends JModelList
 
         // [SEGURANÇA] Se for convidado, não retorna nada
         if ($userId === 0) {
-            return false;
+            // Usuário não logado → não retorna falso, para não quebrar o Joomla
+            $query->where('1 = 0'); // retorna zero registros
+            return $query;
         }
 
         // Seleciona os campos necessários para o aluno
