@@ -57,61 +57,46 @@ class SplmsControllerCourses extends FormController{
  * Retorna o progresso do aluno em um curso
  * GUIDEWAY CUSTOM - 2025-11-12 - Joshua - Barra de progresso
  */
-public function getCourseProgress() {
-    $user = Factory::getUser();
-    $input = Factory::getApplication()->input;
-    $output = array();
-    
-    if (!$user->id) {
-        $output['success'] = false;
-        $output['message'] = 'Usuário não autenticado';
+// GUIDEWAY CUSTOM - 2025-11-19 - Joshua - Atualizado para usar Model
+    /**
+     * Retorna o progresso do aluno em um curso
+     * GUIDEWAY CUSTOM - 2025-11-19 - Joshua - Integrado com Model da Vitória
+     */
+    public function getCourseProgress() {
+        $user = Factory::getUser();
+        $input = Factory::getApplication()->input;
+        $output = array();
+
+        if (!$user->id) {
+            $output['success'] = false;
+            $output['message'] = 'Usuario nao autenticado';
+            echo json_encode($output);
+            die();
+        }
+
+        $courseId = $input->getInt('course_id', 0);
+
+        if (!$courseId) {
+            $output['success'] = false;
+            $output['message'] = 'ID do curso nao fornecido';
+            echo json_encode($output);
+            die();
+        }
+
+        try {
+            // CHAMA A FUNÇÃO DO MODEL (da Vitória)
+            $model = $this->getModel('Course');
+            $result = $model->getCourseProgress($user->id, $courseId);
+
+            $output['success'] = true;
+            $output['data'] = $result;
+
+        } catch (Exception $e) {
+            $output['success'] = false;
+            $output['message'] = 'Erro: ' . $e->getMessage();
+        }
+
         echo json_encode($output);
         die();
     }
-    
-    $courseId = $input->getInt('course_id', 0);
-    
-    if (!$courseId) {
-        $output['success'] = false;
-        $output['message'] = 'ID do curso não fornecido';
-        echo json_encode($output);
-        die();
-    }
-    
-    try {
-        $db = Factory::getDbo();
-        
-        $query = "
-SELECT 
-    COUNT(DISTINCT l.id) as total_aulas,
-    COUNT(DISTINCT p.lesson_id) as aulas_completas,
-    ROUND(
-        (COUNT(DISTINCT p.lesson_id) / COUNT(DISTINCT l.id)) * 100, 
-        0
-    ) as porcentagem
-FROM " . $db->quoteName('#__splms_lessons') . " l
-LEFT JOIN " . $db->quoteName('#__splms_course_progress') . " p 
-    ON l.id = p.lesson_id 
-    AND p.user_id = " . $db->quote($user->id) . "
-    AND p.status = 'Concluido'
-WHERE l.course_id = " . $db->quote($courseId);
-        
-        $db->setQuery($query);
-        $result = $db->loadObject();
-        
-        $output['success'] = true;
-        $output['data'] = array(
-            'total_aulas' => (int)$result->total_aulas,
-            'aulas_completas' => (int)$result->aulas_completas,
-            'porcentagem' => (int)$result->porcentagem
-        );
-        
-    } catch (Exception $e) {
-        $output['success'] = false;
-        $output['message'] = 'Erro: ' . $e->getMessage();
-    }
-    
-    echo json_encode($output);
-    die();
-}	
 }
