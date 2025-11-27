@@ -109,7 +109,19 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
-		
+
+		<field type="spacer" hr="true" />
+    <field
+        name="percentual_minimo_conclusao"
+        type="number"
+        default="90"
+        label="Percentual mínimo para conclusão (%)"
+        description="Defina a porcentagem do vídeo que o aluno deve assistir para marcar a aula como concluída automaticamente."
+        min="0"
+        max="100"
+        step="1"
+        filter="integer"
+    />		
 	</fieldset>
 
 	<fieldset name="media" label="COM_SPLMS_FIELDSET_IMAGE_LABEL">
