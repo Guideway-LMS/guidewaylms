@@ -11,12 +11,15 @@
 defined('_JEXEC') or die('Resticted Aceess');
 
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 
-// Linha nova
-JHtml::_('script', 'components/com_splms/assets/js/lesson-complete-handler.js', ['version' => 'auto']);
+// Carrega JS e CSS da notificação (Sprint 4 - Iris)
+$doc = Factory::getDocument();
+$doc->addScript(Uri::root() . 'media/gw-progress-alert/js/alerta-conclusao.js');
+$doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
 
 ?>
 

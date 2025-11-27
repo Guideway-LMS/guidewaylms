@@ -1,0 +1,29 @@
+.conclusao-alerta {
+    position: fixed;
+    top: -200px;
+    right: 20px;
+    max-width: 320px;
+    background: #4caf50;
+    color: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    z-index: 99999;
+    transition: all 0.4s ease;
+}
+
+.conclusao-alerta__conteudo h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.conclusao-alerta__conteudo p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.conclusao-alerta--visivel {
+    top: 20px;
+}
