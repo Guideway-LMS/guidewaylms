@@ -1,12 +1,10 @@
 <?php
-
 /**
  * @package com_splms
  * @author JoomShaper http://www.joomshaper.com
  * @copyright Copyright (c) 2010 - 2022 JoomShaper
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
  */
-
 // No Direct Access
 defined('_JEXEC') or die('Resticted Aceess');
 
@@ -19,6 +17,11 @@ use Joomla\CMS\Layout\LayoutHelper;
 // Carrega JS e CSS da notificação (Sprint 4 - Iris)
 $doc = Factory::getDocument();
 $doc->addScript(Uri::root() . 'media/gw-progress-alert/js/alerta-conclusao.js');
+$doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
+
+// GUIDEWAY CUSTOM - Joshua - Carregar handler de conclusão de aula
+$doc->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-complete-handler.js');
+?>
 $doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
 
 ?>

@@ -1,50 +1,58 @@
 jQuery(function ($) {
     "use strict";
-    console.log("✅ JS DO SPLMS CARREGOU!");
+    console.log("JS DO SPLMS CARREGOU!");
 
     window.SPLMS_autoComplete = function (item_id, item_type = "lesson") {
-        console.log("🎯 SPLMS_autoComplete chamado com:", {item_id, item_type});
+        console.log("SPLMS_autoComplete chamado com:", {item_id, item_type});
         
         const btn = $("#splms-completed-item");
         if (btn.hasClass("btn-success")) {
-            console.log("⚠️ Já está concluído");
+            console.log("Já está concluído");
             return;
         }
 
-        // PEGAR O USER_ID DO FORMULÁRIO
         const form = document.getElementById("splms-completed-item-form");
         if (!form) {
-            console.error("❌ Formulário não encontrado!");
+            console.error("Formulário não encontrado!");
             return;
         }
         
         const user_id = form.querySelector("input[name='user_id']")?.value;
         if (!user_id) {
-            console.error("❌ user_id não encontrado!");
+            console.error("user_id não encontrado!");
             return;
         }
 
-        console.log("📤 Enviando:", {user_id, item_id, item_type});
+        console.log("Enviando:", {user_id, item_id, item_type});
 
         $.ajax({
             type: "POST",
             url: "index.php?option=com_splms&task=lesson.completeditem",
             data: { user_id, item_id, item_type },
             success: function (response) {
-                console.log("📥 Resposta:", response);
+                console.log("Resposta:", response);
                 const data = $.parseJSON(response);
-                console.log("📥 Parseada:", data);
+                console.log("Parseada:", data);
                 if (data.status) {
-                    console.log("✅ Sucesso!");
+                    console.log("Sucesso!");
                     btn.text(data.content).removeClass("btn-primary").addClass("btn-success").prop("disabled", true);
-                    console.log("🎉 Atualizando barra...");
+                    
+                    // INTEGRAÇÃO COM TRABALHO DA IRIS
+                    console.log("Mostrando notificação...");
+                    if (typeof mostrarAlertaConclusao === 'function') {
+                        mostrarAlertaConclusao();
+                    } else {
+                        console.warn("Função mostrarAlertaConclusao não encontrada");
+                    }
+                    
+                    console.log("Atualizando barra...");
                     SPLMS_updateProgressBar();
                 } else {
-                    console.error("❌ Erro:", data.content);
+                    console.error("Erro:", data.content);
                 }
             },
             error: function (xhr, status, error) {
-                console.error("❌ Erro AJAX:", {xhr, status, error});
+                console.error("Erro AJAX:", {xhr, status, error});
             }
         });
     };
@@ -56,7 +64,7 @@ jQuery(function ($) {
         const item_id = form.find("input[name='item_id']").val();
         const item_type = form.find("input[name='item_type']").val();
         
-        console.log("🖱️ Botão clicado:", {user_id, item_id, item_type});
+        console.log("Botão clicado:", {user_id, item_id, item_type});
 
         $.ajax({
             type: "POST",
@@ -67,7 +75,13 @@ jQuery(function ($) {
                 const data = $.parseJSON(response);
                 if (data.status) {
                     $("#splms-completed-item").text(data.content).removeClass("btn-primary").addClass("btn-success");
-                    console.log("🎉 Atualizando barra...");
+                    
+                    // INTEGRAÇÃO COM TRABALHO DA IRIS
+                    if (typeof mostrarAlertaConclusao === 'function') {
+                        mostrarAlertaConclusao();
+                    }
+                    
+                    console.log("Atualizando barra...");
                     SPLMS_updateProgressBar();
                 } else {
                     alert(data.content);
@@ -83,14 +97,14 @@ jQuery(function ($) {
             if (m) courseId = m[1];
         }
         if (courseId && typeof loadCourseProgress === 'function') {
-            console.log("📊 Recarregando progresso:", courseId);
+            console.log("Recarregando progresso:", courseId);
             loadCourseProgress(courseId);
         }
     }
 
     function SPLMS_hideButtonWhenVideo() {
         if ($("#splmsVideoPlayer").length > 0 || $("iframe[src*='youtube']").length > 0) {
-            console.log("📹 Escondendo botão");
+            console.log("Escondendo botão");
             $("#splms-completed-item").hide();
         }
     }
@@ -99,14 +113,14 @@ jQuery(function ($) {
         const w = setInterval(function () {
             if (window.splmsVideoPlayer1 && typeof window.splmsVideoPlayer1.addListener === "function") {
                 clearInterval(w);
-                console.log("🎬 FWDEVPlayer conectado!");
+                console.log("FWDEVPlayer conectado!");
                 window.splmsVideoPlayer1.addListener("playComplete", function () {
-                    console.log("🎬 Vídeo terminou!");
+                    console.log("Vídeo terminou!");
                     const form = document.getElementById("splms-completed-item-form");
                     if (!form) return;
                     const item_id = form.querySelector("input[name='item_id']").value;
                     const item_type = form.querySelector("input[name='item_type']").value;
-                    console.log("📝 Chamando autoComplete...");
+                    console.log("Chamando autoComplete...");
                     window.SPLMS_autoComplete(item_id, item_type);
                 });
             }
@@ -114,7 +128,7 @@ jQuery(function ($) {
     }
 
     $(document).ready(function () {
-        console.log("🚀 Inicializando...");
+        console.log("Inicializando...");
         SPLMS_hideButtonWhenVideo();
         SPLMS_bindFWDEVPlayer();
     });
