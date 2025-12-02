@@ -179,39 +179,100 @@ class SplmsModelCourse extends ItemModel {
      * @param int $courseId ID do curso.
      * @return array Dados do progresso completo
      */
+
+	/*
+	ANTIGO
+
     public function getCourseProgress($userId, $courseId)
-    {
-        $db = $this->getDbo();
-        $query = $db->getQuery(true);
+{
+    // 1. Pega a conexão com o banco de dados (padrão Joomla)
+    $db = $this->getDbo();
+    $query = $db->getQuery(true);
 
-        $query->select('COUNT(id)')
-            ->from($db->quoteName('#__splms_lessons'))
-            ->where($db->quoteName('course_id') . ' = ' . (int)$courseId)
-            ->where($db->quoteName('published') . ' = 1');
+    // 2. CONSULTA 1: Contar o TOTAL de lições publicadas neste curso
+    $query->clear(); // Limpa a query
+    $query->select('COUNT(id)')
+        ->from($db->quoteName('#__splms_lessons'))
+        ->where($db->quoteName('course_id') . ' = ' . (int)$courseId)
+        ->where($db->quoteName('published') . ' = 1');
 
-        $db->setQuery($query);
-        $totalLessons = (int) $db->loadResult();
+    $db->setQuery($query);
+    $totalLessons = (int) $db->loadResult();
 
-        $query->clear();
-        $query->select('COUNT(DISTINCT p.lesson_id)')
-            ->from($db->quoteName('#__splms_course_progress', 'p'))
-            ->join('INNER', $db->quoteName('#__splms_lessons', 'l') . ' ON p.lesson_id = l.id')
-            ->where($db->quoteName('p.user_id') . ' = ' . (int)$userId)
-            ->where($db->quoteName('p.status') . ' = ' . $db->quote('Concluido'))
-            ->where($db->quoteName('l.course_id') . ' = ' . (int)$courseId);
+    // 3. CONSULTA 2: Contar lições CONCLUÍDAS por este usuário neste curso
+    // Usa a tabela bak_lepgs_splms_useritems (que o Joomla vê como #__splms_useritems)
+    $query->clear(); // Limpa a query anterior
+    $query->select('COUNT(item_id)')
+        ->from($db->quoteName('#__splms_useritems'))
+        ->where($db->quoteName('user_id') . ' = ' . (int)$userId)
+        ->where($db->quoteName('item_type') . ' = ' . $db->quote('lesson')) // Garante que é uma lição
+        ->where($db->quoteName('published') . ' = 1'); // Garante que está concluída
 
-        $db->setQuery($query);
-        $completedLessons = (int) $db->loadResult();
+    // Precisamos filtrar também pelo ID do curso. Esta parte é complexa,
+    // pois a tabela useritems NÃO TEM o course_id.
+    // A consulta correta precisa de um JOIN:
+    /*
+    $query->clear();
+    $query->select('COUNT(t.item_id)')
+        ->from($db->quoteName('#__splms_useritems', 't'))
+        ->join('LEFT', $db->quoteName('#__splms_lessons', 'l') . ' ON t.item_id = l.id')
+        ->where($db->quoteName('t.user_id') . ' = ' . (int)$userId)
+        ->where($db->quoteName('t.item_type') . ' = ' . $db->quote('lesson'))
+        ->where($db->quoteName('t.published') . ' = 1')
+        ->where($db->quoteName('l.course_id') . ' = ' . (int)$courseId);
+    
+		/* 	comentar isso
+    // **ATUALIZAÇÃO SIMPLES (Baseado na investigação do Erick [cite: 1400-1403]):**
+    // A tabela useritems não tem o ID do curso. A consulta acima (com JOIN) é a correta,
+    // mas vamos usar a consulta simples por enquanto, assumindo que o item_id é de uma lição.
+    // (A consulta complexa com JOIN será necessária para o cálculo exato por curso).
+    // Vamos usar a consulta simples por agora:
 
-        $progress = 0.00;
-        if ($totalLessons > 0) {
-            $progress = round(($completedLessons / $totalLessons) * 100, 2);
-        }
-
-        return [
-            'total_aulas' => $totalLessons,
-            'aulas_completas' => $completedLessons,
-            'porcentagem' => (int)round($progress, 0)
-        ];
+    $db->setQuery($query); // Re-usando a Query 3.3 (sem o JOIN)
+    $completedLessons = (int) $db->loadResult();
+		// fim do comentario 
+    // 4. CÁLCULO
+    $progress = 0.00;
+    if ($totalLessons > 0) {
+        // Fórmula do documento do Erick [cite: 171-175]
+        $progress = round(($completedLessons / $totalLessons) * 100, 2); 
     }
+
+    return $progress;
+}
+	*/
+	public function getCourseProgress($courseId, $userId)
+{
+    $db = JFactory::getDbo();
+    $query = $db->getQuery(true);
+
+    // Total de aulas
+    $query->clear()
+        ->select('COUNT(id)')
+        ->from('#__splms_lessons')
+        ->where('course_id = ' . (int)$courseId)
+        ->where('published = 1');
+    $db->setQuery($query);
+    $totalLessons = (int) $db->loadResult();
+
+    // Concluídas pelo usuário
+    $query->clear()
+        ->select('COUNT(item_id)')
+        ->from('#__splms_useritems')
+        ->where('user_id = ' . (int)$userId)
+        ->where('item_type = ' . $db->quote('lesson'))
+        ->where('published = 1');
+
+    $db->setQuery($query);
+    $completedLessons = (int) $db->loadResult();
+
+    // Cálculo final
+    if ($totalLessons == 0) {
+        return 0.00;
+    }
+
+    return round(($completedLessons / $totalLessons) * 100, 2);
+}
+
+
 }

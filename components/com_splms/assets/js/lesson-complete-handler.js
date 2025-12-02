@@ -1,135 +1,387 @@
 jQuery(function ($) {
     "use strict";
-    console.log("JS DO SPLMS CARREGOU!");
+    console.log("SPLMS: JS carregado.");
 
-    window.SPLMS_autoComplete = function (item_id, item_type = "lesson") {
-        console.log("SPLMS_autoComplete chamado com:", {item_id, item_type});
-        
-        const btn = $("#splms-completed-item");
-        if (btn.hasClass("btn-success")) {
-            console.log("Já está concluído");
+    // ----------------------------
+    // Config / constantes
+    // ----------------------------
+    const MAX_FIND_FORM_ATTEMPTS = 20;
+    const FIND_FORM_INTERVAL_MS = 150;
+
+    // pega config enviada pelo PHP via addScriptOptions
+    const cfg = (typeof Joomla !== "undefined" && typeof Joomla.getOptions === "function")
+        ? Joomla.getOptions("splmsConfig") || {}
+        : {};
+    const SPLMS_PERCENTUAL_MINIMO = parseInt(cfg.percentualMinimoConclusao || 90, 10);
+
+    console.log("SPLMS-LOG: Percentual mínimo configurado:", SPLMS_PERCENTUAL_MINIMO + "%");
+
+    // ----------------------------
+    // Estado
+    // ----------------------------
+    let SPLMS_ITEM_ID = null;
+    let SPLMS_ITEM_TYPE = null;
+    let SPLMS_USER_ID = null; // não usamos no POST (controller usa usuário logado), mas mantemos para info
+    let formFound = false;
+
+    // ----------------------------
+    // Utils para obter valores
+    // ----------------------------
+    function readValuesFromForm(form) {
+        try {
+            const itemIdEl = form.querySelector("input[name='item_id']");
+            const itemTypeEl = form.querySelector("input[name='item_type']");
+            const userIdEl = form.querySelector("input[name='user_id']");
+
+            const itemId = itemIdEl ? itemIdEl.value : null;
+            const itemType = itemTypeEl ? itemTypeEl.value : null;
+            const userId = userIdEl ? userIdEl.value : null;
+
+            return { itemId, itemType, userId };
+        } catch (e) {
+            console.warn("SPLMS-LOG: erro ao ler valores do form:", e);
+            return { itemId: null, itemType: null, userId: null };
+        }
+    }
+
+    function findHiddenInputsAnywhere() {
+        const itemIdEl = document.querySelector("input[name='item_id']");
+        const itemTypeEl = document.querySelector("input[name='item_type']");
+        const userIdEl = document.querySelector("input[name='user_id']");
+
+        return {
+            itemId: itemIdEl ? itemIdEl.value : null,
+            itemType: itemTypeEl ? itemTypeEl.value : null,
+            userId: userIdEl ? userIdEl.value : null
+        };
+    }
+
+    function readValuesFromButton(btn) {
+        if (!btn) return { itemId: null, itemType: null, userId: null };
+        return {
+            itemId: btn.getAttribute("data-item_id") || btn.getAttribute("data-item-id") || null,
+            itemType: btn.getAttribute("data-item_type") || btn.getAttribute("data-item-type") || null,
+            userId: btn.getAttribute("data-user_id") || btn.getAttribute("data-user-id") || null
+        };
+    }
+
+    // ----------------------------
+    // Localizar form (com tentativas)
+    // ----------------------------
+    function locateFormAndValues(callback) {
+        let attempts = 0;
+
+        function attempt() {
+            attempts++;
+            const form = document.getElementById("splms-completed-item-form");
+            if (form) {
+                formFound = true;
+                console.log("SPLMS-LOG: Formulário #splms-completed-item-form encontrado (tentativa: " + attempts + ").");
+                const vals = readValuesFromForm(form);
+                SPLMS_ITEM_ID = vals.itemId;
+                SPLMS_ITEM_TYPE = vals.itemType;
+                SPLMS_USER_ID = vals.userId;
+                console.log("SPLMS-LOG: Valores do form:", { SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, SPLMS_USER_ID });
+                callback(true);
+                return;
+            }
+
+            // fallback: procurar inputs escondidos em qualquer lugar
+            const foundAnywhere = findHiddenInputsAnywhere();
+            if (foundAnywhere.itemId || foundAnywhere.itemType) {
+                console.log("SPLMS-LOG: Inputs escondidos encontrados fora do form:", foundAnywhere);
+                SPLMS_ITEM_ID = foundAnywhere.itemId;
+                SPLMS_ITEM_TYPE = foundAnywhere.itemType;
+                SPLMS_USER_ID = foundAnywhere.userId;
+                callback(true);
+                return;
+            }
+
+            // fallback: tentar ler do botão (talvez template tenha data-attrs)
+            const btn = document.getElementById("splms-completed-item");
+            if (btn) {
+                const fromBtn = readValuesFromButton(btn);
+                if (fromBtn.itemId || fromBtn.itemType) {
+                    console.log("SPLMS-LOG: Valores adquiridos do botão:", fromBtn);
+                    SPLMS_ITEM_ID = fromBtn.itemId;
+                    SPLMS_ITEM_TYPE = fromBtn.itemType;
+                    SPLMS_USER_ID = fromBtn.userId;
+                    callback(true);
+                    return;
+                }
+            }
+
+            if (attempts >= MAX_FIND_FORM_ATTEMPTS) {
+                console.error("❌ SPLMS-ERRO: Formulário/valores NÃO encontrados após " + attempts + " tentativas.");
+                callback(false);
+                return;
+            }
+
+            // tentar de novo
+            setTimeout(attempt, FIND_FORM_INTERVAL_MS);
+        }
+
+        attempt();
+    }
+
+    // ----------------------------
+    // Função AJAX que o controller espera (item_id + item_type)
+    // ----------------------------
+    function doCompleteAjax(itemId, itemType, onSuccess, onError) {
+        if (!itemId || !itemType) {
+            console.error("SPLMS-LOG: Não é possível enviar AJAX — itemId ou itemType faltando.", { itemId, itemType });
+            if (onError) onError(new Error("itemId/itemType missing"));
             return;
         }
 
-        const form = document.getElementById("splms-completed-item-form");
-        if (!form) {
-            console.error("Formulário não encontrado!");
-            return;
-        }
-        
-        const user_id = form.querySelector("input[name='user_id']")?.value;
-        if (!user_id) {
-            console.error("user_id não encontrado!");
-            return;
-        }
-
-        console.log("Enviando:", {user_id, item_id, item_type});
+        console.log("SPLMS-LOG: Enviando AJAX para completar item:", { itemId, itemType });
 
         $.ajax({
             type: "POST",
             url: "index.php?option=com_splms&task=lesson.completeditem",
-            data: { user_id, item_id, item_type },
-            success: function (response) {
-                console.log("Resposta:", response);
-                const data = $.parseJSON(response);
-                console.log("Parseada:", data);
-                if (data.status) {
-                    console.log("Sucesso!");
-                    btn.text(data.content).removeClass("btn-primary").addClass("btn-success").prop("disabled", true);
-                    
-                    // INTEGRAÇÃO COM TRABALHO DA IRIS
-                    console.log("Mostrando notificação...");
-                    if (typeof mostrarAlertaConclusao === 'function') {
-                        mostrarAlertaConclusao();
-                    } else {
-                        console.warn("Função mostrarAlertaConclusao não encontrada");
-                    }
-                    
-                    console.log("Atualizando barra...");
-                    SPLMS_updateProgressBar();
+            data: {
+                item_id: itemId,
+                item_type: itemType
+                // não enviamos user_id — controller usa usuário logado via Factory::getUser()
+            },
+            success: function (raw) {
+                console.log("SPLMS-LOG: Resposta do servidor:", raw);
+                let res = null;
+                try {
+                    res = $.parseJSON(raw);
+                } catch (e) {
+                    console.error("SPLMS-LOG: Falha ao parsear JSON de resposta:", e, raw);
+                    if (onError) onError(e);
+                    return;
+                }
+
+                if (res && (res.status === true || res.success === true)) {
+                    console.log("SPLMS-LOG: Aula concluída com sucesso (resposta):", res);
+                    if (onSuccess) onSuccess(res);
                 } else {
-                    console.error("Erro:", data.content);
+                    console.warn("SPLMS-LOG: Servidor retornou falha ao concluir:", res);
+                    if (onError) onError(res);
                 }
             },
-            error: function (xhr, status, error) {
-                console.error("Erro AJAX:", {xhr, status, error});
+            error: function (xhr, status, err) {
+                console.error("SPLMS-LOG: Erro AJAX:", { xhr, status, err });
+                if (onError) onError(err || status);
             }
         });
-    };
+    }
 
-    $(document).on("click", "#splms-completed-item", function (event) {
-        event.preventDefault();
-        const form = $("#splms-completed-item-form");
-        const user_id = form.find("input[name='user_id']").val();
-        const item_id = form.find("input[name='item_id']").val();
-        const item_type = form.find("input[name='item_type']").val();
-        
-        console.log("Botão clicado:", {user_id, item_id, item_type});
+    // ----------------------------
+    // Atualiza UI após conclusão
+    // ----------------------------
+    function markButtonCompleted(text) {
+        const btn = $("#splms-completed-item");
+        if (!btn || btn.length === 0) return;
+        const contentText = text || (typeof Joomla !== "undefined" && Joomla.Text ? Joomla.Text._('COM_SPLMS_LESSON_COMPLETED') : 'Concluído');
+        btn.text(contentText).removeClass("btn-primary").addClass("btn-success").prop("disabled", true).show();
+        // remove form to avoid re-submissions (keeping inputs elsewhere unchanged)
+        const form = document.getElementById("splms-completed-item-form");
+        if (form) form.style.display = "none";
+    }
 
-        $.ajax({
-            type: "POST",
-            url: "index.php?option=com_splms&task=lesson.completeditem",
-            data: { user_id, item_id, item_type },
-            beforeSend: function () { $("#splms-completed-item").prop("disabled", true).text("..."); },
-            success: function (response) {
-                const data = $.parseJSON(response);
-                if (data.status) {
-                    $("#splms-completed-item").text(data.content).removeClass("btn-primary").addClass("btn-success");
-                    
-                    // INTEGRAÇÃO COM TRABALHO DA IRIS
-                    if (typeof mostrarAlertaConclusao === 'function') {
-                        mostrarAlertaConclusao();
-                    }
-                    
-                    console.log("Atualizando barra...");
-                    SPLMS_updateProgressBar();
-                } else {
-                    alert(data.content);
+    // ----------------------------
+    // Handler de clique (manual)
+    // ----------------------------
+    function attachManualClickHandler() {
+        // usa delegated listener para garantir presença
+        $(document).off("click", "#splms-completed-item.splms-attached").on("click", "#splms-completed-item", function (e) {
+            e.preventDefault();
+            const btn = $(this);
+            // evitar duplo-click
+            if (btn.hasClass("btn-success") || btn.prop("disabled")) {
+                console.log("SPLMS-LOG: Botão já concluído / desabilitado — ignorando clique.");
+                return;
+            }
+
+            // garante que valores estejam atualizados
+            if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+                // tentar ler direto antes de falhar
+                const form = document.getElementById("splms-completed-item-form");
+                if (form) {
+                    const vals = readValuesFromForm(form);
+                    SPLMS_ITEM_ID = SPLMS_ITEM_ID || vals.itemId;
+                    SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || vals.itemType;
+                    SPLMS_USER_ID = SPLMS_USER_ID || vals.userId;
                 }
             }
+
+            if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+                console.error("SPLMS-LOG: Clique manual: não há item_id ou item_type para enviar.");
+                alert("Não foi possível marcar a aula como concluída (dados faltando).");
+                return;
+            }
+
+            btn.prop("disabled", true).text("...");
+
+            doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+                markButtonCompleted(res && res.content ? res.content : undefined);
+                // optional: mostrar notificação custom
+                if (typeof mostrarAlertaConclusao === "function") {
+                    try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
+                }
+                // atualizar barra
+                if (typeof loadCourseProgress === "function") {
+                    // tenta buscar course id
+                    let courseId = new URLSearchParams(window.location.search).get("id");
+                    if (!courseId) {
+                        const m = window.location.pathname.match(/\/courses\/(\d+)/);
+                        if (m) courseId = m[1];
+                    }
+                    if (courseId) loadCourseProgress(courseId);
+                }
+            }, function (err) {
+                console.error("SPLMS-LOG: Falha ao marcar aula manualmente:", err);
+                const btn2 = $("#splms-completed-item");
+                if (btn2 && btn2.length) btn2.prop("disabled", false).text((typeof Joomla !== "undefined" && Joomla.Text) ? Joomla.Text._('COM_SPLMS_LESSON_COMPLETE') : 'Marcar Concluída');
+            });
+
+        }).addClass("splms-attached");
+    }
+
+    // ----------------------------
+    // Esconde botão quando houver vídeo
+    // ----------------------------
+    function hideButtonWhenVideo() {
+        const hasFWDevPlayer = $("#splmsVideoPlayer").length > 0;
+        const hasIframeYoutube = $("iframe[src*='youtube']").length > 0;
+
+        if (hasFWDevPlayer || hasIframeYoutube) {
+            console.log("SPLMS: Vídeo detectado — escondendo botão manual.");
+            $("#splms-completed-item").hide();
+        } else {
+            // mostra caso esteja escondido
+            $("#splms-completed-item").show();
+        }
+    }
+
+    // ----------------------------
+    // Integração com FWDEVPlayer
+    // ----------------------------
+    function bindFWDEVPlayer() {
+        console.log("SPLMS-LOG: Aguardando FWDEVPlayer para bind (se houver)...");
+        let attempts = 0;
+        const maxAttempts = 50;
+
+        const t = setInterval(function () {
+            attempts++;
+            if (attempts >= maxAttempts) {
+                clearInterval(t);
+                console.warn("SPLMS-LOG: FWDEVPlayer não encontrado dentro do tempo limite.");
+                return;
+            }
+
+            if (window.splmsVideoPlayer1 && typeof window.splmsVideoPlayer1.addListener === "function") {
+                clearInterval(t);
+                console.log("SPLMS-LOG: FWDEVPlayer detectado — vinculando listeners.");
+
+                let alreadyCompleted = false;
+
+                try {
+                    window.splmsVideoPlayer1.addListener("update", function (e) {
+                        if (!e || typeof e.percent === "undefined") return;
+                        const percent = Number(e.percent) * 100;
+                        // debug leve
+                        // console.log("SPLMS-LOG: progresso vídeo:", percent.toFixed(1) + "%");
+                        if (!alreadyCompleted && percent >= SPLMS_PERCENTUAL_MINIMO) {
+                            alreadyCompleted = true;
+                            console.log("SPLMS-LOG: Percentual atingido (" + percent.toFixed(1) + "%) — executando conclusão automática.");
+                            // tenta garantir valores antes de enviar
+                            if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+                                const formNow = document.getElementById("splms-completed-item-form");
+                                if (formNow) {
+                                    const vals = readValuesFromForm(formNow);
+                                    SPLMS_ITEM_ID = SPLMS_ITEM_ID || vals.itemId;
+                                    SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || vals.itemType;
+                                    SPLMS_USER_ID = SPLMS_USER_ID || vals.userId;
+                                } else {
+                                    // tentar inputs fora do form
+                                    const found = findHiddenInputsAnywhere();
+                                    SPLMS_ITEM_ID = SPLMS_ITEM_ID || found.itemId;
+                                    SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || found.itemType;
+                                    SPLMS_USER_ID = SPLMS_USER_ID || found.userId;
+                                }
+                            }
+
+                            if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+                                console.error("SPLMS-LOG: Impossível concluir automaticamente — item_id/item_type ausentes.");
+                                return;
+                            }
+
+                            doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+                                markButtonCompleted(res && res.content ? res.content : undefined);
+                                if (typeof mostrarAlertaConclusao === "function") {
+                                    try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
+                                }
+                            }, function (err) {
+                                console.warn("SPLMS-LOG: Falha na conclusão automática:", err);
+                            });
+                        }
+                    });
+                } catch (e) {
+                    console.warn("SPLMS-LOG: Erro ao adicionar listener 'update':", e);
+                }
+                /* completa quando acaba o video
+                try {
+                    window.splmsVideoPlayer1.addListener("playComplete", function () {
+                        console.log("SPLMS-LOG: Evento playComplete recebido.");
+                        if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+                            const f = document.getElementById("splms-completed-item-form");
+                            if (f) {
+                                const v = readValuesFromForm(f);
+                                SPLMS_ITEM_ID = SPLMS_ITEM_ID || v.itemId;
+                                SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || v.itemType;
+                            } else {
+                                const found = findHiddenInputsAnywhere();
+                                SPLMS_ITEM_ID = SPLMS_ITEM_ID || found.itemId;
+                                SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || found.itemType;
+                            }
+                        }
+
+                        if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+                            console.error("SPLMS-LOG: playComplete: item_id/item_type ausentes — não marcou.");
+                            return;
+                        }
+
+                        doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+                            markButtonCompleted(res && res.content ? res.content : undefined);
+                            if (typeof mostrarAlertaConclusao === "function") {
+                                try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
+                            }
+                        }, function (err) {
+                            console.warn("SPLMS-LOG: Falha no playComplete AJAX:", err);
+                        });
+                    });
+                } catch (e) {
+                    console.warn("SPLMS-LOG: Erro ao adicionar listener 'playComplete':", e);
+                }*/
+            }
+        }, 300);
+    }
+
+    // ----------------------------
+    // Inicialização geral
+    // ----------------------------
+    $(document).ready(function () {
+        console.log("SPLMS: Inicialização (document ready).");
+
+        // localizar form/valores (tentativa múltipla)
+        locateFormAndValues(function (ok) {
+            if (!ok) {
+                console.warn("SPLMS-LOG: locateFormAndValues retornou false. Usando valores atuais (pode estar vazio).");
+            }
+            // anexa clique manual (de qualquer forma)
+            attachManualClickHandler();
+
+            // esconde botão se houver vídeo
+            hideButtonWhenVideo();
+
+            // bind no player
+            bindFWDEVPlayer();
         });
     });
 
-    function SPLMS_updateProgressBar() {
-        let courseId = new URLSearchParams(window.location.search).get('id');
-        if (!courseId) {
-            const m = window.location.pathname.match(/\/courses\/(\d+)/);
-            if (m) courseId = m[1];
-        }
-        if (courseId && typeof loadCourseProgress === 'function') {
-            console.log("Recarregando progresso:", courseId);
-            loadCourseProgress(courseId);
-        }
-    }
-
-    function SPLMS_hideButtonWhenVideo() {
-        if ($("#splmsVideoPlayer").length > 0 || $("iframe[src*='youtube']").length > 0) {
-            console.log("Escondendo botão");
-            $("#splms-completed-item").hide();
-        }
-    }
-
-    function SPLMS_bindFWDEVPlayer() {
-        const w = setInterval(function () {
-            if (window.splmsVideoPlayer1 && typeof window.splmsVideoPlayer1.addListener === "function") {
-                clearInterval(w);
-                console.log("FWDEVPlayer conectado!");
-                window.splmsVideoPlayer1.addListener("playComplete", function () {
-                    console.log("Vídeo terminou!");
-                    const form = document.getElementById("splms-completed-item-form");
-                    if (!form) return;
-                    const item_id = form.querySelector("input[name='item_id']").value;
-                    const item_type = form.querySelector("input[name='item_type']").value;
-                    console.log("Chamando autoComplete...");
-                    window.SPLMS_autoComplete(item_id, item_type);
-                });
-            }
-        }, 200);
-    }
-
-    $(document).ready(function () {
-        console.log("Inicializando...");
-        SPLMS_hideButtonWhenVideo();
-        SPLMS_bindFWDEVPlayer();
-    });
 });

@@ -14,19 +14,42 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 
+// acessa os parametros do do templete
+$params = JComponentHelper::getParams('com_splms');
+$percentualMinimoConclusao = (int) $params->get('percentual_minimo_conclusao', 90);
+
+//define a variavel do percentual 
+$doc = Factory::getDocument();
+$doc->addScriptOptions('splmsConfig', [
+    'percentualMinimoConclusao' => $percentualMinimoConclusao
+]);
+
 // Carrega JS e CSS da notificação (Sprint 4 - Iris)
 $doc = Factory::getDocument();
+
+$doc->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
+
 $doc->addScript(Uri::root() . 'media/gw-progress-alert/js/alerta-conclusao.js');
 $doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
 
 // GUIDEWAY CUSTOM - Joshua - Carregar handler de conclusão de aula
 $doc->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-complete-handler.js');
-?>
+
 $doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
 
 ?>
 
 <div id="splms" class="splms splms-lessons splms-lesson-details">
+	<!-- GUIDEWAY CUSTOM - 2025-11-12 - Joshua - Barra de Progresso Visual -->
+	<div class="course-progress-container" style="margin: 20px auto; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px;">
+		<h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px;">📚 Seu Progresso no Curso</h3>
+		<div style="text-align: center; font-size: 50px; margin: 20px 0;" id="progress-emoji">📝</div>
+		<div style="width: 100%; height: 35px; background: #e0e0e0; border-radius: 20px; position: relative; overflow: hidden; margin: 20px 0;">
+			<div id="course-progress-bar" style="height: 100%; background: linear-gradient(90deg, #4CAF50, #45a049); border-radius: 20px; width: 0%; transition: width 0.8s ease;"></div>
+			<div style="position: absolute; width: 100%; text-align: center; line-height: 35px; font-weight: bold; color: #333; top: 0; font-size: 14px;" id="course-progress-text">Carregando...</div>
+		</div>
+		<div style="text-align: center; color: #666; margin-top: 15px; font-size: 16px;" id="progress-message">Buscando...</div>
+	</div>
 
 	<div class="row">
 		<div class="col-md-7">
