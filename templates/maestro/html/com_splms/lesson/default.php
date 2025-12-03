@@ -54,7 +54,16 @@ $doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.
 	<div class="row">
 		<div class="col-md-7">
 			<div class="splms-lesson-video-wrapper">
-
+				<?php // INICIO DO BLOCO TRABALHO ?>
+   				 <?php if ($this->item->lesson_type == 2) : ?>
+       		 <div class="alert alert-info" style="margin-top: 20px; padding: 20px; border: 2px dashed #007bff;">
+           			 <h3>📂 Entrega de Trabalho</h3>
+           			 <p>Esta é uma lição do tipo <strong>Trabalho</strong>.</p>
+           			 <p>Aqui ficará o formulário de upload de arquivos.</p>
+            <button class="btn btn-primary">Enviar Arquivo (Simulação)</button>
+        </div>
+    <?php endif; ?>
+    <?php // FIM DO BLOCO TRABALHO ?>
 				<?php if (!empty($this->item->video_url)) { ?>
 					<div class="lesson-video">
 						<?php echo LayoutHelper::render('player', array('video' => $this->item->video_url, 'thumbnail' => $this->item->vdo_thumb)); ?>
