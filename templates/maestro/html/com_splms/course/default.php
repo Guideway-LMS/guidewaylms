@@ -19,7 +19,7 @@ use Joomla\CMS\Layout\LayoutHelper;
 
 // GUIDEWAY CUSTOM - 2025-11-12 - Joshua - Carregar barra de progresso
 $document = Factory::getDocument();
-$document->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
+$document->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js?v=' . time());
 
 HTMLHelper::_('jquery.framework');
 $input = Factory::getApplication()->input;
