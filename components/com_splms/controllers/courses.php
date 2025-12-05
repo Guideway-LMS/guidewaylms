@@ -86,7 +86,8 @@ class SplmsControllerCourses extends FormController{
         try {
             // CHAMA A FUNÇÃO DO MODEL (da Vitória)
             $model = $this->getModel('Course');
-            $result = $model->getCourseProgress($user->id, $courseId);
+            // GUIDEWAY CUSTOM - Joshua - Corrigido ordem dos parâmetros (courseId primeiro)
+	    $result = $model->getCourseProgress($courseId, $user->id);
 
             $output['success'] = true;
             $output['data'] = $result;
