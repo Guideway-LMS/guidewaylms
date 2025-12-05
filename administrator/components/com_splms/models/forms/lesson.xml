@@ -15,7 +15,19 @@
 			<option value="0">COM_SPLMS_FREE</option>
 			<option value="1">COM_SPLMS_PAID</option>
 		</field>
+		<field 
+        name="lesson_format" 
+        type="list" 
+        label="Formato da Aula" 
+        description="Escolha se esta aula é para consumo de conteúdo (Vídeo/PDF) ou para o aluno enviar um trabalho." 
+        default="video"
+    >
+        <option value="video">Conteúdo de Aula</option>
+        
+        <option value="trabalho">Envio de Trabalho</option>
+    </field>
 	</fieldset>
+	
 
 	<fieldset name="sidebar">
 		<field name="course_id" type="courselist" default="" label="COM_SPLMS_LESSON_FIELD_SELECT_COURSE" description="COM_SPLMS_LESSON_FIELD_SELECT_COURSE_DESC" topicid="topic_id" required="true"  />
