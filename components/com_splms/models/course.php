@@ -255,13 +255,17 @@ class SplmsModelCourse extends ItemModel {
     $db->setQuery($query);
     $totalLessons = (int) $db->loadResult();
 
-    // Concluídas pelo usuário
+    // Concluídas pelo usuário NESTE CURSO (com JOIN)
+    // GUIDEWAY CUSTOM - Joshua - Adicionado JOIN para filtrar por curso
     $query->clear()
-        ->select('COUNT(item_id)')
-        ->from('#__splms_useritems')
-        ->where('user_id = ' . (int)$userId)
-        ->where('item_type = ' . $db->quote('lesson'))
-        ->where('published = 1');
+        ->select('COUNT(DISTINCT u.item_id)')
+        ->from($db->quoteName('#__splms_useritems', 'u'))
+        ->join('INNER', $db->quoteName('#__splms_lessons', 'l') . ' ON u.item_id = l.id')
+        ->where('u.user_id = ' . (int)$userId)
+        ->where('u.item_type = ' . $db->quote('lesson'))
+        ->where('u.published = 1')
+        ->where('l.course_id = ' . (int)$courseId)
+        ->where('l.published = 1');
 
     $db->setQuery($query);
     $completedLessons = (int) $db->loadResult();
