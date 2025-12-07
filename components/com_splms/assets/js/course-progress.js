@@ -197,10 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let courseId = null;
 
     const urlParams = new URLSearchParams(window.location.search);
-    let idParam = urlParams.get('id');
-    if (idParam) {
-        courseId = idParam.split(':')[0];
-    }
+    courseId = urlParams.get('id');
 
     if (!courseId) {
         const pathMatch = window.location.pathname.match(/\/courses\/(\d+)/);
