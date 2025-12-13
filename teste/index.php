@@ -265,6 +265,17 @@ $html = convertMarkdownToHTML($markdown);
                         </a>
                     </div>
                 </div>
+
+                <!-- Coluna C: DevOps & Infraestrutura -->
+                <div class="test-column">
+                    <h2>⚙️ DevOps & Infraestrutura</h2>
+                    <div class="quick-links">
+                        <a href="dump_manager.php" class="quick-link" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);">
+                            <h3>📦 Gerenciador de Dumps</h3>
+                            <p>Gerar e baixar backups do banco</p>
+                        </a>
+                    </div>
+                </div>
             </div>
             
             <hr style="border: none; border-top: 2px solid #e9ecef; margin: 30px 0;">
