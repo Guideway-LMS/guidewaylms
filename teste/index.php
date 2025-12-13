@@ -16,12 +16,44 @@ if (!file_exists($readmePath)) {
 
 $markdown = file_get_contents($readmePath);
 
+// Função para gerar slugs limpos (IDs)
+function slugify($text) {
+    // Converter para minúsculas
+    $text = mb_strtolower($text, 'UTF-8');
+    
+    // Remover acentos
+    $text = str_replace(
+        ['á','à','ã','â','ä','é','è','ê','ë','í','ì','î','ï','ó','ò','õ','ô','ö','ú','ù','û','ü','ç','ñ'],
+        ['a','a','a','a','a','e','e','e','e','i','i','i','i','o','o','o','o','o','u','u','u','u','c','n'],
+        $text
+    );
+    
+    // Substituir caracteres não alfanuméricos por hífen
+    $text = preg_replace('/[^a-z0-9]+/', '-', $text);
+    
+    // Remover hífens duplicados e das pontas
+    $text = trim(preg_replace('/-+/', '-', $text), '-');
+    
+    return $text;
+}
+
 // Função simples para converter markdown básico para HTML
 function convertMarkdownToHTML($text) {
-    // Headers
-    $text = preg_replace('/^### (.*?)$/m', '<h3>$1</h3>', $text);
-    $text = preg_replace('/^## (.*?)$/m', '<h2>$1</h2>', $text);
-    $text = preg_replace('/^# (.*?)$/m', '<h1>$1</h1>', $text);
+    // Headers with ID generation
+    $text = preg_replace_callback('/^# (.*?)$/m', function($matches) {
+        $id = slugify($matches[1]);
+        return "<h1 id=\"$id\">{$matches[1]}</h1>";
+    }, $text);
+    
+    $text = preg_replace_callback('/^## (.*?)$/m', function($matches) {
+        $id = slugify($matches[1]);
+        return "<h2 id=\"$id\">{$matches[1]}</h2>";
+    }, $text);
+
+    $text = preg_replace_callback('/^### (.*?)$/m', function($matches) {
+        $id = slugify($matches[1]);
+        return "<h3 id=\"$id\">{$matches[1]}</h3>";
+    }, $text);
     
     // Bold
     $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text);
@@ -93,11 +125,22 @@ $html = convertMarkdownToHTML($markdown);
         .content {
             padding: 40px;
         }
+        .test-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .test-column h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
         .quick-links {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
+            gap: 15px;
         }
         .quick-link {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -188,19 +231,40 @@ $html = convertMarkdownToHTML($markdown);
         </div>
         
         <div class="content">
-            <div class="quick-links">
-                <a href="test_announcements_check.php" class="quick-link">
-                    <h3>🧪 Teste de Avisos</h3>
-                    <p>Verifica o Model de Announcements</p>
-                </a>
-                <a href="create_test_data.php" class="quick-link">
-                    <h3>🛠️ Criar Dados</h3>
-                    <p>Gera matrícula de teste</p>
-                </a>
-                <a href="debug_db_columns.php" class="quick-link">
-                    <h3>🔍 Debug Schema</h3>
-                    <p>Lista colunas da tabela</p>
-                </a>
+            <div class="test-columns">
+                <!-- Coluna A: Banco de Dados -->
+                <div class="test-column">
+                    <h2>🗄️ Banco de Dados & Model</h2>
+                    <div class="quick-links">
+                        <a href="test_announcements_check.php" class="quick-link">
+                            <h3>🧪 Teste de Avisos</h3>
+                            <p>Verifica o Model de Announcements</p>
+                        </a>
+                        <a href="create_test_data.php" class="quick-link">
+                            <h3>🛠️ Criar Dados</h3>
+                            <p>Gera matrícula de teste</p>
+                        </a>
+                        <a href="debug_db_columns.php" class="quick-link">
+                            <h3>🔍 Debug Schema</h3>
+                            <p>Lista colunas da tabela</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Coluna B: Inteligência Artificial -->
+                <div class="test-column">
+                    <h2>🤖 Inteligência Artificial</h2>
+                    <div class="quick-links">
+                        <a href="groq_smoke_test.php" class="quick-link">
+                            <h3>🤖 Groq Smoke Test</h3>
+                            <p>Teste de conexão com IA</p>
+                        </a>
+                        <a href="#integracao-groq-api-documentacao-tecnica" class="quick-link">
+                            <h3>📚 Doc. Groq API</h3>
+                            <p>Ir para documentação</p>
+                        </a>
+                    </div>
+                </div>
             </div>
             
             <hr style="border: none; border-top: 2px solid #e9ecef; margin: 30px 0;">

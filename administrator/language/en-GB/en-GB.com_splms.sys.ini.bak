@@ -226,8 +226,3 @@ COM_SPLMS_CONF_JOOMSHAPER_LICENSE_KEY_DESC="Enter your subscription license key.
 COM_SPLMS_VIEW_SINGLE_CERTIFICATE_TITLE="Certificate"
 COM_SPLMS_VIEW_SINGLE_CERTIFICATE_TITLE_DESC="Show a single certificate"
 COM_SPLMS_FIELD_SELECT_CERTIFICATE="Select a Certificate"
-; API Configuration
-COM_SPLMS_FIELDSET_API_LABEL="API Configuration"
-COM_SPLMS_GROQ_API_KEY="Groq API Key"
-COM_SPLMS_GROQ_API_KEY_DESC="Enter your Groq API Key here. It will be stored securely."
-COM_SPLMS_GROQ_API_NOTE="You can get your API Key from <a href='https://console.groq.com/keys' target='_blank'>Groq Console</a>."

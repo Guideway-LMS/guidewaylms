@@ -164,3 +164,121 @@ Se você estiver começando a trabalhar neste projeto:
 
 📅 **Última Atualização:** 23/11/2025  
 🔧 **Desenvolvido por:** Equipe Guideway LMS
+# Integração Groq API - Documentação Técnica
+
+Este documento detalha a implementação da infraestrutura de integração com a API Groq no Guideway LMS.
+
+## 🏗️ Arquitetura Implementada
+
+A solução foi construída seguindo os padrões de segurança e arquitetura do Joomla:
+
+1.  **Configuração Segura (`config.xml`)**:
+    *   Novo campo `groq_api_key` adicionado ao painel de opções do componente.
+    *   Tipo `password` para garantir que a chave não fique visível em texto plano na interface.
+    *   Armazenamento criptografado nativo do Joomla na tabela `#__extensions`.
+
+2.  **Helper de Integração (`GuidewayAIHelper.php`)**:
+    *   Classe centralizada para todas as operações de IA.
+    *   Método `getGroqApiKey()`: Recupera e valida a chave de forma segura.
+    *   Método `makeApiRequest()`: Motor cURL robusto com tratamento de erros e SSL.
+    *   Método `smokeTest()`: Teste de conectividade "Hello World".
+
+---
+
+## ⚙️ Configuração (Pré-Requisito)
+
+Antes de executar qualquer teste, você precisa configurar a chave da API no Joomla:
+
+1.  Acesse o Painel Administrativo do Joomla (`/administrator`).
+2.  Vá em **Componentes** > **SP LMS** > **PAINEL** > **OPÇÕES** (botão no canto superior direito).
+3.  Procure a aba ou seção **Configuração de API** (API Configuration).
+4.  Insira sua chave: `gsk_...` (Sua chave Groq)
+5.  Salve.
+
+---
+
+## 🚀 Como Testar (Smoke Test)
+
+Uma vez configurada a chave, você pode executar o teste de duas formas: via **Navegador** (mais fácil) ou via **Terminal** (Docker).
+
+### Opção A: Via Navegador (Recomendado)
+
+1.  Acesse a pasta de testes no seu navegador:
+    `http://localhost/guidewaylms/teste/index.php` (ajuste a URL conforme seu ambiente).
+2.  No painel "Scripts de Teste", localize a coluna **🤖 Inteligência Artificial**.
+3.  Clique no botão **🤖 Groq Smoke Test**.
+
+O resultado será exibido formatado na tela.
+
+### Opção B: Via Terminal (Docker)
+
+Se preferir ou precisar debugar via CLI:
+
+1.  Verifique se o arquivo está acessível:
+    ```bash
+    docker exec -it php8.3 ls -l /var/www/html/guidewaylms/teste/groq_smoke_test.php
+    ```
+
+2.  Execute o teste:
+    ```bash
+    docker exec -it php8.3 php /var/www/html/guidewaylms/teste/groq_smoke_test.php
+    ```
+
+### 3. Resultado Esperado
+Você deve ver uma saída similar a esta:
+
+```text
+=== GROQ API SMOKE TEST ===
+API Key: gsk_bHKCRa...
+
+✅ Teste executado com sucesso!
+
+Resposta da API:
+Array
+(
+    [success] => 1
+    [message] => Connection established successfully
+    [data] => Array
+        (
+            [id] => chatcmpl-...
+            [choices] => Array
+                (
+                    [0] => Array
+                        (
+                            [message] => Array
+                                (
+                                    [role] => assistant
+                                    [content] => Hello! Connection successful.
+                                )
+...
+```
+
+---
+
+## Como usar no código (Futuro)
+
+Para usar a integração em outras partes do sistema, basta chamar:
+
+```php
+// Importar o helper (se necessário)
+require_once JPATH_COMPONENT_SITE . '/helpers/GuidewayAIHelper.php';
+
+try {
+    // Exemplo de chamada
+    $apiKey = GuidewayAIHelper::getGroqApiKey();
+    // ... lógica de chamada ...
+} catch (Exception $e) {
+    // Tratamento de erro
+}
+```
+
+---
+
+## 🔍 Logs e Debug
+
+Todas as operações são registradas no log do Joomla.
+Para ver os logs em tempo real:
+
+```bash
+docker exec -it php8.3 tail -f /var/www/html/guidewaylms/administrator/logs/com_splms.php
+```
