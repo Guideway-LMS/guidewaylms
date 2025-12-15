@@ -47,7 +47,7 @@ $doc->addStyleDeclaration('
         padding: 30px;
         background: #fafbff;
         transition: all 0.3s ease;
-        margin-bottom: 25px;
+        margin-bottom: 15px; /* Reduzi a margem para caber as infos */
         position: relative;
     }
     .upload-zone:hover {
@@ -82,6 +82,7 @@ $doc->addStyleDeclaration('
         gap: 8px;
         transition: background 0.2s;
         border: none;
+        margin-top: 15px;
     }
     .btn-upload-custom:hover {
         background: #2563eb;
@@ -94,6 +95,43 @@ $doc->addStyleDeclaration('
         font-size: 14px;
         min-height: 20px;
     }
+    .file-info-text {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 5px;
+    }
+    
+    /* ESTILOS DO CAMPO DE COMENTÁRIO */
+    .comment-wrapper {
+        text-align: left;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    .comment-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .comment-textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        resize: vertical;
+        font-family: inherit;
+        min-height: 80px;
+        background: #f8fafc;
+        transition: border 0.3s;
+    }
+    .comment-textarea:focus {
+        outline: none;
+        border-color: #4CAF50;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    }
+
     /* BOTÃO DE ENVIAR - MESMO VERDE DO PROGRESSO */
     .btn-send {
         width: 100%;
@@ -175,11 +213,19 @@ document.addEventListener("DOMContentLoaded", function() {
                         
                         <input type="file" name="uploaded_file" id="file-upload-input" style="display: none;" required>
                         
-                        <label for="file-upload-input" class="btn-upload-custom" style="margin-top: 15px;">
+                        <label for="file-upload-input" class="btn-upload-custom">
                             <i class="fa fa-folder-open-o"></i> Escolher Arquivo no Computador
                         </label>
 
-                        <div id="file-name-text" class="file-name-display"></div>
+                        <div id="file-name-text" class="file-name-display">
+                            Nenhum arquivo selecionado
+                        </div>
+                        <div class="file-info-text">Formatos: PDF, ZIP, MP4 (Max: 10MB)</div>
+                    </div>
+
+                    <div class="comment-wrapper">
+                        <label for="student_comment" class="comment-label">Comentário (Opcional):</label>
+                        <textarea name="student_comment" id="student_comment" class="comment-textarea" placeholder="Escreva uma mensagem para o professor..."></textarea>
                     </div>
 
                     <input type="hidden" name="course_id" value="<?php echo $this->item->course_id; ?>" />
@@ -187,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <?php echo JHtml::_('form.token'); ?>
 
                     <button type="submit" class="btn-send">
-                        ENVIAR PARA AVALIAÇÃO <i class="fa fa-paper-plane"></i>
+                        ENVIAR TRABALHO <i class="fa fa-paper-plane"></i>
                     </button>
                 </form>
             </div>
@@ -312,4 +358,4 @@ document.addEventListener("DOMContentLoaded", function() {
     
   </div>
 
-</div> ```
+</div>
