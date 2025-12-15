@@ -15,6 +15,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 
 $doc = Factory::getDocument();
+$doc->addStyleSheet(JURI::root(true) . '/administrator/components/com_splms/assets/css/tolbar_ai.css');
 HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
 if(SplmsHelper::getJoomlaVersion() < 4)
@@ -27,9 +28,28 @@ $colClass = SplmsHelper::getJoomlaVersion() < 4 ? 'span' : 'col-lg-';
 ?>
 <form action="<?php echo Route::_('index.php?option=com_splms&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" id="adminForm" class="form-validate" enctype="multipart/form-data">
   <div class="form-horizontal">
+
     <div class="<?php echo $rowClass;?>">
       <div class="<?php echo $colClass;?>9">
-        <?php echo $this->form->renderFieldset('basic'); ?>
+        <?php 
+          // Campos antes do toolbar
+          echo $this->form->renderField('title');
+          echo $this->form->renderField('alias');
+          echo $this->form->renderField('short_description'); 
+
+          // === Toolbar AI ===
+        include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai.php';
+
+          // Editor de texto (TinyMCE)
+          echo $this->form->renderField('description');
+
+          // Demais campos do fieldset "basic"
+          echo $this->form->renderField('video_url');
+          echo $this->form->renderField('vdo_thumb');
+          echo $this->form->renderField('video_duration');
+          echo $this->form->renderField('attachment');
+          echo $this->form->renderField('lesson_type');
+        ?>
       </div>
 
       <div class="<?php echo $colClass;?>3">
