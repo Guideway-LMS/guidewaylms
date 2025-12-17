@@ -22,6 +22,7 @@ jQuery(function ($) {
     let SPLMS_ITEM_ID = null;
     let SPLMS_ITEM_TYPE = null;
     let SPLMS_USER_ID = null; // não usamos no POST (controller usa usuário logado), mas mantemos para info
+    let SPLMS_COURSE_ID = null;
     let formFound = false;
 
     // ----------------------------
@@ -32,17 +33,22 @@ jQuery(function ($) {
             const itemIdEl = form.querySelector("input[name='item_id']");
             const itemTypeEl = form.querySelector("input[name='item_type']");
             const userIdEl = form.querySelector("input[name='user_id']");
+            const courseIdEl = form.querySelector("input[name='course_id']");
 
             const itemId = itemIdEl ? itemIdEl.value : null;
             const itemType = itemTypeEl ? itemTypeEl.value : null;
             const userId = userIdEl ? userIdEl.value : null;
+            const courseId = courseIdEl ? courseIdEl.value : null;
 
-            return { itemId, itemType, userId };
+            return { itemId, itemType, userId , courseId};
         } catch (e) {
             console.warn("SPLMS-LOG: erro ao ler valores do form:", e);
-            return { itemId: null, itemType: null, userId: null };
+            return { itemId: null, itemType: null, userId: null, courseId: null };
         }
     }
+    
+
+window.readValuesFromForm = readValuesFromForm;
 
     function findHiddenInputsAnywhere() {
         const itemIdEl = document.querySelector("input[name='item_id']");
@@ -81,7 +87,9 @@ jQuery(function ($) {
                 SPLMS_ITEM_ID = vals.itemId;
                 SPLMS_ITEM_TYPE = vals.itemType;
                 SPLMS_USER_ID = vals.userId;
-                console.log("SPLMS-LOG: Valores do form:", { SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, SPLMS_USER_ID });
+                // Novo: leitura explícita do COURSE_ID
+                SPLMS_COURSE_ID = vals.courseId;
+                console.log("SPLMS-LOG: Valores do form:", { SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, SPLMS_USER_ID, SPLMS_COURSE_ID });
                 callback(true);
                 return;
             }
@@ -93,6 +101,7 @@ jQuery(function ($) {
                 SPLMS_ITEM_ID = foundAnywhere.itemId;
                 SPLMS_ITEM_TYPE = foundAnywhere.itemType;
                 SPLMS_USER_ID = foundAnywhere.userId;
+                SPLMS_COURSE_ID = foundAnywhere.courseId
                 callback(true);
                 return;
             }
@@ -106,6 +115,7 @@ jQuery(function ($) {
                     SPLMS_ITEM_ID = fromBtn.itemId;
                     SPLMS_ITEM_TYPE = fromBtn.itemType;
                     SPLMS_USER_ID = fromBtn.userId;
+                    SPLMS_COURSE_ID = fromBtn.courseId
                     callback(true);
                     return;
                 }
@@ -134,15 +144,16 @@ jQuery(function ($) {
             return;
         }
 
-        console.log("SPLMS-LOG: Enviando AJAX para completar item:", { itemId, itemType });
+        console.log("SPLMS-LOG: Enviando AJAX para completar item:", { itemId, itemType, courseId: SPLMS_COURSE_ID  });
 
         $.ajax({
             type: "POST",
             url: "index.php?option=com_splms&task=lesson.completeditem",
             data: {
                 item_id: itemId,
-                item_type: itemType
+                item_type: itemType,
                 // não enviamos user_id — controller usa usuário logado via Factory::getUser()
+                courseId: SPLMS_COURSE_ID
             },
             success: function (raw) {
                 console.log("SPLMS-LOG: Resposta do servidor:", raw);
@@ -206,6 +217,7 @@ jQuery(function ($) {
                     SPLMS_ITEM_ID = SPLMS_ITEM_ID || vals.itemId;
                     SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || vals.itemType;
                     SPLMS_USER_ID = SPLMS_USER_ID || vals.userId;
+                    SPLMS_COURSE_ID = SPLMS_COURSE_ID || vals.courseId
                 }
             }
 
@@ -216,8 +228,29 @@ jQuery(function ($) {
             }
 
             btn.prop("disabled", true).text("...");
-
-            doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+            //antigo que funciona
+            // doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+            //     markButtonCompleted(res && res.content ? res.content : undefined);
+            //     // optional: mostrar notificação custom
+            //     if (typeof mostrarAlertaConclusao === "function") {
+            //         try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
+            //     }
+            //     // atualizar barra
+            //     if (typeof loadCourseProgress === "function") {
+            //         // tenta buscar course id
+            //         let courseId = new URLSearchParams(window.location.search).get("id");
+            //         if (!courseId) {
+            //             const m = window.location.pathname.match(/\/courses\/(\d+)/);
+            //             if (m) courseId = m[1];
+            //         }
+            //         if (courseId) loadCourseProgress(courseId);
+            //     }
+            // }, function (err) {
+            //     console.error("SPLMS-LOG: Falha ao marcar aula manualmente:", err);
+            //     const btn2 = $("#splms-completed-item");
+            //     if (btn2 && btn2.length) btn2.prop("disabled", false).text((typeof Joomla !== "undefined" && Joomla.Text) ? Joomla.Text._('COM_SPLMS_LESSON_COMPLETE') : 'Marcar Concluída');
+            // });
+             doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
                 markButtonCompleted(res && res.content ? res.content : undefined);
                 // optional: mostrar notificação custom
                 if (typeof mostrarAlertaConclusao === "function") {
@@ -238,7 +271,7 @@ jQuery(function ($) {
                 const btn2 = $("#splms-completed-item");
                 if (btn2 && btn2.length) btn2.prop("disabled", false).text((typeof Joomla !== "undefined" && Joomla.Text) ? Joomla.Text._('COM_SPLMS_LESSON_COMPLETE') : 'Marcar Concluída');
             });
-
+            
         }).addClass("splms-attached");
     }
 
