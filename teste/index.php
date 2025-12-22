@@ -263,6 +263,11 @@ $html = convertMarkdownToHTML($markdown);
                             <h3>📚 Doc. Groq API</h3>
                             <p>Ir para documentação</p>
                         </a>
+                        <a href="groq_prompt_test.php" class="quick-link" style="position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: 0; right: 0; background: #e53e3e; color: white; font-size: 10px; padding: 2px 8px; border-bottom-left-radius: 8px;">Consome Tokens 🪙</div>
+                            <h3>📝 Teste de Prompts</h3>
+                            <p>Verificar ações de IA</p>
+                        </a>
                     </div>
                 </div>
 

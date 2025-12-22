@@ -62,6 +62,31 @@ http://seu-dominio.com/guidewaylms/teste/debug_db_columns.php
 
 ---
 
+### 4. `groq_prompt_test.php`
+**Propósito:** Testa a lógica de seleção de prompts e processamento de texto do `GuidewayAIHelper`.
+
+**O que ele testa:**
+- ✅ Ação `Revisar`: Correção gramatical.
+- ✅ Ação `Resumir`: Síntese de texto.
+- ✅ Ação `Reescrever`: Reescrita de estilo.
+- ✅ Tratamento de erro para ações inválidas.
+
+**Como usar:**
+```
+http://seu-dominio.com/guidewaylms/teste/groq_prompt_test.php
+```
+
+**Como funciona este teste:**
+Este script envia um texto padrão (com erros propositais e propositalmente longo) para o Helper, solicitando diferentes ações.
+1. **Revisar**: Espera-se que a IA retorne o texto corrigido.
+2. **Resumir**: Espera-se que a IA retorne uma versão condensada do texto.
+3. **Reescrever**: Espera-se que a IA retorne o texto com vocabulário melhorado.
+4. **Invalida**: O script envia intencionalmente uma ação que não existe (`acao_inexistente`).
+   - O objetivo é verificar se o sistema é robusto o suficiente para não quebrar.
+   - O resultado **correto** para este caso é o sistema retornar uma mensagem de erro ("Ação desconhecida"). Portanto, ver um erro aqui significa que o teste PASSOU.
+
+---
+
 ## 🚀 Fluxo de Trabalho Recomendado
 
 ### Primeira Vez (Configuração Inicial)

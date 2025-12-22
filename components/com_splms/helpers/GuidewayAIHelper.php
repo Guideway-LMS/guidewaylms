@@ -28,6 +28,96 @@ class GuidewayAIHelper
     const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
     /**
+     * Ação para revisar o texto (correção gramatical e ortográfica)
+     */
+    const ACTION_REVISAR = 'revisar';
+
+    /**
+     * Ação para resumir o texto
+     */
+    const ACTION_RESUMIR = 'resumir';
+
+    /**
+     * Ação para reescrever o texto (melhorar clareza e tom)
+     */
+    const ACTION_REESCREVER = 'reescrever';
+
+    /**
+     * Processa o texto com base na ação solicitada usando a API Groq.
+     *
+     * @param string $texto O texto de entrada a ser processado.
+     * @param string $acao  A ação a ser realizada (revisar, resumir, reescrever).
+     *
+     * @return array Array associativo com resultado ['success' => bool, 'data' => string] ou erro ['success' => false, 'message' => string].
+     * @since  1.0.0
+     */
+    public static function processarTexto($texto, $acao)
+    {
+        // Validação básica
+        if (empty($texto)) {
+            return ['success' => false, 'message' => 'O texto de entrada não pode ser vazio.'];
+        }
+
+        // Seleção do System Prompt baseada na ação
+        $systemPrompt = '';
+        switch ($acao) {
+            case self::ACTION_REVISAR:
+                $systemPrompt = 'Atue como um revisor de texto experiente em Português. Corrija erros gramaticais, de pontuação e ortografia. Retorne apenas o texto corrigido, mantendo a formatação original tanto quanto possível. Não adicione comentários conversacionais.';
+                break;
+            case self::ACTION_RESUMIR:
+                $systemPrompt = 'Atue como um especialista em síntese. Crie um resumo conciso do texto fornecido, capturando os pontos principais. Retorne apenas o resumo em Português.';
+                break;
+            case self::ACTION_REESCREVER:
+                $systemPrompt = 'Atue como um editor profissional. Reescreva o texto para melhorar a fluidez, clareza e vocabulário, mantendo o sentido original. O tom deve ser profissional. Retorne apenas o texto reescrito em Português.';
+                break;
+            default:
+                return ['success' => false, 'message' => 'Ação desconhecida: ' . htmlspecialchars($acao)];
+        }
+
+        $apiKey = self::getGroqApiKey();
+        if (!$apiKey) {
+            return ['success' => false, 'message' => 'Chave da API Groq não configurada.'];
+        }
+
+        // Montagem do Payload
+        $payload = [
+            'model' => 'llama-3.3-70b-versatile',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => $systemPrompt
+                ],
+                [
+                    'role' => 'user',
+                    'content' => $texto
+                ]
+            ],
+            'temperature' => 0.5, // Equilíbrio entre criatividade e precisão
+            'max_tokens' => 4096  // Permitir respostas mais longas para textos longos
+        ];
+
+        try {
+            $response = self::makeApiRequest($apiKey, $payload);
+
+            // Parsing da resposta (Extração do conteúdo)
+            if (isset($response['choices'][0]['message']['content'])) {
+                $content = $response['choices'][0]['message']['content'];
+                return [
+                    'success' => true,
+                    'data' => $content
+                ];
+            } else {
+                Log::add('Resposta malformada da API Groq: ' . json_encode($response), Log::ERROR, 'com_splms');
+                return ['success' => false, 'message' => 'Falha ao processar a resposta da IA.'];
+            }
+
+        } catch (Exception $e) {
+            Log::add('Exceção no processarTexto: ' . $e->getMessage(), Log::ERROR, 'com_splms');
+            return ['success' => false, 'message' => 'Erro interno ao comunicar com o serviço de IA.'];
+        }
+    }
+
+    /**
      * @var string|null Chave de API de substituição para fins de teste
      */
     private static $_overrideKey = null;
