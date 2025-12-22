@@ -20,11 +20,11 @@
         type="list" 
         label="Formato da Aula" 
         description="Escolha se esta aula é para consumo de conteúdo (Vídeo/PDF) ou para o aluno enviar um trabalho." 
-        default="video"
+        default="content"
     >
-        <option value="video">Conteúdo de Aula</option>
+        <option value="content">Conteúdo de Aula</option>
         
-        <option value="trabalho">Envio de Trabalho</option>
+        <option value="assignment">Envio de Trabalho</option>
     </field>
 	</fieldset>
 	
