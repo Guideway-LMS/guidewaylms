@@ -54,11 +54,12 @@ window.readValuesFromForm = readValuesFromForm;
         const itemIdEl = document.querySelector("input[name='item_id']");
         const itemTypeEl = document.querySelector("input[name='item_type']");
         const userIdEl = document.querySelector("input[name='user_id']");
-
+        const courseIdEl = document.querySelector("input[name='course_id']");
         return {
             itemId: itemIdEl ? itemIdEl.value : null,
             itemType: itemTypeEl ? itemTypeEl.value : null,
-            userId: userIdEl ? userIdEl.value : null
+            userId: userIdEl ? userIdEl.value : null,
+            courseId: courseIdEl ? courseIdEl.value : null
         };
     }
 
@@ -74,6 +75,20 @@ window.readValuesFromForm = readValuesFromForm;
     // ----------------------------
     // Localizar form (com tentativas)
     // ----------------------------
+    // ERICK 21-12
+    function bootstrapLessonContext() {
+  if (window.SPLMS_CONTEXT?.itemId) {
+    SPLMS_ITEM_ID   = window.SPLMS_CONTEXT.itemId;
+    SPLMS_ITEM_TYPE = window.SPLMS_CONTEXT.itemType;
+    SPLMS_USER_ID   = window.SPLMS_CONTEXT.userId;
+    SPLMS_COURSE_ID = window.SPLMS_CONTEXT.courseId;
+
+    console.log("SPLMS-LOG: Contexto carregado via PHP", window.SPLMS_CONTEXT);
+    return true;
+  }
+  return false;
+}
+
     function locateFormAndValues(callback) {
         let attempts = 0;
 
@@ -84,11 +99,10 @@ window.readValuesFromForm = readValuesFromForm;
                 formFound = true;
                 console.log("SPLMS-LOG: Formulário #splms-completed-item-form encontrado (tentativa: " + attempts + ").");
                 const vals = readValuesFromForm(form);
-                SPLMS_ITEM_ID = vals.itemId;
-                SPLMS_ITEM_TYPE = vals.itemType;
-                SPLMS_USER_ID = vals.userId;
-                // Novo: leitura explícita do COURSE_ID
-                SPLMS_COURSE_ID = vals.courseId;
+                SPLMS_ITEM_ID   = SPLMS_ITEM_ID   || vals.itemId;
+                SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || vals.itemType;
+                SPLMS_USER_ID   = SPLMS_USER_ID   || vals.userId;
+                SPLMS_COURSE_ID = SPLMS_COURSE_ID || vals.courseId;
                 console.log("SPLMS-LOG: Valores do form:", { SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, SPLMS_USER_ID, SPLMS_COURSE_ID });
                 callback(true);
                 return;
@@ -346,6 +360,9 @@ window.readValuesFromForm = readValuesFromForm;
 
                             doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
                                 markButtonCompleted(res && res.content ? res.content : undefined);
+                                //nova linha Erick 21-12 para aula concluida visual na lista
+                                markLessonAsCompletedInList(SPLMS_ITEM_ID);
+                                //fim
                                 if (typeof mostrarAlertaConclusao === "function") {
                                     try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
                                 }
@@ -394,27 +411,71 @@ window.readValuesFromForm = readValuesFromForm;
             }
         }, 300);
     }
+    //Erick 21-12 funcao visual de positivo quando aula esta concluida
+    function markLessonAsCompletedInList(lessonId) {
+    console.log('[SPLMS-LOG] Tentando marcar aula concluída na lista:', lessonId);
 
+    const lessonItem = document.querySelector(
+        '.lesson[data-lesson-id="' + lessonId + '"]'
+    );
+
+    if (!lessonItem) {
+        console.warn('[SPLMS-LOG] Aula não encontrada na lista:', lessonId);
+        return;
+    }
+
+    lessonItem.classList.add('lesson-completed');
+
+    const titleEl = lessonItem.querySelector('.lesson-title');
+
+    if (!titleEl) {
+        console.warn('[SPLMS-LOG] .lesson-title não encontrado para:', lessonId);
+        return;
+    }
+
+    if (titleEl.querySelector('.lesson-completed-icon')) {
+        console.log('[SPLMS-LOG] Aula já estava marcada como concluída.');
+        return;
+    }
+
+    const icon = document.createElement('span');
+    icon.className = 'lesson-completed-icon';
+    icon.textContent = ' ✅';
+
+    titleEl.appendChild(icon);
+
+    console.log('[SPLMS-LOG] Aula marcada como concluída com sucesso:', lessonId);
+}
+    //fim
     // ----------------------------
     // Inicialização geral
     // ----------------------------
     $(document).ready(function () {
-        console.log("SPLMS: Inicialização (document ready).");
+    console.log("SPLMS: Inicialização (document ready).");
 
-        // localizar form/valores (tentativa múltipla)
-        locateFormAndValues(function (ok) {
-            if (!ok) {
-                console.warn("SPLMS-LOG: locateFormAndValues retornou false. Usando valores atuais (pode estar vazio).");
-            }
-            // anexa clique manual (de qualquer forma)
-            attachManualClickHandler();
+    // 1️⃣ tenta carregar contexto via PHP
+    const contextLoaded = bootstrapLessonContext();
 
-            // esconde botão se houver vídeo
-            hideButtonWhenVideo();
+    // 🔴 EARLY EXIT CORRETO
+    if (window.SPLMS_CONTEXT?.isCompleted === true) {
+        console.log("SPLMS: Aula já concluída — fluxo de conclusão ignorado.");
+        return;
+    }
 
-            // bind no player
-            bindFWDEVPlayer();
-        });
+    if (!contextLoaded) {
+        console.warn("SPLMS-LOG: Contexto PHP não encontrado, tentando via DOM/form.");
+    }
+
+    // 2️⃣ fallback antigo (form / inputs / botão)
+    locateFormAndValues(function (ok) {
+        if (!ok && !contextLoaded) {
+            console.error("❌ SPLMS-ERRO CRÍTICO: Nenhuma fonte de contexto disponível.");
+        }
+
+        attachManualClickHandler();
+        hideButtonWhenVideo();
+        bindFWDEVPlayer();
     });
+});''
 
 });

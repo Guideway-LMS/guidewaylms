@@ -277,6 +277,35 @@ class SplmsModelCourse extends ItemModel {
 
     return round(($completedLessons / $totalLessons) * 100, 2);
 }
+	//funcao de pegar aulas concluidas por curso (Erick 21-12-2025)
+	//FUTURAMENTE USAR ESSA FUNCAO PARA SIMPLIFICAR A FUNCAO getCourseProgress
+	public function getCompletedLessonsByCourse(int $courseId, int $userId): array
+{
+    if (!$courseId || !$userId) {
+        return [];
+    }
 
+    $db = Factory::getDbo();
+    $query = $db->getQuery(true);
+
+    $query
+        ->select('DISTINCT u.item_id')
+        ->from($db->quoteName('#__splms_useritems', 'u'))
+        ->where('u.user_id = ' . (int) $userId)
+        ->where('u.item_type = ' . $db->quote('lesson'))
+        ->where('u.published = 1')
+        ->where(
+            'u.item_id IN (
+                SELECT l.id
+                FROM #__splms_lessons l
+                WHERE l.course_id = ' . (int) $courseId . '
+                AND l.published = 1
+            )'
+        );
+
+    $db->setQuery($query);
+
+    return array_fill_keys($db->loadColumn(), true);
+}
 
 }

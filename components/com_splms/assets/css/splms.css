@@ -3068,3 +3068,11 @@ ul.course-info>li>a {
 .splms-filter-option-li{
   margin: 20px;
 }
+/* Erick 21-12 para visual de aula concluida */
+.lesson-completed .lesson-title {
+    opacity: 0.85;
+}
+
+.lesson-completed-icon {
+    margin-left: 6px;
+}

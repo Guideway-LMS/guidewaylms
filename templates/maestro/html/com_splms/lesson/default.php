@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package com_splms
  * @author JoomShaper http://www.joomshaper.com
@@ -13,6 +14,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 // acessa os parametros do templete
 $params = JComponentHelper::getParams('com_splms');
@@ -23,6 +25,39 @@ $doc = Factory::getDocument();
 $doc->addScriptOptions('splmsConfig', [
     'percentualMinimoConclusao' => $percentualMinimoConclusao
 ]);
+
+//Erick 21-12 parametros para verificar se aulas estao concluidas
+// Usuário (padrão já usado na view)
+
+
+$user   = $this->user ?? Factory::getUser();
+$userId = (int) $user->id;
+
+$completedLessons = [];
+
+if ($userId && !empty($this->item->course_id)) {
+
+    BaseDatabaseModel::addIncludePath(
+        JPATH_SITE . '/components/com_splms/models',
+        'SplmsModel'
+    );
+
+    /** @var \SplmsModelCourse $courseModel */
+    $courseModel = BaseDatabaseModel::getInstance('Course', 'SplmsModel');
+
+    if ($courseModel) {
+        $completedLessons = $courseModel->getCompletedLessonsByCourse(
+            (int) $this->item->course_id,
+            $userId
+        );
+    }
+}
+
+$this->completedLessons = $completedLessons;
+echo '<pre>';
+var_dump($completedLessons);
+echo '</pre>';
+
 
 // Carrega JS e CSS da notificação e progresso
 $doc->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
@@ -170,6 +205,16 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 ');
 ?>
+<!-- variaveis essenciais -->
+<script>
+window.SPLMS_CONTEXT = {
+  itemId: <?php echo (int) $this->item->id; ?>,
+  itemType: "lesson",
+  userId: <?php echo (int) $this->user->id; ?>,
+  courseId: <?php echo (int) ($this->item->course_id ?? 0); ?>,
+  isCompleted: <?php echo $this->has_complete_lesson ? 'true' : 'false'; ?>
+};
+</script>
 
 <div id="splms" class="splms splms-lessons splms-lesson-details">
   
@@ -283,13 +328,26 @@ document.addEventListener("DOMContentLoaded", function() {
           <h3><?php echo Text::_('COM_SPLMS_LESOSNS_LIST'); ?></h3>
           <ul class="lessons list-unstyled">
             <?php foreach ($this->lessons as $lesson) { ?>
-              <?php $active_lesson = ($this->item->id == $lesson->id) ? ' active' : ''; ?>
+              <?php
+                $active_lesson = ($this->item->id == $lesson->id) ? ' active' : '';
+                $isCompleted  = !empty($this->completedLessons[$lesson->id]);
+                ?>
               <?php if ($lesson->lesson_type == 0 || $this->isAuthorised != '' || $this->courese->price == 0) : ?>
-                <li class="lesson<?php echo $active_lesson; ?>">
+                <li class="lesson<?php echo $active_lesson; ?><?php echo $isCompleted ? ' lesson-completed' : ''; ?>"
+    data-lesson-id="<?php echo (int) $lesson->id; ?>">
+                  
                   <?php if (!empty($lesson->video_url)) : ?>
                     <span>
                       <a href="<?php echo $lesson->lesson_url; ?>">
-                        <?php echo $lesson->title; ?>
+                        <!-- <?php //echo $lesson->title; ?> -->
+                        <!-- novo trecho Erick 21-12 -->
+                         <span class="lesson-title">
+                          <?php echo $lesson->title; ?>
+                          <?php if ($isCompleted) : ?>
+                            <span class="lesson-completed-icon"> ✅</span>
+                          <?php endif; ?>
+                        </span>
+                        
                       </a>
                     </span>
                     <span class="pull-right lesson-duration">
@@ -298,8 +356,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     </span>
                   <?php else : ?>
                     <a href="<?php echo $lesson->lesson_url; ?>">
-                      <i class="splms-icon-book"></i>
+                       <span class="lesson-title">
                       <?php echo $lesson->title; ?>
+                      <?php if ($isCompleted) : ?>
+                        <span class="lesson-completed-icon"> ✅</span>
+                      <?php endif; ?>
+                    </span>
+                      
                     </a>
                   <?php endif; ?>
                 </li>
