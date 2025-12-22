@@ -234,7 +234,7 @@ window.SPLMS_CONTEXT = {
 
         <?php 
         // LÓGICA DE DECISÃO: É TRABALHO OU VÍDEO?
-        if (isset($this->item->lesson_format) && $this->item->lesson_format === 'trabalho') : 
+        if (isset($this->item->lesson_format) && $this->item->lesson_format === 'assignment') : 
         ?>
             <div style="margin-bottom: 25px;">
                 <h2 style="font-weight: 700; color: #1e293b; margin: 0; font-size: 28px;">
@@ -393,7 +393,7 @@ window.SPLMS_CONTEXT = {
     >
     
     <?php 
-    if (!isset($this->item->lesson_format) || $this->item->lesson_format !== 'trabalho') : 
+    if (!isset($this->item->lesson_format) || $this->item->lesson_format !== 'assignment') : 
     ?>
         <?php if ($this->user->guest) {
           $link =  base64_encode(Uri::getInstance()->toString());
