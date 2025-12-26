@@ -14,48 +14,15 @@
             <span class="icon-lightbulb"></span> Turbinar Copy
         </button>
     </div>
-
-    <span id="gw-ai-loading">
-        <span class="icon-loop spinner"></span> Processando...
-    </span>
 </div>
-
-<script>
-var GuidewayFrontend = {
-
-    getTextoEditor() {
-        if (!tinymce?.activeEditor) {
-            alert('TinyMCE não carregado');
-            return '';
-        }
-        return tinymce.activeEditor.getContent();
-    },
-
-    setTextoEditor(novoTexto) {
-        if (tinymce?.activeEditor) {
-            tinymce.activeEditor.setContent(novoTexto);
-            tinymce.activeEditor.focus();
-        }
-    },
-
-};
-
-jQuery(function($){
-    $('.gw-ai-btn').on('click', function(){
-        // diferenciar cada botão:
-        const acao = $(this).data('action');
-
-        if (acao === 'revisar') {
-            GuidewayFrontend.setTextoEditor("<p><strong>Texto substituído com sucesso!</strong><br>Este conteúdo foi inserido via setContent().</p>");
-        }
-
-        if (acao === 'resumir') {
-            GuidewayFrontend.setTextoEditor("<h3>Resumo Gerado:</h3><p>Lorem ipsum dolor sit amet...</p>");
-        }
-
-        if (acao === 'reescrever') {
-            GuidewayFrontend.setTextoEditor("<p>Nova versão reescrita automaticamente para teste.</p>");
-        }
-    });
-});
-</script>
+<div id="div-gw-ai-loading">
+    <div class="container_vazio1">
+        <p></p>
+    </div>
+    <div class="container_vazio2">
+        <span id="gw-ai-loading">
+            <span class="icon-loop spinner"></span> Processando...
+        </span>
+    </div>
+   
+</div>

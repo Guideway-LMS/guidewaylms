@@ -15,7 +15,9 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 
 $doc = Factory::getDocument();
-$doc->addStyleSheet(JURI::root(true) . '/administrator/components/com_splms/assets/css/tolbar_ai.css');
+$doc->addStyleSheet(JURI::root(true) . '/administrator/components/com_splms/assets/css/tolbar_ai.css?v=' . time());
+$doc->addScript(JUri::root(true) . '/administrator/components/com_splms/assets/js/guideway_ai.js');
+
 HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
 if(SplmsHelper::getJoomlaVersion() < 4)
