@@ -11,6 +11,7 @@ defined ('_JEXEC') or die('Resticted Aceess');
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Session\Session;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\MVC\Controller\FormController;
 
@@ -85,5 +86,70 @@ class SplmsControllerLesson extends FormController {
         echo json_encode($report);
         die;
     }
+
+	/**
+	 * Endpoint AJAX para processamento de texto via IA
+	 * 
+	 * Recebe texto e ação do admin, valida CSRF token,
+	 * e retorna resposta processada pelo GuidewayAIHelper.
+	 * 
+	 * @return void Outputs JSON response
+	 * @since  1.0.0
+	 */
+	public function callAI()
+	{
+		// Force JSON response header
+		header('Content-Type: application/json');
+		$output = ['success' => false, 'message' => ''];
+
+		try {
+			// 1. Verificação de segurança CSRF
+			if (!Session::checkToken('post')) {
+				throw new Exception(Text::_('JINVALID_TOKEN'));
+			}
+
+			// 2. Verificação de usuário logado e com permissão de edição
+			$user = Factory::getUser();
+			if (!$user->id) {
+				throw new Exception('Usuário não autenticado.');
+			}
+
+			// 3. Obter parâmetros do request
+			$input = Factory::getApplication()->input;
+			$texto = $input->post->get('texto', '', 'RAW');
+			$acao  = $input->post->get('acao', '', 'STRING');
+
+			// Validação básica
+			if (empty($texto) || empty($acao)) {
+				throw new Exception('Parâmetros inválidos: texto e ação são obrigatórios.');
+			}
+
+			// 4. Carregar e chamar o Helper de IA (do componente site)
+			$helperPath = JPATH_ROOT . '/components/com_splms/helpers/GuidewayAIHelper.php';
+			if (!file_exists($helperPath)) {
+				throw new Exception('Helper não encontrado em: ' . $helperPath);
+			}
+			require_once $helperPath;
+
+			if (!class_exists('GuidewayAIHelper')) {
+				throw new Exception('Classe GuidewayAIHelper não encontrada.');
+			}
+
+			$result = GuidewayAIHelper::processarTexto($texto, $acao);
+
+			// 5. Retornar resposta JSON
+			echo json_encode($result);
+			die();
+
+		} catch (\Throwable $e) {
+			// Catch ALL errors (including parse errors/fatal errors if possible)
+			$output['message'] = 'Erro no servidor: ' . $e->getMessage();
+			$output['debug_file'] = $e->getFile();
+			$output['debug_line'] = $e->getLine();
+			http_response_code(500); // Still 500 but with content
+			echo json_encode($output);
+			die();
+		}
+	}
 
 }

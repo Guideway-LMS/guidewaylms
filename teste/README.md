@@ -87,6 +87,20 @@ Este script envia um texto padrão (com erros propositais e propositalmente long
 
 ---
 
+### 5. `test_callai_endpoint.php`
+**Propósito:** Testa o endpoint AJAX `lesson.callAI` e a proteção CSRF.
+
+**O que ele testa:**
+- ✅ Endpoint acessível via URL
+- ✅ Rejeição de requisições sem token CSRF (403)
+
+**Como usar:**
+```
+http://seu-dominio.com/guidewaylms/teste/test_callai_endpoint.php
+```
+
+---
+
 ## 🚀 Fluxo de Trabalho Recomendado
 
 ### Primeira Vez (Configuração Inicial)

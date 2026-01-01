@@ -1,82 +1,35 @@
 <?php
 /**
- * Index da Pasta de Testes
+ * Dashboard de Testes e Documentação - Guideway LMS
  * 
- * Este arquivo exibe o README.md em formato HTML para facilitar
- * o acesso à documentação dos scripts de teste.
+ * Interface unificada com abas para separar Testes e Documentação
  */
 
-// Carrega o Parsedown para converter Markdown para HTML
-// Se não tiver instalado, exibe em texto puro
 $readmePath = __DIR__ . '/README.md';
+$markdown = file_exists($readmePath) ? file_get_contents($readmePath) : '';
 
-if (!file_exists($readmePath)) {
-    die('Arquivo README.md não encontrado!');
-}
-
-$markdown = file_get_contents($readmePath);
-
-// Função para gerar slugs limpos (IDs)
 function slugify($text) {
-    // Converter para minúsculas
     $text = mb_strtolower($text, 'UTF-8');
-    
-    // Remover acentos
     $text = str_replace(
         ['á','à','ã','â','ä','é','è','ê','ë','í','ì','î','ï','ó','ò','õ','ô','ö','ú','ù','û','ü','ç','ñ'],
         ['a','a','a','a','a','e','e','e','e','i','i','i','i','o','o','o','o','o','u','u','u','u','c','n'],
         $text
     );
-    
-    // Substituir caracteres não alfanuméricos por hífen
     $text = preg_replace('/[^a-z0-9]+/', '-', $text);
-    
-    // Remover hífens duplicados e das pontas
-    $text = trim(preg_replace('/-+/', '-', $text), '-');
-    
-    return $text;
+    return trim(preg_replace('/-+/', '-', $text), '-');
 }
 
-// Função simples para converter markdown básico para HTML
 function convertMarkdownToHTML($text) {
-    // Headers with ID generation
-    $text = preg_replace_callback('/^# (.*?)$/m', function($matches) {
-        $id = slugify($matches[1]);
-        return "<h1 id=\"$id\">{$matches[1]}</h1>";
-    }, $text);
-    
-    $text = preg_replace_callback('/^## (.*?)$/m', function($matches) {
-        $id = slugify($matches[1]);
-        return "<h2 id=\"$id\">{$matches[1]}</h2>";
-    }, $text);
-
-    $text = preg_replace_callback('/^### (.*?)$/m', function($matches) {
-        $id = slugify($matches[1]);
-        return "<h3 id=\"$id\">{$matches[1]}</h3>";
-    }, $text);
-    
-    // Bold
+    $text = preg_replace_callback('/^# (.*?)$/m', fn($m) => "<h1 id=\"".slugify($m[1])."\">{$m[1]}</h1>", $text);
+    $text = preg_replace_callback('/^## (.*?)$/m', fn($m) => "<h2 id=\"".slugify($m[1])."\">{$m[1]}</h2>", $text);
+    $text = preg_replace_callback('/^### (.*?)$/m', fn($m) => "<h3 id=\"".slugify($m[1])."\">{$m[1]}</h3>", $text);
     $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text);
-    
-    // Italic
     $text = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $text);
-    
-    // Code blocks
     $text = preg_replace('/```(.*?)```/s', '<pre><code>$1</code></pre>', $text);
-    
-    // Inline code
     $text = preg_replace('/`(.*?)`/', '<code>$1</code>', $text);
-    
-    // Links
     $text = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $text);
-    
-    // Unordered lists
     $text = preg_replace('/^- (.*?)$/m', '<li>$1</li>', $text);
-    $text = preg_replace('/(<li>.*<\/li>)\n/s', '<ul>$1</ul>', $text);
-    
-    // Line breaks
     $text = nl2br($text);
-    
     return $text;
 }
 
@@ -87,208 +40,227 @@ $html = convertMarkdownToHTML($markdown);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentação - Scripts de Teste</title>
+    <title>Guideway LMS - DevTools</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-        .header p {
-            opacity: 0.9;
-        }
-        .content {
-            padding: 40px;
-        }
-        .test-columns {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 30px 0;
-        }
-        .test-column h2 {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: #4a5568;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
-        }
-        .quick-links {
-            display: grid;
-            gap: 15px;
-        }
-        .quick-link {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            text-align: center;
-            transition: transform 0.2s;
-        }
-        .quick-link:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        .quick-link h3 {
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-        .quick-link p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        .markdown-content {
-            color: #333;
-        }
-        .markdown-content h1 {
-            color: #667eea;
-            margin: 30px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-        .markdown-content h2 {
-            color: #764ba2;
-            margin: 25px 0 15px 0;
-            font-size: 24px;
-        }
-        .markdown-content h3 {
-            color: #333;
-            margin: 20px 0 10px 0;
-            font-size: 18px;
-        }
-        .markdown-content code {
-            background: #f4f4f4;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-        }
-        .markdown-content pre {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 6px;
-            overflow-x: auto;
-            margin: 15px 0;
-        }
-        .markdown-content pre code {
-            background: none;
-            padding: 0;
-            color: #f8f8f2;
-        }
-        .markdown-content ul {
-            margin: 10px 0;
-            padding-left: 30px;
-        }
-        .markdown-content li {
-            margin: 5px 0;
-        }
-        .markdown-content a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        .markdown-content a:hover {
-            text-decoration: underline;
-        }
-        .markdown-content hr {
-            border: none;
-            border-top: 2px solid #e9ecef;
-            margin: 30px 0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%); padding: 30px 40px; border-bottom: 1px solid #0f3460; }
+        .header h1 { font-size: 28px; color: #e94560; margin-bottom: 5px; }
+        .header p { color: #a0aec0; font-size: 14px; }
+        
+        /* Tabs */
+        .tabs { display: flex; background: #16213e; border-bottom: 2px solid #0f3460; padding: 0 40px; }
+        .tab { padding: 15px 25px; cursor: pointer; color: #a0aec0; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .tab:hover { color: #e94560; }
+        .tab.active { color: #e94560; border-bottom-color: #e94560; background: rgba(233, 69, 96, 0.1); }
+        
+        /* Content */
+        .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Cards Grid */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .section-title { font-size: 18px; color: #e94560; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #0f3460; }
+        
+        /* Card */
+        .card { background: #16213e; border-radius: 12px; padding: 20px; border: 1px solid #0f3460; transition: all 0.2s; text-decoration: none; color: inherit; display: block; position: relative; overflow: hidden; }
+        .card:hover { transform: translateY(-3px); border-color: #e94560; box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2); }
+        .card h3 { font-size: 16px; margin-bottom: 8px; color: #fff; }
+        .card p { font-size: 13px; color: #a0aec0; }
+        .card-badge { position: absolute; top: 0; right: 0; background: #e94560; color: white; font-size: 10px; padding: 4px 10px; border-bottom-left-radius: 8px; }
+        .card-icon { font-size: 24px; margin-bottom: 10px; }
+        
+        /* Card variations */
+        .card.devops { border-left: 3px solid #48bb78; }
+        .card.ai { border-left: 3px solid #ed8936; }
+        .card.db { border-left: 3px solid #4299e1; }
+        .card.doc { border-left: 3px solid #9f7aea; }
+        
+        /* Documentation content */
+        .doc-content { background: #16213e; border-radius: 12px; padding: 30px; border: 1px solid #0f3460; }
+        .doc-content h1 { color: #e94560; font-size: 24px; margin: 25px 0 15px; padding-bottom: 10px; border-bottom: 1px solid #0f3460; }
+        .doc-content h2 { color: #ed8936; font-size: 20px; margin: 20px 0 10px; }
+        .doc-content h3 { color: #4299e1; font-size: 16px; margin: 15px 0 8px; }
+        .doc-content code { background: #0f3460; padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #48bb78; }
+        .doc-content pre { background: #0a0a15; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 15px 0; }
+        .doc-content pre code { background: none; color: #a0aec0; }
+        .doc-content a { color: #e94560; }
+        .doc-content ul, .doc-content ol { margin: 10px 0 10px 25px; }
+        .doc-content li { margin: 5px 0; color: #a0aec0; }
+        
+        /* Info box */
+        .info-box { background: rgba(66, 153, 225, 0.1); border-left: 4px solid #4299e1; padding: 15px 20px; border-radius: 0 8px 8px 0; margin-bottom: 25px; }
+        .info-box h4 { color: #4299e1; margin-bottom: 5px; }
+        .info-box p { color: #a0aec0; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🧪 Scripts de Teste</h1>
-            <p>Documentação e Ferramentas de Debug para Guideway LMS</p>
-        </div>
-        
-        <div class="content">
-            <div class="test-columns">
-                <!-- Coluna A: Banco de Dados -->
-                <div class="test-column">
-                    <h2>🗄️ Banco de Dados & Model</h2>
-                    <div class="quick-links">
-                        <a href="test_announcements_check.php" class="quick-link">
-                            <h3>🧪 Teste de Avisos</h3>
-                            <p>Verifica o Model de Announcements</p>
-                        </a>
-                        <a href="create_test_data.php" class="quick-link">
-                            <h3>🛠️ Criar Dados</h3>
-                            <p>Gera matrícula de teste</p>
-                        </a>
-                        <a href="debug_db_columns.php" class="quick-link">
-                            <h3>🔍 Debug Schema</h3>
-                            <p>Lista colunas da tabela</p>
-                        </a>
-                    </div>
-                </div>
+    <div class="header">
+        <h1>🚀 Guideway LMS DevTools</h1>
+        <p>Ferramentas de Desenvolvimento, Testes e Documentação</p>
+    </div>
 
-                <!-- Coluna B: Inteligência Artificial -->
-                <div class="test-column">
-                    <h2>🤖 Inteligência Artificial</h2>
-                    <div class="quick-links">
-                        <a href="groq_smoke_test.php" class="quick-link">
-                            <h3>🤖 Groq Smoke Test</h3>
-                            <p>Teste de conexão com IA</p>
-                        </a>
-                        <a href="#integracao-groq-api-documentacao-tecnica" class="quick-link">
-                            <h3>📚 Doc. Groq API</h3>
-                            <p>Ir para documentação</p>
-                        </a>
-                        <a href="groq_prompt_test.php" class="quick-link" style="position: relative; overflow: hidden;">
-                            <div style="position: absolute; top: 0; right: 0; background: #e53e3e; color: white; font-size: 10px; padding: 2px 8px; border-bottom-left-radius: 8px;">Consome Tokens 🪙</div>
-                            <h3>📝 Teste de Prompts</h3>
-                            <p>Verificar ações de IA</p>
-                        </a>
-                    </div>
-                </div>
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('tests')">🧪 Testes</div>
+        <div class="tab" onclick="showTab('docs')">📚 Documentação</div>
+        <div class="tab" onclick="showTab('project')">📖 Sobre o Projeto</div>
+    </div>
 
-                <!-- Coluna C: DevOps & Infraestrutura -->
-                <div class="test-column">
-                    <h2>⚙️ DevOps & Infraestrutura</h2>
-                    <div class="quick-links">
-                        <a href="dump_manager.php" class="quick-link" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);">
-                            <h3>📦 Gerenciador de Dumps</h3>
-                            <p>Gerar e baixar backups do banco</p>
-                        </a>
-                    </div>
-                </div>
+    <div class="content">
+        <!-- TAB: Testes -->
+        <div id="tab-tests" class="tab-content active">
+            <div class="info-box">
+                <h4>ℹ️ Ambiente de Testes</h4>
+                <p>Scripts de verificação e debug para desenvolvimento. Não usar em produção.</p>
             </div>
-            
-            <hr style="border: none; border-top: 2px solid #e9ecef; margin: 30px 0;">
-            
-            <div class="markdown-content">
+
+            <h2 class="section-title">🗄️ Banco de Dados & Model</h2>
+            <div class="cards-grid">
+                <a href="test_announcements_check.php" class="card db">
+                    <div class="card-icon">🧪</div>
+                    <h3>Teste de Avisos</h3>
+                    <p>Verifica o Model de Announcements</p>
+                </a>
+                <a href="create_test_data.php" class="card db">
+                    <div class="card-icon">🛠️</div>
+                    <h3>Criar Dados de Teste</h3>
+                    <p>Gera matrícula de teste</p>
+                </a>
+                <a href="debug_db_columns.php" class="card db">
+                    <div class="card-icon">🔍</div>
+                    <h3>Debug Schema</h3>
+                    <p>Lista colunas da tabela</p>
+                </a>
+            </div>
+
+            <h2 class="section-title">🤖 Inteligência Artificial</h2>
+            <div class="cards-grid">
+                <a href="groq_smoke_test.php" class="card ai">
+                    <div class="card-icon">🔌</div>
+                    <h3>Groq Smoke Test</h3>
+                    <p>Teste de conexão com a API</p>
+                </a>
+                <a href="groq_prompt_test.php" class="card ai">
+                    <div class="card-badge">Consome Tokens 🪙</div>
+                    <div class="card-icon">📝</div>
+                    <h3>Teste de Prompts</h3>
+                    <p>Testar ações: Revisar, Resumir, Reescrever</p>
+                </a>
+                <a href="test_callai_endpoint.php" class="card ai">
+                    <div class="card-icon">🔐</div>
+                    <h3>Teste Endpoint callAI</h3>
+                    <p>Verificar segurança CSRF do controller</p>
+                </a>
+            </div>
+
+            <h2 class="section-title">⚙️ DevOps & Infraestrutura</h2>
+            <div class="cards-grid">
+                <a href="dump_manager.php" class="card devops">
+                    <div class="card-icon">📦</div>
+                    <h3>Gerenciador de Dumps</h3>
+                    <p>Gerar e baixar backups do banco</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- TAB: Documentação -->
+        <div id="tab-docs" class="tab-content">
+            <div class="info-box">
+                <h4>📚 Documentação Técnica</h4>
+                <p>Documentação dos scripts de teste e integrações.</p>
+            </div>
+
+            <h2 class="section-title">📄 Documentações Disponíveis</h2>
+            <div class="cards-grid">
+                <a href="#" onclick="showTab('readme'); return false;" class="card doc">
+                    <div class="card-icon">📋</div>
+                    <h3>README - Scripts de Teste</h3>
+                    <p>Documentação completa dos scripts</p>
+                </a>
+                <a href="#integracao-groq-api-documentacao-tecnica" onclick="showTab('readme'); return false;" class="card doc">
+                    <div class="card-icon">🤖</div>
+                    <h3>Integração Groq API</h3>
+                    <p>Configuração e uso da API de IA</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- TAB: Sobre o Projeto -->
+        <div id="tab-project" class="tab-content">
+            <div class="doc-content">
+                <h1>📖 Guideway LMS</h1>
+                <p>Sistema de Gerenciamento de Aprendizado desenvolvido sobre Joomla + SP LMS.</p>
+                
+                <h2>🏗️ Arquitetura</h2>
+                <ul>
+                    <li><strong>Framework:</strong> Joomla 4.x</li>
+                    <li><strong>Componente Base:</strong> SP LMS (JoomShaper)</li>
+                    <li><strong>Integração IA:</strong> Groq API (LLaMA 3.3 70B)</li>
+                    <li><strong>Banco de Dados:</strong> MariaDB</li>
+                </ul>
+
+                <h2>📁 Estrutura do Componente</h2>
+                <pre><code>components/com_splms/
+├── controllers/     # Controllers MVC
+│   └── lesson.php   # Endpoint callAI()
+├── helpers/
+│   └── GuidewayAIHelper.php  # Lógica de IA
+├── models/          # Models de dados
+├── views/           # Views e templates
+└── assets/          # CSS, JS, imagens</code></pre>
+
+                <h2>🔌 Integrações Implementadas</h2>
+                <h3>Sprint 7 - GuidewayAIHelper</h3>
+                <ul>
+                    <li>Método <code>processarTexto($texto, $acao)</code></li>
+                    <li>Ações: revisar, resumir, reescrever</li>
+                    <li>Conexão segura com Groq API via cURL</li>
+                </ul>
+
+                <h3>Sprint 8 - Endpoint AJAX</h3>
+                <ul>
+                    <li>Endpoint: <code>/index.php?option=com_splms&task=lesson.callAI</code></li>
+                    <li>Verificação CSRF + autenticação</li>
+                    <li>Retorno JSON padronizado</li>
+                </ul>
+
+                <h3>Integração Frontend (Michel)</h3>
+                <ul>
+                    <li>Arquivo: <code>administrator/.../assets/js/guideway_ai.js</code></li>
+                    <li>Toolbar: <code>toolbar_ai.php</code> com botões Revisar/Resumir/Reescrever</li>
+                    <li>Integração TinyMCE: Lê e escreve no editor</li>
+                    <li>CSRF Token: Via <code>Joomla.getOptions('csrf.token')</code></li>
+                </ul>
+
+                <h2>👥 Equipe</h2>
+                <p>Desenvolvido pela equipe Guideway LMS.</p>
+            </div>
+        </div>
+
+        <!-- TAB: README (hidden, shown via docs) -->
+        <div id="tab-readme" class="tab-content">
+            <div class="doc-content">
                 <?php echo $html; ?>
             </div>
         </div>
     </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // Highlight tab button
+            const tabIndex = {'tests': 0, 'docs': 1, 'project': 2, 'readme': 1}[tabName];
+            document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+        }
+    </script>
 </body>
 </html>
