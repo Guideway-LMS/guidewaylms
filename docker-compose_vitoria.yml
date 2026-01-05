@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mariadb-db:
+    image: mariadb:10.6
+    container_name: mariadb-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: guidewaylms
+      MYSQL_USER: guideway
+      MYSQL_PASSWORD: guidepass
+    ports:
+      - "3306:3306"
+    restart: always
+
+  php-app:
+    image: joomla:5.0-php8.2-apache
+    container_name: php-app
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      JOOMLA_DB_HOST: mariadb-db
+      JOOMLA_DB_USER: guideway
+      JOOMLA_DB_PASSWORD: guidepass
+      JOOMLA_DB_NAME: guidewaylms
+    depends_on:
+      - mariadb-db
+    restart: always
