@@ -35,10 +35,16 @@
     height: 40px;
 }
 
-
 #gw-ai-loading {
     display: none;
-    color: white;
+}
+
+body.theme-light #gw-ai-loading {
+    color: #333;
+}
+
+body.theme-dark #gw-ai-loading {
+    color: #ccc;
 }
 
 /* Responsivo */
