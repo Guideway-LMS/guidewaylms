@@ -1,8 +1,23 @@
 var GuidewayFrontend = {
 
+    // Carregamento dinâmico do script de notificações
+    loadNotificationsScript: function () {
+        return new Promise((resolve, reject) => {
+            if (window.GuidewayNotifications) {
+                resolve();
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'components/com_splms/assets/js/notifications.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    },
+
     getTextoEditor() {
         if (!window.tinymce || !tinymce.activeEditor) {
-            alert('Editor não carregado');
+            this.showNotification('error', 'Editor não carregado');
             return '';
         }
         return tinymce.activeEditor.getContent();
@@ -21,6 +36,16 @@ var GuidewayFrontend = {
 
         buttons.forEach(btn => btn.disabled = loading);
         spinner.style.display = loading ? 'inline-block' : 'none';
+    },
+
+    // Auxiliar para exibir notificações com segurança
+    showNotification(type, message) {
+        if (window.GuidewayNotifications) {
+            GuidewayNotifications.show(type, message);
+        } else {
+            // Fallback se o carregamento do script falhar ou não tiver terminado
+            alert(message);
+        }
     },
 
     // Chamada real para o endpoint callAI (admin)
@@ -52,6 +77,9 @@ var GuidewayFrontend = {
 };
 
 jQuery(function ($) {
+    // Carrega o script de notificação imediatamente
+    GuidewayFrontend.loadNotificationsScript().catch(err => console.error('Failed to load notifications.js', err));
+
     $('.gw-ai-btn').on('click', async function () {
         const acao = $(this).data('action');
         const texto = GuidewayFrontend.getTextoEditor();
@@ -65,13 +93,14 @@ jQuery(function ($) {
 
             if (response.success) {
                 GuidewayFrontend.setTextoEditor(response.data);
+                GuidewayFrontend.showNotification('success', 'Texto processado com sucesso!');
             } else {
-                alert(response.message || 'Erro ao processar texto');
+                GuidewayFrontend.showNotification('error', response.message || 'Erro ao processar texto');
             }
 
         } catch (e) {
             console.error('GuidewayAI Error:', e);
-            alert('Erro ao comunicar com o servidor: ' + e.message);
+            GuidewayFrontend.showNotification('error', 'Erro ao comunicar com o servidor: ' + e.message);
         } finally {
             GuidewayFrontend.setLoading(false);
         }
