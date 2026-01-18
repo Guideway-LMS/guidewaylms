@@ -270,23 +270,19 @@ function getCourseId() {
  * @param {number} courseId - ID do curso
  */
 function loadCourseProgress(courseId) {
-    fetch(`/guidewaylms/index.php?option=com_ajax&plugin=lmsprogress&task=get&course_id=${courseId}&format=json`)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
-            }
-            return res.json();
-        })
+    console.log('🔍 Buscando progresso do curso:', courseId);
+
+    fetch(`/guidewaylms/index.php?option=com_splms&task=courses.getCourseProgress&course_id=${courseId}`)
+        .then(res => res.json())
         .then(data => {
             if (data.success) {
-                updateProgressBar(data.data);
+                updateProgressBar(data.data); // data.data é a porcentagem
+            } else {
+                console.error('❌ Erro ao carregar progresso:', data.message);
             }
         })
-        .catch(err => {
-            console.error('❌ Erro ao buscar progresso:', err.message);
-        });
+        .catch(err => console.error('❌ Erro ao buscar progresso:', err));
 }
-
 
 /**
  * Atualiza a barra de progresso na tela
