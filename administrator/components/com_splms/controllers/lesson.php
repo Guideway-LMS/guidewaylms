@@ -152,4 +152,125 @@ class SplmsControllerLesson extends FormController {
 		}
 	}
 
+	/**
+	 * Endpoint de upload de PDF para extração de texto
+	 */
+	public function uploadPDF()
+	{
+		header('Content-Type: application/json');
+		$result = ['success' => false, 'message' => 'Erro desconhecido', 'data' => ''];
+
+		try {
+			// 1. Segurança CSRF e Sessão
+			if (!Session::checkToken('post')) {
+				throw new Exception(Text::_('JINVALID_TOKEN'));
+			}
+
+			$user = Factory::getUser();
+			if (!$user->id) {
+				throw new Exception('Faça login para realizar esta ação.');
+			}
+
+			// 2. Validação do Arquivo
+			if (!isset($_FILES['gw_ai_file']) || $_FILES['gw_ai_file']['error'] != UPLOAD_ERR_OK) {
+				throw new Exception('Nenhum arquivo enviado ou erro no upload. Código: ' . ($_FILES['gw_ai_file']['error'] ?? 'N/A'));
+			}
+
+			$file = $_FILES['gw_ai_file'];
+			$maxSize = 5 * 1024 * 1024; // 5MB
+
+			// Validação Tamanho
+			if ($file['size'] > $maxSize) {
+				throw new Exception('O arquivo excede o tamanho máximo de 5MB.');
+			}
+
+			// Validação Extensão
+			$ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+			if ($ext !== 'pdf') {
+				throw new Exception('Apenas arquivos .pdf são permitidos.');
+			}
+
+			// Validação MIME Type (mais confiável)
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$mime = finfo_file($finfo, $file['tmp_name']);
+			finfo_close($finfo);
+
+			if ($mime !== 'application/pdf') {
+				throw new Exception('O arquivo enviado não parece ser um PDF válido.');
+			}
+
+			// 3. Processamento e Extração com Smalot\PdfParser
+			
+			// Tenta carregar o autoloader local do componente, caso não esteja no global
+			$autoloadPath = JPATH_ROOT . '/components/com_splms/assets/vendor/autoload.php';
+			if (file_exists($autoloadPath)) {
+				require_once $autoloadPath;
+			} 
+			// Se não achar local, assume que o global já carregou ou vai falhar class not found
+			
+			if (!class_exists('Smalot\PdfParser\Parser')) {
+				throw new Exception('Biblioteca de PDF Parser não encontrada. Instale "smalot/pdfparser".');
+			}
+
+			$parser = new \Smalot\PdfParser\Parser();
+			
+			try {
+				$pdf = $parser->parseFile($file['tmp_name']);
+				$text = $pdf->getText();
+			} catch (\Exception $e) {
+				throw new Exception('Não foi possível ler o conteúdo do PDF. O arquivo pode estar corrompido ou protegido.');
+			}
+
+			// 4. Tratamento de Encoding (UTF-8) e Limpeza
+			// Remover caracteres nulos e de controle que podem quebrar o JSON
+			$text = preg_replace('/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
+			
+			// Converter para UTF-8 se não estiver
+			if (!mb_check_encoding($text, 'UTF-8')) {
+				$text = mb_convert_encoding($text, 'UTF-8', 'auto');
+			}
+
+			// 5. Processamento com IA (Prompt do Usuário ou Formatação Padrão)
+			$input = Factory::getApplication()->input;
+			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
+			
+			// Carrega helper se necessário
+			if (!class_exists('GuidewayAIHelper')) {
+				$helperPath = JPATH_ROOT . '/components/com_splms/helpers/GuidewayAIHelper.php';
+				if (file_exists($helperPath)) require_once $helperPath;
+			}
+			
+			if (class_exists('GuidewayAIHelper')) {
+				if (!empty($prompt)) {
+					// Se usuário mandou prompt, usa ação customizada
+					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $prompt);
+				} else {
+					// Se não mandou prompt, apenas formata o texto que veio "quebrado" do PDF
+					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_FORMATAR);
+				}
+				
+				if ($aiResult['success']) {
+					$text = $aiResult['data'];
+					$msg = !empty($prompt) ? 'Texto extraído e processado com sua instrução!' : 'Texto extraído e formatado com sucesso!';
+				} else {
+					// Se falhar a IA, mantém o texto bruto mas avisa
+					$msg = 'Texto extraído (bruto), mas houve erro na IA: ' . $aiResult['message'];
+				}
+			} else {
+				$msg = 'Texto extraído (bruto). Helper de IA não disponível.';
+			}
+
+			$result['success'] = true;
+			$result['data'] = $text; 
+			$result['message'] = $msg;
+
+		} catch (\Exception $e) {
+			$result['success'] = false;
+			$result['message'] = $e->getMessage();
+		}
+
+		echo json_encode($result);
+		die();
+	}
+
 }

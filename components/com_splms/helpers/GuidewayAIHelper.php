@@ -43,15 +43,26 @@ class GuidewayAIHelper
     const ACTION_REESCREVER = 'reescrever';
 
     /**
+     * Ação personalizada com instrução do usuário
+     */
+    const ACTION_CUSTOM = 'custom';
+
+    /**
+     * Ação para formatar/limpar texto (útil para PDFs)
+     */
+    const ACTION_FORMATAR = 'formatar';
+
+    /**
      * Processa o texto com base na ação solicitada usando a API Groq.
      *
      * @param string $texto O texto de entrada a ser processado.
-     * @param string $acao  A ação a ser realizada (revisar, resumir, reescrever).
+     * @param string $acao  A ação a ser realizada (revisar, resumir, reescrever, formatar, custom).
+     * @param string|null $customInstruction Instrução personalizada (obrigatória para ACTION_CUSTOM).
      *
      * @return array Array associativo com resultado ['success' => bool, 'data' => string] ou erro ['success' => false, 'message' => string].
      * @since  1.0.0
      */
-    public static function processarTexto($texto, $acao)
+    public static function processarTexto($texto, $acao, $customInstruction = null)
     {
         // Validação básica
         if (empty($texto)) {
@@ -60,6 +71,8 @@ class GuidewayAIHelper
 
         // Seleção do System Prompt baseada na ação
         $systemPrompt = '';
+        $userContent = $texto;
+
         switch ($acao) {
             case self::ACTION_REVISAR:
                 $systemPrompt = 'Atue como um revisor de texto experiente em Português. Corrija erros gramaticais, de pontuação e ortografia. Retorne apenas o texto corrigido, mantendo a formatação original tanto quanto possível. Não adicione comentários conversacionais.';
@@ -69,6 +82,17 @@ class GuidewayAIHelper
                 break;
             case self::ACTION_REESCREVER:
                 $systemPrompt = 'Atue como um editor profissional. Reescreva o texto para melhorar a fluidez, clareza e vocabulário, mantendo o sentido original. O tom deve ser profissional. Retorne apenas o texto reescrito em Português.';
+                break;
+            case self::ACTION_FORMATAR:
+                $systemPrompt = 'Atue como um formatador de texto. O texto a seguir foi extraído de um PDF e pode ter quebras de linha incorretas, parágrafos unidos ou cabeçalhos desformatados. Sua tarefa é restaurar a estrutura correta (parágrafos, listas, títulos) e melhorar a legibilidade sem alterar o conteúdo. Retorne o texto formatado em HTML simples (p, ul, li, h2, h3, strong) se apropriado para um editor web.';
+                break;
+            case self::ACTION_CUSTOM:
+                $systemPrompt = 'Você é um assistente de IA útil e capaz.';
+                if (empty($customInstruction)) {
+                    return ['success' => false, 'message' => 'Instrução personalizada não fornecida para ação Custom.'];
+                }
+                // Combina instrução com o texto
+                $userContent = "Instrução: " . $customInstruction . "\n\n---\n\nConteúdo:\n" . $texto;
                 break;
             default:
                 return ['success' => false, 'message' => 'Ação desconhecida: ' . htmlspecialchars($acao)];
@@ -89,7 +113,7 @@ class GuidewayAIHelper
                 ],
                 [
                     'role' => 'user',
-                    'content' => $texto
+                    'content' => $userContent
                 ]
             ],
             'temperature' => 0.5, // Equilíbrio entre criatividade e precisão

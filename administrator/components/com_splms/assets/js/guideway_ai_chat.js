@@ -8,8 +8,8 @@
  * - Envio da solicitação (Simulado por enquanto)
  */
 
-var GuidewayAI = (function($) {
-    
+var GuidewayAI = (function ($) {
+
     // === Configurações e Seletores ===
     var selectors = {
         generateBtn: '#gw-ai-generate-btn',
@@ -24,7 +24,7 @@ var GuidewayAI = (function($) {
     };
 
     // === Métodos Privados ===
-    
+
     /**
      * Exibe alertas usando a API nativa de Mensagens do Joomla.
      * @param {string} message - O texto da mensagem.
@@ -32,16 +32,16 @@ var GuidewayAI = (function($) {
      */
     function showAlert(message, type) {
         var msgObj = {};
-        
+
         // Mapeia 'success' para 'message' (que é o verde padrão do Joomla)
         // 'error' continua 'error' (vermelho)
-        var joomlaType = type === 'error' ? 'error' : 'message'; 
-        
+        var joomlaType = type === 'error' ? 'error' : 'message';
+
         msgObj[joomlaType] = [message];
-        
+
         // Renderiza a mensagem no container padrão do sistema
         Joomla.renderMessages(msgObj);
-        
+
         // Rola a página para o topo para garantir que o usuário veja o alerta
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -60,9 +60,9 @@ var GuidewayAI = (function($) {
      */
     function validateFile() {
         var fileInput = $(selectors.fileInput)[0];
-        
+
         // Se nenhum arquivo foi selecionado, passa (pois é opcional se houver texto)
-        if (fileInput.files.length === 0) return true; 
+        if (fileInput.files.length === 0) return true;
 
         var file = fileInput.files[0];
         var fileName = file.name;
@@ -103,15 +103,67 @@ var GuidewayAI = (function($) {
             return;
         }
 
-        // 3. Sucesso (Simulado)
-        console.log('Validação OK. Iniciando processamento...', { prompt: prompt, file: hasFile });
-        showAlert('Sua solicitação está sendo processada... (Simulação)', 'success');
-        
-        // Simula um loading visual (se o container existir)
-        if($(selectors.loadingContainer).length) {
-             $(selectors.loadingContainer).show();
-             setTimeout(function() { $(selectors.loadingContainer).hide(); }, 2000);
+        // 3. Preparação do Payload
+        var formData = new FormData();
+        var csrfToken = Joomla.getOptions('csrf.token');
+
+        formData.append(csrfToken, 1); // CSRF Token
+        formData.append('option', 'com_splms');
+        formData.append('task', 'lesson.uploadPDF');
+
+        // Adiciona arquivo se existir
+        if (hasFile) {
+            formData.append('gw_ai_file', $(selectors.fileInput)[0].files[0]);
         }
+
+        // Adiciona prompt (para processamento customizado ou formatação)
+        if (prompt.trim() !== '') {
+            formData.append('gw_ai_prompt', prompt);
+        }
+
+        // UI Loading
+        var $btn = $(selectors.generateBtn);
+        var originalBtnText = $btn.html();
+        $btn.prop('disabled', true).html('<span class="icon-loop spinner"></span> Processando...');
+        if ($(selectors.loadingContainer).length) $(selectors.loadingContainer).show();
+
+        // 4. Envio AJAX
+        $.ajax({
+            url: 'index.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    var extractedText = response.data || '';
+                    console.log('PDF Processado - Texto extraído');
+
+                    // Integração com o Editor TinyMCE
+                    if (window.tinymce && tinymce.activeEditor) {
+                        tinymce.activeEditor.setContent(extractedText);
+                        showAlert('Conteúdo do PDF importado para o editor com sucesso!', 'success');
+                    } else {
+                        console.warn('TinyMCE não detectado.');
+                        showAlert('Texto extraído, mas editor não encontrado. Veja o console.', 'success');
+                        console.log(extractedText);
+                    }
+
+                    // TODO: Futuramente integrar com IA para gerar a descrição usando o texto extraído + prompt
+
+                } else {
+                    showAlert('Erro no processamento: ' + response.message, 'error');
+                }
+            },
+            error: function (xhr, status, error) {
+                showAlert('Erro de conexão com o servidor.', 'error');
+                console.error('AJAX Error:', error);
+            },
+            complete: function () {
+                $btn.prop('disabled', false).html(originalBtnText);
+                if ($(selectors.loadingContainer).length) $(selectors.loadingContainer).hide();
+            }
+        });
     }
 
     /**
@@ -119,9 +171,9 @@ var GuidewayAI = (function($) {
      */
     function bindEvents() {
         $(document).on('click', selectors.generateBtn, handleGenerate);
-        
+
         // Revalida automaticamente ao trocar o arquivo
-        $(document).on('change', selectors.fileInput, function() {
+        $(document).on('change', selectors.fileInput, function () {
             clearAlerts();
             validateFile();
         });
@@ -132,7 +184,7 @@ var GuidewayAI = (function($) {
         /**
          * Inicializa o módulo GUID EWAY AI.
          */
-        init: function() {
+        init: function () {
             bindEvents();
             console.log('GuidewayAI Refactored Init');
         }
@@ -141,6 +193,6 @@ var GuidewayAI = (function($) {
 })(jQuery);
 
 // Inicializa quando o documento estiver pronto
-jQuery(document).ready(function() {
+jQuery(document).ready(function () {
     GuidewayAI.init();
 });
