@@ -34,6 +34,13 @@ function convertMarkdownToHTML($text) {
 }
 
 $html = convertMarkdownToHTML($markdown);
+
+// Extract Composer Guide separately
+$composerGuideMarkdown = '';
+if (preg_match('/## 📦 Guia de Instalação de Dependências \(Composer\)(.*?)(?:^## |\Z)/sm', $markdown, $matches)) {
+    $composerGuideMarkdown = "## 📦 Guia de Instalação de Dependências (Composer)\n" . trim($matches[1]);
+}
+$composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -154,6 +161,12 @@ $html = convertMarkdownToHTML($markdown);
                     <h3>Teste Endpoint callAI</h3>
                     <p>Verificar segurança CSRF do controller</p>
                 </a>
+                <a href="pdf_upload_test.php" class="card ai">
+                    <div class="card-badge">Novo ✨</div>
+                    <div class="card-icon">📄</div>
+                    <h3>Teste Upload PDF</h3>
+                    <p>Validar upload e parsing de PDF</p>
+                </a>
             </div>
 
             <h2 class="section-title">⚙️ DevOps & Infraestrutura</h2>
@@ -185,6 +198,19 @@ $html = convertMarkdownToHTML($markdown);
                     <h3>Integração Groq API</h3>
                     <p>Configuração e uso da API de IA</p>
                 </a>
+                <a href="#guia-de-instalacao-de-dependencias-composer" onclick="showTab('composer'); return false;" class="card doc">
+                    <div class="card-icon">📦</div>
+                    <h3>Instalação PDF Parser</h3>
+                    <p>Guia manual do Composer</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- TAB: Composer Guide (Isolated) -->
+        <div id="tab-composer" class="tab-content">
+            <div class="doc-content">
+                <a href="#" onclick="showTab('docs'); return false;" style="display:inline-block; margin-bottom:20px;">← Voltar para Documentação</a>
+                <?php echo $composerGuideHtml; ?>
             </div>
         </div>
 
@@ -258,7 +284,7 @@ $html = convertMarkdownToHTML($markdown);
             document.getElementById('tab-' + tabName).classList.add('active');
             
             // Highlight tab button
-            const tabIndex = {'tests': 0, 'docs': 1, 'project': 2, 'readme': 1}[tabName];
+            const tabIndex = {'tests': 0, 'docs': 1, 'project': 2, 'readme': 1, 'composer': 1}[tabName];
             document.querySelectorAll('.tab')[tabIndex].classList.add('active');
         }
     </script>

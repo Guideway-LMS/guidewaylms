@@ -17,6 +17,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 $doc = Factory::getDocument();
 $doc->addStyleSheet(JURI::root(true) . '/administrator/components/com_splms/assets/css/tolbar_ai.css?v=' . time());
 $doc->addScript(JUri::root(true) . '/administrator/components/com_splms/assets/js/guideway_ai.js');
+$doc->addScript(JUri::root(true) . '/administrator/components/com_splms/assets/js/guideway_ai_chat.js');
 
 HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
@@ -40,6 +41,7 @@ $colClass = SplmsHelper::getJoomlaVersion() < 4 ? 'span' : 'col-lg-';
           echo $this->form->renderField('short_description'); 
 
           // === Toolbar AI ===
+        include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai_chat.php';
         include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai.php';
 
           // Editor de texto (TinyMCE)

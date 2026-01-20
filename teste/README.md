@@ -101,6 +101,64 @@ http://seu-dominio.com/guidewaylms/teste/test_callai_endpoint.php
 
 ---
 
+### 6. `pdf_upload_test.php`
+**Propósito:** Testa a funcionalidade de upload e extração de texto de PDFs utilizando a biblioteca `smalot/pdfparser`.
+
+**O que ele testa:**
+- ✅ Upload de arquivo via AJAX (`gw_ai_file`).
+- ✅ Validações de arquivo (Tamanho 5MB, extensão .pdf).
+- ✅ Extração de texto do conteúdo do PDF (`Smalot\PdfParser`).
+- ✅ **Integração com IA:** Envio opcional de prompt (`gw_ai_prompt`).
+  - Se prompt enviado: Processa com ação `CUSTOM`.
+  - Se sem prompt: Processa com ação `FORMATAR` (limpeza inteligente).
+- ✅ Sanitização de caracteres (UTF-8).
+- ✅ Resposta padronizada JSON.
+
+**Como usar:**
+```
+http://seu-dominio.com/guidewaylms/teste/pdf_upload_test.php
+```
+
+**⚠️ REQUISITO IMPORTANTE (Dependência):**
+Este teste requer que a biblioteca `smalot/pdfparser` esteja instalada manualmente.
+Veja o guia de instalação abaixo.
+
+---
+
+## 📦 Guia de Instalação de Dependências (Composer)
+
+Devido às limitações de ambiente compartilhado, não podemos usar o composer global na raiz do site para este componente específico. Siga os passos abaixo para atualizar as dependências do `com_splms`:
+
+### 1. NAVEGUE ATÉ A PASTA DE ASSETS
+No terminal (ou via SSH), vá para a pasta onde o `composer.json` do componente está localizado:
+```bash
+cd /home/dante/public_html/guidewaylms/components/com_splms/assets/
+```
+
+### 2. EXECUTE O UPDATE MANUALMENTE
+Se você tem permissão de execução do composer localmente:
+```bash
+composer update
+```
+Isso vai gerar a pasta `vendor/` dentro de `assets/`.
+
+### 3. VERIFIQUE A PASTA VENDOR
+Certifique-se de que a estrutura ficou assim:
+```
+components/com_splms/assets/
+├── composer.json
+├── composer.lock
+└── vendor/
+    ├── autoload.php
+    └── smalot/
+        └── pdfparser/
+```
+
+### 4. UPDATE NO SERVIDOR (Se não tiver composer)
+Se você não tem acesso ao composer no servidor:
+1. Rode `composer update` na sua máquina local (dentro da estrutura correta de pastas).
+2. Faça upload da pasta `vendor` inteira para `/components/com_splms/assets/` via FTP/SFTP.
+
 ## 🚀 Fluxo de Trabalho Recomendado
 
 ### Primeira Vez (Configuração Inicial)
