@@ -7,7 +7,7 @@
 	<authorUrl>http://www.joomshaper.com</authorUrl>
 	<copyright>Copyright (c) 2010- 2024 JoomShaper. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later</license>
-	<version>4.1.5</version>
+	<version>4.2.1</version>
 	<description>SP Learning Management System Component for Joomla</description>
 	<scriptfile>installer.script.php</scriptfile>
 
@@ -25,6 +25,7 @@
 		<folder>layouts</folder>
 		<folder>models</folder>
 		<folder>views</folder>
+		<folder>views/forum</folder>
 	</files>
 
 	<languages folder="language/site">
@@ -92,6 +93,9 @@
 			<menu link="option=com_splms&amp;view=events" view="events">
 				COM_SPLMS_EVENTS
 			</menu>
+            <!-- Fórum -->
+            <menu link="option=com_splms&amp;view=forums" view="forums" img="class:comments">Fórum de Dúvidas</menu>
+
 			<menu link="option=com_splms&amp;view=reviews" view="reviews">
 				COM_SPLMS_REVIEWS
 			</menu>

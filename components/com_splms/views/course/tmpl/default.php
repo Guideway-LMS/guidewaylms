@@ -252,6 +252,26 @@ $user = Factory::getUser();
                 ?>
             </div>
         <?php endif; ?>
+        
+        <?php if ($this->isAuthorised != '') : ?>
+            <div class="splms-course-forum splms-section">
+                <h3 class="splms-title">Fórum de Dúvidas</h3>
+                
+                <?php
+                // Carrega a view 'forum' desenvovlida (Scenario A)
+                try {
+                    echo LayoutHelper::render('joomla.content.load_view', [
+                        'component' => 'com_splms',
+                        'view'      => 'forum',
+                        'layout'    => 'default',
+                        'format'    => 'raw'
+                    ]);
+                } catch (Exception $e) {
+                    Factory::getApplication()->enqueueMessage('Erro ao carregar o fórum: ' . $e->getMessage(), 'error');
+                }
+                ?>
+            </div>
+        <?php endif; ?>
         <?php if (isset($this->item->course_schedules) && $this->item->course_schedules && count($this->item->course_schedules) && $this->item->course_schedules) { ?>
             <div class="splms-course-class-rotuines">
                 <div class="splms-class-routines table-responsive">

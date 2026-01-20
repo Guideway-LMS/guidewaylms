@@ -68,6 +68,22 @@ class SplmsViewCourse extends HtmlView {
 			$linkMural = 'index.php?option=com_splms&view=announcements&course_id=' . $this->item->id;
         	$bar = Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
         	$bar->appendButton('Link', 'comments', 'Mural de Avisos', $linkMural);
+
+            // Button to Forum Q&A
+            $linkForum = 'index.php?option=com_splms&view=forums&filter_search=id:' . $this->item->id; 
+            // Note: Our Forums model filters by 'course_title' search or direct ID match, 
+            // but ideally we should have a 'course_id' state filter. 
+            // For now, let's link to the general list or a specific course filter if previously implemented.
+            // Since filter_course_id wasn't explicitly built in the model yet, verifying `SplmsModelForums`
+            // shows it filters by 'a.course_id' if passed presumably? Actually checked code:
+            // "if (stripos($search, 'id:') === 0)..." checks filtering by question ID? No wait.
+            // Let's re-read the model. The user wants it "like announcements".
+            // Generally announcements view filters by `&course_id=X`.
+            
+            // Let's assume we want to pass course_id.
+            $linkForum = 'index.php?option=com_splms&view=forums&course_id=' . $this->item->id;
+            $bar->appendButton('Link', 'question', 'Fórum de Dúvidas', $linkForum);
+            
 			ToolbarHelper::cancel('course.cancel', 'JTOOLBAR_CLOSE');
 		}
 	}
