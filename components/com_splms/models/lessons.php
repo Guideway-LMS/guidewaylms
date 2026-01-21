@@ -135,6 +135,10 @@ class SplmsModelLessons extends ListModel {
 	// completedItem
 	public function completedItem($item_id = 0, $item_type = NULL, $user_id = 0){
 		$db = Factory::getDbo();
+		    // Verifica se já está concluído
+    if (self::hasCompleted($item_id, $user_id, $item_type)) {
+        return true; // Já existe → evita duplicação
+    }
 		$query = $db->getQuery(true);
 		$columns = array('user_id', 'item_id', 'item_type', 'published');
 		$values  = array($db->quote($user_id), $db->quote($item_id), $db->quote($item_type), $db->quote(1) );

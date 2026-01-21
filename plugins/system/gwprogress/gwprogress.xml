@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="system" method="upgrade" version="4.0">
+    <name>plg_system_gwprogress</name>
+    <author>Guideway LMS</author>
+    <version>1.0.0</version>
+    <description>PLG_SYSTEM_GWPROGRESS_DESC</description>
+    <files>
+        <filename plugin="gwprogress">gwprogress.php</filename>
+    </files>
+    <languages>
+        <language tag="en-GB">language/en-GB/en-GB.plg_system_gwprogress.ini</language>
+        <language tag="pt-BR">language/pt-BR/pt-BR.plg_system_gwprogress.ini</language>
+    </languages>
+</extension>

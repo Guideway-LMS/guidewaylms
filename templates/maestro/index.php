@@ -92,6 +92,7 @@ if($app->input->get('view') === 'article' && $this->params->get('reading_time_pr
 	$this->addStyledeclaration($progress_style);
 }
 
+
 // Custom JS
 if ($custom_js = $this->params->get('custom_js', null))
 {
