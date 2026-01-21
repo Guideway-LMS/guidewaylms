@@ -272,16 +272,26 @@ function getCourseId() {
 function loadCourseProgress(courseId) {
     console.log('🔍 Buscando progresso do curso:', courseId);
 
-    fetch(`/guidewaylms/index.php?option=com_splms&task=courses.getCourseProgress&course_id=${courseId}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                updateProgressBar(data.data); // data.data é a porcentagem
-            } else {
-                console.error('❌ Erro ao carregar progresso:', data.message);
-            }
-        })
-        .catch(err => console.error('❌ Erro ao buscar progresso:', err));
+    fetch(`index.php?option=com_splms&task=courses.getCourseProgress&course_id=${courseId}`, {
+        credentials: 'same-origin'
+    })
+    .then(res => {
+        console.log('📦 Status HTTP:', res.status);
+        return res.text();
+    })
+    .then(text => {
+        console.log('📦 Resposta bruta:', text);
+
+        const data = JSON.parse(text);
+
+        if (data.success) {
+            console.log('✅ Progresso:', data.progress);
+            updateProgressBar(data.progress);
+        } else {
+            console.error('❌ Erro backend:', data);
+        }
+    })
+    .catch(err => console.error('❌ Fetch falhou:', err));
 }
 
 /**

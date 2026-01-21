@@ -1,5 +1,7 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 /**
  * @package com_splms
  * @author JoomShaper http://www.joomshaper.com
@@ -62,42 +64,95 @@ class SplmsControllerCourses extends FormController{
      * Retorna o progresso do aluno em um curso
      * GUIDEWAY CUSTOM - 2025-11-19 - Joshua - Integrado com Model da Vitória
      */
-    public function getCourseProgress() {
-        $user = Factory::getUser();
-        $input = Factory::getApplication()->input;
-        $output = array();
+public function getCourseProgress()
+{
+    $app   = Factory::getApplication();
+    $input = $app->input;
+    $user  = Factory::getUser();
 
-        if (!$user->id) {
-            $output['success'] = false;
-            $output['message'] = 'Usuario nao autenticado';
-            echo json_encode($output);
-            die();
-        }
+    // 🔥 FORÇA JSON + RAW
+    $app->setHeader('Content-Type', 'application/json', true);
 
-        $courseId = $input->getInt('course_id', 0);
-
-        if (!$courseId) {
-            $output['success'] = false;
-            $output['message'] = 'ID do curso nao fornecido';
-            echo json_encode($output);
-            die();
-        }
-
-        try {
-            // CHAMA A FUNÇÃO DO MODEL (da Vitória)
-            $model = $this->getModel('Course');
-           // $result = $model->getCourseProgress($user->id, $courseId);alterei
-	   $result = $model->getCourseProgress($courseId, $user->id);
-
-            $output['success'] = true;
-            $output['data'] = $result;
-
-        } catch (Exception $e) {
-            $output['success'] = false;
-            $output['message'] = 'Erro: ' . $e->getMessage();
-        }
-
-        echo json_encode($output);
-        die();
+    if (!$user->id) {
+        echo json_encode(['success' => false, 'message' => 'Usuário não autenticado']);
+        $app->close();
     }
+
+    $courseId = $input->getInt('course_id', 0);
+    if (!$courseId) {
+        echo json_encode(['success' => false, 'message' => 'ID do curso não fornecido']);
+        $app->close();
+    }
+
+    try {
+        $model = $this->getModel('Course', 'SplmsModel');
+        if ($model === false) {
+            throw new Exception('Model Course não encontrado');
+        }
+
+        // Legacy safety
+        $model->setState('course.id', (int) $courseId);
+        $model->setState('user.id', (int) $user->id);
+
+        $progress = $model->getCourseProgress($courseId, $user->id);
+
+        echo json_encode([
+            'success'  => true,
+            'progress' => (float) $progress
+        ]);
+
+    } catch (Throwable $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+
+    // 🔥 MATA O JOOMLA ANTES DO TEMPLATE
+    $app->close();
+}   
+public function getCourseProgressTest()
+{
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+
+    $input = \Joomla\CMS\Factory::getApplication()->input;
+    $output = [];
+
+    // Forçar user_id manualmente
+    $userId = 3; // usuário que você sabe que existe
+    $courseId = $input->getInt('course_id', 0);
+
+    if (!$courseId) {
+        echo json_encode(['success' => false, 'message' => 'ID do curso não fornecido']);
+        jexit();
+    }
+
+    try {
+        $model = $this->getModel('Course', 'SplmsModel');
+        if ($model === false) {
+            throw new Exception('Model Course não encontrado');
+        }
+
+        // Passando user_id fixo
+        $progress = $model->getCourseProgress($courseId, $userId);
+
+        echo json_encode([
+            'success' => true,
+            'user_id' => $userId,
+            'course_id' => $courseId,
+            'progress' => $progress
+        ]);
+
+    } catch (\Throwable $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]);
+    }
+
+    jexit();
+}
 }
