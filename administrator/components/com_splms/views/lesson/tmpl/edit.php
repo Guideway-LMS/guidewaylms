@@ -41,8 +41,16 @@ $colClass = SplmsHelper::getJoomlaVersion() < 4 ? 'span' : 'col-lg-';
           echo $this->form->renderField('short_description'); 
 
           // === Toolbar AI ===
-        include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai_chat.php';
-        include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai.php';
+          
+          // AI: Generate (Crie a descrição / Custom / PDF)
+          if (Factory::getUser()->authorise('ai.generate', 'com_splms')) {
+              include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai_chat.php';
+          }
+
+          // AI: Refine (Organize / Revisar / Resumir)
+          if (Factory::getUser()->authorise('ai.refine', 'com_splms')) {
+              include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai.php';
+          }
 
           // Editor de texto (TinyMCE)
           echo $this->form->renderField('description');

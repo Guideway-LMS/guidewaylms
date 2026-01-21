@@ -87,7 +87,7 @@ class GuidewayAIHelper
                 $systemPrompt = 'Atue como um formatador de texto. O texto a seguir foi extraído de um PDF e pode ter quebras de linha incorretas, parágrafos unidos ou cabeçalhos desformatados. Sua tarefa é restaurar a estrutura correta (parágrafos, listas, títulos) e melhorar a legibilidade sem alterar o conteúdo. Retorne o texto formatado em HTML simples (p, ul, li, h2, h3, strong) se apropriado para um editor web.';
                 break;
             case self::ACTION_CUSTOM:
-                $systemPrompt = 'Você é um assistente de IA útil e capaz.';
+                $systemPrompt = 'Você é um assistente de IA extremamente direto. Sua única tarefa é executar a instrução do usuário. IMPORTANTE: Retorne APENAS o resultado solicitado. NÃO inicie a resposta com frases como "Aqui está", "Claro", "Com certeza" ou qualquer texto conversacional. Se o usuário pedir perguntas, retorne apenas as perguntas. Se pedir código, apenas o código. Se a resposta for um texto, comece imediatamente o texto.';
                 if (empty($customInstruction)) {
                     return ['success' => false, 'message' => 'Instrução personalizada não fornecida para ação Custom.'];
                 }

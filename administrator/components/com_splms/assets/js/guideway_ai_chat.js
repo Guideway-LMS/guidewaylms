@@ -156,7 +156,21 @@ var GuidewayAI = (function ($) {
                 }
             },
             error: function (xhr, status, error) {
-                showAlert('Erro de conexão com o servidor.', 'error');
+                var errorMsg = 'Erro de conexão com o servidor.';
+                
+                // Tenta extrair mensagem JSON do servidor (ex: erro 403)
+                if (xhr.responseText) {
+                    try {
+                        var jsonResp = JSON.parse(xhr.responseText);
+                        if (jsonResp && jsonResp.message) {
+                            errorMsg = jsonResp.message;
+                        }
+                    } catch (e) {
+                        console.error('Falha ao fazer parse do erro JSON:', e);
+                    }
+                }
+                
+                showAlert(errorMsg, 'error');
                 console.error('AJAX Error:', error);
             },
             complete: function () {

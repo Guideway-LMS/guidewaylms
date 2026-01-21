@@ -135,6 +135,28 @@ class SplmsControllerLesson extends FormController {
 				throw new Exception('Classe GuidewayAIHelper não encontrada.');
 			}
 
+			// Mapeamento de Ação -> Permissão
+			$permMap = [
+				GuidewayAIHelper::ACTION_CUSTOM     => 'ai.generate',
+				GuidewayAIHelper::ACTION_FORMATAR   => 'ai.generate',
+				GuidewayAIHelper::ACTION_REVISAR    => 'ai.refine',
+				GuidewayAIHelper::ACTION_RESUMIR    => 'ai.refine',
+				GuidewayAIHelper::ACTION_REESCREVER => 'ai.refine',
+			];
+
+			$requiredPerm = isset($permMap[$acao]) ? $permMap[$acao] : null;
+
+			// Se a ação não estiver mapeada, nega por padrão ou trata como erro
+			if (!$requiredPerm) {
+				throw new Exception('Ação não reconhecida ou sem permissão definida.');
+			}
+
+			// Verificação de ACL
+			if (!$user->authorise($requiredPerm, 'com_splms')) {
+				http_response_code(403);
+				throw new Exception(Text::_('JERROR_ALERTNOAUTHOR') . ' (' . $requiredPerm . ')');
+			}
+
 			$result = GuidewayAIHelper::processarTexto($texto, $acao);
 
 			// 5. Retornar resposta JSON
@@ -169,6 +191,12 @@ class SplmsControllerLesson extends FormController {
 			$user = Factory::getUser();
 			if (!$user->id) {
 				throw new Exception('Faça login para realizar esta ação.');
+			}
+
+			// Verificação de Permissão de IA (Generate) para Upload/Formatação
+			if (!$user->authorise('ai.generate', 'com_splms')) {
+				http_response_code(403);
+				throw new Exception(Text::_('JERROR_ALERTNOAUTHOR') . ' (ai.generate)');
 			}
 
 			// 2. Validação do Arquivo

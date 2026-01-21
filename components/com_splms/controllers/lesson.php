@@ -93,8 +93,34 @@ class SplmsControllerLesson extends FormController {
 			die();
 		}
 
+
 		// 4. Carregar e chamar o Helper de IA
 		require_once JPATH_COMPONENT_SITE . '/helpers/GuidewayAIHelper.php';
+
+		// Mapeamento de Ação -> Permissão
+		$permMap = [
+			GuidewayAIHelper::ACTION_CUSTOM     => 'ai.generate',
+			GuidewayAIHelper::ACTION_FORMATAR   => 'ai.generate',
+			GuidewayAIHelper::ACTION_REVISAR    => 'ai.refine',
+			GuidewayAIHelper::ACTION_RESUMIR    => 'ai.refine',
+			GuidewayAIHelper::ACTION_REESCREVER => 'ai.refine',
+		];
+
+		$requiredPerm = isset($permMap[$acao]) ? $permMap[$acao] : null;
+
+		if (!$requiredPerm) {
+			http_response_code(400);
+			$output['message'] = 'Ação não reconhecida ou sem permissão definida.';
+			echo json_encode($output);
+			die();
+		}
+
+		if (!$user->authorise($requiredPerm, 'com_splms')) {
+			http_response_code(403);
+			$output['message'] = Text::_('JERROR_ALERTNOAUTHOR') . ' (' . $requiredPerm . ')';
+			echo json_encode($output);
+			die();
+		}
 
 		$result = GuidewayAIHelper::processarTexto($texto, $acao);
 
