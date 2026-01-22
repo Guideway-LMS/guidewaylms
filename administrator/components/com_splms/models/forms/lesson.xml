@@ -5,6 +5,7 @@
 		<field name="title" type="text" class="inputbox" label="COM_SPLMS_FIELD_TITLE" required="true" size="50" />
 		<field name="alias" type="text" class="inputbox" label="COM_SPLMS_FIELD_ALIAS" description="COM_SPLMS_FIELD_ALIAS_DESC" size="50" />
 		<field name="short_description" type="textarea" label="COM_SPLMS_TITLE_SHORT_DESCRIPTION" required="true" cols="10" rows="3" maxlength="50" />
+		
 		<field name="description" type="editor" class="span6" label="COM_SPLMS_TITLE_DESCRIPTION" required="true" filter="JComponentHelper::filterText" />
 		
 		<field name="video_url" type="text" class="inputbox" label="COM_SPLMS_TITLE_VIDEO_URL" size="50" />
@@ -15,7 +16,19 @@
 			<option value="0">COM_SPLMS_FREE</option>
 			<option value="1">COM_SPLMS_PAID</option>
 		</field>
+		<field 
+        name="lesson_format" 
+        type="list" 
+        label="Formato da Aula" 
+        description="Escolha se esta aula é para consumo de conteúdo (Vídeo/PDF) ou para o aluno enviar um trabalho." 
+        default="content"
+    >
+        <option value="content">Conteúdo de Aula</option>
+        
+        <option value="assignment">Envio de Trabalho</option>
+    </field>
 	</fieldset>
+	
 
 	<fieldset name="sidebar">
 		<field name="course_id" type="courselist" default="" label="COM_SPLMS_LESSON_FIELD_SELECT_COURSE" description="COM_SPLMS_LESSON_FIELD_SELECT_COURSE_DESC" topicid="topic_id" required="true"  />

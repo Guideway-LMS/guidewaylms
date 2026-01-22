@@ -6,9 +6,20 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit2510eb654d0217265bc004cbb2279a39
 {
+    public static $files = array (
+        '941748b3c8cae4466c827dfb5ca9602a' => __DIR__ . '/..' . '/rmccue/requests/library/Deprecated.php',
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
+        '13906c19e3d8fcd1341b24ed4d51cf72' => __DIR__ . '/..' . '/razorpay/razorpay/Deprecated.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
+        'W' => 
+        array (
+            'WpOrg\\Requests\\' => 15,
+        ),
         'S' => 
         array (
+            'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Stripe\\' => 7,
         ),
         'R' => 
@@ -19,6 +30,14 @@ class ComposerStaticInit2510eb654d0217265bc004cbb2279a39
     );
 
     public static $prefixDirsPsr4 = array (
+        'WpOrg\\Requests\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rmccue/requests/src',
+        ),
+        'Symfony\\Polyfill\\Mbstring\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
         'Stripe\\' => 
         array (
             0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
@@ -34,17 +53,18 @@ class ComposerStaticInit2510eb654d0217265bc004cbb2279a39
     );
 
     public static $prefixesPsr0 = array (
-        'R' => 
+        'S' => 
         array (
-            'Requests' => 
+            'Smalot\\PdfParser\\' => 
             array (
-                0 => __DIR__ . '/..' . '/rmccue/requests/library',
+                0 => __DIR__ . '/..' . '/smalot/pdfparser/src',
             ),
         ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Requests' => __DIR__ . '/..' . '/rmccue/requests/library/Requests.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

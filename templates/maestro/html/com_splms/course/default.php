@@ -16,6 +16,8 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+
 
 HTMLHelper::_('jquery.framework');
 $input = Factory::getApplication()->input;
@@ -145,6 +147,50 @@ $user = Factory::getUser();
 							</ul>
 						<?php } ?>
 					</div>
+
+					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
+						<div class="splms-course-announcements splms-section">
+							<h3 class="splms-title">Mural de Avisos</h3>
+
+							<?php
+								echo LayoutHelper::render(
+									'announcements.list',
+									['items' => $this->announcements]
+								);
+							?>
+						</div>
+					<?php endif; ?>
+
+
+					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
+						<div class="splms-course-forum splms-section">
+							<h3 class="splms-title">Fórum de Dúvidas</h3>
+							
+							<?php
+							try {
+                                if (!class_exists('SplmsViewForum')) {
+                                    require_once JPATH_SITE . '/components/com_splms/views/forum/view.html.php';
+                                }
+                                if (!class_exists('SplmsModelForum')) {
+                                    require_once JPATH_SITE . '/components/com_splms/models/forum.php';
+                                }
+
+                                // Use direct instantiation to avoid Factory issues
+                                $forumModel = new SplmsModelForum();
+                                $forumView = new SplmsViewForum(['model' => $forumModel]);
+                                $forumView->setModel($forumModel, true); // Explicitly set as default model
+                                
+                                // Ensure the view knows which course we are in
+                                // The view 'display' method reads 'id' from input, which corresponds to course_id here
+                                $forumView->display();
+							} catch (Exception $e) {
+								echo '<div class="alert alert-danger">Erro ao carregar o fórum: ' . $e->getMessage() . '</div>';
+							}
+							?>
+						</div>
+					<?php endif; ?>
+
+
 				<?php } ?>
 
 				<!-- Has teacher -->

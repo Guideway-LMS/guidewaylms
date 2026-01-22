@@ -12,6 +12,11 @@ use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\Factory;
+
+// GUIDEWAY CUSTOM - 2025-11-11 - Joshua - Carregar sistema de progresso
+$document = Factory::getDocument();
+$document->addScript(JURI::root() . 'components/com_splms/assets/js/lesson-progress.js');
 
 ?>
 

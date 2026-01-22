@@ -109,7 +109,19 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
-		
+
+		<field type="spacer" hr="true" />
+    <field
+        name="percentual_minimo_conclusao"
+        type="number"
+        default="90"
+        label="Percentual mínimo para conclusão (%)"
+        description="Defina a porcentagem do vídeo que o aluno deve assistir para marcar a aula como concluída automaticamente."
+        min="0"
+        max="100"
+        step="1"
+        filter="integer"
+    />		
 	</fieldset>
 
 	<fieldset name="media" label="COM_SPLMS_FIELDSET_IMAGE_LABEL">
@@ -172,6 +184,11 @@
 		<field name="certificate_logo" type="media" label="COM_SPLMS_FIELDSET_CERTIFICATE_LOGO_LABEL" description="" />
 		<field name="certificate_prefix" type="text" label="COM_SPLMS_CERTIFICATE_NO_PREFIX" description="" />
 		<field name="organization" type="text" label="COM_SPLMS_ORGANIZATION" description="" />
+	</fieldset>
+
+	<fieldset name="api_config" label="COM_SPLMS_FIELDSET_API_LABEL">
+		<field name="groq_api_key" type="password" label="COM_SPLMS_GROQ_API_KEY" description="COM_SPLMS_GROQ_API_KEY_DESC" filter="string" />
+		<field name="groq_api_note" type="note" description="COM_SPLMS_GROQ_API_NOTE" />
 	</fieldset>
 
 	<fieldset name="social_share" label="COM_SPLMS_FIELDSET_SOCIAL_SHARE">

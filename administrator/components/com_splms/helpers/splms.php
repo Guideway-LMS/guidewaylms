@@ -135,6 +135,15 @@ class SplmsHelper {
 		
 		if (in_array(7, $groups) || in_array(8, $groups) || $is_admin) {
 			JHtmlSidebar::addEntry(
+				'Fórum de Dúvidas',
+				'index.php?option=com_splms&view=forums',
+				$submenu == 'forums',
+                'comments'
+			);
+		}
+
+		if (in_array(7, $groups) || in_array(8, $groups) || $is_admin) {
+			JHtmlSidebar::addEntry(
 				Text::_('COM_SPLMS_ORDERS'),
 				'index.php?option=com_splms&view=orders',
 				$submenu == 'orders'

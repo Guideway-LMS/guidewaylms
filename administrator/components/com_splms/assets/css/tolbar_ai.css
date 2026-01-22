@@ -1,0 +1,70 @@
+#guideway-ai-toolbar {
+    margin-bottom: 15px;
+    padding: 20px 0;
+    border-radius: 6px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 10px;
+}
+
+#guideway-ai-toolbar p {
+    margin-right: 25px;
+}
+
+#guideway-ai-toolbar .btn-group {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#div-gw-ai-loading {
+    width: 100%;
+    display: flex;
+    gap: 27%;
+    margin-bottom: 15px;
+}
+
+
+.container_vazio1 {
+    width: 30%;
+}
+
+.container_vazio2 {
+    height: 40px;
+}
+
+#gw-ai-loading {
+    display: none;
+}
+
+body.theme-light #gw-ai-loading {
+    color: #333;
+}
+
+body.theme-dark #gw-ai-loading {
+    color: #ccc;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    #guideway-ai-toolbar .btn-group .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    #guideway-ai-toolbar {
+        flex-direction: column;
+    }
+
+    #div-gw-ai-loading{
+        flex-direction: column;
+    }
+
+    .container_vazio2 {
+    text-align: center;
+}
+} 
