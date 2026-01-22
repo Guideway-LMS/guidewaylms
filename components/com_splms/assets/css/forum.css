@@ -1,0 +1,73 @@
+/* Forum Container */
+.splms-forum-container {
+    padding: 20px 0;
+}
+
+/* Stats Box (Stack Overflow Style) */
+.stats-col {
+    display: flex;
+    flex-direction: column;
+    width: 60px;
+    font-size: 12px;
+    color: #6a737c;
+}
+
+.stat-box {
+    padding: 6px 0;
+    text-align: center;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    margin-bottom: 5px;
+}
+
+.stat-box .count {
+    display: block;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.stat-box.has-answers {
+    border: 1px solid #5eba7d;
+    color: #5eba7d;
+}
+
+/* Se tiver resposta aceita (opcional, pode ser usado se tiver flag na pergunta)
+.stat-box.accepted {
+    background-color: #5eba7d;
+    color: #fff;
+    border: 1px solid #5eba7d;
+}
+*/
+
+/* Question List */
+.question-card .card-title a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.question-card .card-title a:hover {
+    color: #0056b3;
+}
+
+/* Answer Card */
+.answer-card.is-accepted {
+    background-color: #f0fdf4; /* Light green bg */
+    border-color: #5eba7d;
+    box-shadow: 0 0 5px rgba(94, 186, 125, 0.4);
+}
+
+.accepted-badge {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Utilities */
+.text-muted {
+    color: #6c757d !important;
+}
+
+.small {
+    font-size: 0.875em;
+}

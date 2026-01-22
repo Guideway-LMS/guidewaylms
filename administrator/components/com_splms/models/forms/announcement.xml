@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="details" addfieldpath="/administrator/components/com_splms/models/fields">
+
+        <field
+            name="id"
+            type="hidden"
+        />
+
+        <field
+            name="title"
+            type="text"
+            label="COM_SPLMS_ANNOUNCEMENT_TITLE_LABEL"
+            description="COM_SPLMS_ANNOUNCEMENT_TITLE_DESC"
+            class="input-xlarge"
+            size="40"
+            required="true"
+        />
+
+        <field
+            name="message"
+            type="editor"
+            label="COM_SPLMS_ANNOUNCEMENT_MESSAGE_LABEL"
+            description="COM_SPLMS_ANNOUNCEMENT_MESSAGE_DESC"
+            class="input-xlarge"
+            rows="10"
+            required="true"
+            filter="safehtml"
+        />
+
+        <field
+            name="course_id"
+            type="sql"
+            label="COM_SPLMS_ANNOUNCEMENT_COURSE_LABEL"
+            description="COM_SPLMS_ANNOUNCEMENT_COURSE_DESC"
+            query="SELECT id, title FROM #__splms_courses WHERE published = 1 ORDER BY title"
+            key_field="id"
+            value_field="title"
+            required="true"
+        >
+            <option value="">COM_SPLMS_SELECT_COURSE</option>
+        </field>
+
+    </fieldset>
+
+    <fieldset name="hidden">
+        <field
+            name="created_by"
+            type="hidden"
+            default="0"
+        />
+        <field
+            name="created_at"
+            type="hidden"
+            default="0"
+        />
+    </fieldset>
+</form>

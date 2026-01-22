@@ -1,0 +1,145 @@
+/* Container para notificações - Fixo no topo à direita */
+#gw-notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    /* Permite clicar através da área do container */
+}
+
+/* Cartão de Notificação Individual */
+.gw-notification {
+    display: flex;
+    align-items: flex-start;
+    width: 350px;
+    padding: 16px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    pointer-events: auto;
+    /* Reativa cliques no cartão */
+    opacity: 0;
+    transform: translateX(50px);
+    animation: gw-slide-in 0.3s forwards ease-out;
+    border-left: 6px solid #ccc;
+    position: relative;
+    overflow: hidden;
+}
+
+.gw-notification.gw-hiding {
+    animation: gw-slide-out 0.3s forwards ease-in;
+}
+
+/* Variantes */
+.gw-notification.gw-success {
+    background-color: #d4edda;
+    border-left-color: #28a745;
+    color: #155724;
+}
+
+.gw-notification.gw-error {
+    background-color: #f8d7da;
+    border-left-color: #dc3545;
+    color: #721c24;
+}
+
+.gw-notification.gw-warning {
+    background-color: #fff3cd;
+    border-left-color: #ffc107;
+    color: #856404;
+}
+
+.gw-notification.gw-info {
+    background-color: #d1ecf1;
+    border-left-color: #17a2b8;
+    color: #0c5460;
+}
+
+/* Área do ícone */
+.gw-notification-icon {
+    margin-right: 12px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-top: 2px;
+}
+
+/* Área de conteúdo */
+.gw-notification-content {
+    flex: 1;
+}
+
+.gw-notification-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: block;
+    text-transform: capitalize;
+}
+
+/* Botão fechar */
+.gw-notification-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    color: inherit;
+    opacity: 0.6;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+}
+
+.gw-notification-close:hover {
+    opacity: 1;
+}
+
+/* Ícones usando fallback simples de caracteres CSS/Texto se FontAwesome não estiver presente, 
+   mas classes específicas podem adicionar ícones reais posteriormente */
+.gw-icon-success:before {
+    content: '✔';
+}
+
+.gw-icon-error:before {
+    content: '✖';
+}
+
+.gw-icon-warning:before {
+    content: '⚠';
+}
+
+.gw-icon-info:before {
+    content: 'ℹ';
+}
+
+/* Animações */
+@keyframes gw-slide-in {
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes gw-slide-out {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+        max-height: 0;
+        margin: 0;
+        padding: 0;
+    }
+}

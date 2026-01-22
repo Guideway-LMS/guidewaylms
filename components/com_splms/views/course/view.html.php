@@ -180,6 +180,15 @@ class SplmsViewCourse extends HtmlView
         	$itemMeta['image']      = Uri::base() . $this->item->image;
         }
         SplmsHelper::itemMeta($itemMeta);
+
+		// Carrega o Model de Avisos
+		BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models');
+		$annModel = BaseDatabaseModel::getInstance('Announcements', 'SplmsModel');
+
+		// Obtém os avisos
+		$this->announcements = $annModel->getItems();
+
+
 		parent::display($tpl);
 	}
 	

@@ -16,10 +16,8 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
-// GUIDEWAY CUSTOM - 2025-11-12 - Joshua - Carregar barra de progresso
-$document = Factory::getDocument();
-$document->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
 
 HTMLHelper::_('jquery.framework');
 $input = Factory::getApplication()->input;
@@ -28,20 +26,6 @@ $user = Factory::getUser();
 ?>
 
 <div id="splms" class="splms view-splms-course course-details">
-	<div id="splms" class="...">
-
-	<!-- GUIDEWAY CUSTOM - 2025-11-12 - Joshua - Barra de Progresso Visual -->
-	<div class="course-progress-container" style="margin: 20px auto; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px;">
-		<h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px;">📚 Seu Progresso no Curso</h3>
-		<div style="text-align: center; font-size: 50px; margin: 20px 0;" id="progress-emoji">📝</div>
-		<div style="width: 100%; height: 35px; background: #e0e0e0; border-radius: 20px; position: relative; overflow: hidden; margin: 20px 0;">
-			<div id="course-progress-bar" style="height: 100%; background: linear-gradient(90deg, #4CAF50, #45a049); border-radius: 20px; width: 0%; transition: width 0.8s ease;"></div>
-			<div style="position: absolute; width: 100%; text-align: center; line-height: 35px; font-weight: bold; color: #333; top: 0; font-size: 14px;" id="course-progress-text">Carregando...</div>
-		</div>
-		<div style="text-align: center; color: #666; margin-top: 15px; font-size: 16px;" id="progress-message">Buscando...</div>
-	</div>
-
-	<!-- resto do conteúdo -->
 	<div class="splms-course">
 		<div class="splms-course-details-title">
 			<h2 class="course-title">
@@ -163,6 +147,50 @@ $user = Factory::getUser();
 							</ul>
 						<?php } ?>
 					</div>
+
+					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
+						<div class="splms-course-announcements splms-section">
+							<h3 class="splms-title">Mural de Avisos</h3>
+
+							<?php
+								echo LayoutHelper::render(
+									'announcements.list',
+									['items' => $this->announcements]
+								);
+							?>
+						</div>
+					<?php endif; ?>
+
+
+					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
+						<div class="splms-course-forum splms-section">
+							<h3 class="splms-title">Fórum de Dúvidas</h3>
+							
+							<?php
+							try {
+                                if (!class_exists('SplmsViewForum')) {
+                                    require_once JPATH_SITE . '/components/com_splms/views/forum/view.html.php';
+                                }
+                                if (!class_exists('SplmsModelForum')) {
+                                    require_once JPATH_SITE . '/components/com_splms/models/forum.php';
+                                }
+
+                                // Use direct instantiation to avoid Factory issues
+                                $forumModel = new SplmsModelForum();
+                                $forumView = new SplmsViewForum(['model' => $forumModel]);
+                                $forumView->setModel($forumModel, true); // Explicitly set as default model
+                                
+                                // Ensure the view knows which course we are in
+                                // The view 'display' method reads 'id' from input, which corresponds to course_id here
+                                $forumView->display();
+							} catch (Exception $e) {
+								echo '<div class="alert alert-danger">Erro ao carregar o fórum: ' . $e->getMessage() . '</div>';
+							}
+							?>
+						</div>
+					<?php endif; ?>
+
+
 				<?php } ?>
 
 				<!-- Has teacher -->

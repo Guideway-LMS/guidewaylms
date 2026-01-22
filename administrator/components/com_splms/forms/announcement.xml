@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="details">
+        
+        <field
+            name="id"
+            type="hidden"
+        />
+
+        <field
+            name="title"
+            type="text"
+            label="COM_SPLMS_ANNOUNCEMENT_TITLE_LABEL"
+            description="COM_SPLMS_ANNOUNCEMENT_TITLE_DESC"
+            required="true"
+            size="40"
+            class="input-xxlarge"
+        />
+
+        <field
+            name="message"
+            type="editor"
+            label="COM_SPLMS_ANNOUNCEMENT_MESSAGE_LABEL"
+            description="COM_SPLMS_ANNOUNCEMENT_MESSAGE_DESC"
+            required="true"
+            filter="safehtml"
+            buttons="true"
+            hide="pagebreak,readmore"
+            class="input-xxlarge"
+        />
+
+
+        <field
+            name="course_id"
+            type="sql"
+            label="COM_SPLMS_ANNOUNCEMENT_COURSE_LABEL"
+            description="COM_SPLMS_ANNOUNCEMENT_COURSE_DESC"
+            query="SELECT id, title FROM #__splms_courses ORDER BY title"
+            key_field="id"
+            value_field="title"
+            required="true"
+        >
+            <option value="">COM_SPLMS_SELECT_COURSE</option>
+        </field>
+
+    </fieldset>
+
+    <fieldset name="publish">
+
+        <field
+            name="published"
+            type="list"
+            label="JSTATUS"
+            description="JFIELD_PUBLISHED_DESC"
+            class="form-select-color-state"
+            size="1"
+            default="1"
+            >
+            <option value="1">JPUBLISHED</option>
+            <option value="0">JUNPUBLISHED</option>
+            <option value="2">JARCHIVED</option>
+            <option value="-2">JTRASHED</option>
+        </field>
+        
+        <field
+            name="access"
+            type="accesslevel"
+            label="JFIELD_ACCESS_LABEL"
+            description="JFIELD_ACCESS_DESC"
+            class="input-medium"
+        />
+
+        <field
+            name="created_by"
+            type="user"
+            label="JAUTHOR"
+            readonly="true"
+            filter="unset"
+        />
+
+        <field
+            name="created_at"
+            type="calendar"
+            label="JGLOBAL_FIELD_CREATED_LABEL"
+            readonly="true"
+            format="%Y-%m-%d %H:%M:%S"
+            filter="unset"
+            type="hidden"
+            default="0"
+        />
+
+    </fieldset>
+</form>
