@@ -12,6 +12,16 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Factory;
 
 $user = Factory::getUser();
+$user = Factory::getUser();
+
+// Basic CSS for voting
+Factory::getDocument()->addStyleDeclaration('
+    .vote-section .vote-btn { color: #ccc; }
+    .vote-section .vote-btn:hover { color: #666; }
+    .vote-section .vote-btn.upvote.active { color: #28a745; } /* Green */
+    .vote-section .vote-btn.downvote.active { color: #dc3545; } /* Red */
+    .vote-section .vote-count { display: block; text-align: center; }
+');
 ?>
 
 <div class="splms-forum-container">
@@ -28,6 +38,14 @@ $user = Factory::getUser();
 				em <?php echo HTMLHelper::_('date', $this->item->created_on, 'd/m/Y H:i'); ?>
 			</small>
             
+            <?php if (!empty($this->item->tags)): ?>
+                <div class="mt-2">
+                    <?php foreach (explode(',', $this->item->tags) as $tag): ?>
+                        <span class="badge bg-info text-dark me-1"><?php echo trim($this->escape($tag)); ?></span>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            
             <?php if (($user->id == $this->item->user_id) || $user->authorise('core.admin')): ?>
                 <div class="float-end" style="float: right;">
                     <a href="<?php echo Route::_('index.php?option=com_splms&view=forum&layout=edit&id=' . $this->item->id); ?>" 
@@ -42,8 +60,25 @@ $user = Factory::getUser();
                 </div>
             <?php endif; ?>
 		</div>
-		<div class="card-body">
-			<?php echo $this->item->body; // Cuidado com XSS se não for trusted, mas aqui assumimos conteúdo user-generated permitido ?>
+		<div class="card-body d-flex">
+            <!-- Vote Section Question -->
+            <div class="vote-section me-3 d-flex flex-column align-items-center" style="min-width: 40px;">
+                <button type="button" class="btn btn-link p-0 text-decoration-none vote-btn upvote <?php echo ($this->item->user_vote == 1) ? 'active' : ''; ?>" 
+                        onclick="splmsVote(<?php echo $this->item->id; ?>, 'question', 1, this)">
+                    <i class="fa fa-thumbs-up fa-2x"></i>
+                </button>
+                <span class="vote-count-up fs-5 fw-bold text-success"><?php echo (int)$this->item->upvotes; ?></span>
+                
+                <button type="button" class="btn btn-link p-0 text-decoration-none vote-btn downvote mt-2 <?php echo ($this->item->user_vote == -1) ? 'active' : ''; ?>" 
+                        onclick="splmsVote(<?php echo $this->item->id; ?>, 'question', -1, this)">
+                    <i class="fa fa-thumbs-down fa-2x"></i>
+                </button>
+                <span class="vote-count-down fs-5 fw-bold text-danger"><?php echo (int)$this->item->downvotes; ?></span>
+            </div>
+            
+            <div class="flex-grow-1">
+			    <?php echo $this->item->body; // Cuidado com XSS se não for trusted, mas aqui assumimos conteúdo user-generated permitido ?>
+            </div>
 		</div>
 	</div>
 
@@ -60,9 +95,26 @@ $user = Factory::getUser();
 						</div>
 					<?php endif; ?>
 					
-					<div class="answer-body">
-						<?php echo $answer->body; ?>
-					</div>
+					<div class="d-flex">
+                        <!-- Vote Section Answer -->
+                        <div class="vote-section me-3 d-flex flex-column align-items-center" style="min-width: 40px;">
+                            <button type="button" class="btn btn-link p-0 text-decoration-none vote-btn upvote <?php echo ($answer->user_vote == 1) ? 'active' : ''; ?>" 
+                                    onclick="splmsVote(<?php echo $answer->id; ?>, 'answer', 1, this)">
+                                <i class="fa fa-thumbs-up fa-2x"></i>
+                            </button>
+                            <span class="vote-count-up fs-5 fw-bold text-success"><?php echo (int)$answer->upvotes; ?></span>
+                            
+                            <button type="button" class="btn btn-link p-0 text-decoration-none vote-btn downvote mt-2 <?php echo ($answer->user_vote == -1) ? 'active' : ''; ?>" 
+                                    onclick="splmsVote(<?php echo $answer->id; ?>, 'answer', -1, this)">
+                                <i class="fa fa-thumbs-down fa-2x"></i>
+                            </button>
+                            <span class="vote-count-down fs-5 fw-bold text-danger"><?php echo (int)$answer->downvotes; ?></span>
+                        </div>
+
+                        <div class="answer-body flex-grow-1">
+                            <?php echo $answer->body; ?>
+                        </div>
+                    </div>
 					
 					<div class="text-end text-muted small mt-2 d-flex justify-content-between align-items-center">
                         <div>
@@ -106,7 +158,7 @@ $user = Factory::getUser();
 			<div class="card-body">
 				<form action="<?php echo Route::_('index.php?option=com_splms'); ?>" method="post">
 					<div class="mb-3">
-						<textarea class="form-control" name="body" rows="6" required placeholder="Escreva sua solução aqui details..."></textarea>
+						<?php echo \Joomla\CMS\Editor\Editor::getInstance(Factory::getConfig()->get('editor'))->display('body', '', '100%', '300', '60', '20', false); ?>
 					</div>
 					<input type="hidden" name="task" value="forum.saveAnswer" />
 					<input type="hidden" name="question_id" value="<?php echo $this->item->id; ?>" />
@@ -119,3 +171,43 @@ $user = Factory::getUser();
 		<div class="alert alert-warning mt-4">Faça login para responder.</div>
 	<?php endif; ?>
 </div>
+
+<script>
+function splmsVote(itemId, itemType, value, btn) {
+    const url = 'index.php?option=com_splms&task=forum.vote';
+    const data = new FormData();
+    data.append('item_id', itemId);
+    data.append('item_type', itemType);
+    data.append('value', value);
+    
+    fetch(url, {
+        method: 'POST',
+        body: data
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const container = btn.closest('.vote-section');
+            if (container) {
+                container.querySelector('.vote-count-up').textContent = data.upvotes;
+                container.querySelector('.vote-count-down').textContent = data.downvotes;
+                
+                const upBtn = container.querySelector('.upvote');
+                const downBtn = container.querySelector('.downvote');
+                
+                upBtn.classList.remove('active');
+                downBtn.classList.remove('active');
+                
+                if (data.user_vote == 1) upBtn.classList.add('active');
+                if (data.user_vote == -1) downBtn.classList.add('active');
+            }
+        } else {
+            alert(data.message || 'Erro ao votar.');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Erro de conexão.');
+    });
+}
+</script>

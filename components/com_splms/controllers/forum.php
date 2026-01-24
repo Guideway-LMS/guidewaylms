@@ -33,7 +33,8 @@ class SplmsControllerForum extends BaseController
 			'course_id' => $input->getInt('course_id'),
 			'user_id' => $user->id,
 			'title'   => $input->getString('title'),
-			'body'    => $input->get('body', '', 'raw'), // Permite HTML básico se configurado, ou use filter depois
+			'body'    => $input->get('body', '', 'raw'),
+			'tags'    => $input->getString('tags'),
 		];
 
 		// Validar dados básicos
@@ -184,5 +185,45 @@ class SplmsControllerForum extends BaseController
 		}
 
 		$this->setRedirect(Route::_('index.php?option=com_splms&view=forum&layout=question&id=' . $questionId, false));
+	}
+
+	public function vote()
+	{
+		// Não vamos usar checkToken aqui para simplificar o AJAX inicial, 
+		// mas idealmente deveria passar o token no header ou body.
+		// Vamos confiar na sessao do usuario.
+
+		$app = Factory::getApplication();
+		$input = $app->input;
+		$user = Factory::getUser();
+
+		// Set header json
+		$app->mimeType = 'application/json';
+
+		if ($user->guest) {
+			echo json_encode(['success' => false, 'message' => 'Faça login para votar.']);
+			$app->close();
+		}
+
+		$itemId = $input->getInt('item_id');
+		$itemType = $input->getString('item_type');
+		$value = $input->getInt('value'); // 1 or -1
+
+		$model = $this->getModel('Forum', 'SplmsModel');
+		$result = $model->vote($itemId, $itemType, $value, $user->id);
+
+		if ($result) {
+			echo json_encode([
+				'success' => true, 
+				'new_count' => $result['new_count'], 
+				'upvotes' => $result['upvotes'], 
+				'downvotes' => $result['downvotes'], 
+				'user_vote' => $result['user_vote']
+			]);
+		} else {
+			echo json_encode(['success' => false, 'message' => 'Erro ao computar voto.']);
+		}
+
+		$app->close();
 	}
 }

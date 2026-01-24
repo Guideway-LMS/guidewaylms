@@ -56,7 +56,12 @@ use Joomla\CMS\Uri\Uri;
                     </div>
                     <div class="mb-3">
                         <label for="body" class="form-label">Detalhes</label>
-                        <textarea class="form-control" id="body" name="body" rows="3" required placeholder="Descreva com mais detalhes..."></textarea>
+                        <label for="body" class="form-label">Detalhes</label>
+                        <?php echo \Joomla\CMS\Editor\Editor::getInstance(Factory::getConfig()->get('editor'))->display('body', '', '100%', '300', '60', '20', false); ?>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Tags</label>
+                        <input type="text" class="form-control" id="tags" name="tags" placeholder="Ex: PHP, SQL, Design (separados por vírgula)">
                     </div>
                     <input type="hidden" name="task" value="forum.save" />
                     <input type="hidden" name="course_id" value="<?php echo $this->courseId; ?>" />
@@ -114,6 +119,15 @@ use Joomla\CMS\Uri\Uri;
                                     </div>
                                 <?php endif; ?>
 							</h4>
+                            
+                            <?php if (!empty($item->tags)): ?>
+                                <div class="mb-1">
+                                    <?php foreach (explode(',', $item->tags) as $tag): ?>
+                                        <span class="badge bg-info text-dark me-1" style="font-size: 0.7em;"><?php echo trim($this->escape($tag)); ?></span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+
 							<p class="card-text text-muted small">
 								Por <?php echo $this->escape((string) $item->author_name); ?> 
                                 em <?php echo HTMLHelper::_('date', (string) $item->created_on, 'd/m/Y H:i'); ?>
