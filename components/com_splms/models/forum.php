@@ -49,6 +49,7 @@ class SplmsModelForum extends ItemModel
 				->update($db->quoteName('#__splms_forum_questions'))
 				->set($db->quoteName('title') . ' = ' . $db->quote($data['title']))
 				->set($db->quoteName('body') . ' = ' . $db->quote($data['body']))
+				->set($db->quoteName('tags') . ' = ' . $db->quote($data['tags']))
 				->where($db->quoteName('id') . ' = ' . $id);
 				
 			$db->setQuery($query);
@@ -58,12 +59,13 @@ class SplmsModelForum extends ItemModel
 			// INSERT
 			$query = $db->getQuery(true);
 			
-			$columns = array('user_id', 'course_id', 'title', 'body', 'created_on');
+			$columns = array('user_id', 'course_id', 'title', 'body', 'tags', 'created_on');
 			$values = array(
 				(int) $data['user_id'],
 				(int) $data['course_id'],
 				$db->quote($data['title']),
 				$db->quote($data['body']),
+				$db->quote($data['tags']),
 				$db->quote(Factory::getDate()->toSql())
 			);
 			
@@ -119,7 +121,9 @@ class SplmsModelForum extends ItemModel
 		$db = Factory::getDbo();
 		$query = $db->getQuery(true);
 
-		$query->select('q.*, u.name as author_name, COUNT(a.id) as total_answers')
+		$query->select('q.*, u.name as author_name, COUNT(a.id) as total_answers, ' .
+			'(SELECT COUNT(*) FROM #__splms_forum_votes WHERE item_id = q.id AND item_type = ' . $db->quote('question') . ' AND vote = 1) AS upvotes, ' .
+			'(SELECT COUNT(*) FROM #__splms_forum_votes WHERE item_id = q.id AND item_type = ' . $db->quote('question') . ' AND vote = -1) AS downvotes')
 			->from($db->quoteName('#__splms_forum_questions', 'q'))
 			->join('LEFT', $db->quoteName('#__users', 'u') . ' ON q.user_id = u.id')
 			->join('LEFT', $db->quoteName('#__splms_forum_answers', 'a') . ' ON q.id = a.question_id')
@@ -191,9 +195,16 @@ class SplmsModelForum extends ItemModel
 		$db = Factory::getDbo();
 		$query = $db->getQuery(true);
 
-		$query->select('q.*, u.name as author_name')
+		$user = Factory::getUser();
+		$userId = $user->id;
+
+		$query->select('q.*, u.name as author_name, v.vote as user_vote, ' .
+				'(SELECT COUNT(*) FROM #__splms_forum_votes WHERE item_id = q.id AND item_type = ' . $db->quote('question') . ' AND vote = 1) AS upvotes, ' .
+				'(SELECT COUNT(*) FROM #__splms_forum_votes WHERE item_id = q.id AND item_type = ' . $db->quote('question') . ' AND vote = -1) AS downvotes')
 			->from($db->quoteName('#__splms_forum_questions', 'q'))
 			->join('LEFT', $db->quoteName('#__users', 'u') . ' ON q.user_id = u.id')
+			->join('LEFT', $db->quoteName('#__splms_forum_votes', 'v') . 
+				' ON q.id = v.item_id AND v.item_type = ' . $db->quote('question') . ' AND v.user_id = ' . (int)$userId)
 			->where('q.id = ' . (int) $id);
 
 		$db->setQuery($query);
@@ -225,9 +236,16 @@ class SplmsModelForum extends ItemModel
 		$db = Factory::getDbo();
 		$query = $db->getQuery(true);
 
-		$query->select('a.*, u.name as author_name')
+		$user = Factory::getUser();
+		$userId = $user->id;
+
+		$query->select('a.*, u.name as author_name, v.vote as user_vote, ' .
+				'(SELECT COUNT(*) FROM #__splms_forum_votes WHERE item_id = a.id AND item_type = ' . $db->quote('answer') . ' AND vote = 1) AS upvotes, ' .
+				'(SELECT COUNT(*) FROM #__splms_forum_votes WHERE item_id = a.id AND item_type = ' . $db->quote('answer') . ' AND vote = -1) AS downvotes')
 			->from($db->quoteName('#__splms_forum_answers', 'a'))
 			->join('LEFT', $db->quoteName('#__users', 'u') . ' ON a.user_id = u.id')
+			->join('LEFT', $db->quoteName('#__splms_forum_votes', 'v') . 
+				' ON a.id = v.item_id AND v.item_type = ' . $db->quote('answer') . ' AND v.user_id = ' . (int)$userId)
 			->where('a.question_id = ' . (int) $questionId)
 			->order('a.is_accepted DESC, a.created_on ASC'); // Respondidas primeiro, depois por data
 
@@ -329,5 +347,99 @@ class SplmsModelForum extends ItemModel
 
 		$db->setQuery("DELETE FROM #__splms_forum_answers WHERE id=".(int)$id);
 		return $db->execute();
+	}
+
+	/**
+	 * Processa um voto (toggle).
+	 * Retorna array com 'new_count' e 'user_vote' (1, -1 ou 0).
+	 */
+	public function vote($itemId, $itemType, $value, $userId)
+	{
+		if (!in_array($itemType, ['question', 'answer'])) return false;
+		if (!in_array($value, [1, -1])) return false;
+
+		$db = Factory::getDbo();
+		
+		// 1. Check existing vote
+		$query = $db->getQuery(true)
+			->select('*')
+			->from($db->quoteName('#__splms_forum_votes'))
+			->where('user_id = ' . (int) $userId)
+			->where('item_id = ' . (int) $itemId)
+			->where('item_type = ' . $db->quote($itemType));
+		$db->setQuery($query);
+		$existing = $db->loadObject();
+
+		$finalVote = 0;
+
+		if ($existing) {
+			if ($existing->vote == $value) {
+				// Clicou no mesmo -> Remove voto
+				$query = $db->getQuery(true)
+					->delete($db->quoteName('#__splms_forum_votes'))
+					->where('id = ' . (int) $existing->id);
+				$db->setQuery($query);
+				$db->execute();
+				$finalVote = 0;
+			} else {
+				// Mudou o voto
+				$query = $db->getQuery(true)
+					->update($db->quoteName('#__splms_forum_votes'))
+					->set('vote = ' . (int) $value)
+					->where('id = ' . (int) $existing->id);
+				$db->setQuery($query);
+				$db->execute();
+				$finalVote = $value;
+			}
+		} else {
+			// Novo voto
+			$query = $db->getQuery(true)
+				->insert($db->quoteName('#__splms_forum_votes'))
+				->columns($db->quoteName(['user_id', 'item_id', 'item_type', 'vote', 'created_on']))
+				->values(implode(',', [
+					(int) $userId,
+					(int) $itemId,
+					$db->quote($itemType),
+					(int) $value,
+					$db->quote(Factory::getDate()->toSql())
+				]));
+			$db->setQuery($query);
+			$db->execute();
+			$finalVote = $value;
+		}
+
+		// 2. Recalculate upvotes and downvotes
+		// Upvotes
+		$query = $db->getQuery(true)
+			->select('COUNT(*)')
+			->from($db->quoteName('#__splms_forum_votes'))
+			->where('item_id = ' . (int) $itemId)
+			->where('item_type = ' . $db->quote($itemType))
+			->where('vote = 1');
+		$db->setQuery($query);
+		$upvotes = (int) $db->loadResult();
+
+		// Downvotes
+		$query = $db->getQuery(true)
+			->select('COUNT(*)')
+			->from($db->quoteName('#__splms_forum_votes'))
+			->where('item_id = ' . (int) $itemId)
+			->where('item_type = ' . $db->quote($itemType))
+			->where('vote = -1');
+		$db->setQuery($query);
+		$downvotes = (int) $db->loadResult();
+		
+		$totalVotes = $upvotes - $downvotes; // Net score stored in DB column 'votes'
+
+		// 3. Update item table
+		$table = ($itemType == 'question') ? '#__splms_forum_questions' : '#__splms_forum_answers';
+		$query = $db->getQuery(true)
+			->update($db->quoteName($table))
+			->set('votes = ' . $totalVotes)
+			->where('id = ' . (int) $itemId);
+		$db->setQuery($query);
+		$db->execute();
+
+		return ['new_count' => $totalVotes, 'upvotes' => $upvotes, 'downvotes' => $downvotes, 'user_vote' => $finalVote];
 	}
 }
