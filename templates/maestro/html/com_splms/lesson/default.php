@@ -54,6 +54,13 @@ if ($userId && !empty($this->item->course_id)) {
     }
 }
 $this->completedLessons = $completedLessons;
+<<<<<<< Updated upstream
+=======
+
+//echo '<pre>';
+//var_dump($completedLessons);
+//echo '</pre>';
+>>>>>>> Stashed changes
 
 $doc->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
 $doc->addScript(Uri::root() . 'media/gw-progress-alert/js/alerta-conclusao.js');
@@ -126,7 +133,14 @@ window.SPLMS_CONTEXT = {
     <div class="col-md-7">
       <div class="splms-lesson-video-wrapper">
 
+<<<<<<< Updated upstream
         <?php if (isset($this->item->lesson_format) && ($this->item->lesson_format === 'assignment' || $this->item->lesson_format === 'trabalho')) : ?>
+=======
+        <?php 
+        // LÓGICA DE DECISÃO: É TRABALHO OU VÍDEO?
+        if ((int) $this->item->lesson_type === 2) : 
+        ?>
+>>>>>>> Stashed changes
             <div style="margin-bottom: 25px;">
                 <h2 style="font-weight: 700; color: #1e293b; margin: 0; font-size: 28px;">
                     <i class="fa fa-cloud-upload" style="color: #4CAF50; margin-right: 10px;"></i> Envio de Trabalho
@@ -233,10 +247,29 @@ window.SPLMS_CONTEXT = {
     </div>
   </div>
 
+<<<<<<< Updated upstream
   <div class="splms-lesson-completed-lesson-wrapper" <?php if (isset($this->item->course_id)) : ?> data-course-id="<?php echo (int) $this->item->course_id; ?>" <?php endif; ?> >
     <?php if (!isset($this->item->lesson_format) || $this->item->lesson_format !== 'assignment') : ?>
         <?php if ($this->user->guest) { $link = base64_encode(Uri::getInstance()->toString()); $login_link = Route::_('index.php?option=com_users&view=login' . SplmsHelper::getItemid('login') . '&return=' . $link); ?>
           <a class="btn btn-primary" href="<?php echo $login_link; ?>"><?php echo Text::_('COM_SPLMS_LOGIN_TO_COMPLETE'); ?></a>
+=======
+  <div class="splms-lesson-completed-lesson-wrapper"
+    <?php if (isset($this->item->course_id)) : ?>
+          data-course-id="<?php echo (int) $this->item->course_id; ?>"
+     <?php endif; ?> 
+    >
+    
+    <?php 
+    if ((int) $this->item->lesson_type !== 2) : 
+    ?>
+        <?php if ($this->user->guest) {
+          $link =  base64_encode(Uri::getInstance()->toString());
+          $login_link = Route::_('index.php?option=com_users&view=login' . SplmsHelper::getItemid('login') . '&return=' . $link);
+        ?>
+          <a class="btn btn-primary" href="<?php echo $login_link; ?>">
+            <?php echo Text::_('COM_SPLMS_LOGIN_TO_COMPLETE'); ?>
+          </a>
+>>>>>>> Stashed changes
         <?php } elseif (!$this->has_complete_lesson) { ?>
           <form id="splms-completed-item-form"><input type="hidden" name="user_id" value="<?php echo $this->user->id; ?>"><input type="hidden" name="item_id" value="<?php echo $this->item->id; ?>"><input type="hidden" name="item_type" value="lesson"><input type="hidden" name="course_id" value="<?php echo isset($this->item->course_id) ? (int) $this->item->course_id : ''; ?>"><a class="btn btn-primary" id="splms-completed-item" href="#"><?php echo Text::_('COM_SPLMS_LESSON_COMPLETE'); ?></a></form>
         <?php } else { ?>
