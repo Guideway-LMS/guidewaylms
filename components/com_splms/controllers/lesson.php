@@ -10,10 +10,10 @@ defined('_JEXEC') or die('Restricted Access');
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Session\Session;
 use Joomla\CMS\MVC\Controller\FormController;
-use Joomla\CMS\Filesystem\File; // Importante para manipular o arquivo
-use Joomla\CMS\Router\Route;    // Importante para redirecionar
+use Joomla\CMS\Filesystem\File;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Filesystem\Path; // Adicionado para garantir compatibilidade
 
 class SplmsControllerLesson extends FormController {
 
@@ -25,9 +25,6 @@ class SplmsControllerLesson extends FormController {
     return parent::getModel($name, $prefix, $config);
   }
 
-  /**
-   * Função existente para completar via botão AJAX
-   */
   public function completeditem() {
     $model  = $this->getModel();
     $user   = Factory::getUser();
@@ -41,8 +38,8 @@ class SplmsControllerLesson extends FormController {
       die();
     }
 
-    $item_id      = $input->post->get('item_id', 0, 'INT');
-    $item_type      = $input->post->get('item_type', NULL, 'STRING');
+    $item_id   = $input->post->get('item_id', 0, 'INT');
+    $item_type = $input->post->get('item_type', NULL, 'STRING');
 
     $output['status'] = false;
     if($item_id && $item_type) {
@@ -55,85 +52,67 @@ class SplmsControllerLesson extends FormController {
     die();
   }
 
-  /**
-   * NOVA FUNÇÃO: Processa o Upload e Marca Progresso
-   */
+  // --- FUNÇÃO DE ENVIO CORRIGIDA ---
   public function submit() {
-      // 1. Verificações de Segurança
       $app   = Factory::getApplication();
       $input = $app->input;
       $user  = Factory::getUser();
 
-      // Checa se está logado
       if ($user->guest) {
           $this->setRedirect('index.php', 'Você precisa estar logado.', 'warning');
           return false;
       }
 
-      // Verifica Token de segurança (CSRF)
       if (!JSession::checkToken()) {
           $this->setRedirect('index.php', 'Token inválido.', 'error');
           return false;
       }
 
-      // 2. Recebe dados do Formulário
-      $course_id = $input->getInt('course_id');
       $lesson_id = $input->getInt('lesson_id');
-      $file      = $input->files->get('uploaded_file'); // Nome do campo no HTML
+      $file      = $input->files->get('uploaded_file');
 
-      // 3. Processa o Arquivo
       if ($file && $file['error'] == 0) {
-          
-          // Define pasta de destino (cria se não existir)
           $uploadDir = JPATH_ROOT . '/images/uploads/submissions/';
           if (!file_exists($uploadDir)) {
               mkdir($uploadDir, 0755, true);
           }
 
-          // Limpa o nome do arquivo e adiciona timestamp para evitar duplicatas
           $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-          $cleanName = JFile::makeSafe(pathinfo($file['name'], PATHINFO_FILENAME));
+          $cleanName = Path::clean(pathinfo($file['name'], PATHINFO_FILENAME)); // Uso seguro do Path
+          $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '', $cleanName); // Limpeza extra
           $newFileName = time() . '_' . $cleanName . '.' . $ext;
           $targetPath = $uploadDir . $newFileName;
           $dbPath = 'images/uploads/submissions/' . $newFileName;
 
-          // Move o arquivo
           if (File::upload($file['tmp_name'], $targetPath)) {
-              
-              // 4. Salva no Banco de Submissões
               $db = Factory::getDbo();
               $query = $db->getQuery(true);
               
-              $columns = array('user_id', 'lesson_id', 'course_id', 'file_path', 'status', 'submitted_at');
+              $columns = array('user_id', 'lesson_id', 'file_path', 'status', 'submitted_at');
               $values  = array(
                   (int) $user->id,
                   (int) $lesson_id,
-                  (int) $course_id,
                   $db->quote($dbPath),
-                  0, // 0 = Pendente, 1 = Aprovado
+                  0, 
                   'NOW()'
               );
 
-              $query->insert($db->quoteName('#__splms_submissions')) // Use o nome correto da tabela do Michael
+              $query->insert($db->quoteName('#__splms_submissions'))
                     ->columns($db->quoteName($columns))
                     ->values(implode(',', $values));
               
               $db->setQuery($query);
+              
               try {
                   $db->execute();
 
-                  // ======================================================
-                  // 5. O SEGREDO DO PROGRESSO ESTÁ AQUI
-                  // ======================================================
-                  // Chama o Model para marcar a lição como concluída na tabela de progresso
                   $model = $this->getModel();
                   $model->completedItem($lesson_id, 'lesson', $user->id); 
-                  // ======================================================
 
-                  // Sucesso! Redireciona para o curso
+                  // Redireciona para a PRÓPRIA LIÇÃO para ver o status
                   $this->setRedirect(
-                      Route::_('index.php?option=com_splms&view=course&id=' . $course_id, false),
-                      'Trabalho enviado com sucesso! Progresso contabilizado.'
+                      Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
+                      'Trabalho enviado com sucesso!'
                   );
                   return true;
 
@@ -148,92 +127,11 @@ class SplmsControllerLesson extends FormController {
           }
       }
 
-      // Erro Genérico no Upload
       $this->setRedirect(
           Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-          'Erro ao fazer upload do arquivo. Tente novamente.',
+          'Erro no upload do arquivo.',
           'error'
       );
       return false;
   }
-
-	/**
-	 * Endpoint AJAX para processamento de texto via IA
-	 * 
-	 * Recebe texto e ação do frontend, valida CSRF token,
-	 * e retorna resposta processada pelo GuidewayAIHelper.
-	 * 
-	 * @return void Outputs JSON response
-	 * @since  1.0.0
-	 */
-	public function callAI()
-	{
-		$output = ['success' => false, 'message' => ''];
-
-		// 1. Verificação de segurança CSRF
-		if (!Session::checkToken('post')) {
-			http_response_code(403);
-			$output['message'] = Text::_('JINVALID_TOKEN');
-			echo json_encode($output);
-			die();
-		}
-
-		// 2. Verificação de usuário logado
-		$user = Factory::getUser();
-		if (!$user->id) {
-			http_response_code(401);
-			$output['message'] = Text::_('COM_SPLMS_LOGIN_TO_REVIEW');
-			echo json_encode($output);
-			die();
-		}
-
-		// 3. Obter parâmetros do request
-		$input = Factory::getApplication()->input;
-		$texto = $input->post->get('texto', '', 'RAW');
-		$acao  = $input->post->get('acao', '', 'STRING');
-
-		// Validação básica
-		if (empty($texto) || empty($acao)) {
-			http_response_code(400);
-			$output['message'] = 'Parâmetros inválidos: texto e ação são obrigatórios.';
-			echo json_encode($output);
-			die();
-		}
-
-
-		// 4. Carregar e chamar o Helper de IA
-		require_once JPATH_COMPONENT_SITE . '/helpers/GuidewayAIHelper.php';
-
-		// Mapeamento de Ação -> Permissão
-		$permMap = [
-			GuidewayAIHelper::ACTION_CUSTOM     => 'ai.generate',
-			GuidewayAIHelper::ACTION_FORMATAR   => 'ai.generate',
-			GuidewayAIHelper::ACTION_REVISAR    => 'ai.refine',
-			GuidewayAIHelper::ACTION_RESUMIR    => 'ai.refine',
-			GuidewayAIHelper::ACTION_REESCREVER => 'ai.refine',
-		];
-
-		$requiredPerm = isset($permMap[$acao]) ? $permMap[$acao] : null;
-
-		if (!$requiredPerm) {
-			http_response_code(400);
-			$output['message'] = 'Ação não reconhecida ou sem permissão definida.';
-			echo json_encode($output);
-			die();
-		}
-
-		if (!$user->authorise($requiredPerm, 'com_splms')) {
-			http_response_code(403);
-			$output['message'] = Text::_('JERROR_ALERTNOAUTHOR') . ' (' . $requiredPerm . ')';
-			echo json_encode($output);
-			die();
-		}
-
-		$result = GuidewayAIHelper::processarTexto($texto, $acao);
-
-		// 5. Retornar resposta JSON
-		echo json_encode($result);
-		die();
-	}
-
 }
