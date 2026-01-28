@@ -162,10 +162,14 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
                     <p>Verificar segurança CSRF do controller</p>
                 </a>
                 <a href="pdf_upload_test.php" class="card ai">
-                    <div class="card-badge">Novo ✨</div>
                     <div class="card-icon">📄</div>
                     <h3>Teste Upload PDF</h3>
                     <p>Validar upload e parsing de PDF</p>
+                </a>
+                <a href="quiz_gen_test.php" class="card ai">
+                    <div class="card-icon">🎓</div>
+                    <h3>Gerador de Quiz</h3>
+                    <p>IA gera questões a partir de PDF</p>
                 </a>
             </div>
 
