@@ -92,14 +92,20 @@ class GuidewayAIHelper
                 $systemPrompt = 'Atue como um formatador de texto. O texto a seguir foi extraído de um PDF e pode ter quebras de linha incorretas, parágrafos unidos ou cabeçalhos desformatados. Sua tarefa é restaurar a estrutura correta (parágrafos, listas, títulos) e melhorar a legibilidade sem alterar o conteúdo. Retorne o texto formatado em HTML simples (p, ul, li, h2, h3, strong) se apropriado para um editor web.';
                 break;
             case self::ACTION_CRIAR_QUESTOES:
-                $systemPrompt = 'Atue como um professor especialista criando questões de avaliação. Sua tarefa é criar questões de múltipla escolha baseadas EXCLUSIVAMENTE no texto fornecido. Retorne APENAS um array JSON válido contendo as questões. Estrutura do JSON: [{"question": "Enunciado", "options": ["A", "B", "C", "D"], "correct_answer": 0}]. O índice correct_answer deve ser 0 para a primeira opção, 1 para a segunda, etc. Não adicione markdown de código (```json) ou texto antes/depois.';
-                
-                // Decodifica parâmetros de dificuldade e quantidade do $customInstruction
+                // Decodifica parâmetros do $customInstruction
                 $params = json_decode($customInstruction, true);
                 $dificuldade = $params['difficulty'] ?? 'medio';
                 $quantidade = $params['count'] ?? 5;
-                
-                $userContent = "Gere $quantidade questões de dificuldade '$dificuldade' baseadas no seguinte texto:\n\n" . $texto;
+                $tipo = $params['type'] ?? 'optativa'; // optativa | dissertativa
+
+                if ($tipo === 'dissertativa') {
+                    $systemPrompt = 'Atue como um professor especialista criando questões dissertativas de avaliação. Sua tarefa é criar questões abertas (sem alternativas) baseadas EXCLUSIVAMENTE no texto fornecido. Retorne APENAS um array JSON válido contendo as questões. Estrutura do JSON: [{"question": "Enunciado da questão", "answer": "Gabarito esperado ou tópicos principais da resposta"}]. Não adicione markdown de código.';
+                    $userContent = "Gere $quantidade questões dissertativas de dificuldade '$dificuldade' baseadas no seguinte texto:\n\n" . $texto;
+                } else {
+                    // Padrão: Múltipla Escolha (Optativa)
+                    $systemPrompt = 'Atue como um professor especialista criando questões de avaliação. Sua tarefa é criar questões de múltipla escolha baseadas EXCLUSIVAMENTE no texto fornecido. Retorne APENAS um array JSON válido contendo as questões. Estrutura do JSON: [{"question": "Enunciado", "options": ["A", "B", "C", "D"], "correct_answer": 0}]. O índice correct_answer deve ser 0 para a primeira opção, 1 para a segunda, etc. Não adicione markdown de código (```json) ou texto antes/depois.';
+                    $userContent = "Gere $quantidade questões de múltipla escolha de dificuldade '$dificuldade' baseadas no seguinte texto:\n\n" . $texto;
+                }
                 break;
             case self::ACTION_CUSTOM:
                 $systemPrompt = 'Você é um assistente de IA extremamente direto. Sua única tarefa é executar a instrução do usuário. IMPORTANTE: Retorne APENAS o resultado solicitado. NÃO inicie a resposta com frases como "Aqui está", "Claro", "Com certeza" ou qualquer texto conversacional. Se o usuário pedir perguntas, retorne apenas as perguntas. Se pedir código, apenas o código. Se a resposta for um texto, comece imediatamente o texto.';

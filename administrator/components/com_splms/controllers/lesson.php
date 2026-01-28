@@ -258,11 +258,11 @@ class SplmsControllerLesson extends FormController {
 				$text = mb_convert_encoding($text, 'UTF-8', 'auto');
 			}
 
-			// 5. Processamento com IA
 			$input = Factory::getApplication()->input;
 			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
 			$difficulty = $input->post->get('gw_ai_difficulty', '', 'STRING');
 			$qcount = $input->post->get('gw_ai_qcount', 5, 'INT');
+			$qtype = $input->post->get('gw_ai_qtype', 'optativa', 'STRING');
 			
 			// Carrega helper se necessário
 			if (!class_exists('GuidewayAIHelper')) {
@@ -286,10 +286,17 @@ class SplmsControllerLesson extends FormController {
 						throw new Exception('Quantidade de questões deve ser entre 1 e 20.');
 					}
 
+					// Validação Tipo
+					$allowedTypes = ['optativa', 'dissertativa'];
+					if (!in_array($qtype, $allowedTypes)) {
+						$qtype = 'optativa'; // Fallback seguro
+					}
+
 					// Prepara params para o Helper
 					$params = json_encode([
 						'difficulty' => $difficulty,
-						'count' => $qcount
+						'count' => $qcount,
+						'type' => $qtype
 					]);
 
 					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CRIAR_QUESTOES, $params);
