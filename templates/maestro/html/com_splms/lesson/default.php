@@ -15,6 +15,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
+Factory::getDocument()->addStyleSheet(Uri::root() . 'templates/maestro/css/splms-progress.css');
 $params = JComponentHelper::getParams('com_splms');
 $percentualMinimoConclusao = (int) $params->get('percentual_minimo_conclusao', 90);
 
@@ -110,17 +111,20 @@ window.SPLMS_CONTEXT = {
 };
 </script>
 
-<div id="splms" class="splms splms-lessons splms-lesson-details">
-  
-  <div class="course-progress-container" style="margin: 20px auto; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px;">
-    <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px;">📚 Seu Progresso no Curso</h3>
-    <div style="text-align: center; font-size: 50px; margin: 20px 0;" id="progress-emoji">📝</div>
-    <div style="width: 100%; height: 35px; background: #e0e0e0; border-radius: 20px; position: relative; overflow: hidden; margin: 20px 0;">
-      <div id="course-progress-bar" style="height: 100%; background: linear-gradient(90deg, #4CAF50, #45a049); border-radius: 20px; width: 0%; transition: width 0.8s ease;"></div>
-      <div style="position: absolute; width: 100%; text-align: center; line-height: 35px; font-weight: bold; color: #333; top: 0; font-size: 14px;" id="course-progress-text">Carregando...</div>
+<div id="splms" class="splms splms-lessons splms-lesson-details"> 
+  <div class="course-progress-container">
+    <h3 class="course-progress-title">📚 Seu Progresso no Curso</h3>
+    
+    <div id="progress-emoji" class="course-progress-emoji">📋</div>
+    
+    <div class="course-progress-track">
+        <div id="course-progress-bar" class="course-progress-fill" style="width: 50%;"></div>
+        
+        <div id="course-progress-text" class="course-progress-text">50%</div>
     </div>
-    <div style="text-align: center; color: #666; margin-top: 15px; font-size: 16px;" id="progress-message">Buscando...</div>
-  </div>
+    
+    <div id="progress-message" class="course-progress-message">Carregando...</div>
+</div>
 
   <div class="row">
     <div class="col-md-7">
