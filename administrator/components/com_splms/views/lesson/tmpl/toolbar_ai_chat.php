@@ -16,11 +16,17 @@
             <!-- Linha de Ações -->
             <div class="gw-ai-actions">
                 
-                <!-- Input de Arquivo -->
+                <!-- Drag and Drop Dropzone -->
                 <div class="gw-ai-upload-wrapper">
-                    <input type="file" id="gw-ai-file" name="gw_ai_file" accept=".pdf" class="form-control form-control-sm gw-ai-input-file">
-                    <span class="muted small" style="margin-left: 5px;">(PDF, Máx. 5MB)</span>
-                    
+                    <div id="gw-ai-drop-zone" class="gw-ai-drop-zone">
+                        <input type="file" id="gw-ai-file" name="gw_ai_file" accept=".pdf" class="gw-ai-input-hidden">
+                        <div class="gw-ai-drop-content">
+                            <span class="icon-upload" style="font-size: 24px; margin-bottom: 5px; color: #666;"></span>
+                            <span class="gw-ai-drop-text">Arraste e solte o PDF aqui ou clique para selecionar</span>
+                            <span id="gw-ai-file-name" class="gw-ai-file-name-centered"></span>
+                        </div>
+                    </div>
+
                     <!-- Botão de Configurações do Quiz -->
                     <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-small gw-ai-btn-quiz" title="Gerar Questões a partir do PDF">
                         <span class="icon-list-view"></span> Gerar Quiz

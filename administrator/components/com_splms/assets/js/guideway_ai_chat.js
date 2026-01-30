@@ -21,7 +21,11 @@ var GuidewayAI = (function ($) {
         quizSubmitBtn: '#gw-ai-quiz-submit-btn',
         difficulty: '#gw-ai-difficulty',
         qcount: '#gw-ai-qcount',
-        qtype: '#gw-ai-qtype'
+        qcount: '#gw-ai-qcount',
+        qcount: '#gw-ai-qcount',
+        qtype: '#gw-ai-qtype',
+        fileName: '#gw-ai-file-name',
+        dropZone: '#gw-ai-drop-zone'
     };
 
     var config = {
@@ -295,7 +299,65 @@ var GuidewayAI = (function ($) {
      * Registra os ouvintes de eventos do DOM.
      */
     function bindEvents() {
-        // Botão Principal (Geração Padrão)
+        // --- Drag and Drop Logic ---
+        var $dropZone = $(selectors.dropZone);
+        var $fileInput = $(selectors.fileInput);
+
+        // Click on dropzone triggers hidden input
+        $dropZone.on('click', function (e) {
+            // Prevent recursive click if clicking the input itself (bubbling)
+            if (e.target.id !== selectors.fileInput.replace('#', '')) {
+                $fileInput.click();
+            }
+        });
+
+        // Drag Over
+        $dropZone.on('dragover', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass('dragover');
+        });
+
+        // Drag Leave
+        $dropZone.on('dragleave', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('dragover');
+        });
+
+        // Drop
+        $dropZone.on('drop', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('dragover');
+
+            var files = e.originalEvent.dataTransfer.files;
+            if (files.length > 0) {
+                // Assign to hidden input using DataTransfer (modern browsers)
+                $fileInput[0].files = files;
+                // Trigger change to update UI
+                $fileInput.trigger('change');
+            }
+        });
+
+        // File Input Change (Standard or Drop)
+        $fileInput.on('change', function () {
+            var fileName = $(this).val().split('\\').pop();
+            var display = fileName ? fileName : ''; // Empty if nothing
+
+            // Update the centered text span
+            $(selectors.fileName).text(display);
+
+            // Update dropzone styling to indicate active file
+            if (fileName) {
+                $dropZone.css('border-color', '#27ae60');
+                $(selectors.fileName).css('color', '#27ae60');
+            } else {
+                $dropZone.css('border-color', '#555');
+            }
+        });
+
+        // --- Botão Principal ---
         $(document).on('click', selectors.generateBtn, function () {
             handleGenerate(false);
         });
