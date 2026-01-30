@@ -8,6 +8,9 @@
 $readmePath = __DIR__ . '/README.md';
 $markdown = file_exists($readmePath) ? file_get_contents($readmePath) : '';
 
+$statusPath = __DIR__ . '/PROJECT_STATUS.md';
+$statusMarkdown = file_exists($statusPath) ? file_get_contents($statusPath) : '';;
+
 function slugify($text) {
     $text = mb_strtolower($text, 'UTF-8');
     $text = str_replace(
@@ -34,6 +37,7 @@ function convertMarkdownToHTML($text) {
 }
 
 $html = convertMarkdownToHTML($markdown);
+$statusHtml = convertMarkdownToHTML($statusMarkdown);
 
 // Extract Composer Guide separately
 $composerGuideMarkdown = '';
@@ -113,6 +117,7 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
     <div class="tabs">
         <div class="tab active" onclick="showTab('tests')">🧪 Testes</div>
         <div class="tab" onclick="showTab('docs')">📚 Documentação</div>
+        <div class="tab" onclick="showTab('status')">📊 Status</div>
         <div class="tab" onclick="showTab('project')">📖 Sobre o Projeto</div>
     </div>
 
@@ -162,10 +167,14 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
                     <p>Verificar segurança CSRF do controller</p>
                 </a>
                 <a href="pdf_upload_test.php" class="card ai">
-                    <div class="card-badge">Novo ✨</div>
                     <div class="card-icon">📄</div>
                     <h3>Teste Upload PDF</h3>
                     <p>Validar upload e parsing de PDF</p>
+                </a>
+                <a href="quiz_gen_test.php" class="card ai">
+                    <div class="card-icon">🎓</div>
+                    <h3>Gerador de Quiz</h3>
+                    <p>IA gera questões a partir de PDF</p>
                 </a>
             </div>
 
@@ -211,6 +220,13 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
             <div class="doc-content">
                 <a href="#" onclick="showTab('docs'); return false;" style="display:inline-block; margin-bottom:20px;">← Voltar para Documentação</a>
                 <?php echo $composerGuideHtml; ?>
+            </div>
+        </div>
+
+        <!-- TAB: StatusReport -->
+        <div id="tab-status" class="tab-content">
+            <div class="doc-content">
+                <?php echo $statusHtml; ?>
             </div>
         </div>
 
@@ -284,8 +300,10 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
             document.getElementById('tab-' + tabName).classList.add('active');
             
             // Highlight tab button
-            const tabIndex = {'tests': 0, 'docs': 1, 'project': 2, 'readme': 1, 'composer': 1}[tabName];
-            document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+            const tabIndex = {'tests': 0, 'docs': 1, 'status': 2, 'project': 3, 'readme': 1, 'composer': 1}[tabName];
+            if (document.querySelectorAll('.tab')[tabIndex]) {
+                document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+            }
         }
     </script>
 </body>

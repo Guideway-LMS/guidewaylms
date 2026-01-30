@@ -15,7 +15,17 @@ var GuidewayAI = (function ($) {
         generateBtn: '#gw-ai-generate-btn',
         fileInput: '#gw-ai-file',
         promptInput: '#gw-ai-prompt',
-        loadingContainer: '#div-gw-ai-loading'
+        loadingContainer: '#div-gw-ai-loading',
+        settingsBtn: '#gw-ai-quiz-settings-btn',
+        quizDropdown: '#gw-ai-quiz-dropdown',
+        quizSubmitBtn: '#gw-ai-quiz-submit-btn',
+        difficulty: '#gw-ai-difficulty',
+        qcount: '#gw-ai-qcount',
+        qcount: '#gw-ai-qcount',
+        qcount: '#gw-ai-qcount',
+        qtype: '#gw-ai-qtype',
+        fileName: '#gw-ai-file-name',
+        dropZone: '#gw-ai-drop-zone'
     };
 
     var config = {
@@ -85,17 +95,108 @@ var GuidewayAI = (function ($) {
     }
 
     /**
-     * Lida com o clique no botão "Gerar Descrição".
-     * Centraliza a validação e fluxo de envio.
+     * Formata o JSON de questões para HTML.
+     * @param {string|Array} jsonData - String JSON ou Objeto Array.
+     * @returns {string} HTML formatado.
      */
-    function handleGenerate() {
-        clearAlerts();
+    function formatQuizToHTML(jsonData) {
+        var questions = [];
+        try {
+            questions = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+        } catch (e) {
+            console.error('Erro ao parsear JSON do Quiz', e);
+            return '<p>Erro: O retorno da IA não é um JSON válido.</p><pre>' + jsonData + '</pre>';
+        }
+
+        if (!Array.isArray(questions)) {
+            return '<p>Erro: O formato das questões está incorreto.</p>';
+        }
+
+        // Detecta tipo de questão baseado na primeira entrada
+        var isEssay = (questions.length > 0 && typeof questions[0].answer !== 'undefined');
+        var isMultipleChoice = (questions.length > 0 && typeof questions[0].options !== 'undefined');
+
+        var html = '<div class="gw-quiz-container">';
+        html += '<h3>Questões sobre o Conteúdo</h3>';
+
+        var gabarito = [];
+
+        $.each(questions, function (i, q) {
+            var num = i + 1;
+            html += '<div class="gw-quiz-question" style="margin-bottom: 20px;">';
+            html += '<h4>' + num + '. ' + q.question + '</h4>';
+
+            if (isMultipleChoice && q.options && q.options.length) {
+                // Múltipla Escolha
+                html += '<ul>';
+                var letters = ['A', 'B', 'C', 'D', 'E'];
+
+                $.each(q.options, function (idx, opt) {
+                    var letter = letters[idx] || '?';
+                    html += '<li>' + letter + ') ' + opt + '</li>';
+
+                    if (idx === q.correct_answer) {
+                        gabarito.push(num + ')' + letter);
+                    }
+                });
+                html += '</ul>';
+            } else if (isEssay && q.answer) {
+                // Dissertativa
+                html += '<br>'; // Espaço visual para aluno escrever
+                gabarito.push('<strong>' + num + ')</strong> ' + q.answer);
+            }
+
+            html += '</div>';
+            html += '<hr>';
+        });
+
+        // Adiciona Gabarito no Rodapé
+        if (gabarito.length > 0) {
+            html += '<div class="gw-quiz-footer" style="margin-top: 30px; padding: 15px; background: #f9f9f9; border: 1px solid #eee;">';
+            html += '<h4>Gabarito / Respostas Esperadas</h4>';
+
+            if (isMultipleChoice) {
+                // Múltipla Escolha: Inline
+                html += '<p>' + gabarito.join(' / ') + '</p>';
+            } else {
+                // Dissertativa: Lista
+                html += '<ul>';
+                $.each(gabarito, function (i, item) {
+                    html += '<li style="margin-bottom: 10px;">' + item + '</li>';
+                });
+                html += '</ul>';
+            }
+
+            html += '</div>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Lida com o clique no botão "Gerar Descrição" ou "Gerar Quiz".
+     * Centraliza a validação e fluxo de envio.
+     * @param {boolean} forceQuiz - Se true, força o modo quiz ignorando outros estados.
+     */
+    function handleGenerate(forceQuiz) {
+        // Garantir booleano
+        var isQuizMode = (forceQuiz === true);
 
         // 1. Valida o arquivo primeiro
         if (!validateFile()) return;
 
         var prompt = $(selectors.promptInput).val();
         var hasFile = $(selectors.fileInput)[0].files.length > 0;
+
+        // Se forceQuiz não foi passado, verificamos se há algum estado legado (opcional)
+        // mas na nova UI, os botões são distintos.
+
+        // Se for Quiz, arquivo é obrigatório
+        if (isQuizMode && !hasFile) {
+            showAlert('Para gerar um Quiz, é obrigatório anexar um arquivo PDF.', 'error');
+            return;
+        }
 
         // 2. Valida se há pelo menos um input (Texto OU Arquivo)
         if (prompt.trim() === '' && !hasFile) {
@@ -116,15 +217,20 @@ var GuidewayAI = (function ($) {
             formData.append('gw_ai_file', $(selectors.fileInput)[0].files[0]);
         }
 
-        // Adiciona prompt (para processamento customizado ou formatação)
-        if (prompt.trim() !== '') {
+        // Adiciona parâmetros de Quiz ou Prompt
+        if (isQuizMode) {
+            formData.append('gw_ai_difficulty', $(selectors.difficulty).val());
+            formData.append('gw_ai_qcount', $(selectors.qcount).val());
+            formData.append('gw_ai_qtype', $(selectors.qtype).val());
+        } else if (prompt.trim() !== '') {
             formData.append('gw_ai_prompt', prompt);
         }
 
         // UI Loading
-        var $btn = $(selectors.generateBtn);
+        // Decidir qual botão mostrar loading
+        var $btn = isQuizMode ? $(selectors.quizSubmitBtn) : $(selectors.generateBtn);
         var originalBtnText = $btn.html();
-        $btn.prop('disabled', true).html('<span class="icon-loop spinner"></span> Processando...');
+        $btn.prop('disabled', true).html('<span class="icon-loop spinner"></span> ...');
         if ($(selectors.loadingContainer).length) $(selectors.loadingContainer).show();
 
         // 4. Envio AJAX
@@ -136,17 +242,23 @@ var GuidewayAI = (function ($) {
             contentType: false,
             success: function (response) {
                 if (response.success) {
-                    var extractedText = response.data || '';
-                    console.log('PDF Processado - Texto extraído');
+                    var content = response.data || '';
+                    console.log('PDF Processado com sucesso');
+
+                    // Se for modo Quiz, formata o JSON
+                    if (isQuizMode) {
+                        content = formatQuizToHTML(content);
+                    }
 
                     // Integração com o Editor TinyMCE
                     if (window.tinymce && tinymce.activeEditor) {
-                        tinymce.activeEditor.setContent(extractedText);
-                        showAlert('Conteúdo do PDF importado para o editor com sucesso!', 'success');
+                        tinymce.activeEditor.setContent(content);
+                        var successMsg = isQuizMode ? 'Questões geradas e inseridas no editor!' : 'Conteúdo importado com sucesso!';
+                        showAlert(successMsg, 'success');
                     } else {
                         console.warn('TinyMCE não detectado.');
-                        showAlert('Texto extraído, mas editor não encontrado. Veja o console.', 'success');
-                        console.log(extractedText);
+                        showAlert('Conteúdo extraído (Editor não encontrado).', 'success');
+                        console.log(content);
                     }
 
                     // TODO: Futuramente integrar com IA para gerar a descrição usando o texto extraído + prompt
@@ -157,7 +269,7 @@ var GuidewayAI = (function ($) {
             },
             error: function (xhr, status, error) {
                 var errorMsg = 'Erro de conexão com o servidor.';
-                
+
                 // Tenta extrair mensagem JSON do servidor (ex: erro 403)
                 if (xhr.responseText) {
                     try {
@@ -169,7 +281,7 @@ var GuidewayAI = (function ($) {
                         console.error('Falha ao fazer parse do erro JSON:', e);
                     }
                 }
-                
+
                 showAlert(errorMsg, 'error');
                 console.error('AJAX Error:', error);
             },
@@ -181,15 +293,111 @@ var GuidewayAI = (function ($) {
     }
 
     /**
+     * Atualiza o estado visual da interface baseado no Modo Quiz.
+     */
+    /**
      * Registra os ouvintes de eventos do DOM.
      */
     function bindEvents() {
-        $(document).on('click', selectors.generateBtn, handleGenerate);
+        // --- Drag and Drop Logic ---
+        var $dropZone = $(selectors.dropZone);
+        var $fileInput = $(selectors.fileInput);
+
+        // Click on dropzone triggers hidden input
+        $dropZone.on('click', function (e) {
+            // Prevent recursive click if clicking the input itself (bubbling)
+            if (e.target.id !== selectors.fileInput.replace('#', '')) {
+                $fileInput.click();
+            }
+        });
+
+        // Drag Over
+        $dropZone.on('dragover', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass('dragover');
+        });
+
+        // Drag Leave
+        $dropZone.on('dragleave', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('dragover');
+        });
+
+        // Drop
+        $dropZone.on('drop', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('dragover');
+
+            var files = e.originalEvent.dataTransfer.files;
+            if (files.length > 0) {
+                // Assign to hidden input using DataTransfer (modern browsers)
+                $fileInput[0].files = files;
+                // Trigger change to update UI
+                $fileInput.trigger('change');
+            }
+        });
+
+        // File Input Change (Standard or Drop)
+        $fileInput.on('change', function () {
+            var fileName = $(this).val().split('\\').pop();
+            var display = fileName ? fileName : ''; // Empty if nothing
+
+            // Update the centered text span
+            $(selectors.fileName).text(display);
+
+            // Update dropzone styling to indicate active file
+            if (fileName) {
+                $dropZone.css('border-color', '#27ae60');
+                $(selectors.fileName).css('color', '#27ae60');
+            } else {
+                $dropZone.css('border-color', '#555');
+            }
+        });
+
+        // --- Botão Principal ---
+        $(document).on('click', selectors.generateBtn, function () {
+            handleGenerate(false);
+        });
+
+        // Botão Interno do Quiz (Geração de Quiz)
+        $(document).on('click', selectors.quizSubmitBtn, function () {
+            handleGenerate(true); // Força modo quiz
+            $(selectors.quizDropdown).hide(); // Fecha o menu apôs clique
+        });
 
         // Revalida automaticamente ao trocar o arquivo
         $(document).on('change', selectors.fileInput, function () {
             clearAlerts();
             validateFile();
+        });
+
+        // Toggle do Dropdown ao clicar no botão de configurações
+        $(document).on('click', selectors.settingsBtn, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $dropdown = $(selectors.quizDropdown);
+
+            if ($dropdown.is(':visible')) {
+                $dropdown.hide();
+            } else {
+                $dropdown.show();
+            }
+        });
+
+        // Fechar dropdown ao clicar fora
+        $(document).on('click', function (e) {
+            // Se o clique não foi no wrapper do upload nem no dropdown em si
+            if (!$(e.target).closest('.gw-ai-upload-wrapper').length) {
+                $(selectors.quizDropdown).hide();
+            }
+        });
+
+        // Evita fechar ao clicar dentro do dropdown
+        $(document).on('click', selectors.quizDropdown, function (e) {
+            e.stopPropagation();
         });
     }
 
@@ -200,7 +408,7 @@ var GuidewayAI = (function ($) {
          */
         init: function () {
             bindEvents();
-            console.log('GuidewayAI Refactored Init');
+            console.log('GuidewayAI Chat Module Initialized');
         }
     };
 
