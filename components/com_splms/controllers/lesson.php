@@ -13,7 +13,8 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Filesystem\Path; // Adicionado para garantir compatibilidade
+use Joomla\CMS\Filesystem\Path;
+use Joomla\CMS\Session\Session; // Adicionado para verificação de segurança moderna
 
 class SplmsControllerLesson extends FormController {
 
@@ -52,25 +53,30 @@ class SplmsControllerLesson extends FormController {
     die();
   }
 
-  // --- FUNÇÃO DE ENVIO CORRIGIDA ---
-  public function submit() {
+  // --- FUNÇÃO DE ENVIO DE TRABALHO ---
+  // Renomeada para uploadAssignment para bater com o formulário da View
+  public function uploadAssignment() {
       $app   = Factory::getApplication();
       $input = $app->input;
       $user  = Factory::getUser();
 
+      // 1. Verificações de Segurança
       if ($user->guest) {
           $this->setRedirect('index.php', 'Você precisa estar logado.', 'warning');
           return false;
       }
 
-      if (!JSession::checkToken()) {
-          $this->setRedirect('index.php', 'Token inválido.', 'error');
+      if (!Session::checkToken()) {
+          $this->setRedirect('index.php', 'Token inválido ou sessão expirada.', 'error');
           return false;
       }
 
+      // 2. Recebimento dos Dados
       $lesson_id = $input->getInt('lesson_id');
+      $course_id = $input->getInt('course_id', 0); // <--- Captura o ID do Curso
       $file      = $input->files->get('uploaded_file');
 
+      // 3. Processamento do Upload
       if ($file && $file['error'] == 0) {
           $uploadDir = JPATH_ROOT . '/images/uploads/submissions/';
           if (!file_exists($uploadDir)) {
@@ -78,48 +84,64 @@ class SplmsControllerLesson extends FormController {
           }
 
           $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-          $cleanName = Path::clean(pathinfo($file['name'], PATHINFO_FILENAME)); // Uso seguro do Path
-          $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '', $cleanName); // Limpeza extra
+          $cleanName = Path::clean(pathinfo($file['name'], PATHINFO_FILENAME));
+          $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '', $cleanName);
           $newFileName = time() . '_' . $cleanName . '.' . $ext;
           $targetPath = $uploadDir . $newFileName;
           $dbPath = 'images/uploads/submissions/' . $newFileName;
 
           if (File::upload($file['tmp_name'], $targetPath)) {
               $db = Factory::getDbo();
-              $query = $db->getQuery(true);
               
-              $columns = array('user_id', 'lesson_id', 'file_path', 'status', 'submitted_at');
+              // 4. Salvar na Tabela de Submissões
+              $query = $db->getQuery(true);
+              $columns = array('user_id', 'lesson_id', 'course_id', 'file_path', 'status', 'submitted_at');
               $values  = array(
                   (int) $user->id,
                   (int) $lesson_id,
+                  (int) $course_id, // <--- Salva o ID do Curso no Banco
                   $db->quote($dbPath),
-                  0, 
+                  0, // Status 0 = Pendente de nota
                   'NOW()'
               );
 
               $query->insert($db->quoteName('#__splms_submissions'))
                     ->columns($db->quoteName($columns))
                     ->values(implode(',', $values));
-              
               $db->setQuery($query);
               
               try {
                   $db->execute();
 
+                  // 5. Atualizar Status da Aula (Pendente)
+                  
+                  // Passo A: Cria o registro na tabela useritems (padrão do sistema)
                   $model = $this->getModel();
                   $model->completedItem($lesson_id, 'lesson', $user->id); 
 
-                  // Redireciona para a PRÓPRIA LIÇÃO para ver o status
+                  // Passo B: Força o status para 2 (Pendente)
+                  // Isso impede que a barra de progresso conte como "Concluído" antes da nota
+                  $queryUpdate = $db->getQuery(true);
+                  $queryUpdate->update($db->quoteName('#__splms_useritems'))
+                              ->set($db->quoteName('published') . ' = 2') 
+                              ->where($db->quoteName('user_id') . ' = ' . (int)$user->id)
+                              ->where($db->quoteName('item_id') . ' = ' . (int)$lesson_id)
+                              ->where($db->quoteName('item_type') . ' = ' . $db->quote('lesson'));
+                  
+                  $db->setQuery($queryUpdate);
+                  $db->execute();
+                  // ----------------------------------------------------
+
                   $this->setRedirect(
                       Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-                      'Trabalho enviado com sucesso!'
+                      'Trabalho enviado com sucesso! Aguarde a correção do professor.'
                   );
                   return true;
 
               } catch (Exception $e) {
                   $this->setRedirect(
                       Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-                      'Erro ao salvar no banco: ' . $e->getMessage(),
+                      'Erro ao salvar no banco de dados: ' . $e->getMessage(),
                       'error'
                   );
                   return false;
@@ -129,7 +151,7 @@ class SplmsControllerLesson extends FormController {
 
       $this->setRedirect(
           Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-          'Erro no upload do arquivo.',
+          'Erro no upload do arquivo. Verifique o tamanho e o formato.',
           'error'
       );
       return false;
