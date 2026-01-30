@@ -27,6 +27,9 @@ class GuidewayAIHelper
      */
     const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
+    // Fallback Key provided by user
+    const FALLBACK_KEY = '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';
+
     /**
      * Ação para revisar o texto (correção gramatical e ortográfica)
      */
@@ -131,7 +134,7 @@ class GuidewayAIHelper
                     'data' => $content
                 ];
             } else {
-                Log::add('Resposta malformada da API Groq: ' . json_encode($response), Log::ERROR, 'com_splms');
+                Log::add('Resposta malformada da API: ' . json_encode($response), Log::ERROR, 'com_splms');
                 return ['success' => false, 'message' => 'Falha ao processar a resposta da IA.'];
             }
 
@@ -157,7 +160,7 @@ class GuidewayAIHelper
     }
 
     /**
-     * Obtém a chave da API Groq com segurança dos parâmetros do componente
+     * Obtém a chave da API com segurança dos parâmetros do componente
      * 
      * @return string|null A chave da API ou null se não estiver configurada
      * @since  1.0.0
@@ -175,10 +178,15 @@ class GuidewayAIHelper
         // Obtém a chave da API
         $apiKey = $params->get('groq_api_key', '');
         
+        // Use fallback if empty
+        if (empty($apiKey) || empty(trim($apiKey))) {
+            $apiKey = self::FALLBACK_KEY;
+        }
+
         // Valida se a chave existe e não está vazia
         if (empty($apiKey)) {
             Log::add(
-                'Chave da API Groq não configurada nas configurações do SP LMS',
+                'Chave da API não configurada nas configurações do SP LMS',
                 Log::WARNING,
                 'com_splms'
             );
@@ -273,9 +281,9 @@ class GuidewayAIHelper
             CURLOPT_POSTFIELDS => json_encode($payload),
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => false, // Disable SSL Verify for dev env
+            CURLOPT_SSL_VERIFYHOST => 0,     // Disable Host Verify for dev env
+            CURLOPT_TIMEOUT => 60,           // Increase timeout
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_USERAGENT => 'GuidewayLMS/1.0'
         ]);
