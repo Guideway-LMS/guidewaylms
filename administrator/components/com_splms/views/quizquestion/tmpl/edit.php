@@ -405,11 +405,7 @@ $canRefine   = $user->authorise('ai.refine',   'com_splms');
       <div class="<?php echo $colClass;?>3">
         <fieldset class="form-vertical">
           <div class="control-group">
-            <?php if (Factory::getUser()->authorise('ai.generate', 'com_splms')) : ?>
-            <button type="button" class="btn btn-success btn-large btn-block" onclick="openAiQuizModal()">
-              ✨ <?php echo JText::_('Generate with AI'); ?>
-            </button>
-            <?php endif; ?>
+
           </div>
           <?php echo $this->form->renderFieldset('sidebar'); ?>
         </fieldset>
