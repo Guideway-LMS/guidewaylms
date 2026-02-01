@@ -176,8 +176,11 @@ $colClass = SplmsHelper::getJoomlaVersion() < 4 ? 'span' : 'col-lg-';
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" id="splms-ai-results" class="d-none">
+            <div class="modal-footer" id="splms-ai-results">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Fechar</button>
+                <button type="button" id="splms-ai-apply-btn" class="btn btn-success">
+                    <i class="icon-checkmark"></i> Aplicar ao Curso
+                </button>
                 <button type="button" id="splms-ai-download-doc" class="btn btn-primary">
                     <i class="icon-download"></i> Baixar DOCX
                 </button>
