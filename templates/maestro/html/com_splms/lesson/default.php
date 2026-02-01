@@ -45,17 +45,36 @@ if ((int) $this->item->lesson_type === 2) {
     $submission = $db->loadObject();
 }
 // =============================================================================
+//OLD
+// $completedLessons = [];
+// if ($userId && !empty($this->item->course_id)) {
+//     BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models', 'SplmsModel');
+//     $courseModel = BaseDatabaseModel::getInstance('Course', 'SplmsModel');
+//     if ($courseModel) {
+//         $completedLessons = $courseModel->getCompletedLessonsByCourse((int) $this->item->course_id, $userId);
+//     }
+// }
+// $this->completedLessons = $completedLessons;
 
-$completedLessons = [];
+$lessonStates = [];
+
 if ($userId && !empty($this->item->course_id)) {
-    BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models', 'SplmsModel');
+    BaseDatabaseModel::addIncludePath(
+        JPATH_SITE . '/components/com_splms/models',
+        'SplmsModel'
+    );
+
     $courseModel = BaseDatabaseModel::getInstance('Course', 'SplmsModel');
+
     if ($courseModel) {
-        $completedLessons = $courseModel->getCompletedLessonsByCourse((int) $this->item->course_id, $userId);
+        $lessonStates = $courseModel->getLessonStatesByCourse(
+            (int) $this->item->course_id,
+            $userId
+        );
     }
 }
-$this->completedLessons = $completedLessons;
 
+$this->lessonStates = $lessonStates;
 $doc->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
 $doc->addScript(Uri::root() . 'media/gw-progress-alert/js/alerta-conclusao.js');
 $doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
@@ -223,15 +242,60 @@ window.SPLMS_CONTEXT = {
           <h3><?php echo Text::_('COM_SPLMS_LESOSNS_LIST'); ?></h3>
           <ul class="lessons list-unstyled">
             <?php foreach ($this->lessons as $lesson) { ?>
-              <?php $active_lesson = ($this->item->id == $lesson->id) ? ' active' : ''; $isCompleted = !empty($this->completedLessons[$lesson->id]); ?>
+            
+              <?php
+              //SELECIONA ESTADO DE CADA LICAO
+                    $active_lesson = ($this->item->id == $lesson->id) ? ' active' : '';
+
+                    $lessonStates = $this->lessonStates ?? [];
+                    $state = $lessonStates[$lesson->id] ?? 0;
+
+                    $isCompleted = ($state === 1);
+                    $isPending   = ($state === 2);
+                    ?>
               <?php if ($lesson->lesson_type == 0 || $this->isAuthorised != '' || $this->courese->price == 0) : ?>
-                <li class="lesson<?php echo $active_lesson; ?><?php echo $isCompleted ? ' lesson-completed' : ''; ?>" data-lesson-id="<?php echo (int) $lesson->id; ?>">
+                <li class="lesson<?php echo $active_lesson; ?>
+                      <?php echo $isCompleted ? ' lesson-completed' : ''; ?>
+                      <?php echo $isPending ? ' lesson-pending' : ''; ?>"
+                      data-lesson-id="<?php echo (int) $lesson->id; ?>">
+                 <!-- aqui tinha coisa -->
                   <?php if (!empty($lesson->video_url)) : ?>
-                    <span><a href="<?php echo $lesson->lesson_url; ?>"><span class="lesson-title"><?php echo $lesson->title; ?><?php if ($isCompleted) : ?> <span class="lesson-completed-icon"> ✅</span><?php endif; ?></span></a></span>
-                    <span class="pull-right lesson-duration"><span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span><?php echo $lesson->video_duration; ?></span>
-                  <?php else : ?>
-                    <a href="<?php echo $lesson->lesson_url; ?>"><span class="lesson-title"><?php echo $lesson->title; ?><?php if ($isCompleted) : ?> <span class="lesson-completed-icon"> ✅</span><?php endif; ?></span></a>
-                  <?php endif; ?>
+  <span>
+    <a href="<?php echo $lesson->lesson_url; ?>">
+      <span class="lesson-title">
+        <?php echo $lesson->title; ?>
+
+        <?php if ($isCompleted) : ?>
+          <span class="lesson-completed-icon"> ✅</span>
+        <?php elseif ($isPending) : ?>
+          <span class="lesson-pending-icon"> ⏳</span>
+        <?php endif; ?>
+
+      </span>
+    </a>
+  </span>
+
+  <span class="pull-right lesson-duration">
+    <span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span>
+    <?php echo $lesson->video_duration; ?>
+  </span>
+
+<?php else : ?>
+
+  <a href="<?php echo $lesson->lesson_url; ?>">
+    <span class="lesson-title">
+      <?php echo $lesson->title; ?>
+
+      <?php if ($isCompleted) : ?>
+        <span class="lesson-completed-icon"> ✅</span>
+      <?php elseif ($isPending) : ?>
+        <span class="lesson-pending-icon"> ⏳</span>
+      <?php endif; ?>
+
+    </span>
+  </a>
+
+<?php endif; ?>
                 </li>
               <?php else : ?>
                 <li class="lesson splms-lesson-unauthorised"><span><i class="splms-icon-book"></i><i class="splms-icon-lock"></i><?php echo $lesson->title; ?></span><span class="pull-right lesson-duration"><span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span><?php echo $lesson->video_duration; ?></span></li>
