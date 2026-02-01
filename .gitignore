@@ -49,3 +49,6 @@ tests-playwright/playwright-report/
 tests-playwright/test-results/
 tests-playwright/.env
 *.webm
+
+# Playwright - arquivos gerados
+tests-playwright/package-lock.json
