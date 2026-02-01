@@ -307,5 +307,74 @@ class SplmsModelCourse extends ItemModel {
 
     return array_fill_keys($db->loadColumn(), true);
 }
+// BUSCADOR DE LICOES CONCLUIDAS ANTIGO
+// public function getPendingLessonsByCourse(int $courseId, int $userId): array
+// {
+//     if (!$courseId || !$userId) {
+//         return [];
+//     }
 
+//     $db = Factory::getDbo();
+//     $query = $db->getQuery(true);
+
+//     $query
+//         ->select('DISTINCT u.item_id')
+//         ->from($db->quoteName('#__splms_useritems', 'u'))
+//         ->where('u.user_id = ' . (int) $userId)
+//         ->where('u.item_type = ' . $db->quote('lesson'))
+//         ->where('u.published = 2') // ⏳ pendente
+//         ->where(
+//             'u.item_id IN (
+//                 SELECT l.id
+//                 FROM #__splms_lessons l
+//                 WHERE l.course_id = ' . (int) $courseId . '
+//             )'
+//         );
+
+//     $db->setQuery($query);
+
+//     return array_fill_keys($db->loadColumn(), true);
+// }
+//BUSCADOR DE ESTADO DA LICAO ERICK 31-01
+public function getLessonStatesByCourse(int $courseId, int $userId): array
+{
+    if (!$courseId || !$userId) {
+        return [];
+    }
+
+    $db = Factory::getDbo();
+    $query = $db->getQuery(true);
+
+    $query
+        ->select('u.item_id, u.published')
+        ->from($db->quoteName('#__splms_useritems', 'u'))
+        ->where('u.user_id = ' . (int) $userId)
+        ->where('u.item_type = ' . $db->quote('lesson'))
+        ->where(
+            'u.item_id IN (
+                SELECT l.id
+                FROM #__splms_lessons l
+                WHERE l.course_id = ' . (int) $courseId . '
+            )'
+        );
+
+    $db->setQuery($query);
+
+    $rows = $db->loadAssocList();
+
+    /*
+      Retorno:
+      [
+        lessonId => state
+      ]
+    */
+
+    $states = [];
+
+    foreach ($rows as $row) {
+        $states[(int) $row['item_id']] = (int) $row['published'];
+    }
+
+    return $states;
+}
 }

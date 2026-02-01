@@ -411,7 +411,7 @@ window.readValuesFromForm = readValuesFromForm;
             }
         }, 300);
     }
-    //Erick 21-12 funcao visual de positivo quando aula esta concluida
+    //Erick 21-12 funcao visual de positivo quando aula esta concluida -- EDIT 31-01 ERICK OBSOLETO 
     function markLessonAsCompletedInList(lessonId) {
     console.log('[SPLMS-LOG] Tentando marcar aula concluída na lista:', lessonId);
 
@@ -445,6 +445,43 @@ window.readValuesFromForm = readValuesFromForm;
     titleEl.appendChild(icon);
 
     console.log('[SPLMS-LOG] Aula marcada como concluída com sucesso:', lessonId);
+}
+// ERICK 31-01 NOVA FUNCAO MARCADORA DE AULAS CONLUIDAS OU PENDENTE
+function applyLessonState(lessonId, state) {
+    const lessonItem = document.querySelector(
+        '.lesson[data-lesson-id="' + lessonId + '"]'
+    );
+
+    if (!lessonItem) return;
+
+    // limpa estados anteriores
+    lessonItem.classList.remove(
+        'lesson-completed',
+        'lesson-pending'
+    );
+
+    const titleEl = lessonItem.querySelector('.lesson-title');
+    if (!titleEl) return;
+
+    titleEl.querySelectorAll(
+        '.lesson-completed-icon, .lesson-pending-icon'
+    ).forEach(el => el.remove());
+
+    if (state === 1) {
+        lessonItem.classList.add('lesson-completed');
+        titleEl.insertAdjacentHTML(
+            'beforeend',
+            '<span class="lesson-completed-icon"> ✅</span>'
+        );
+    }
+
+    if (state === 2) {
+        lessonItem.classList.add('lesson-pending');
+        titleEl.insertAdjacentHTML(
+            'beforeend',
+            '<span class="lesson-pending-icon"> ⏳</span>'
+        );
+    }
 }
     //fim
     // ----------------------------
