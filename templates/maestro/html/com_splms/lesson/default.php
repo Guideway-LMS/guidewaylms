@@ -33,7 +33,13 @@ $userId = (int) $user->id;
 $submission = null;
 $db = Factory::getDbo();
 
-if ((int) $this->item->lesson_type === 2) {
+// VERIFICAÇÃO ROBUSTA: Aceita tanto lesson_type 2 quanto o formato 'assignment'
+$isAssignment = (
+    ((int)$this->item->lesson_type === 2) || 
+    (isset($this->item->lesson_format) && ($this->item->lesson_format === 'assignment' || $this->item->lesson_format === 'trabalho'))
+);
+
+if ($isAssignment) {
     $query = $db->getQuery(true)
         ->select('*')
         ->from($db->quoteName('bak_lepgs_splms_submissions'))
@@ -45,16 +51,6 @@ if ((int) $this->item->lesson_type === 2) {
     $submission = $db->loadObject();
 }
 // =============================================================================
-//OLD
-// $completedLessons = [];
-// if ($userId && !empty($this->item->course_id)) {
-//     BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models', 'SplmsModel');
-//     $courseModel = BaseDatabaseModel::getInstance('Course', 'SplmsModel');
-//     if ($courseModel) {
-//         $completedLessons = $courseModel->getCompletedLessonsByCourse((int) $this->item->course_id, $userId);
-//     }
-// }
-// $this->completedLessons = $completedLessons;
 
 $lessonStates = [];
 
@@ -149,8 +145,8 @@ window.SPLMS_CONTEXT = {
       <div class="splms-lesson-video-wrapper">
 
         <?php 
-        // LÓGICA DE DECISÃO: É TRABALHO (TIPO 2) OU VÍDEO?
-        if ((int) $this->item->lesson_type === 2) : 
+        // USANDO A VARIÁVEL ROBUSTA CRIADA NO INÍCIO
+        if ($isAssignment) : 
         ?>
 
             <div style="margin-bottom: 25px;">
@@ -223,7 +219,7 @@ window.SPLMS_CONTEXT = {
                         </div>
                     <?php endif; ?>
 
-                    <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
+                    <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.uploadAssignment'); ?>" method="post" enctype="multipart/form-data">
                         <div class="upload-zone">
                             <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
                             <h3 class="upload-title" style="font-size: 18px;">Área de Transferência</h3>
@@ -292,44 +288,44 @@ window.SPLMS_CONTEXT = {
                       <?php echo $isCompleted ? ' lesson-completed' : ''; ?>
                       <?php echo $isPending ? ' lesson-pending' : ''; ?>"
                       data-lesson-id="<?php echo (int) $lesson->id; ?>">
-                 <!-- aqui tinha coisa -->
+                 
                   <?php if (!empty($lesson->video_url)) : ?>
-  <span>
-    <a href="<?php echo $lesson->lesson_url; ?>">
-      <span class="lesson-title">
-        <?php echo $lesson->title; ?>
+                  <span>
+                    <a href="<?php echo $lesson->lesson_url; ?>">
+                      <span class="lesson-title">
+                        <?php echo $lesson->title; ?>
 
-        <?php if ($isCompleted) : ?>
-          <span class="lesson-completed-icon"> ✅</span>
-        <?php elseif ($isPending) : ?>
-          <span class="lesson-pending-icon"> ⏳</span>
-        <?php endif; ?>
+                        <?php if ($isCompleted) : ?>
+                          <span class="lesson-completed-icon"> ✅</span>
+                        <?php elseif ($isPending) : ?>
+                          <span class="lesson-pending-icon"> ⏳</span>
+                        <?php endif; ?>
 
-      </span>
-    </a>
-  </span>
+                      </span>
+                    </a>
+                  </span>
 
-  <span class="pull-right lesson-duration">
-    <span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span>
-    <?php echo $lesson->video_duration; ?>
-  </span>
+                  <span class="pull-right lesson-duration">
+                    <span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span>
+                    <?php echo $lesson->video_duration; ?>
+                  </span>
 
-<?php else : ?>
+                <?php else : ?>
 
-  <a href="<?php echo $lesson->lesson_url; ?>">
-    <span class="lesson-title">
-      <?php echo $lesson->title; ?>
+                  <a href="<?php echo $lesson->lesson_url; ?>">
+                    <span class="lesson-title">
+                      <?php echo $lesson->title; ?>
 
-      <?php if ($isCompleted) : ?>
-        <span class="lesson-completed-icon"> ✅</span>
-      <?php elseif ($isPending) : ?>
-        <span class="lesson-pending-icon"> ⏳</span>
-      <?php endif; ?>
+                      <?php if ($isCompleted) : ?>
+                        <span class="lesson-completed-icon"> ✅</span>
+                      <?php elseif ($isPending) : ?>
+                        <span class="lesson-pending-icon"> ⏳</span>
+                      <?php endif; ?>
 
-    </span>
-  </a>
+                    </span>
+                  </a>
 
-<?php endif; ?>
+                <?php endif; ?>
                 </li>
               <?php else : ?>
                 <li class="lesson splms-lesson-unauthorised"><span><i class="splms-icon-book"></i><i class="splms-icon-lock"></i><?php echo $lesson->title; ?></span><span class="pull-right lesson-duration"><span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span><?php echo $lesson->video_duration; ?></span></li>
@@ -345,7 +341,10 @@ window.SPLMS_CONTEXT = {
   <div class="splms-lesson-completed-lesson-wrapper" 
     <?php if (isset($this->item->course_id)) : ?> data-course-id="<?php echo (int) $this->item->course_id; ?>" <?php endif; ?> >
     
-    <?php if ((int) $this->item->lesson_type !== 2) : ?>
+    <?php 
+    // USANDO A MESMA VARIÁVEL ROBUSTA PARA ESCONDER O BOTÃO "CONCLUIR" NOS TRABALHOS
+    if (!$isAssignment) : 
+    ?>
     
         <?php if ($this->user->guest) { 
           $link =  base64_encode(Uri::getInstance()->toString()); 
