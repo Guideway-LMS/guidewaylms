@@ -137,9 +137,9 @@ window.SPLMS_CONTEXT = {
     <div id="progress-emoji" class="course-progress-emoji">📋</div>
     
     <div class="course-progress-track">
-        <div id="course-progress-bar" class="course-progress-fill" style="width: 50%;"></div>
+        <div id="course-progress-bar" class="course-progress-fill" style="width: 0%;"></div>
         
-        <div id="course-progress-text" class="course-progress-text">50%</div>
+        <div id="course-progress-text" class="course-progress-text">0%</div>
     </div>
     
     <div id="progress-message" class="course-progress-message">Carregando...</div>
@@ -162,9 +162,14 @@ window.SPLMS_CONTEXT = {
             </div>
 
             <div class="upload-card">
-                <?php if ($submission && ($submission->status == 1 || $submission->grade > 0)) : ?>
+                <?php 
+                // ===========================================================
+                // CENÁRIO 1: APROVADO (Status 1) -> MOSTRA SUCESSO E TRAVA
+                // ===========================================================
+                if ($submission && $submission->status == 1) : 
+                ?>
                     <i class="fa fa-check-circle status-icon status-graded"></i>
-                    <h3 class="status-title status-graded">Trabalho Avaliado!</h3>
+                    <h3 class="status-title status-graded">Trabalho Aprovado!</h3>
                     <div class="grade-display">
                         <?php echo number_format($submission->grade, 1); ?> <span style="font-size: 1rem; color: #999;">/ 100</span>
                     </div>
@@ -175,7 +180,12 @@ window.SPLMS_CONTEXT = {
                         </div>
                     <?php endif; ?>
 
-                <?php elseif ($submission) : ?>
+                <?php 
+                // ===========================================================
+                // CENÁRIO 2: PENDENTE (Status 0) -> MOSTRA AGUARDANDO E TRAVA
+                // ===========================================================
+                elseif ($submission && $submission->status == 0) : 
+                ?>
                     <div class="upload-zone" style="border-color: #f59e0b; background: #fffbf0;">
                         <i class="fa fa-clock-o status-icon status-pending"></i>
                         <h3 class="status-title status-pending">Aguardando Correção</h3>
@@ -187,7 +197,33 @@ window.SPLMS_CONTEXT = {
                     </div>
                     <div style="color: #64748b; font-size: 14px;">Você será notificado assim que sua nota for lançada.</div>
 
-                <?php else : ?>
+                <?php 
+                // ===========================================================
+                // CENÁRIO 3: REPROVADO (Status 2) OU NENHUM ENVIO -> MOSTRA FORMULÁRIO
+                // ===========================================================
+                else : 
+                ?>
+                    
+                    <?php if ($submission && $submission->status == 2) : ?>
+                        <div style="background: #fee2e2; border: 1px solid #ef4444; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                            <h3 style="color: #b91c1c; margin-top: 0; font-size: 20px; font-weight: bold;"><i class="fa fa-times-circle"></i> Trabalho Reprovado</h3>
+                            
+                            <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin: 10px 0;">
+                                <span style="font-size: 14px; color: #7f1d1d;">Sua nota:</span>
+                                <strong style="font-size: 24px; color: #b91c1c;"><?php echo number_format($submission->grade, 1); ?></strong>
+                            </div>
+
+                            <?php if (!empty($submission->feedback)) : ?>
+                                <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #fca5a5; text-align: left;">
+                                    <strong style="color: #991b1b;">O que melhorar:</strong>
+                                    <p style="margin: 5px 0 0 0; color: #450a0a; font-size: 14px;"><?php echo $submission->feedback; ?></p>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div style="margin-top:15px; font-weight:bold; color: #b91c1c; font-size: 14px;">👇 Envie uma nova versão abaixo:</div>
+                        </div>
+                    <?php endif; ?>
+
                     <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
                         <div class="upload-zone">
                             <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
@@ -206,6 +242,7 @@ window.SPLMS_CONTEXT = {
                         <?php echo JHtml::_('form.token'); ?>
                         <button type="submit" class="btn-send">ENVIAR TRABALHO <i class="fa fa-paper-plane"></i></button>
                     </form>
+
                 <?php endif; ?>
             </div>
 

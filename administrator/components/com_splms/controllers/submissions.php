@@ -24,6 +24,16 @@ class SplmsControllerSubmissions extends BaseController
         $grade    = $input->get('grade', 0, 'FLOAT'); // Aceita decimais
         $feedback = $input->get('feedback', '', 'RAW'); // Texto livre
 
+        // --- INICIO DA SUA IMPLEMENTAÇÃO (Lógica de Aprovação) ---
+        // Pega as configurações globais que definimos no XML
+        $params = \Joomla\CMS\Component\ComponentHelper::getParams('com_splms');
+        
+        // Busca a nota de corte (60). Se não achar nada, usa 60 por segurança.
+        $passingScore = $params->get('assignment_passing_score', 60);
+
+        // Se a nota for maior ou igual a 60, status 1 (Aprovado). Senão, status 2 (Reprovado).
+        $status = ($grade >= $passingScore) ? 1 : 2;
+
         // 3. Atualiza o Banco
         if ($id) {
             $db = Factory::getDbo();
@@ -32,7 +42,7 @@ class SplmsControllerSubmissions extends BaseController
             $fields = array(
                 $db->quoteName('grade') . ' = ' . (float)$grade,
                 $db->quoteName('feedback') . ' = ' . $db->quote($feedback),
-                $db->quoteName('status') . ' = 1' // Marca como Corrigido
+                $db->quoteName('status') . ' = ' . (int)$status // Status dinâmico (Aprovado/Reprovado)
             );
 
             $conditions = array(

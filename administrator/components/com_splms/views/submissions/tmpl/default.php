@@ -72,7 +72,11 @@ HTMLHelper::_('bootstrap.tooltip');
                         </td>
                         <td class="text-center">
                             <?php if($item->status == 1): ?>
-                                <span class="badge bg-success">Corrigido</span>
+                                <span class="badge bg-success">Aprovado</span>
+                            
+                            <?php elseif($item->status == 2): ?>
+                                <span class="badge bg-danger">Reprovado</span>
+                            
                             <?php else: ?>
                                 <span class="badge bg-warning text-dark">Pendente</span>
                             <?php endif; ?>
