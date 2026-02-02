@@ -111,17 +111,28 @@
 		</field>
 
 		<field type="spacer" hr="true" />
-    <field
-        name="percentual_minimo_conclusao"
-        type="number"
-        default="90"
-        label="Percentual mínimo para conclusão (%)"
-        description="Defina a porcentagem do vídeo que o aluno deve assistir para marcar a aula como concluída automaticamente."
-        min="0"
-        max="100"
-        step="1"
-        filter="integer"
-    />		
+    	<field
+			name="percentual_minimo_conclusao"
+			type="number"
+			default="90"
+			label="Percentual mínimo para conclusão (%)"
+			description="Defina a porcentagem do vídeo que o aluno deve assistir para marcar a aula como concluída automaticamente."
+			min="0"
+			max="100"
+			step="1"
+			filter="integer"
+    	/>		
+		<field
+            name="assignment_passing_score"
+            type="number"
+            default="60"
+            label="Nota mínima para aprovação (Trabalhos)"
+            description="Defina a nota mínima (0-100) para o trabalho ser considerado aprovado."
+            min="0"
+            max="100"
+            step="1"
+            filter="integer"
+    	/>
 	</fieldset>
 
 	<fieldset name="media" label="COM_SPLMS_FIELDSET_IMAGE_LABEL">
@@ -189,6 +200,11 @@
 	<fieldset name="api_config" label="COM_SPLMS_FIELDSET_API_LABEL">
 		<field name="groq_api_key" type="password" label="COM_SPLMS_GROQ_API_KEY" description="COM_SPLMS_GROQ_API_KEY_DESC" filter="string" />
 		<field name="groq_api_note" type="note" description="COM_SPLMS_GROQ_API_NOTE" />
+		<field name="ai_model" type="list" default="llama3-70b-8192" label="AI Model" description="Select the AI model to use for quiz generation.">
+			<option value="llama3-70b-8192">Meta Llama 3 70B</option>
+			<option value="llama3-8b-8192">Meta Llama 3 8B</option>
+			<option value="mixtral-8x7b-32768">Mixtral 8x7b</option>
+		</field>
 	</fieldset>
 
 	<fieldset name="social_share" label="COM_SPLMS_FIELDSET_SOCIAL_SHARE">

@@ -258,9 +258,11 @@ class SplmsControllerLesson extends FormController {
 				$text = mb_convert_encoding($text, 'UTF-8', 'auto');
 			}
 
-			// 5. Processamento com IA (Prompt do Usuário ou Formatação Padrão)
 			$input = Factory::getApplication()->input;
 			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
+			$difficulty = $input->post->get('gw_ai_difficulty', '', 'STRING');
+			$qcount = $input->post->get('gw_ai_qcount', 5, 'INT');
+			$qtype = $input->post->get('gw_ai_qtype', 'optativa', 'STRING');
 			
 			// Carrega helper se necessário
 			if (!class_exists('GuidewayAIHelper')) {
@@ -269,17 +271,50 @@ class SplmsControllerLesson extends FormController {
 			}
 			
 			if (class_exists('GuidewayAIHelper')) {
-				if (!empty($prompt)) {
-					// Se usuário mandou prompt, usa ação customizada
+				
+				if (!empty($difficulty)) {
+					// --- Fluxo de Geração de Questões ---
+					
+					// Validação Allowlist de Dificuldade
+					$allowedDifficulties = ['facil', 'medio', 'dificil'];
+					if (!in_array($difficulty, $allowedDifficulties)) {
+						throw new Exception('Dificuldade inválida. Permitido: facil, medio, dificil.');
+					}
+
+					// Validação Quantidade (1 a 20)
+					if ($qcount < 1 || $qcount > 20) {
+						throw new Exception('Quantidade de questões deve ser entre 1 e 20.');
+					}
+
+					// Validação Tipo
+					$allowedTypes = ['optativa', 'dissertativa'];
+					if (!in_array($qtype, $allowedTypes)) {
+						$qtype = 'optativa'; // Fallback seguro
+					}
+
+					// Prepara params para o Helper
+					$params = json_encode([
+						'difficulty' => $difficulty,
+						'count' => $qcount,
+						'type' => $qtype
+					]);
+
+					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CRIAR_QUESTOES, $params);
+					$msgPrefix = 'Questões geradas com sucesso!';
+
+				} elseif (!empty($prompt)) {
+					// --- Fluxo Customizado (Prompt do Usuário) ---
 					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $prompt);
+					$msgPrefix = 'Texto processado com sua instrução!';
 				} else {
-					// Se não mandou prompt, apenas formata o texto que veio "quebrado" do PDF
+					// --- Fluxo Padrão (Formatação) ---
 					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_FORMATAR);
+					$msgPrefix = 'Texto formatado com sucesso!';
 				}
 				
 				if ($aiResult['success']) {
 					$text = $aiResult['data'];
-					$msg = !empty($prompt) ? 'Texto extraído e processado com sua instrução!' : 'Texto extraído e formatado com sucesso!';
+					$msg = $msgPrefix;
 				} else {
 					// Se falhar a IA, mantém o texto bruto mas avisa
 					$msg = 'Texto extraído (bruto), mas houve erro na IA: ' . $aiResult['message'];

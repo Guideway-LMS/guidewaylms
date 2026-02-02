@@ -15,6 +15,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
+Factory::getDocument()->addStyleSheet(Uri::root() . 'templates/maestro/css/splms-progress.css');
 $params = JComponentHelper::getParams('com_splms');
 $percentualMinimoConclusao = (int) $params->get('percentual_minimo_conclusao', 90);
 
@@ -32,7 +33,7 @@ $userId = (int) $user->id;
 $submission = null;
 $db = Factory::getDbo();
 
-if (isset($this->item->lesson_format) && ($this->item->lesson_format === 'assignment' || $this->item->lesson_format === 'trabalho')) {
+if ((int) $this->item->lesson_type === 2) {
     $query = $db->getQuery(true)
         ->select('*')
         ->from($db->quoteName('bak_lepgs_splms_submissions'))
@@ -44,17 +45,35 @@ if (isset($this->item->lesson_format) && ($this->item->lesson_format === 'assign
     $submission = $db->loadObject();
 }
 // =============================================================================
+//OLD
+// $completedLessons = [];
+// if ($userId && !empty($this->item->course_id)) {
+//     BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models', 'SplmsModel');
+//     $courseModel = BaseDatabaseModel::getInstance('Course', 'SplmsModel');
+//     if ($courseModel) {
+//         $completedLessons = $courseModel->getCompletedLessonsByCourse((int) $this->item->course_id, $userId);
+//     }
+// }
+// $this->completedLessons = $completedLessons;
 
-$completedLessons = [];
+$lessonStates = [];
+
 if ($userId && !empty($this->item->course_id)) {
-    BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models', 'SplmsModel');
+    BaseDatabaseModel::addIncludePath(
+        JPATH_SITE . '/components/com_splms/models',
+        'SplmsModel'
+    );
+
     $courseModel = BaseDatabaseModel::getInstance('Course', 'SplmsModel');
     if ($courseModel) {
-        $completedLessons = $courseModel->getCompletedLessonsByCourse((int) $this->item->course_id, $userId);
+        $lessonStates = $courseModel->getLessonStatesByCourse(
+            (int) $this->item->course_id,
+            $userId
+        );
     }
 }
-$this->completedLessons = $completedLessons;
 
+$this->lessonStates = $lessonStates;
 $doc->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
 $doc->addScript(Uri::root() . 'media/gw-progress-alert/js/alerta-conclusao.js');
 $doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
@@ -110,23 +129,30 @@ window.SPLMS_CONTEXT = {
 };
 </script>
 
-<div id="splms" class="splms splms-lessons splms-lesson-details">
-  
-  <div class="course-progress-container" style="margin: 20px auto; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px;">
-    <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px;">📚 Seu Progresso no Curso</h3>
-    <div style="text-align: center; font-size: 50px; margin: 20px 0;" id="progress-emoji">📝</div>
-    <div style="width: 100%; height: 35px; background: #e0e0e0; border-radius: 20px; position: relative; overflow: hidden; margin: 20px 0;">
-      <div id="course-progress-bar" style="height: 100%; background: linear-gradient(90deg, #4CAF50, #45a049); border-radius: 20px; width: 0%; transition: width 0.8s ease;"></div>
-      <div style="position: absolute; width: 100%; text-align: center; line-height: 35px; font-weight: bold; color: #333; top: 0; font-size: 14px;" id="course-progress-text">Carregando...</div>
+<div id="splms" class="splms splms-lessons splms-lesson-details"> 
+  <div class="course-progress-container">
+    <h3 class="course-progress-title">📚 Seu Progresso no Curso</h3>
+    
+    <div id="progress-emoji" class="course-progress-emoji">📋</div>
+    
+    <div class="course-progress-track">
+        <div id="course-progress-bar" class="course-progress-fill" style="width: 0%;"></div>
+        
+        <div id="course-progress-text" class="course-progress-text">0%</div>
     </div>
-    <div style="text-align: center; color: #666; margin-top: 15px; font-size: 16px;" id="progress-message">Buscando...</div>
-  </div>
+    
+    <div id="progress-message" class="course-progress-message">Carregando...</div>
+</div>
 
   <div class="row">
     <div class="col-md-7">
       <div class="splms-lesson-video-wrapper">
 
-        <?php if (isset($this->item->lesson_format) && ($this->item->lesson_format === 'assignment' || $this->item->lesson_format === 'trabalho')) : ?>
+        <?php 
+        // LÓGICA DE DECISÃO: É TRABALHO (TIPO 2) OU VÍDEO?
+        if ((int) $this->item->lesson_type === 2) : 
+        ?>
+
             <div style="margin-bottom: 25px;">
                 <h2 style="font-weight: 700; color: #1e293b; margin: 0; font-size: 28px;">
                     <i class="fa fa-cloud-upload" style="color: #4CAF50; margin-right: 10px;"></i> Envio de Trabalho
@@ -135,9 +161,14 @@ window.SPLMS_CONTEXT = {
             </div>
 
             <div class="upload-card">
-                <?php if ($submission && ($submission->status == 1 || $submission->grade > 0)) : ?>
+                <?php 
+                // ===========================================================
+                // CENÁRIO 1: APROVADO (Status 1) -> MOSTRA SUCESSO E TRAVA
+                // ===========================================================
+                if ($submission && $submission->status == 1) : 
+                ?>
                     <i class="fa fa-check-circle status-icon status-graded"></i>
-                    <h3 class="status-title status-graded">Trabalho Avaliado!</h3>
+                    <h3 class="status-title status-graded">Trabalho Aprovado!</h3>
                     <div class="grade-display">
                         <?php echo number_format($submission->grade, 1); ?> <span style="font-size: 1rem; color: #999;">/ 100</span>
                     </div>
@@ -148,7 +179,12 @@ window.SPLMS_CONTEXT = {
                         </div>
                     <?php endif; ?>
 
-                <?php elseif ($submission) : ?>
+                <?php 
+                // ===========================================================
+                // CENÁRIO 2: PENDENTE (Status 0) -> MOSTRA AGUARDANDO E TRAVA
+                // ===========================================================
+                elseif ($submission && $submission->status == 0) : 
+                ?>
                     <div class="upload-zone" style="border-color: #f59e0b; background: #fffbf0;">
                         <i class="fa fa-clock-o status-icon status-pending"></i>
                         <h3 class="status-title status-pending">Aguardando Correção</h3>
@@ -160,8 +196,34 @@ window.SPLMS_CONTEXT = {
                     </div>
                     <div style="color: #64748b; font-size: 14px;">Você será notificado assim que sua nota for lançada.</div>
 
-                <?php else : ?>
-                    <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.uploadAssignment'); ?>" method="post" enctype="multipart/form-data">
+                <?php 
+                // ===========================================================
+                // CENÁRIO 3: REPROVADO (Status 2) OU NENHUM ENVIO -> MOSTRA FORMULÁRIO
+                // ===========================================================
+                else : 
+                ?>
+                    
+                    <?php if ($submission && $submission->status == 2) : ?>
+                        <div style="background: #fee2e2; border: 1px solid #ef4444; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                            <h3 style="color: #b91c1c; margin-top: 0; font-size: 20px; font-weight: bold;"><i class="fa fa-times-circle"></i> Trabalho Reprovado</h3>
+                            
+                            <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin: 10px 0;">
+                                <span style="font-size: 14px; color: #7f1d1d;">Sua nota:</span>
+                                <strong style="font-size: 24px; color: #b91c1c;"><?php echo number_format($submission->grade, 1); ?></strong>
+                            </div>
+
+                            <?php if (!empty($submission->feedback)) : ?>
+                                <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #fca5a5; text-align: left;">
+                                    <strong style="color: #991b1b;">O que melhorar:</strong>
+                                    <p style="margin: 5px 0 0 0; color: #450a0a; font-size: 14px;"><?php echo $submission->feedback; ?></p>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div style="margin-top:15px; font-weight:bold; color: #b91c1c; font-size: 14px;">👇 Envie uma nova versão abaixo:</div>
+                        </div>
+                    <?php endif; ?>
+
+                    <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
                         <div class="upload-zone">
                             <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
                             <h3 class="upload-title" style="font-size: 18px;">Área de Transferência</h3>
@@ -179,6 +241,7 @@ window.SPLMS_CONTEXT = {
                         <?php echo JHtml::_('form.token'); ?>
                         <button type="submit" class="btn-send">ENVIAR TRABALHO <i class="fa fa-paper-plane"></i></button>
                     </form>
+
                 <?php endif; ?>
             </div>
 
@@ -213,15 +276,60 @@ window.SPLMS_CONTEXT = {
           <h3><?php echo Text::_('COM_SPLMS_LESOSNS_LIST'); ?></h3>
           <ul class="lessons list-unstyled">
             <?php foreach ($this->lessons as $lesson) { ?>
-              <?php $active_lesson = ($this->item->id == $lesson->id) ? ' active' : ''; $isCompleted = !empty($this->completedLessons[$lesson->id]); ?>
+            
+              <?php
+              //SELECIONA ESTADO DE CADA LICAO
+                    $active_lesson = ($this->item->id == $lesson->id) ? ' active' : '';
+
+                    $lessonStates = $this->lessonStates ?? [];
+                    $state = $lessonStates[$lesson->id] ?? 0;
+
+                    $isCompleted = ($state === 1);
+                    $isPending   = ($state === 2);
+                    ?>
               <?php if ($lesson->lesson_type == 0 || $this->isAuthorised != '' || $this->courese->price == 0) : ?>
-                <li class="lesson<?php echo $active_lesson; ?><?php echo $isCompleted ? ' lesson-completed' : ''; ?>" data-lesson-id="<?php echo (int) $lesson->id; ?>">
+                <li class="lesson<?php echo $active_lesson; ?>
+                      <?php echo $isCompleted ? ' lesson-completed' : ''; ?>
+                      <?php echo $isPending ? ' lesson-pending' : ''; ?>"
+                      data-lesson-id="<?php echo (int) $lesson->id; ?>">
+                 <!-- aqui tinha coisa -->
                   <?php if (!empty($lesson->video_url)) : ?>
-                    <span><a href="<?php echo $lesson->lesson_url; ?>"><span class="lesson-title"><?php echo $lesson->title; ?><?php if ($isCompleted) : ?> <span class="lesson-completed-icon"> ✅</span><?php endif; ?></span></a></span>
-                    <span class="pull-right lesson-duration"><span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span><?php echo $lesson->video_duration; ?></span>
-                  <?php else : ?>
-                    <a href="<?php echo $lesson->lesson_url; ?>"><span class="lesson-title"><?php echo $lesson->title; ?><?php if ($isCompleted) : ?> <span class="lesson-completed-icon"> ✅</span><?php endif; ?></span></a>
-                  <?php endif; ?>
+  <span>
+    <a href="<?php echo $lesson->lesson_url; ?>">
+      <span class="lesson-title">
+        <?php echo $lesson->title; ?>
+
+        <?php if ($isCompleted) : ?>
+          <span class="lesson-completed-icon"> ✅</span>
+        <?php elseif ($isPending) : ?>
+          <span class="lesson-pending-icon"> ⏳</span>
+        <?php endif; ?>
+
+      </span>
+    </a>
+  </span>
+
+  <span class="pull-right lesson-duration">
+    <span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span>
+    <?php echo $lesson->video_duration; ?>
+  </span>
+
+<?php else : ?>
+
+  <a href="<?php echo $lesson->lesson_url; ?>">
+    <span class="lesson-title">
+      <?php echo $lesson->title; ?>
+
+      <?php if ($isCompleted) : ?>
+        <span class="lesson-completed-icon"> ✅</span>
+      <?php elseif ($isPending) : ?>
+        <span class="lesson-pending-icon"> ⏳</span>
+      <?php endif; ?>
+
+    </span>
+  </a>
+
+<?php endif; ?>
                 </li>
               <?php else : ?>
                 <li class="lesson splms-lesson-unauthorised"><span><i class="splms-icon-book"></i><i class="splms-icon-lock"></i><?php echo $lesson->title; ?></span><span class="pull-right lesson-duration"><span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span><?php echo $lesson->video_duration; ?></span></li>
@@ -233,15 +341,23 @@ window.SPLMS_CONTEXT = {
     </div>
   </div>
 
-  <div class="splms-lesson-completed-lesson-wrapper" <?php if (isset($this->item->course_id)) : ?> data-course-id="<?php echo (int) $this->item->course_id; ?>" <?php endif; ?> >
-    <?php if (!isset($this->item->lesson_format) || $this->item->lesson_format !== 'assignment') : ?>
-        <?php if ($this->user->guest) { $link = base64_encode(Uri::getInstance()->toString()); $login_link = Route::_('index.php?option=com_users&view=login' . SplmsHelper::getItemid('login') . '&return=' . $link); ?>
+
+  <div class="splms-lesson-completed-lesson-wrapper" 
+    <?php if (isset($this->item->course_id)) : ?> data-course-id="<?php echo (int) $this->item->course_id; ?>" <?php endif; ?> >
+    
+    <?php if ((int) $this->item->lesson_type !== 2) : ?>
+    
+        <?php if ($this->user->guest) { 
+          $link =  base64_encode(Uri::getInstance()->toString()); 
+          $login_link = Route::_('index.php?option=com_users&view=login' . SplmsHelper::getItemid('login') . '&return=' . $link); 
+        ?>
           <a class="btn btn-primary" href="<?php echo $login_link; ?>"><?php echo Text::_('COM_SPLMS_LOGIN_TO_COMPLETE'); ?></a>
         <?php } elseif (!$this->has_complete_lesson) { ?>
           <form id="splms-completed-item-form"><input type="hidden" name="user_id" value="<?php echo $this->user->id; ?>"><input type="hidden" name="item_id" value="<?php echo $this->item->id; ?>"><input type="hidden" name="item_type" value="lesson"><input type="hidden" name="course_id" value="<?php echo isset($this->item->course_id) ? (int) $this->item->course_id : ''; ?>"><a class="btn btn-primary" id="splms-completed-item" href="#"><?php echo Text::_('COM_SPLMS_LESSON_COMPLETE'); ?></a></form>
         <?php } else { ?>
           <a class="btn btn-primary" id="splms-completed-item" href="#"><?php echo Text::_('COM_SPLMS_LESSON_COMPLETED'); ?></a>
         <?php } ?>
+
     <?php endif; ?>
   </div>
 

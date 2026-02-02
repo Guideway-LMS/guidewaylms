@@ -201,7 +201,8 @@ class SplmsViewQuizquestion extends HtmlView{
 			    var choice;
 			    for (i = 0; i < numChoices; i++) {
 			        choice = questions[currentQuestion].choices[i];
-			        $('<li><div class="radio"><label><input type="radio" value=' + i + ' name="dynradio" />' + choice + '</label></div></li>').appendTo(choiceList);
+					var uniqueId = 'ans_' + currentQuestion + '_' + i;
+			        $('<li><div class="radio"><input type="radio" id="' + uniqueId + '" value=' + i + ' name="dynradio" /><label for="' + uniqueId + '">' + choice + '</label></div></li>').appendTo(choiceList);
 			    }
 			}
 

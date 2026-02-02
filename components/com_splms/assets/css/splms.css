@@ -3151,3 +3151,209 @@ ul.course-info>li>a {
 }
 
 
+
+/* Modern Premium Quiz Layout - Redesign */
+
+/* Main Container - Card Style */
+.view-splms-quiz .quizContainer {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    max-width: 850px;
+    margin: 40px auto;
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    border: 1px solid #f1f5f9;
+}
+
+/* Timer Styling - Floating Badge */
+.view-splms-quiz .countdown-wrapper {
+    background: #f1f5f9;
+    padding: 8px 16px;
+    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.95rem;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.view-splms-quiz #timer {
+    margin-right: 8px;
+    color: #ef4444;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Question Styling - Crisp & Readable */
+.view-splms-quiz .ques-ans-wrapper h3.question {
+    font-size: 1.75rem; /* Better scale */
+    color: #0f172a;
+    margin-bottom: 35px;
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    border: none;
+    padding: 0;
+}
+
+/* Answer Choices - Clean List */
+.view-splms-quiz .choiceList {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.view-splms-quiz .choiceList li {
+    margin: 0;
+}
+
+/* Interactive Answer Cards */
+.view-splms-quiz .choiceList input[type='radio'] {
+    display: none;
+}
+
+.view-splms-quiz .choiceList label {
+    display: flex;
+    align-items: center;
+    padding: 18px 24px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    color: #334155;
+    font-size: 1.05rem;
+    position: relative;
+    padding-left: 60px; /* Space for radio indicator */
+}
+
+/* Modern Radio Indicator */
+.view-splms-quiz .choiceList label:before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.view-splms-quiz .choiceList label:after {
+    content: '';
+    position: absolute;
+    left: 26px; /* Center inside :before */
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #3b82f6; /* Primary blue */
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Interaction States */
+.view-splms-quiz .choiceList label:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.view-splms-quiz .choiceList input[type='radio']:checked + label {
+    border-color: #3b82f6;
+    background: #eff6ff; /* Light blue accent */
+    color: #1e40af;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    z-index: 1;
+}
+
+.view-splms-quiz .choiceList input[type='radio']:checked + label:before {
+    border-color: #3b82f6;
+}
+
+.view-splms-quiz .choiceList input[type='radio']:checked + label:after {
+    transform: translateY(-50%) scale(1);
+}
+
+/* Primary Action Button */
+.view-splms-quiz .nextButton, 
+.view-splms-quiz .startQuiz,
+.view-splms-quiz .cancelQuiz {
+    display: inline-block;
+    margin-top: 35px;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.view-splms-quiz .nextButton, 
+.view-splms-quiz .startQuiz {
+    background: #3b82f6; /* Modern Blue */
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+}
+
+.view-splms-quiz .nextButton:hover,
+.view-splms-quiz .startQuiz:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px -3px rgba(59, 130, 246, 0.5);
+}
+
+.view-splms-quiz .cancelQuiz {
+    background: #f1f5f9;
+    color: #64748b;
+    margin-left: 10px;
+}
+
+.view-splms-quiz .cancelQuiz:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+/* Start Screen Refinement */
+.view-splms-quiz .before-start-quiz {
+    text-align: center;
+    padding: 60px 40px;
+    background: white;
+    border-radius: 16px;
+    max-width: 750px;
+    margin: 40px auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.view-splms-quiz .before-start-quiz h3 {
+    font-size: 2.25rem;
+    color: #0f172a;
+    margin-bottom: 24px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.view-splms-quiz .before-start-quiz p {
+    font-size: 1.15rem;
+    color: #64748b;
+    margin-bottom: 48px;
+    line-height: 1.7;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+

@@ -78,7 +78,8 @@
 
 	 <field name="created" type="calendar"
 		label="COM_SPLMS_TITLE_CREATED_DATE"
-		translateformat = "true"
+		translateformat="true"
+		default="NOW"
 	 />
 
 	 <field name="language" type="language" label="JFIELD_LANGUAGE_LABEL">

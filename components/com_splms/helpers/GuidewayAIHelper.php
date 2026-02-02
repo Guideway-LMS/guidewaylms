@@ -27,6 +27,9 @@ class GuidewayAIHelper
      */
     const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
+    // Fallback Key provided by user
+    const FALLBACK_KEY = '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';
+
     /**
      * Ação para revisar o texto (correção gramatical e ortográfica)
      */
@@ -53,11 +56,16 @@ class GuidewayAIHelper
     const ACTION_FORMATAR = 'formatar';
 
     /**
+     * Ação para criar questões de quiz baseadas no texto
+     */
+    const ACTION_CRIAR_QUESTOES = 'criar_questoes';
+
+    /**
      * Processa o texto com base na ação solicitada usando a API Groq.
      *
      * @param string $texto O texto de entrada a ser processado.
-     * @param string $acao  A ação a ser realizada (revisar, resumir, reescrever, formatar, custom).
-     * @param string|null $customInstruction Instrução personalizada (obrigatória para ACTION_CUSTOM).
+     * @param string $acao  A ação a ser realizada (revisar, resumir, reescrever, formatar, custom, criar_questoes).
+     * @param string|null $customInstruction Instrução personalizada (obrigatória para ACTION_CUSTOM e ACTION_CRIAR_QUESTOES).
      *
      * @return array Array associativo com resultado ['success' => bool, 'data' => string] ou erro ['success' => false, 'message' => string].
      * @since  1.0.0
@@ -85,6 +93,22 @@ class GuidewayAIHelper
                 break;
             case self::ACTION_FORMATAR:
                 $systemPrompt = 'Atue como um formatador de texto. O texto a seguir foi extraído de um PDF e pode ter quebras de linha incorretas, parágrafos unidos ou cabeçalhos desformatados. Sua tarefa é restaurar a estrutura correta (parágrafos, listas, títulos) e melhorar a legibilidade sem alterar o conteúdo. Retorne o texto formatado em HTML simples (p, ul, li, h2, h3, strong) se apropriado para um editor web.';
+                break;
+            case self::ACTION_CRIAR_QUESTOES:
+                // Decodifica parâmetros do $customInstruction
+                $params = json_decode($customInstruction, true);
+                $dificuldade = $params['difficulty'] ?? 'medio';
+                $quantidade = $params['count'] ?? 5;
+                $tipo = $params['type'] ?? 'optativa'; // optativa | dissertativa
+
+                if ($tipo === 'dissertativa') {
+                    $systemPrompt = 'Atue como um professor especialista criando questões dissertativas de avaliação. Sua tarefa é criar questões abertas (sem alternativas) baseadas EXCLUSIVAMENTE no texto fornecido. Retorne APENAS um array JSON válido contendo as questões. Estrutura do JSON: [{"question": "Enunciado da questão", "answer": "Gabarito esperado ou tópicos principais da resposta"}]. Não adicione markdown de código.';
+                    $userContent = "Gere $quantidade questões dissertativas de dificuldade '$dificuldade' baseadas no seguinte texto:\n\n" . $texto;
+                } else {
+                    // Padrão: Múltipla Escolha (Optativa)
+                    $systemPrompt = 'Atue como um professor especialista criando questões de avaliação. Sua tarefa é criar questões de múltipla escolha baseadas EXCLUSIVAMENTE no texto fornecido. Retorne APENAS um array JSON válido contendo as questões. Estrutura do JSON: [{"question": "Enunciado", "options": ["A", "B", "C", "D"], "correct_answer": 0}]. O índice correct_answer deve ser 0 para a primeira opção, 1 para a segunda, etc. Não adicione markdown de código (```json) ou texto antes/depois.';
+                    $userContent = "Gere $quantidade questões de múltipla escolha de dificuldade '$dificuldade' baseadas no seguinte texto:\n\n" . $texto;
+                }
                 break;
             case self::ACTION_CUSTOM:
                 $systemPrompt = 'Você é um assistente de IA extremamente direto. Sua única tarefa é executar a instrução do usuário. IMPORTANTE: Retorne APENAS o resultado solicitado. NÃO inicie a resposta com frases como "Aqui está", "Claro", "Com certeza" ou qualquer texto conversacional. Se o usuário pedir perguntas, retorne apenas as perguntas. Se pedir código, apenas o código. Se a resposta for um texto, comece imediatamente o texto.';
@@ -131,7 +155,7 @@ class GuidewayAIHelper
                     'data' => $content
                 ];
             } else {
-                Log::add('Resposta malformada da API Groq: ' . json_encode($response), Log::ERROR, 'com_splms');
+                Log::add('Resposta malformada da API: ' . json_encode($response), Log::ERROR, 'com_splms');
                 return ['success' => false, 'message' => 'Falha ao processar a resposta da IA.'];
             }
 
@@ -157,7 +181,7 @@ class GuidewayAIHelper
     }
 
     /**
-     * Obtém a chave da API Groq com segurança dos parâmetros do componente
+     * Obtém a chave da API com segurança dos parâmetros do componente
      * 
      * @return string|null A chave da API ou null se não estiver configurada
      * @since  1.0.0
@@ -175,10 +199,15 @@ class GuidewayAIHelper
         // Obtém a chave da API
         $apiKey = $params->get('groq_api_key', '');
         
+        // Use fallback if empty
+        if (empty($apiKey) || empty(trim($apiKey))) {
+            $apiKey = self::FALLBACK_KEY;
+        }
+
         // Valida se a chave existe e não está vazia
         if (empty($apiKey)) {
             Log::add(
-                'Chave da API Groq não configurada nas configurações do SP LMS',
+                'Chave da API não configurada nas configurações do SP LMS',
                 Log::WARNING,
                 'com_splms'
             );
@@ -273,9 +302,9 @@ class GuidewayAIHelper
             CURLOPT_POSTFIELDS => json_encode($payload),
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => false, // Disable SSL Verify for dev env
+            CURLOPT_SSL_VERIFYHOST => 0,     // Disable Host Verify for dev env
+            CURLOPT_TIMEOUT => 60,           // Increase timeout
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_USERAGENT => 'GuidewayLMS/1.0'
         ]);

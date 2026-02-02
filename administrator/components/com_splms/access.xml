@@ -8,6 +8,7 @@
 		<action name="core.edit" title="JACTION_EDIT" description="JACTION_EDIT_COMPONENT_DESC" />
 		<action name="core.edit.state" title="JACTION_EDITSTATE" description="JACTION_EDITSTATE_COMPONENT_DESC" />
 		<action name="core.edit.own" title="JACTION_EDITOWN" description="JACTION_EDITOWN_COMPONENT_DESC" />
+		<action name="ai.architect" title="JACTION_AI_ARCHITECT" description="JACTION_AI_ARCHITECT_COMPONENT_DESC" />
 		<action name="ai.generate" title="JACTION_AI_GENERATE" description="JACTION_AI_GENERATE_COMPONENT_DESC" />
 		<action name="ai.refine" title="JACTION_AI_REFINE" description="JACTION_AI_REFINE_COMPONENT_DESC" />
 	</section>
