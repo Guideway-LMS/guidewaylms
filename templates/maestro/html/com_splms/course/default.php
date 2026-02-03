@@ -23,7 +23,13 @@ HTMLHelper::_('jquery.framework');
 $input = Factory::getApplication()->input;
 $doc = Factory::getDocument();
 $user = Factory::getUser();
+
+// GUIDEWAY CUSTOM - Focus Mode Logic
+$isEnrolled = ($this->isAuthorised != '');
+$mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 ?>
+
+
 
 <div id="splms" class="splms view-splms-course course-details">
 	<div class="splms-course">
@@ -94,8 +100,9 @@ $user = Factory::getUser();
 		</div>
 
 		<div class="row">
-			<div class="splms-col-md-8">
+			<div class="<?php echo $mainColClass; ?>">
 				<!-- Navigation -->
+				<?php if ($this->isAuthorised == '') { ?>
 				<div class="nav-area ">
 					<div class="container">
 						<ul>
@@ -106,7 +113,23 @@ $user = Factory::getUser();
 						</ul>
 					</div>
 				</div>
+				<?php } ?>
 				<!-- Navigation -->
+
+				<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
+					<div class="splms-course-announcements splms-section" style="margin-bottom: 30px; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid #1a73e8;">
+						<h3 class="splms-title" style="margin-top: 0; display: flex; align-items: center; color: #1a73e8;">
+							<i class="fa fa-bullhorn" aria-hidden="true" style="margin-right: 10px;"></i> Mural de Avisos
+						</h3>
+
+						<?php
+							echo LayoutHelper::render(
+								'announcements.list',
+								['items' => $this->announcements]
+							);
+						?>
+					</div>
+				<?php endif; ?>
 
 				<?php if ($this->item->description) { ?>
 					<div id="course-about" class="splms-course-description">
@@ -148,18 +171,33 @@ $user = Factory::getUser();
 						<?php } ?>
 					</div>
 
-					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
-						<div class="splms-course-announcements splms-section">
-							<h3 class="splms-title">Mural de Avisos</h3>
+		<!-- Has quiz -->
+		<?php if (!empty($this->quizzes) && count($this->quizzes) && $this->quizzes) { ?>
+			<div class="splms-course-quizzes">
+				<h3><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
+				<ul class="list-unstyled">
+					<?php foreach ($this->quizzes as $quiz) {
+						$qtype = ($quiz->quiz_type == 1) ? Text::_('COM_SPLMS_PAID') : Text::_('COM_SPLMS_FREE');
+					?>
+						<li>
+							<span>
+								<i class="fa fa-question-circle"></i>
+								<a href="<?php echo $quiz->url; ?>">
+									<?php echo $quiz->title; ?>
+								</a>
+							</span>
+							<span class="pull-right">
+								<?php echo $qtype; ?>
+							</span>
+						</li>
+					<?php } // END:: foreach 
+					?>
+				</ul>
+			</div>
+		<?php } ?>
+		<!-- END::  quiz -->
 
-							<?php
-								echo LayoutHelper::render(
-									'announcements.list',
-									['items' => $this->announcements]
-								);
-							?>
-						</div>
-					<?php endif; ?>
+
 
 
 					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
@@ -274,8 +312,9 @@ $user = Factory::getUser();
 					</div>
 					<!--/.user-reviews-->
 				<?php } ?>
-			</div>
+			</div> <!-- Close splms-col-md-8/12 -->
 
+			<?php if (!$isEnrolled) { ?>
 			<div class="splms-col-md-4">
 				<!-- start course-header -->
 				<div class="course-header clearfix">
@@ -356,7 +395,7 @@ $user = Factory::getUser();
 				</div> <!-- end course-header -->
 
 				<div class="splms-course-introduction">
-					<?php if ($this->params->get('course_social_share', 1)) { ?>
+					<?php if ($this->params->get('course_social_share', 1) && $this->isAuthorised == '') { ?>
 						<div class="splms-section splms-course-social-share">
 							<h3 class="splms-section-title"><?php echo Text::_('COM_SPLMS_SOCIAL_SHARE'); ?></h3>
 							<?php echo LayoutHelper::render('social_share', array('url' => $this->item->link, 'title' => $this->item->title)); ?>
@@ -364,33 +403,10 @@ $user = Factory::getUser();
 					<?php } ?>
 				</div>
 			</div>
-		</div>
+			<?php } ?>
+		</div> <!-- End Row -->
 
-		<!-- Has quiz -->
-		<?php if (!empty($this->quizzes) && count($this->quizzes) && $this->quizzes) { ?>
-			<div class="splms-course-quizzes">
-				<h3><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
-				<ul class="list-unstyled">
-					<?php foreach ($this->quizzes as $quiz) {
-						$qtype = ($quiz->quiz_type == 1) ? Text::_('COM_SPLMS_PAID') : Text::_('COM_SPLMS_FREE');
-					?>
-						<li>
-							<span>
-								<i class="fa fa-question-circle"></i>
-								<a href="<?php echo $quiz->url; ?>">
-									<?php echo $quiz->title; ?>
-								</a>
-							</span>
-							<span class="pull-right">
-								<?php echo $qtype; ?>
-							</span>
-						</li>
-					<?php } // END:: foreach 
-					?>
-				</ul>
-			</div>
-		<?php } ?>
-		<!-- END::  quiz -->
+
 
 		<?php if (isset($this->item->course_schedules) && $this->item->course_schedules && count($this->item->course_schedules) && $this->item->course_schedules) { ?>
 			<div class="splms-course-class-rotuines">
