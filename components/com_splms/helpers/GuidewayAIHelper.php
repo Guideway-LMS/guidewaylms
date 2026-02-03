@@ -27,8 +27,6 @@ class GuidewayAIHelper
      */
     const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-    // Fallback Key provided by user
-    const FALLBACK_KEY = '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';
 
     /**
      * Ação para revisar o texto (correção gramatical e ortográfica)
@@ -199,11 +197,6 @@ class GuidewayAIHelper
         // Obtém a chave da API
         $apiKey = $params->get('groq_api_key', '');
         
-        // Use fallback if empty
-        if (empty($apiKey) || empty(trim($apiKey))) {
-            $apiKey = self::FALLBACK_KEY;
-        }
-
         // Valida se a chave existe e não está vazia
         if (empty($apiKey)) {
             Log::add(
@@ -302,8 +295,8 @@ class GuidewayAIHelper
             CURLOPT_POSTFIELDS => json_encode($payload),
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false, // Disable SSL Verify for dev env
-            CURLOPT_SSL_VERIFYHOST => 0,     // Disable Host Verify for dev env
+            // CURLOPT_SSL_VERIFYPEER => false, // Disable SSL Verify for dev env
+            // CURLOPT_SSL_VERIFYHOST => 0,     // Disable Host Verify for dev env
             CURLOPT_TIMEOUT => 60,           // Increase timeout
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_USERAGENT => 'GuidewayLMS/1.0'
