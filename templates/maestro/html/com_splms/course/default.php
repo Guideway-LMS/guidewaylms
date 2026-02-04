@@ -140,8 +140,8 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 				<?php } ?>
 
 				<?php if ((!empty($this->item->topics) && count($this->item->topics)) || (!empty($this->item->lessons) && count($this->item->lessons))) { ?>
-					<div id="course-lessons" class="course-lessons">
-						<h3><?php echo Text::_('COM_SPLMS_LESSONS'); ?></h3>
+					<div id="course-lessons" class="course-lessons" style="margin-bottom: 70px;">
+						<h3><i class="fa fa-book" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_LESSONS'); ?></h3>
 						<?php if (!empty($this->item->topics) && count($this->item->topics)) { ?>
 							<div id="topicAccordion">
 								<?php foreach ($this->item->topics as $key => $topic) { ?>
@@ -173,8 +173,8 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
 		<!-- Has quiz -->
 		<?php if (!empty($this->quizzes) && count($this->quizzes) && $this->quizzes) { ?>
-			<div class="splms-course-quizzes">
-				<h3><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
+			<div class="splms-course-quizzes" style="margin-bottom: 70px;">
+				<h3><i class="fa fa-pencil-square-o" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
 				<ul class="list-unstyled">
 					<?php foreach ($this->quizzes as $quiz) {
 						$qtype = ($quiz->quiz_type == 1) ? Text::_('COM_SPLMS_PAID') : Text::_('COM_SPLMS_FREE');
@@ -201,8 +201,9 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
 
 					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
-						<div class="splms-course-forum splms-section">
-							<h3 class="splms-title">Fórum de Dúvidas</h3>
+						
+						<div class="splms-course-forum splms-section" style="margin-bottom: 70px;">
+							<h3 class="splms-title"><i class="fa fa-comments" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i>Fórum de Dúvidas</h3>
 							
 							<?php
 							try {
@@ -233,8 +234,8 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
 				<!-- Has teacher -->
 				<?php if (!empty($this->teachers)) { ?>
-					<div id="course-instructor" class="splms-course-teachers">
-						<h3><?php echo Text::_('COM_SPLMS_MEET_OUR_COURSE_TEACHER'); ?></h3>
+					<div id="course-instructor" class="splms-course-teachers" style="margin-bottom: 70px;">
+						<h3><i class="fa fa-users" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_MEET_OUR_COURSE_TEACHER'); ?></h3>
 						<div class="splms-row">
 							<?php foreach ($this->teachers as $teacher) { ?>
 								<div class="splms-course-teacher">
@@ -259,12 +260,14 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 					<div id="course-reviews" class="user-reviews">
 						<div class="reviews-menu">
 							<div class="title-wrap">
-								<h3 class="title"><?php echo Text::_('COM_SPLMS_REVIEWS'); ?></h3>
+								<h3 class="title"><i class="fa fa-star" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_REVIEWS'); ?></h3>
 								<div class="myreviews-wrap">
 									<ul class="list-inline list-style-none">
 										<?php if ($this->myReview) { ?>
 											<li><a id="splms-my-review" class="btn btn-primary" href="#"><i class="splms-icon-write"></i> <?php echo Text::_('COM_SPLMS_EDIT_REVIEW'); ?></a></li>
 										<?php } ?>
+
+
 
 										<?php if ($user->guest) { ?>
 											<li><a href="<?php echo Route::_('index.php?option=com_users&view=login&return=' . base64_encode('index.php?option=com_splms&view=course&id=' . $this->item->id . ':' . $this->item->alias . SplmsHelper::getItemid('courses'))); ?>" class="btn btn-primary"><i class="fa fa-pencil-square-o"></i> <?php echo Text::_('COM_SPLMS_LOGIN_TO_REVIEW'); ?></a></li>
@@ -445,7 +448,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 			</div> <!-- //.splms-course-class-rotuines -->
 		<?php } ?>
 
-		<?php if ($this->show_related_courses) {
+		<?php if ($this->show_related_courses && !$isEnrolled) {
 			if (isset($this->related_courses) && is_array($this->related_courses)) { ?>
 				<div class="splms-similar-courses">
 					<h3 class="splms-title"><?php echo Text::_('COM_SPLMS_SIMILAR_CLASSES'); ?></h3>
