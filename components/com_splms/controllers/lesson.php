@@ -1,58 +1,61 @@
 <?php
 /**
- * @package com_splms
- * @author JoomShaper http://www.joomshaper.com
- * @copyright Copyright (c) 2010 - 2024 JoomShaper
+ * @package SP LMS
+ * @subpackage com_splms
+ * @author JoomShaper https://www.joomshaper.com
+ * @copyright Copyright (c) 2010 - 2023 JoomShaper
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
- **/
+ */
 
+// No Direct Access
 defined('_JEXEC') or die('Restricted Access');
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
-use Joomla\CMS\MVC\Controller\FormController;
+use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Filesystem\Path; // Adicionado para garantir compatibilidade
+use Joomla\CMS\Filesystem\Path;
 
-class SplmsControllerLesson extends FormController {
+class SplmsControllerLesson extends BaseController {
 
   public function __construct($config = array()) {
-    parent::__construct($config);
+      parent::__construct($config);
   }
 
   public function getModel($name = 'Lessons', $prefix = 'SplmsModel', $config = array()) {
-    return parent::getModel($name, $prefix, $config);
+      return parent::getModel($name, $prefix, array('ignore_request' => true));
   }
 
   public function completeditem() {
-    $model  = $this->getModel();
-    $user   = Factory::getUser();
-    $input  = Factory::getApplication()->input;
-    $output = array();
+      $app = Factory::getApplication();
+      $input = $app->input;
+      $user = Factory::getUser();
 
-    if(!$user->id) {
-      $output['status'] = false;
-      $output['content'] = Text::_('COM_SPLMS_LOGIN_TO_REVIEW');
-      echo json_encode($output);
-      die();
-    }
+      $item_id = $input->get('item_id', 0, 'INT');
+      $item_type = $input->get('item_type', '', 'STRING');
+      $user_id = $input->get('user_id', 0, 'INT');
+      $course_id = $input->get('course_id', 0, 'INT');
 
-    $item_id   = $input->post->get('item_id', 0, 'INT');
-    $item_type = $input->post->get('item_type', NULL, 'STRING');
+      if($user_id != $user->id) {
+          $output['success'] = false;
+          $output['message'] = 'You do not have permission to complete this item.';
+          echo json_encode($output);
+          die();
+      }
 
-    $output['status'] = false;
-    if($item_id && $item_type) {
-      $submitted = $model->completedItem($item_id, $item_type, $user->id);
-      $output['content'] = Text::_('COM_SPLMS_LESSON_COMPLETED');
-      $output['status'] = true;
-    }
+      $model = $this->getModel();
 
-    echo json_encode($output);
-    die();
+      if(method_exists($model, 'completedItem')) {
+          $result = $model->completedItem($item_id, $item_type, $user_id, $course_id);
+          echo json_encode($result);
+          die();
+      }
   }
+public function uploadassignment() {
+    // Redireciona para o método submit
+    return $this->submit();
+}
 
- // --- FUNÇÃO DE ENVIO SEGURA (SEM COMENTÁRIO) ---
   public function submit() {
       // 1. Inicialização e Segurança Básica
       $app   = Factory::getApplication();
@@ -99,7 +102,7 @@ class SplmsControllerLesson extends FormController {
       // 3.2 Valida Extensão (Lista Branca - Só permite arquivos seguros)
       $allowedExts = ['pdf', 'zip', 'rar', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'mp4'];
       $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-      
+
       if (!in_array($ext, $allowedExts)) {
           $this->setRedirect(
               Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
@@ -110,39 +113,47 @@ class SplmsControllerLesson extends FormController {
       }
 
       // 4. Preparação do Arquivo
-      $uploadDir = JPATH_ROOT . '/images/uploads/submissions/';
-      if (!file_exists($uploadDir)) {
+      // GUIDEWAY CUSTOM - Joshua - Fevereiro 2026
+      // Salva FORA do public_html para segurança (TAREFA DA DAILY)
+     $uploadDir = '/var/www/uploads_privados/trabalhos/';
+// DEBUG - Remover depois
+	if (!file_exists($uploadDir)) {
           mkdir($uploadDir, 0755, true);
           // Cria index.html vazio para segurança
           file_put_contents($uploadDir . 'index.html', '');
       }
 
-      // Gera nome único e seguro: timestamp_usuario_nomelimpo
-      $cleanName   = Path::clean(pathinfo($file['name'], PATHINFO_FILENAME));
-      $cleanName   = preg_replace('/[^a-zA-Z0-9_-]/', '', $cleanName); 
-      $newFileName = time() . '_u' . $user->id . '_' . $cleanName . '.' . $ext;
-      
+      // Gera nome ANONIMIZADO com random_bytes (TAREFA DA DAILY)
+      $hash = bin2hex(random_bytes(20)); // 40 caracteres hexadecimais
+      $newFileName = $hash . '.' . $ext;
+
       $targetPath = $uploadDir . $newFileName;
-      $dbPath     = 'images/uploads/submissions/' . $newFileName;
+      // Caminho relativo para salvar no banco
+      $dbPath = 'uploads_privados/trabalhos/' . $newFileName;
+      
+      // Guardar nome original para o professor ver (TAREFA DA DAILY)
+      $originalFileName = $file['name'];
 
       // 5. Upload e Gravação no Banco
       if (File::upload($file['tmp_name'], $targetPath)) {
           $db = Factory::getDbo();
           $query = $db->getQuery(true);
-          
-          // Colunas originais (sem student_comment)
+
+          // Colunas + nome original (TAREFA DA DAILY)
           $columns = array(
-              'user_id', 
-              'lesson_id', 
-              'file_path', 
-              'status', 
+              'user_id',
+              'lesson_id',
+              'file_path',
+              'original_filename',
+              'status',
               'submitted_at'
           );
-          
+
           $values  = array(
               (int) $user->id,
               (int) $lesson_id,
               $db->quote($dbPath),
+              $db->quote($originalFileName),
               0, // Status 0 = Pendente
               'NOW()'
           );
@@ -150,16 +161,16 @@ class SplmsControllerLesson extends FormController {
           $query->insert($db->quoteName('#__splms_submissions'))
                 ->columns($db->quoteName($columns))
                 ->values(implode(',', $values));
-          
+
           $db->setQuery($query);
-          
+
           try {
               $db->execute();
 
               // Atualiza progresso do curso
               $model = $this->getModel();
               if (method_exists($model, 'completedItem')) {
-                   $model->completedItem($lesson_id, 'lesson', $user->id); 
+                   $model->completedItem($lesson_id, 'lesson', $user->id);
               }
 
               $this->setRedirect(
@@ -174,7 +185,7 @@ class SplmsControllerLesson extends FormController {
               if (file_exists($targetPath)) {
                   File::delete($targetPath);
               }
-              
+
               $this->setRedirect(
                   Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
                   'Erro ao salvar registro. Tente novamente.',
