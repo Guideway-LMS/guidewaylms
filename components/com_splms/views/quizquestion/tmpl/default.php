@@ -21,6 +21,9 @@ use Joomla\CMS\Uri\Uri;
 
 			<div class="before-start-quiz">
 				<div class="quiz-content">
+					<div class="quiz-icon-wrapper" style="font-size: 4rem; color: #3b82f6; margin-bottom: 20px;">
+						<i class="fa fa-file-text-o"></i>
+					</div>
 					<h3><?php echo $this->item->title; ?></h3>
 					<p><?php echo $this->item->description; ?></p>
 				</div>
@@ -33,7 +36,6 @@ use Joomla\CMS\Uri\Uri;
 			<div class="quizContainer">
 				<div class="countdown-wrapper">
 					<span id="timer"><i class="fa fa-clock-o"></i></span><span id="countdown"></span> 
-					<?php echo Text::_('COM_SPMS_QUIZ_SECONDS'); ?>
 				</div>
 				<div class="quizMessage"></div>
 				<div class="ques-ans-wrapper">

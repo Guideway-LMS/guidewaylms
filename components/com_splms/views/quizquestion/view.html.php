@@ -213,9 +213,29 @@ class SplmsViewQuizquestion extends HtmlView{
 			}
 
 			function displayScore() {
-				$(document).find(".quizContainer .ques-ans-wrapper").hide();
-			    $(document).find(".lms-result-wrapper > .result").text(Joomla.Text._('COM_SPLMS_QUIZ_SCORED') + correctAnswers + Joomla.Text._('COM_SPLMS_QUIZ_SCORE_OUT_OF') + questions.length);
-			    $(document).find(".lms-result-wrapper > .result").show().addClass('active');
+				$(document).find(".quizContainer").hide();
+				$(document).find(".before-start-quiz").hide(); // Garantir que a tela inicial sumiu
+			    
+			    var percentage = Math.round((correctAnswers / questions.length) * 100);
+			    var message = percentage >= 70 ? "Excelente!" : "Bom esforço!";
+			    var subMessage = percentage >= 70 ? "Você domina este assunto." : "Continue estudando para melhorar.";
+			    var icon = percentage >= 70 ? "fa-star" : "fa-refresh";
+			    var iconColor = percentage >= 70 ? "#fab005" : "#3b82f6";
+			    
+			    var html = '<div class="quiz-result-card">' +
+			               '<div class="circular-progress" style="background: conic-gradient(#3b82f6 ' + percentage + '%, #e2e8f0 ' + percentage + '%);">' +
+			                   '<div class="inner-circle">' +
+			                       '<span class="score-percent">' + percentage + '%</span>' +
+			                       '<span class="score-fraction">Acertos: ' + correctAnswers + ' de ' + questions.length + '</span>' +
+			                   '</div>' +
+			               '</div>' +
+			               '<h3>' + message + '</h3>' +
+			               '<p class="result-submessage">' + subMessage + '</p>' +
+			               '<a class="btn btn-primary btn-lg btn-restart" href="<?php echo $this->courese->url; ?>">Voltar ao Curso</a>' +
+			               '</div>';
+
+			    $(document).find(".lms-result-wrapper .result").html(html);
+			    $(document).find(".lms-result-wrapper .result").show().addClass('active');
 			    $("#countdown").stop(true);
 			}
 
@@ -229,9 +249,9 @@ class SplmsViewQuizquestion extends HtmlView{
 			function hideScore() {
 			    $(document).find(".lms-result-wrapper > .result").hide();
 			}
-			// Countdown
+			// Contagem Regressiva
 			$(".startQuiz").click(function(){ 
-				// Count-down
+				// Contagem regressiva
 				jQuery("#countdown").countDown({
 					startNumber: <?php echo $this->item->duration; ?>,
 					callBack: function(me) {
@@ -261,7 +281,7 @@ class SplmsViewQuizquestion extends HtmlView{
 			}) // END:: onclick start countdown
 
 
-			//Ajax insert Data Form
+			//Ajax inserir dados do formulário
 			function insertScore() {
 				jQuery(function($) {
 
