@@ -100,6 +100,10 @@ class SplmsViewQuizquestion extends HtmlView{
 
 			jQuery(function($) {
 
+			// IIFE para encapsular variáveis e evitar poluição do escopo global
+			(function() {
+				"use strict";
+
 			$(".startQuiz").click(function(){
 				$(document).find(".quizContainer").show();
 				$(document).find(".before-start-quiz").hide();
@@ -119,6 +123,7 @@ class SplmsViewQuizquestion extends HtmlView{
 
 			];
 
+			// Variáveis encapsuladas no escopo da IIFE
 			var currentQuestion = 0;
 			var correctAnswers = 0;
 			var quizOver = false;
@@ -139,8 +144,8 @@ class SplmsViewQuizquestion extends HtmlView{
 			                $(document).find(".quizMessage").text(Joomla.Text._('COM_SPLMS_QUIZ_SELECT_ANSWER'));
 			                $(document).find(".quizMessage").show();
 			            } else {
-			                // TODO: Remove any message -> not sure if this is efficient to call this each time....
-			                $(document).find(".quizMessage").hide();
+                // Ocultar mensagem de erro se existir
+                $(document).find(".quizMessage").hide();
 
 			                if (value == questions[currentQuestion].correctAnswer) {
 			                    correctAnswers++;
@@ -159,27 +164,22 @@ class SplmsViewQuizquestion extends HtmlView{
 
 							    $(".nextButton").on( "click", function() {	
 									location.reload(true);
-									//console.log('clicked');
-								});
+							});
 
 								quizOver = true;
 			                }
 			            }
-			        } else { // quiz is over and clicked the next button (which now displays 'Play Again?'
-			            quizOver = false;
-			            //$(document).find(".nextButton").text("Next Question > ");
-			            resetQuiz();
-			            //displayCurrentQuestion();
-			            hideScore();
-			        }
+			        } else {
+            quizOver = false;
+            resetQuiz();
+            hideScore();
+        }
 			    });
 
 			});
 
-			// This displays the current question AND the choices
+			// Exibe a pergunta atual e as escolhas
 			function displayCurrentQuestion() {
-
-			    //console.log("In display current Question");
 			    var question = questions[currentQuestion].question;
 			    var questionClass = $(document).find(".quizContainer .ques-ans-wrapper > .question");
 			    var choiceList = $(document).find(".quizContainer .ques-ans-wrapper > .choiceList");
@@ -189,7 +189,6 @@ class SplmsViewQuizquestion extends HtmlView{
 			    $(document).find(".quizContainer #countdown").show();
 			    $(document).find(".nextButton").removeClass("playagain");
 			    $(document).find(".quizContainer .ques-ans-wrapper").show();
-				$(document).find(".quizContainer .ques-ans-wrapper").show();
 				$('.countdown-wrapper').show();
 
 			    // Set the questionClass text to the current question
@@ -214,15 +213,13 @@ class SplmsViewQuizquestion extends HtmlView{
 
 			function displayScore() {
 				$(document).find(".quizContainer").hide();
-				$(document).find(".before-start-quiz").hide(); // Garantir que a tela inicial sumiu
+				$(document).find(".before-start-quiz").hide();
 			    
 			    var percentage = Math.round((correctAnswers / questions.length) * 100);
 			    var message = percentage >= 70 ? "Excelente!" : "Bom esforço!";
-			    var subMessage = percentage >= 70 ? "Você domina este assunto." : "Continue estudando para melhorar.";
-			    var icon = percentage >= 70 ? "fa-star" : "fa-refresh";
-			    var iconColor = percentage >= 70 ? "#fab005" : "#3b82f6";
+			    var subMessage = percentage >= 70 ? "Você domina este assunto." : "Continue estudando para melhorar";
 			    
-			    var html = '<div class="quiz-result-card">' +
+			    var html = '<div class="quiz-result-card" role="alert" aria-live="polite">' +
 			               '<div class="circular-progress" style="background: conic-gradient(#3b82f6 ' + percentage + '%, #e2e8f0 ' + percentage + '%);">' +
 			                   '<div class="inner-circle">' +
 			                       '<span class="score-percent">' + percentage + '%</span>' +
@@ -263,18 +260,12 @@ class SplmsViewQuizquestion extends HtmlView{
 							$(".lms-result-wrapper > .result").show().addClass('active');
 					    	$(".quizContainer .ques-ans-wrapper").hide();
 					    	//$(".quizContainer .nextButton").text("Start Again?");
-					    	$(".quizContainer .nextButton").hide();
+							$(".quizContainer .nextButton").hide();
 
-					    	//resetQuiz();
 					    	insertScore();
 					    	
 					    	quizOver = true;
-					  //   	$(".nextButton").on( "click", function() {
-							// 	location.reload(true);
-							// 	//console.log('clicked');
-							// });
 						};
-						//jQuery(me).text("All done! This is where you give the reward!").css("color", "#090");
 					}
 				});
 
@@ -315,6 +306,12 @@ class SplmsViewQuizquestion extends HtmlView{
 				            		displayError();
 				            	}
 				            	
+				            },
+				            error: function(xhr, status, error) {
+				            	// Tratamento de erro de rede/servidor
+				            	console.error('Erro ao salvar resultado:', error);
+				            	alert('Erro ao salvar o resultado. Por favor, verifique sua conexão e tente novamente.');
+				            	displayScore(); // Mostra o resultado mesmo assim
 				            }
 				        });
 
@@ -323,6 +320,8 @@ class SplmsViewQuizquestion extends HtmlView{
 				    //});
 				});
 			}
+
+			})(); // Fim da IIFE
 
 			});
 

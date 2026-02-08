@@ -1768,10 +1768,6 @@
   margin-top: 30px;
 }
 
-.splms.course-details .course-header>div {
-  /* display: inline-block; */
-}
-
 .splms.course-details .course-header h2.course-title {
   margin: 0;
   font-size: 24px;
@@ -3955,68 +3951,58 @@ ul.course-info>li>a {
   margin-top: 20px;
 }
 
-.quiz-result-card {
-  background: #f9fafb !important;
-  /* Cinza bem claro conforme solicitado */
-  /* Forçar fundo cinza claro */
+.splms.view-splms-quiz .lms-result-wrapper .quiz-result-card {
+  background: #f9fafb;
+  /* Cinza bem claro */
   padding: 60px 40px;
   border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
   max-width: 800px;
-  /* Reduzido levemente para garantir respiro */
   width: 100%;
   text-align: center;
   border: 1px solid rgba(0, 0, 0, 0.04);
   animation: fadeIn 0.5s ease-out;
   margin: 0 auto;
-  /* Ensure centering */
-  display: block !important;
-  /* Fix potential display issues */
+  display: block;
   position: relative;
   z-index: 10;
 }
 
 /* Barra de Progresso Circular */
-.quiz-result-card .circular-progress {
-  position: relative !important;
-  width: 160px !important;
-  height: 160px !important;
-  border-radius: 50% !important;
-  margin: 0 auto 30px auto !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
+.splms.view-splms-quiz .quiz-result-card .circular-progress {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  margin: 0 auto 30px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: #e2e8f0;
-  /* Fallback */
-  overflow: hidden !important;
-  /* Garantir que o conteúdo fique no círculo */
+  overflow: hidden;
 }
 
-.quiz-result-card .circular-progress::before {
+.splms.view-splms-quiz .quiz-result-card .circular-progress::before {
   content: "";
-  position: absolute !important;
-  width: 140px !important;
-  /* Espessura determinada pela diferença entre externo e interno */
-  height: 140px !important;
-  border-radius: 50% !important;
-  background: #f9fafb !important;
-  /* Combinar com o fundo do cartão */
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: #f9fafb;
   top: 10px;
-  /* (160-140)/2 */
   left: 10px;
   z-index: 0;
 }
 
-.quiz-result-card .inner-circle {
-  position: relative !important;
-  z-index: 10 !important;
-  /* Colocar acima do círculo branco */
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  height: 100% !important;
+.splms.view-splms-quiz .quiz-result-card .inner-circle {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .quiz-result-card .score-percent {
@@ -4073,6 +4059,47 @@ ul.course-info>li>a {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsividade Mobile para Resultado do Quiz */
+@media (max-width: 480px) {
+  .splms.view-splms-quiz .lms-result-wrapper .quiz-result-card {
+    padding: 40px 20px;
+    border-radius: 16px;
+  }
+
+  .splms.view-splms-quiz .quiz-result-card .circular-progress {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 20px;
+  }
+
+  .splms.view-splms-quiz .quiz-result-card .circular-progress::before {
+    width: 100px;
+    height: 100px;
+  }
+
+  .quiz-result-card .score-percent {
+    font-size: 32px;
+  }
+
+  .quiz-result-card .score-fraction {
+    font-size: 11px;
+  }
+
+  .quiz-result-card h3 {
+    font-size: 22px;
+  }
+
+  .quiz-result-card .result-submessage {
+    font-size: 14px;
+  }
+
+  .quiz-result-card .btn-restart {
+    padding: 10px 24px;
+    font-size: 14px;
+    min-width: 150px;
   }
 }
 
