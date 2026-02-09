@@ -51,144 +51,139 @@ class SplmsControllerLesson extends FormController {
     echo json_encode($output);
     die();
   }
-
- // --- FUNÇÃO DE ENVIO SEGURA (SEM COMENTÁRIO) ---
-  public function submit() {
-      // 1. Inicialização e Segurança Básica
+// --- FUNÇÃO DE ENVIO COM SEGURANÇA (VALIDAÇÃO DE TIPO E TAMANHO) ---
+ public function submit() {
       $app   = Factory::getApplication();
       $input = $app->input;
       $user  = Factory::getUser();
 
-      // Checa login
-      if ($user->guest) {
-          $this->setRedirect('index.php', 'Você precisa estar logado para enviar trabalhos.', 'warning');
-          return false;
-      }
+      // --- VACINA CONTRA ARQUIVO GIGANTE (SERVER CRASH) ---
+      if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
+          
+          $lesson_id = $input->getInt('lesson_id', 0); 
 
-      // Checa Token CSRF (Proteção contra hackers)
-      if (!\Joomla\CMS\Session\Session::checkToken()) {
-          $this->setRedirect('index.php', 'Sessão expirada ou token inválido. Tente novamente.', 'error');
-          return false;
-      }
+          if (!$lesson_id) {
+             // MUDANÇA: Se o ID sumiu, vai para a página inicial (seguro)
+             $redirectUrl = 'index.php'; 
+          } else {
+             $redirectUrl = 'index.php?option=com_splms&view=lesson&id=' . $lesson_id;
+          }
 
-      // 2. Recebe os dados
-      $lesson_id = $input->getInt('lesson_id');
-      $file      = $input->files->get('uploaded_file');
-
-      // 3. Validações de Arquivo (SEGURANÇA CRÍTICA)
-      if (!$file || $file['error'] != 0) {
           $this->setRedirect(
-              Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-              'Nenhum arquivo enviado ou erro no upload.',
-              'warning'
-          );
-          return false;
-      }
-
-      // 3.1 Valida Tamanho (Máximo 10MB)
-      $maxSize = 10 * 1024 * 1024; // 10MB
-      if ($file['size'] > $maxSize) {
-          $this->setRedirect(
-              Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-              'O arquivo é muito grande. O limite máximo é 10MB.',
-              'warning'
-          );
-          return false;
-      }
-
-      // 3.2 Valida Extensão (Lista Branca - Só permite arquivos seguros)
-      $allowedExts = ['pdf', 'zip', 'rar', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'mp4'];
-      $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-      
-      if (!in_array($ext, $allowedExts)) {
-          $this->setRedirect(
-              Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-              'Formato não permitido. Aceitamos apenas: PDF, ZIP, DOC, Imagens ou MP4.',
+              Route::_($redirectUrl, false),
+              'Erro: O arquivo é maior do que o servidor permite (Crash). Tente um arquivo menor que 2MB.',
               'error'
           );
           return false;
       }
+      // -----------------------------------------------------
 
-      // 4. Preparação do Arquivo
-      $uploadDir = JPATH_ROOT . '/images/uploads/submissions/';
-      if (!file_exists($uploadDir)) {
-          mkdir($uploadDir, 0755, true);
-          // Cria index.html vazio para segurança
-          file_put_contents($uploadDir . 'index.html', '');
+      // 1. Verificação de Login
+      if ($user->guest) {
+          $this->setRedirect('index.php', 'Você precisa estar logado.', 'warning');
+          return false;
       }
 
-      // Gera nome único e seguro: timestamp_usuario_nomelimpo
-      $cleanName   = Path::clean(pathinfo($file['name'], PATHINFO_FILENAME));
-      $cleanName   = preg_replace('/[^a-zA-Z0-9_-]/', '', $cleanName); 
-      $newFileName = time() . '_u' . $user->id . '_' . $cleanName . '.' . $ext;
-      
-      $targetPath = $uploadDir . $newFileName;
-      $dbPath     = 'images/uploads/submissions/' . $newFileName;
+      // 2. Verificação de Token (CSRF)
+      if (!JSession::checkToken()) {
+          $this->setRedirect('index.php', 'Token de segurança inválido. Tente recarregar a página.', 'error');
+          return false;
+      }
 
-      // 5. Upload e Gravação no Banco
-      if (File::upload($file['tmp_name'], $targetPath)) {
-          $db = Factory::getDbo();
-          $query = $db->getQuery(true);
-          
-          // Colunas originais (sem student_comment)
-          $columns = array(
-              'user_id', 
-              'lesson_id', 
-              'file_path', 
-              'status', 
-              'submitted_at'
-          );
-          
-          $values  = array(
-              (int) $user->id,
-              (int) $lesson_id,
-              $db->quote($dbPath),
-              0, // Status 0 = Pendente
-              'NOW()'
-          );
+      $lesson_id = $input->getInt('lesson_id');
+      $file      = $input->files->get('uploaded_file');
+      $comment   = $input->getString('student_comment', ''); // Captura o comentário (se já tiver criado a coluna no banco)
 
-          $query->insert($db->quoteName('#__splms_submissions'))
-                ->columns($db->quoteName($columns))
-                ->values(implode(',', $values));
-          
-          $db->setQuery($query);
-          
-          try {
-              $db->execute();
+      // Configurações de Segurança
+      $maxSize = 10 * 1024 * 1024; // 10MB em Bytes
+$allowedExts = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'mp4'];
 
-              // Atualiza progresso do curso
-              $model = $this->getModel();
-              if (method_exists($model, 'completedItem')) {
-                   $model->completedItem($lesson_id, 'lesson', $user->id); 
-              }
+      if ($file && $file['error'] == 0) {
+          
+          $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
+          // TRAVA 1: Extensão não permitida (Bloqueia .exe, .php, etc)
+          if (!in_array($ext, $allowedExts)) {
               $this->setRedirect(
                   Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-                  'Trabalho enviado com sucesso! Aguarde a correção.',
-                  'message'
-              );
-              return true;
-
-          } catch (Exception $e) {
-              // Limpa arquivo se der erro no banco
-              if (file_exists($targetPath)) {
-                  File::delete($targetPath);
-              }
-              
-              $this->setRedirect(
-                  Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-                  'Erro ao salvar registro. Tente novamente.',
+                  'Erro: Formato de arquivo não permitido (.' . $ext . '). Envie apenas: PDF, ZIP, DOC, Imagens ou MP4.',
                   'error'
               );
               return false;
           }
+
+          // TRAVA 2: Tamanho do Arquivo (Bloqueia > 10MB)
+          if ($file['size'] > $maxSize) {
+              $this->setRedirect(
+                  Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
+                  'Erro: O arquivo é muito grande. O limite máximo é 10MB.',
+                  'error'
+              );
+              return false;
+          }
+
+          // Se passou pelas travas, prepara o upload
+          $uploadDir = JPATH_ROOT . '/images/uploads/submissions/';
+          if (!file_exists($uploadDir)) {
+              mkdir($uploadDir, 0755, true);
+          }
+
+          // Limpeza do nome do arquivo (Segurança extra)
+          $cleanName = Path::clean(pathinfo($file['name'], PATHINFO_FILENAME));
+          $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '', $cleanName); 
+          $newFileName = time() . '_' . $cleanName . '.' . $ext;
+          $targetPath = $uploadDir . $newFileName;
+          $dbPath = 'images/uploads/submissions/' . $newFileName;
+
+          if (File::upload($file['tmp_name'], $targetPath)) {
+              $db = Factory::getDbo();
+              $query = $db->getQuery(true);
+              
+              // Verifica se a coluna student_comment existe na tabela antes de tentar inserir
+              // Se você ainda não rodou o SQL da coluna, remova 'student_comment' daqui temporariamente
+              $columns = array('user_id', 'lesson_id', 'file_path', 'status', 'submitted_at'); 
+              $values  = array((int) $user->id, (int) $lesson_id, $db->quote($dbPath), 0, 'NOW()');
+
+              // Se quiser salvar o comentário, descomente a linha abaixo quando atualizar o banco:
+              // $columns[] = 'student_comment'; $values[] = $db->quote($comment);
+
+              $query->insert($db->quoteName('#__splms_submissions'))
+                    ->columns($db->quoteName($columns))
+                    ->values(implode(',', $values));
+              
+              $db->setQuery($query);
+              
+              try {
+                  $db->execute();
+
+                  // Marca a lição como completa no sistema geral do SPLMS
+                  $model = $this->getModel();
+                  $model->completedItem($lesson_id, 'lesson', $user->id); 
+
+                  $this->setRedirect(
+                      Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
+                      'Trabalho enviado com sucesso! Aguarde a correção.'
+                  );
+                  return true;
+
+              } catch (Exception $e) {
+                  $this->setRedirect(
+                      Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
+                      'Erro ao salvar no banco: ' . $e->getMessage(),
+                      'error'
+                  );
+                  return false;
+              }
+          }
       }
 
+      // Erro genérico de upload (ex: arquivo corrompido ou maior que o post_max_size do PHP)
       $this->setRedirect(
           Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-          'Falha ao mover o arquivo.',
+          'Erro no upload. Verifique se o arquivo não ultrapassa o limite do servidor.',
           'error'
       );
       return false;
   }
+ 
 }
