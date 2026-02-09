@@ -138,7 +138,7 @@ class SplmsViewQuizquestion extends HtmlView{
 			    $(this).find(".nextButton").on("click", function () {
 			        if (!quizOver) {
 
-			            value = $("input[type='radio']:checked").val();
+			            var value = $("input[type='radio']:checked").val();
 
 			            if (value == undefined) {
 			                $(document).find(".quizMessage").text(Joomla.Text._('COM_SPLMS_QUIZ_SELECT_ANSWER'));
@@ -198,7 +198,7 @@ class SplmsViewQuizquestion extends HtmlView{
 			    $(choiceList).find("li").remove();
 
 			    var choice;
-			    for (i = 0; i < numChoices; i++) {
+			    for (var i = 0; i < numChoices; i++) {
 			        choice = questions[currentQuestion].choices[i];
 					var uniqueId = 'ans_' + currentQuestion + '_' + i;
 			        $('<li><div class="radio"><input type="radio" id="' + uniqueId + '" value=' + i + ' name="dynradio" /><label for="' + uniqueId + '">' + choice + '</label></div></li>').appendTo(choiceList);
