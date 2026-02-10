@@ -13,16 +13,32 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
-use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper; // Garantindo o carregamento do HTMLHelper
+use Joomla\CMS\HTML\HTMLHelper;
 
-// GUIDEWAY CUSTOM - 2025-11-11 - Joshua - Carregar sistema de progresso
+// 1. INICIALIZAÇÃO E CAPTURA DE DADOS VITAIS
+$user = Factory::getUser();
+$app  = Factory::getApplication();
+$currentItemId = $app->input->getInt('Itemid', 0); // Captura o ID do Menu para não perder a rota
+
+// 2. VERIFICAÇÃO DIRETA NO BANCO DE DADOS (Self-Contained Logic)
+// Consultamos aqui mesmo se existe um envio, sem depender da View Class.
+$submission = null;
+if (!$user->guest) {
+    $db = Factory::getDbo();
+    $query = $db->getQuery(true)
+        ->select('*')
+        ->from($db->quoteName('#__splms_submissions'))
+        ->where($db->quoteName('user_id') . ' = ' . (int)$user->id)
+        ->where($db->quoteName('lesson_id') . ' = ' . (int)$this->item->id);
+    $db->setQuery($query);
+    $submission = $db->loadObject();
+}
+
+// Carregar script de progresso
 $document = Factory::getDocument();
 $document->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-progress.js');
-
-// Prepara usuário para verificações
-$user = Factory::getUser();
 ?>
+
 <script>
 window.SPLMS_CONTEXT = {
   itemId: <?php echo (int) $this->item->id; ?>,
@@ -34,6 +50,7 @@ window.SPLMS_CONTEXT = {
 </script>
 
 <div id="splms" class="splms splms-lessons splms-lesson-details"> 
+  
   <div class="course-progress-container">
     <h3 class="course-progress-title">📚 Seu Progresso no Curso</h3>
     <div id="progress-emoji" class="course-progress-emoji">📋</div>
@@ -70,42 +87,71 @@ window.SPLMS_CONTEXT = {
   <?php } ?>
   
   <div class="item-content splms-assignment-wrapper" style="margin-top: 30px; padding: 20px; border: 1px solid #eee; border-radius: 5px; background: #fafafa;">
-      <h3 style="margin-top:0;">📤 Enviar Trabalho / Atividade</h3>
       
-      <?php 
-      // Lógica de Redirecionamento Inteligente
-      if ($user->guest) : 
-          // Cria URL de retorno codificada
-          $returnUrl = base64_encode(Uri::getInstance());
-          $loginUrl  = Route::_('index.php?option=com_users&view=login&return=' . $returnUrl);
-      ?>
-          <div class="alert alert-info text-center p-4" style="background-color: #e3f2fd; border-color: #b3d7ff; color: #0c5460;">
-              <h4>🔒 Acesso Restrito</h4>
-              <p>Você precisa estar identificado para enviar seu trabalho.</p>
+      <?php if ($submission) : ?>
+          <h3 style="margin-top:0; color: #28a745;">✅ Trabalho Enviado</h3>
+          
+          <div class="submission-status-card p-3" style="background: #fff; border: 1px solid #ddd; border-left: 5px solid #28a745;">
+              <p><strong>Status:</strong> 
+                  <?php 
+                  if ($submission->status == 1) {
+                      echo '<span class="badge badge-success" style="background:green; color:white; padding:3px 8px;">Aprovado</span>';
+                  } elseif ($submission->status == 2) {
+                      echo '<span class="badge badge-danger" style="background:red; color:white; padding:3px 8px;">Rejeitado</span>';
+                  } else {
+                      echo '<span class="badge badge-warning" style="background:orange; color:white; padding:3px 8px;">Em Correção</span>';
+                  }
+                  ?>
+              </p>
+              <p><strong>Data de Envio:</strong> <?php echo date('d/m/Y H:i', strtotime($submission->submitted_at)); ?></p>
               
-              <a href="<?php echo $loginUrl; ?>" class="btn btn-primary btn-lg" style="margin-top:10px;">
-                  <span class="icon-user"></span> Fazer Login para Enviar
-              </a>
+              <?php if (!empty($submission->teacher_comment)) : ?>
+                  <hr>
+                  <p><strong>Comentário do Professor:</strong></p>
+                  <div class="alert alert-info">
+                      <?php echo nl2br($submission->teacher_comment); ?>
+                  </div>
+              <?php else: ?>
+                  <p class="text-muted"><small>O professor ainda não comentou seu trabalho.</small></p>
+              <?php endif; ?>
           </div>
 
       <?php else : ?>
-
-          <form action="<?php echo Route::_('index.php?option=com_splms&task=lesson.uploadAssignment'); ?>" 
-                method="post" enctype="multipart/form-data">
-              
-              <input type="hidden" name="lesson_id" value="<?php echo $this->item->id; ?>" />
-              
-              <div class="control-group">
-                  <label><strong>Selecione seu arquivo:</strong> <small class="text-muted">(PDF, ZIP, Imagem - Máx 10MB)</small></label>
-                  <input type="file" name="uploaded_file" class="form-control" required style="margin-bottom: 10px;" />
+          <h3 style="margin-top:0;">📤 Enviar Trabalho / Atividade</h3>
+          
+          <?php if ($user->guest) : 
+              $returnUrl = base64_encode(Uri::getInstance()->toString());
+              $loginUrl  = Route::_('index.php?option=com_users&view=login&return=' . $returnUrl);
+          ?>
+              <div class="alert alert-info text-center p-4">
+                  <h4>🔒 Acesso Restrito</h4>
+                  <p>Você precisa estar identificado para enviar seu trabalho.</p>
+                  <a href="<?php echo $loginUrl; ?>" class="btn btn-primary btn-lg" style="margin-top:10px;">
+                      <span class="icon-user"></span> Fazer Login para Enviar
+                  </a>
               </div>
-              
-              <button type="submit" class="btn btn-success">
-                  <span class="icon-upload"></span> Enviar Arquivo
-              </button>
-              
-              <?php echo HTMLHelper::_('form.token'); ?>
-          </form>
+
+          <?php else : ?>
+
+              <form action="<?php echo Route::_('index.php?option=com_splms&task=lesson.uploadAssignment'); ?>" 
+                    method="post" enctype="multipart/form-data">
+                  
+                  <input type="hidden" name="lesson_id" value="<?php echo $this->item->id; ?>" />
+                  <input type="hidden" name="Itemid" value="<?php echo $currentItemId; ?>" />
+                  
+                  <div class="control-group">
+                      <label><strong>Selecione seu arquivo:</strong> <small class="text-muted">(PDF, ZIP, Imagem - Máx 10MB)</small></label>
+                      <input type="file" name="uploaded_file" class="form-control" required style="margin-bottom: 10px;" />
+                  </div>
+                  
+                  <button type="submit" class="btn btn-success">
+                      <span class="icon-upload"></span> Enviar Arquivo
+                  </button>
+                  
+                  <?php echo HTMLHelper::_('form.token'); ?>
+              </form>
+
+          <?php endif; ?>
 
       <?php endif; ?>
   </div>
@@ -151,83 +197,15 @@ window.SPLMS_CONTEXT = {
             <?php echo $this->teacher->title;?>
             </a>
           </h3>
-          
           <ul class="teachers-details list-unstyled">
-            <?php if (isset($this->teacher->specialist_in) && $this->teacher->specialist_in) {?>
-              <li>
-                <?php echo Text::_('COM_SPLMS_COMMON_SPECIALIST_IN'). ': '; ?>
-                <?php  
-                  $specialist_in = (array)json_decode($this->teacher->specialist_in);
-                  foreach($specialist_in as $specialist)
-                  {
-                    echo (!next($specialist_in)) ? $specialist->specialist_text : $specialist->specialist_text . ", ";
-                  }
-                ?>
-              </li>
-            <?php } if (isset($this->teacher->experience) && $this->teacher->experience) {?>
-              <li> 
-                <?php echo Text::_('COM_SPLMS_COMMON_EXPERIENCE'). ': '; ?> 
-                <?php echo $this->teacher->experience; ?>
-              </li>
-            <?php } if (isset($this->teacher->website) && $this->teacher->website) {?>
-            <li>
-              <?php echo Text::_('COM_SPLMS_COMMON_WEBSITE'). ': '; ?>
-              <a href="<?php echo $this->teacher->website;?>">
-                <?php echo $this->teacher->website; ?>
-              </a>
-            </li>
-            <?php } ?>
-
-            <li class="splms-teacher-social-icon">
-              <ul class="list-unstyled list-inline splms-social-icon-list">
-                <?php if (isset($this->teacher->social_facebook) && $this->teacher->social_facebook) {?>
-                <li>
-                  <a href="<?php echo $this->teacher->social_facebook;?>">
-                    <span class="splms-icon-facebook"></span>
-                  </a>
-                </li>
-                <?php } ?>
-
-                <?php if (isset($this->teacher->social_linkedin) && $this->teacher->social_linkedin) {?>
-                <li>
-                  <a href="<?php echo $this->teacher->social_linkedin;?>">
-                    <span class="splms-icon-linkedin"></span>
-                  </a>
-                </li>
-                <?php } ?>
-
-                <?php if (isset($this->teacher->social_twitter) && $this->teacher->social_twitter) {?>
-                <li>
-                  <a href="<?php echo $this->teacher->social_twitter;?>">
-                    <span class="splms-icon-twitter"></span>
-                  </a>
-                </li>
-                <?php } ?>
-
-                <?php if (isset($this->teacher->social_youtube) && $this->teacher->social_youtube) {?>
-                <li>
-                  <a href="<?php echo $this->teacher->social_youtube;?>">
-                    <span class="splms-icon-youtube"></span>
-                  </a>
-                </li>
-                <?php } ?>
-              </ul>
-            </li>
-            <?php if($this->teacher_description) { ?>
-            <li>
-              <p>
-                <?php echo $this->teacher_description; ?>
-              </p>
-            </li>
-            <?php } ?>
-          </ul>
+             </ul>
         </div>
       </div>
     </div>
   <?php } ?>
   
   <div class="splms-lesson-completed-lesson-wrapper">
-    <?php if($user->guest) { // Alterado para usar a variável $user definida no topo
+    <?php if($user->guest) { 
       $link =  base64_encode(Uri::getInstance()->toString());
       $login_link = Route::_('index.php?option=com_users&view=login'. SplmsHelper::getItemid('login') .'&return=' . $link);
     ?>
@@ -250,4 +228,4 @@ window.SPLMS_CONTEXT = {
     <?php } ?>
   </div>
 
-</div> ```
+</div>
