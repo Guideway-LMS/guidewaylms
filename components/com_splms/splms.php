@@ -13,6 +13,41 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Controller\BaseController;
+use Joomla\CMS\Router\Route; 
+
+// ============================================================================
+// 🔒 BLOQUEIO DE SEGURANÇA INTELIGENTE (GUIDEWAY LMS)
+// ============================================================================
+$app_guard   = Factory::getApplication();
+$user_guard  = Factory::getUser();
+$input_guard = $app_guard->input;
+$view_guard  = $input_guard->getCmd('view');
+
+// Se quiser testar se está no arquivo certo, descomente a linha abaixo:
+// die('<h1>ESTOU NO ARQUIVO CERTO DO FRONTEND!</h1>');
+
+// Lista de telas restritas
+$views_restritas = array('lesson', 'submission', 'quiz', 'order');
+
+// Verifica se é visitante tentando ver conteúdo restrito
+if ($user_guard->guest && in_array($view_guard, $views_restritas)) {
+    
+    // 1. Captura URL para retorno
+    $uri_atual = Uri::getInstance()->toString();
+    $retorno   = base64_encode($uri_atual);
+    
+    // 2. Monta link de login
+    $link_login = Route::_('index.php?option=com_users&view=login&return=' . $retorno, false);
+    
+    // 3. Avisa e Redireciona
+    $app_guard->enqueueMessage('🔒 Para continuar, por favor faça login.', 'warning');
+    $app_guard->redirect($link_login);
+    
+    // 4. MATA O PROCESSO (Impede o erro "topics on null")
+    exit(); 
+}
+// ============================================================================
+
 
 require_once JPATH_COMPONENT . '/helpers/helper.php';
 HTMLHelper::_('jquery.framework');

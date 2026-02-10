@@ -12,12 +12,21 @@ class SplmsViewSubmissions extends HtmlView
 {
     protected $items;
     protected $pagination;
+    
+    // --- CORREÇÃO: Estas variáveis DEVEM ser PUBLIC ---
+    public $filterForm;
+    public $activeFilters;
+    // --------------------------------------------------
 
     public function display($tpl = null)
     {
-        // Pega os dados do Model que criamos acima
+        // 1. Pega os dados do Model
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
+
+        // 2. Pega os dados do Filtro (Isso lê o XML filter_submissions.xml)
+        $this->filterForm    = $this->get('FilterForm');
+        $this->activeFilters = $this->get('ActiveFilters');
 
         // Verifica erros
         if (count($errors = $this->get('Errors'))) {
