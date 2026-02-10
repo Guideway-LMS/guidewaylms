@@ -23,7 +23,13 @@ HTMLHelper::_('jquery.framework');
 $input = Factory::getApplication()->input;
 $doc = Factory::getDocument();
 $user = Factory::getUser();
+
+// GUIDEWAY CUSTOM - Focus Mode Logic
+$isEnrolled = ($this->isAuthorised != '');
+$mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 ?>
+
+
 
 <div id="splms" class="splms view-splms-course course-details">
 	<div class="splms-course">
@@ -39,15 +45,15 @@ $user = Factory::getUser();
 			<?php } ?>
 		</div>
 
-		<div class="splms-course-details-course-short-info">
-			<?php if ($this->item->short_description) { ?>
+		<?php if ($this->item->short_description && !$isEnrolled) { ?>
+			<div class="splms-course-details-course-short-info">
 				<div class="splms-section splms-course-intro">
 					<div class="splms-course-introtext">
 						<?php echo $this->item->short_description; ?>
 					</div>
 				</div>
-			<?php } ?>
-		</div>
+			</div>
+		<?php } ?>
 
 		<div class="splms-course-details-course-features">
 			<?php if (isset($this->item->course_infos) && $this->item->course_infos && count($this->item->course_infos)) { ?>
@@ -75,27 +81,30 @@ $user = Factory::getUser();
 			<?php } ?>
 		</div>
 
-		<div class="splms-course-banner">
-			<?php if (!empty($this->item->video_url)) { ?>
-				<div class="splms-course-video">
-					<?php echo LayoutHelper::render('player', array('video' => $this->item->video_url, 'thumbnail' => $this->item->image)); ?>
-				</div>
-			<?php } elseif ($this->item->image) { ?>
-				<div class="course-thumbnail">
-					<img class="splms-img-responsive" src="<?php echo $this->item->image; ?>" alt="<?php echo $this->item->title; ?>">
-				</div>
-			<?php } ?>
-
-			<?php
-			if ($this->item->price == 0) {
-				echo '<span class="splms-badge-free">' . Text::_('COM_SPLMS_FREE') . '</span>';
-			}
-			?>
-		</div>
+		<?php if (!$isEnrolled) : ?>
+			<div class="splms-course-banner">
+				<?php if (!empty($this->item->video_url)) { ?>
+					<div class="splms-course-video">
+						<?php echo LayoutHelper::render('player', array('video' => $this->item->video_url, 'thumbnail' => $this->item->image)); ?>
+					</div>
+				<?php } elseif ($this->item->image) { ?>
+					<div class="course-thumbnail">
+						<img class="splms-img-responsive" src="<?php echo $this->item->image; ?>" alt="<?php echo $this->item->title; ?>">
+					</div>
+				<?php } ?>
+	
+				<?php
+				if ($this->item->price == 0) {
+					echo '<span class="splms-badge-free">' . Text::_('COM_SPLMS_FREE') . '</span>';
+				}
+				?>
+			</div>
+		<?php endif; ?>
 
 		<div class="row">
-			<div class="splms-col-md-8">
+			<div class="<?php echo $mainColClass; ?>">
 				<!-- Navigation -->
+				<?php if ($this->isAuthorised == '') { ?>
 				<div class="nav-area ">
 					<div class="container">
 						<ul>
@@ -106,9 +115,25 @@ $user = Factory::getUser();
 						</ul>
 					</div>
 				</div>
+				<?php } ?>
 				<!-- Navigation -->
 
-				<?php if ($this->item->description) { ?>
+				<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
+					<div class="splms-course-announcements splms-section" style="margin-bottom: 30px; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid #1a73e8;">
+						<h3 class="splms-title" style="margin-top: 0; display: flex; align-items: center; color: #1a73e8;">
+							<i class="fa fa-bullhorn" aria-hidden="true" style="margin-right: 10px;"></i> Mural de Avisos
+						</h3>
+
+						<?php
+							echo LayoutHelper::render(
+								'announcements.list',
+								['items' => $this->announcements]
+							);
+						?>
+					</div>
+				<?php endif; ?>
+
+				<?php if ($this->item->description && !$isEnrolled) { ?>
 					<div id="course-about" class="splms-course-description">
 						<?php //echo HTMLHelper::_('content.prepare', $this->item->description);
 						echo $this->item->description;
@@ -117,8 +142,8 @@ $user = Factory::getUser();
 				<?php } ?>
 
 				<?php if ((!empty($this->item->topics) && count($this->item->topics)) || (!empty($this->item->lessons) && count($this->item->lessons))) { ?>
-					<div id="course-lessons" class="course-lessons">
-						<h3><?php echo Text::_('COM_SPLMS_LESSONS'); ?></h3>
+					<div id="course-lessons" class="course-lessons" style="margin-bottom: 70px;">
+						<h3><i class="fa fa-book" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_LESSONS'); ?></h3>
 						<?php if (!empty($this->item->topics) && count($this->item->topics)) { ?>
 							<div id="topicAccordion">
 								<?php foreach ($this->item->topics as $key => $topic) { ?>
@@ -148,23 +173,39 @@ $user = Factory::getUser();
 						<?php } ?>
 					</div>
 
+		<!-- Has quiz -->
+		<?php if (!empty($this->quizzes) && count($this->quizzes) && $this->quizzes) { ?>
+			<div class="splms-course-quizzes" style="margin-bottom: 70px;">
+				<h3><i class="fa fa-pencil-square-o" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
+				<ul class="list-unstyled">
+					<?php foreach ($this->quizzes as $quiz) {
+						$qtype = ($quiz->quiz_type == 1) ? Text::_('COM_SPLMS_PAID') : Text::_('COM_SPLMS_FREE');
+					?>
+						<li>
+							<span>
+								<i class="fa fa-question-circle"></i>
+								<a href="<?php echo $quiz->url; ?>">
+									<?php echo $quiz->title; ?>
+								</a>
+							</span>
+							<span class="pull-right">
+								<?php echo $qtype; ?>
+							</span>
+						</li>
+					<?php } // END:: foreach 
+					?>
+				</ul>
+			</div>
+		<?php } ?>
+		<!-- END::  quiz -->
+
+
+
+
 					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
-						<div class="splms-course-announcements splms-section">
-							<h3 class="splms-title">Mural de Avisos</h3>
-
-							<?php
-								echo LayoutHelper::render(
-									'announcements.list',
-									['items' => $this->announcements]
-								);
-							?>
-						</div>
-					<?php endif; ?>
-
-
-					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
-						<div class="splms-course-forum splms-section">
-							<h3 class="splms-title">Fórum de Dúvidas</h3>
+						
+						<div class="splms-course-forum splms-section" style="margin-bottom: 70px;">
+							<h3 class="splms-title"><i class="fa fa-comments" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i>Fórum de Dúvidas</h3>
 							
 							<?php
 							try {
@@ -195,8 +236,8 @@ $user = Factory::getUser();
 
 				<!-- Has teacher -->
 				<?php if (!empty($this->teachers)) { ?>
-					<div id="course-instructor" class="splms-course-teachers">
-						<h3><?php echo Text::_('COM_SPLMS_MEET_OUR_COURSE_TEACHER'); ?></h3>
+					<div id="course-instructor" class="splms-course-teachers" style="margin-bottom: 70px;">
+						<h3><i class="fa fa-users" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_MEET_OUR_COURSE_TEACHER'); ?></h3>
 						<div class="splms-row">
 							<?php foreach ($this->teachers as $teacher) { ?>
 								<div class="splms-course-teacher">
@@ -219,63 +260,81 @@ $user = Factory::getUser();
 
 				<?php if ($this->review) { ?>
 					<div id="course-reviews" class="user-reviews">
-						<div class="reviews-menu">
-							<div class="title-wrap">
-								<h3 class="title"><?php echo Text::_('COM_SPLMS_REVIEWS'); ?></h3>
-								<div class="myreviews-wrap">
-									<ul class="list-inline list-style-none">
-										<?php if ($this->myReview) { ?>
-											<li><a id="splms-my-review" class="btn btn-primary" href="#"><i class="splms-icon-write"></i> <?php echo Text::_('COM_SPLMS_EDIT_REVIEW'); ?></a></li>
-										<?php } ?>
+						<?php 
+							if (isset($this->ratings) && $this->ratings->count) {
+								$rating = $this->ratings->total / $this->ratings->count;
+								$rating = number_format($rating, 1);
+							} else {
+								$rating = 0;
+							} 
+						?>
+						<div id="reviewsAccordion">
+							<h3 data-toggle="collapse" data-target="#collapseReviews" data-bs-toggle="collapse" data-bs-target="#collapseReviews" aria-expanded="false" aria-controls="collapseReviews" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+								<span>
+									<i class="fa fa-star" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i>
+									<?php echo Text::_('COM_SPLMS_REVIEWS'); ?>
+									<?php if ($rating > 0) { ?>
+										<span style="font-size: 0.85em; font-weight: normal; margin-left: 5px;"> - ⭐ <?php echo $rating; ?> (<?php echo $this->ratings->count; ?>)</span>
+									<?php } ?>
+								</span>
+								<i class="fa fa-chevron-down"></i>
+							</h3>
 
-										<?php if ($user->guest) { ?>
-											<li><a href="<?php echo Route::_('index.php?option=com_users&view=login&return=' . base64_encode('index.php?option=com_splms&view=course&id=' . $this->item->id . ':' . $this->item->alias . SplmsHelper::getItemid('courses'))); ?>" class="btn btn-primary"><i class="fa fa-pencil-square-o"></i> <?php echo Text::_('COM_SPLMS_LOGIN_TO_REVIEW'); ?></a></li>
-										<?php } ?>
-									</ul>
-								</div>
-							</div>
+							<div id="collapseReviews" class="collapse" aria-labelledby="headingReviews" data-parent="#reviewsAccordion">
+								<div class="card card-body" style="border: none; padding-left: 0; padding-right: 0;">
+										<div class="reviews-menu">
+											<div class="title-wrap" style="justify-content: flex-end;">
+												<div class="myreviews-wrap">
+													<ul class="list-inline list-style-none">
+														<?php if ($this->myReview) { ?>
+															<li><a id="splms-my-review" class="btn btn-primary" href="#"><i class="splms-icon-write"></i> <?php echo Text::_('COM_SPLMS_EDIT_REVIEW'); ?></a></li>
+														<?php } ?>
 
-							<div class="reviews-wrapper">
-								<d iv class="reviews-status">
-									<?php if (isset($this->ratings) && $this->ratings->count) {
-										$rating = $this->ratings->total / $this->ratings->count;
-										$rating = number_format($rating, 1);
-									} else {
-										$rating = 0;
-									} ?>
-									<span class="total"><?php echo $rating; ?></span>
-									<div class="sp-lms-rating ">
-										<?php echo LayoutHelper::render('review.ratings', array('rating' => $rating)); ?>
+														<?php if ($user->guest) { ?>
+															<li><a href="<?php echo Route::_('index.php?option=com_users&view=login&return=' . base64_encode('index.php?option=com_splms&view=course&id=' . $this->item->id . ':' . $this->item->alias . SplmsHelper::getItemid('courses'))); ?>" class="btn btn-primary"><i class="fa fa-pencil-square-o"></i> <?php echo Text::_('COM_SPLMS_LOGIN_TO_REVIEW'); ?></a></li>
+														<?php } ?>
+													</ul>
+												</div>
+											</div>
+
+											<div class="reviews-wrapper">
+												<div class="reviews-status">
+													<span class="total"><?php echo $rating; ?></span>
+													<div class="sp-lms-rating ">
+														<?php echo LayoutHelper::render('review.ratings', array('rating' => $rating)); ?>
+													</div>
+													<p class="avg-rating"><?php echo Text::_('COM_SPLMS_REVIEW_AVARAGE_RATING'); ?></p>
+												</div>
+												<div class="total-reviews">
+													<div class="sp-lms-rating ">
+														<?php echo LayoutHelper::render('review.ratings', array('rating' => $rating)); ?>
+													</div>
+													<?php echo round($rating / (5 / 100), 2); ?>% <span class="total-review"><?php echo count($this->reviews); ?> Ratings</span>
+												</div>
+											</div>
+										</div>
+										<!--/.reviews-menu -->
+										<div class="clearfix"></div>
+
+										<?php echo LayoutHelper::render('review.form', array('review' => $this->myReview, 'item_id' => $this->item->id, 'url' => 'index.php?option=com_splms&view=course&id=' . $this->item->id . ':' . $this->item->alias . SplmsHelper::getItemid('courses'))); ?>
+
+										<div id="reviews">
+											<?php foreach ($this->reviews as $key => $this->review) {
+												echo LayoutHelper::render('review.review', array('review' => $this->review));
+											} ?>
+										</div>
+
+										<?php if ($this->showLoadMore) { ?>
+											<a id="splms-load-review" class="btn btn-link btn-lg btn-block" data-item_id="<?php echo $this->item->id; ?>" href="#"><i class="fa fa-refresh"></i> <?php echo Text::_('COM_SPLMS_REVIEW_LOAD_MORE'); ?></a>
+										<?php } ?>
 									</div>
-									<p class="avg-rating"><?php echo Text::_('COM_SPLMS_REVIEW_AVARAGE_RATING'); ?></p>
-								</d>
-								<div class="total-reviews">
-									<div class="sp-lms-rating ">
-										<?php echo LayoutHelper::render('review.ratings', array('rating' => $rating)); ?>
-									</div>
-									<?php echo round($rating / (5 / 100), 2); ?>% <span class="total-review"><?php echo count($this->reviews); ?> Ratings</span>
 								</div>
 							</div>
 						</div>
-						<!--/.reviews-menu -->
-						<div class="clearfix"></div>
-
-						<?php echo LayoutHelper::render('review.form', array('review' => $this->myReview, 'item_id' => $this->item->id, 'url' => 'index.php?option=com_splms&view=course&id=' . $this->item->id . ':' . $this->item->alias . SplmsHelper::getItemid('courses'))); ?>
-
-						<div id="reviews">
-							<?php foreach ($this->reviews as $key => $this->review) {
-								echo LayoutHelper::render('review.review', array('review' => $this->review));
-							} ?>
-						</div>
-
-						<?php if ($this->showLoadMore) { ?>
-							<a id="splms-load-review" class="btn btn-link btn-lg btn-block" data-item_id="<?php echo $this->item->id; ?>" href="#"><i class="fa fa-refresh"></i> <?php echo Text::_('COM_SPLMS_REVIEW_LOAD_MORE'); ?></a>
-						<?php } ?>
-					</div>
-					<!--/.user-reviews-->
 				<?php } ?>
-			</div>
+			</div> <!-- Close splms-col-md-8/12 -->
 
+			<?php if (!$isEnrolled) { ?>
 			<div class="splms-col-md-4">
 				<!-- start course-header -->
 				<div class="course-header clearfix">
@@ -356,7 +415,7 @@ $user = Factory::getUser();
 				</div> <!-- end course-header -->
 
 				<div class="splms-course-introduction">
-					<?php if ($this->params->get('course_social_share', 1)) { ?>
+					<?php if ($this->params->get('course_social_share', 1) && $this->isAuthorised == '') { ?>
 						<div class="splms-section splms-course-social-share">
 							<h3 class="splms-section-title"><?php echo Text::_('COM_SPLMS_SOCIAL_SHARE'); ?></h3>
 							<?php echo LayoutHelper::render('social_share', array('url' => $this->item->link, 'title' => $this->item->title)); ?>
@@ -364,33 +423,10 @@ $user = Factory::getUser();
 					<?php } ?>
 				</div>
 			</div>
-		</div>
+			<?php } ?>
+		</div> <!-- End Row -->
 
-		<!-- Has quiz -->
-		<?php if (!empty($this->quizzes) && count($this->quizzes) && $this->quizzes) { ?>
-			<div class="splms-course-quizzes">
-				<h3><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
-				<ul class="list-unstyled">
-					<?php foreach ($this->quizzes as $quiz) {
-						$qtype = ($quiz->quiz_type == 1) ? Text::_('COM_SPLMS_PAID') : Text::_('COM_SPLMS_FREE');
-					?>
-						<li>
-							<span>
-								<i class="fa fa-question-circle"></i>
-								<a href="<?php echo $quiz->url; ?>">
-									<?php echo $quiz->title; ?>
-								</a>
-							</span>
-							<span class="pull-right">
-								<?php echo $qtype; ?>
-							</span>
-						</li>
-					<?php } // END:: foreach 
-					?>
-				</ul>
-			</div>
-		<?php } ?>
-		<!-- END::  quiz -->
+
 
 		<?php if (isset($this->item->course_schedules) && $this->item->course_schedules && count($this->item->course_schedules) && $this->item->course_schedules) { ?>
 			<div class="splms-course-class-rotuines">
@@ -429,7 +465,7 @@ $user = Factory::getUser();
 			</div> <!-- //.splms-course-class-rotuines -->
 		<?php } ?>
 
-		<?php if ($this->show_related_courses) {
+		<?php if ($this->show_related_courses && !$isEnrolled) {
 			if (isset($this->related_courses) && is_array($this->related_courses)) { ?>
 				<div class="splms-similar-courses">
 					<h3 class="splms-title"><?php echo Text::_('COM_SPLMS_SIMILAR_CLASSES'); ?></h3>

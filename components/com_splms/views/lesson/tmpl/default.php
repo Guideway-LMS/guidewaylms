@@ -5,11 +5,11 @@
  * @copyright Copyright (c) 2010 - 2024 JoomShaper
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
  */
-
 // No Direct Access
 defined ('_JEXEC') or die('Resticted Aceess');
 
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
@@ -23,8 +23,26 @@ $document->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-progre
 // Prepara usuário para verificações
 $user = Factory::getUser();
 ?>
+<script>
+window.SPLMS_CONTEXT = {
+  itemId: <?php echo (int) $this->item->id; ?>,
+  itemType: "lesson",
+  userId: <?php echo (int) $this->user->id; ?>,
+  courseId: <?php echo (int) ($this->item->course_id ?? 0); ?>,
+  isCompleted: <?php echo $this->has_complete_lesson ? 'true' : 'false'; ?>
+};
+</script>
 
-<div id="splms" class="splms splms-lessons splms-lesson-details">
+<div id="splms" class="splms splms-lessons splms-lesson-details"> 
+  <div class="course-progress-container">
+    <h3 class="course-progress-title">📚 Seu Progresso no Curso</h3>
+    <div id="progress-emoji" class="course-progress-emoji">📋</div>
+    <div class="course-progress-track">
+        <div id="course-progress-bar" class="course-progress-fill" style="width: 0%;"></div>
+        <div id="course-progress-text" class="course-progress-text">0%</div>
+    </div>
+    <div id="progress-message" class="course-progress-message">Carregando...</div>
+  </div>
 
   <?php if(!empty($this->item->video_url)) { ?>
     <div class="lesson-video">
