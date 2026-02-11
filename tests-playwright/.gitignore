@@ -1,1 +1,28 @@
+
+# ================================
+# PLAYWRIGHT TESTS - ARQUIVOS LOCAIS
+# ================================
+tests-playwright/node_modules/
+tests-playwright/playwright-report/
+tests-playwright/test-results/
+tests-playwright/.env
+tests-playwright/auth/*.json
+*.webm
+*.zip
+*.trace
+*.png
+*.jpg
+*.jpeg
+
+# Playwright artifacts na raiz (por segurança)
+playwright-report/
+test-results/
+# PLAYWRIGHT
+tests-playwright/node_modules/
+tests-playwright/playwright-report/
+tests-playwright/test-results/
+tests-playwright/.env
+*.webm
+
+# Playwright - arquivos gerados
 tests-playwright/package-lock.json

@@ -14,6 +14,7 @@ use Joomla\CMS\Uri\Uri;
 // Carrega comportamentos padrões do Joomla
 HTMLHelper::_('behavior.core');
 HTMLHelper::_('bootstrap.tooltip');
+HTMLHelper::_('formbehavior.chosen', 'select'); // Adicionado para o dropdown ficar bonito
 ?>
 
 <div id="j-main-container" class="span12">
@@ -31,6 +32,10 @@ HTMLHelper::_('bootstrap.tooltip');
 
     <form action="<?php echo Route::_('index.php?option=com_splms&view=submissions'); ?>" method="post" name="adminForm" id="adminForm">
         
+        <?php if ($this->filterForm) : ?>
+            <?php echo LayoutHelper::render('joomla.searchtools.default', ['view' => $this]); ?>
+        <?php endif; ?>
+
         <table class="table table-striped table-hover" id="articleList">
             <thead>
                 <tr>
@@ -38,6 +43,7 @@ HTMLHelper::_('bootstrap.tooltip');
                     <th width="15%">Data de Envio</th>
                     <th width="20%">Aluno</th>
                     <th width="25%">Lição / Aula</th>
+                    <th width="15%">Curso</th> 
                     <th width="10%" class="text-center">Arquivo</th>
                     <th width="10%" class="text-center">Nota</th>
                     <th width="10%" class="text-center">Status</th>
@@ -58,6 +64,9 @@ HTMLHelper::_('bootstrap.tooltip');
                             <div class="small text-muted">User: <?php echo $item->username; ?></div>
                         </td>
                         <td><?php echo $item->lesson_title; ?></td>
+                        
+                        <td><?php echo isset($item->course_title) ? $item->course_title : '-'; ?></td>
+
                         <td class="text-center">
                             <a href="<?php echo Uri::root() . $item->file_path; ?>" target="_blank" class="btn btn-sm btn-outline-secondary has-tooltip" title="Baixar Arquivo">
                                 <span class="icon-download" aria-hidden="true"></span> Baixar
@@ -92,10 +101,14 @@ HTMLHelper::_('bootstrap.tooltip');
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
-                <tr><td colspan="8" class="text-center alert alert-info">Nenhum trabalho encontrado.</td></tr>
+                <tr><td colspan="9" class="text-center alert alert-info">Nenhum trabalho encontrado.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
+        
+        <div class="pagination">
+            <?php echo $this->pagination->getListFooter(); ?>
+        </div>
         
         <input type="hidden" name="task" value="" />
         <input type="hidden" name="boxchecked" value="0" />
@@ -112,21 +125,22 @@ HTMLHelper::_('bootstrap.tooltip');
                 <button type="button" class="close btn-close-modal" aria-label="Close" style="border:none; background:none; font-size:1.5rem;">&times;</button>
             </div>
             
-            <form action="<?php echo Route::_('index.php?option=com_splms&task=submissions.saveGrade'); ?>" method="post">
+            <form action="<?php echo Route::_('index.php?option=com_splms'); ?>" method="post" name="adminForm" id="item-form" class="form-validate">
                 <div class="modal-body p-4">
-                    <input type="hidden" name="submission_id" id="modal_submission_id" value="">
+                    
+                    <input type="hidden" name="jform[id]" id="modal_submission_id" value="">
                     
                     <div class="mb-3 control-group">
                         <label class="form-label control-label"><strong>Nota Final (0 a 100):</strong></label>
                         <div class="controls">
-                            <input type="number" name="grade" id="modal_grade" class="form-control input-small" min="0" max="100" step="0.1" required style="width: 100px; font-weight: bold; color: #198754;">
+                            <input type="number" name="jform[grade]" id="modal_grade" class="form-control input-small" min="0" max="100" step="0.1" required style="width: 100px; font-weight: bold; color: #198754;">
                         </div>
                     </div>
 
                     <div class="mb-3 control-group">
                         <label class="form-label control-label"><strong>Parecer / Feedback:</strong></label>
                         <div class="controls">
-                            <textarea name="feedback" id="modal_feedback" rows="5" class="form-control" style="width: 100%;" placeholder="Escreva aqui o feedback para o aluno..."></textarea>
+                            <textarea name="jform[feedback]" id="modal_feedback" rows="5" class="form-control" style="width: 100%;" placeholder="Escreva aqui o feedback para o aluno..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -136,6 +150,10 @@ HTMLHelper::_('bootstrap.tooltip');
                     <button type="submit" class="btn btn-success"><span class="icon-save"></span> Salvar Avaliação</button>
                 </div>
                 
+                <input type="hidden" name="task" value="submission.save" />
+                
+                <input type="hidden" name="return" value="<?php echo base64_encode('index.php?option=com_splms&view=submissions'); ?>" />
+                
                 <?php echo HTMLHelper::_('form.token'); ?>
             </form>
         </div>
@@ -144,36 +162,29 @@ HTMLHelper::_('bootstrap.tooltip');
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // Elementos do Modal
     var modal = document.getElementById('gradeModal');
     var inputId = document.getElementById('modal_submission_id');
     var inputGrade = document.getElementById('modal_grade');
     var inputFeedback = document.getElementById('modal_feedback');
 
-    // 1. ABRIR MODAL
-    // Adiciona evento de clique em todos os botões "Avaliar"
     var buttons = document.querySelectorAll('.btn-evaluate');
     buttons.forEach(function(btn) {
         btn.addEventListener('click', function() {
-            // Pega dados seguros do botão
             var id = this.getAttribute('data-id');
             var grade = this.getAttribute('data-grade');
             var feedback = this.getAttribute('data-feedback');
-
-            // Preenche o formulário
+            
+            // Atribui os valores aos inputs do modal
             inputId.value = id;
             inputGrade.value = (grade > 0) ? grade : '';
             inputFeedback.value = feedback;
-
-            // Mostra o modal (CSS direto para evitar conflito de versão do Bootstrap)
+            
+            // Abre o modal
             modal.style.display = 'block';
             modal.classList.add('show');
         });
     });
 
-    // 2. FECHAR MODAL
-    // Botões de fechar e cancelar
     var closeButtons = document.querySelectorAll('.btn-close-modal');
     closeButtons.forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -182,7 +193,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Fechar ao clicar fora (no fundo escuro)
     window.addEventListener('click', function(event) {
         if (event.target == modal) {
             modal.style.display = 'none';
