@@ -251,7 +251,8 @@ class SplmsModelCourse extends ItemModel {
         ->select('COUNT(id)')
         ->from('#__splms_lessons')
         ->where('course_id = ' . (int)$courseId)
-        ->where('published = 1');
+        ->where('published = 1')
+        ->where('is_optional = 0'); // Ignora opcionais
     $db->setQuery($query);
     $totalLessons = (int) $db->loadResult();
 
@@ -265,7 +266,8 @@ class SplmsModelCourse extends ItemModel {
         ->where('u.item_type = ' . $db->quote('lesson'))
         ->where('u.published = 1')
         ->where('l.course_id = ' . (int)$courseId)
-        ->where('l.published = 1');
+        ->where('l.published = 1')
+        ->where('l.is_optional = 0'); // Ignora opcionais Completed
 
     $db->setQuery($query);
     $completedLessons = (int) $db->loadResult();
