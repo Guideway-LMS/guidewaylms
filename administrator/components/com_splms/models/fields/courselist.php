@@ -14,6 +14,7 @@ use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\Form\FormHelper;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Version;
+use Joomla\CMS\Language\Text;
 
 FormHelper::loadFieldClass('list');
 
@@ -46,48 +47,19 @@ class JFormFieldCourselist extends JFormFieldList
 	public function getOptions() {
 
 		$doc = Factory::getDocument();
-		$doc->addScriptDeclaration('
-            jQuery(function($){
-				$("#jform_course_id").on("change", function(e) {
-					e.preventDefault();
-					let closestFieldset = $(this).closest("fieldset");
-
-					let topicInputFieldId = "#jform_'. (string)$this->element['topicid'] .'";
-					let topicInputField = $("#jform_'. (string)$this->element['topicid'] .'");
-					let SelectedCourseId = $(this).val();
-
-					// Set courseId to topicInput
-					topicInputField.attr("data-courseid", SelectedCourseId);					
-					
-					$.get(location.href + "&courseid=" + SelectedCourseId)
-					.then(function(page) {
-						topicInputField.html($(page).find(topicInputFieldId).html());
-
-						let data = [];
-						topicInputField.find("option:selected").each(function(){
-							data.push($(this).val());
-						});
-						
-						if (data.length) {
-							for (var i = 0; i < data.length; i++) {
-								data[i] = data[i].replace(/^\s*/, "").replace(/\s*$/, "");
-							}
-							topicInputField.val(data).trigger("liszt:updated");
-						} else {
-							topicInputField.trigger("liszt:updated");
-						}
-					})
-				});
-            });
-		');
+		// Legacy JS removed to prevent conflict with new AJAX implementation in lesson/edit.php
+		// $doc->addScriptDeclaration('...');
 		
 		$courses = $this->getCourses();
+
+		$options = [];
+		$options[] = HTMLHelper::_('select.option', '', Text::_('COM_SPLMS_LESSON_FIELD_SELECT_COURSE'));
 
 		foreach ($courses as $course) {
 			$options[] = HTMLHelper::_('select.option', $course->id, $course->title);
 		}
 
-		return array_merge(parent::getOptions(), $options ?? []);
+		return array_merge(parent::getOptions(), $options);
 
 	}
 
