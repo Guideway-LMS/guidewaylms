@@ -174,29 +174,13 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 					</div>
 
 		<!-- Has quiz -->
+		<?php /* GUIDEWAY CUSTOM: Removed Legacy Quiz Logic (Now integrated into Lessons)
 		<?php if (!empty($this->quizzes) && count($this->quizzes) && $this->quizzes) { ?>
 			<div class="splms-course-quizzes" style="margin-bottom: 70px;">
-				<h3><i class="fa fa-pencil-square-o" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
-				<ul class="list-unstyled">
-					<?php foreach ($this->quizzes as $quiz) {
-						$qtype = ($quiz->quiz_type == 1) ? Text::_('COM_SPLMS_PAID') : Text::_('COM_SPLMS_FREE');
-					?>
-						<li>
-							<span>
-								<i class="fa fa-question-circle"></i>
-								<a href="<?php echo $quiz->url; ?>">
-									<?php echo $quiz->title; ?>
-								</a>
-							</span>
-							<span class="pull-right">
-								<?php echo $qtype; ?>
-							</span>
-						</li>
-					<?php } // END:: foreach 
-					?>
-				</ul>
+...
 			</div>
 		<?php } ?>
+		*/ ?>
 		<!-- END::  quiz -->
 
 

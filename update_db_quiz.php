@@ -32,7 +32,8 @@ $tableName = $prefix . 'splms_lessons';
 $columns = [
     'is_optional' => "TINYINT(1) NOT NULL DEFAULT 0 COMMENT '0=Mandatory, 1=Optional' AFTER published",
     'quiz_id' => "INT(11) NOT NULL DEFAULT 0 COMMENT 'Linked Quiz ID' AFTER is_optional",
-    'passing_score' => "INT(3) NULL DEFAULT NULL COMMENT 'Approving Score (0-100)' AFTER quiz_id"
+    'passing_score' => "INT(3) NULL DEFAULT NULL COMMENT 'Approving Score (0-100)' AFTER quiz_id",
+     'lesson_format' => "VARCHAR(50) NOT NULL DEFAULT 'content' COMMENT 'content, assignment, quiz' AFTER passing_score"
 ];
 
 foreach ($columns as $colName => $def) {

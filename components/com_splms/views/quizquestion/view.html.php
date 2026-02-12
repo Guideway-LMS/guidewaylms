@@ -289,6 +289,7 @@ class SplmsViewQuizquestion extends HtmlView{
 				            	user_id: <?php echo $userId; ?>,
 				            	quiz_id: <?php echo $this->item->id; ?>,
 				            	course_id: <?php echo $this->item->course_id; ?>,
+                                lesson_id: <?php echo $app->input->getInt('lesson_id', 0); ?>, // GUIDEWAY CUSTOM: Pass Lesson ID
 				            	total_marks: questions.length,
 				            	q_result: correctAnswers,
 				            }

@@ -156,7 +156,13 @@ class SplmsModelCourse extends ItemModel {
 		if(!empty($lessons) && count($lessons)) {
 			foreach ($lessons as &$lesson) {
 				$lesson->teacher_url  = Route::_('index.php?option=com_splms&view=teacher&id='. $lesson->teacher_id . ':' . $lesson->teacheralias . SplmsHelper::getItemid('courses'));
-				$lesson->lesson_url = Route::_('index.php?option=com_splms&view=lesson&id='.$lesson->id.':'.$lesson->alias . SplmsHelper::getItemid('courses'));
+				
+				// GUIDEWAY CUSTOM: Direct Link for Quiz
+				if ($lesson->lesson_format === 'quiz' && !empty($lesson->quiz_id)) {
+					$lesson->lesson_url = Route::_('index.php?option=com_splms&view=quizquestion&id=' . $lesson->quiz_id . '&lesson_id=' . $lesson->id . SplmsHelper::getItemid('courses'));
+				} else {
+					$lesson->lesson_url = Route::_('index.php?option=com_splms&view=lesson&id='.$lesson->id.':'.$lesson->alias . SplmsHelper::getItemid('courses'));
+				}
 			}
 		}
 
