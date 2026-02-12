@@ -133,6 +133,17 @@
             step="1"
             filter="integer"
     	/>
+		<field
+            name="quiz_passing_score"
+            type="number"
+            default="70"
+            label="Nota mínima para aprovação (Quiz)"
+            description="Defina a nota mínima (0-100) para o quiz ser considerado aprovado. (Padrão Global)"
+            min="0"
+            max="100"
+            step="1"
+            filter="integer"
+    	/>
 	</fieldset>
 
 	<fieldset name="media" label="COM_SPLMS_FIELDSET_IMAGE_LABEL">
