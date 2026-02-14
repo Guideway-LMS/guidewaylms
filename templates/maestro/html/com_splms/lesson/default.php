@@ -104,72 +104,115 @@ $doc->addStyleDeclaration('
     .badge-attempts { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; text-transform: uppercase; }
     .badge-warning-custom { background: #f59e0b; }
     .badge-danger-custom { background: #ef4444; }
+    
+    /* ESTILOS DE ERRO VISUAL */
+    .upload-zone.error-border {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        animation: shake 0.5s;
+    }
+    @keyframes shake {
+        0% { transform: translate(1px, 1px) rotate(0deg); }
+        10% { transform: translate(-1px, -2px) rotate(-1deg); }
+        20% { transform: translate(-3px, 0px) rotate(1deg); }
+        30% { transform: translate(3px, 2px) rotate(0deg); }
+        40% { transform: translate(1px, -1px) rotate(1deg); }
+        50% { transform: translate(-1px, 2px) rotate(-1deg); }
+        60% { transform: translate(-3px, 1px) rotate(0deg); }
+        70% { transform: translate(3px, 1px) rotate(-1deg); }
+        80% { transform: translate(-1px, -1px) rotate(1deg); }
+        90% { transform: translate(1px, 2px) rotate(0deg); }
+        100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
 ');
 
-// --- JAVASCRIPT: A POLÍCIA DO ARQUIVO ---
+// --- JAVASCRIPT: VALIDAÇÃO ATUALIZADA (SEM ALERTAS) ---
 $doc->addScriptDeclaration('
 document.addEventListener("DOMContentLoaded", function() {
     
     var fileInput = document.getElementById("file-upload-input");
     var fileNameDisplay = document.getElementById("file-name-text");
+    var fileInfoText = document.querySelector(".file-info-text"); // Área original do texto de info
     var zone = document.querySelector(".upload-zone");
+    var btnSubmit = document.querySelector(".btn-send");
     
     // LISTA DE PERMITIDOS (SEM ZIP/RAR)
     var allowedExts = ["pdf", "doc", "docx", "txt", "jpg", "jpeg", "png", "mp4"];
+    var maxSizeMB = 10;
+    var maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+    function resetVisuals() {
+        zone.classList.remove("error-border");
+        zone.style.borderColor = "#e0e7ff";
+        zone.style.backgroundColor = "#fafbff";
+        if(btnSubmit) btnSubmit.disabled = false;
+        
+        // Restaura texto padrão se limpar
+        if (fileInfoText) fileInfoText.innerHTML = "Formatos: PDF, Word, Imagem, MP4 (Max: " + maxSizeMB + "MB)";
+    }
 
     if(fileInput) {
         fileInput.addEventListener("change", function() {
+            resetVisuals(); // Limpa erros anteriores
+
             if (this.files && this.files.length > 0) {
                 var f = this.files[0];
                 var ext = f.name.split(".").pop().toLowerCase();
-                
+                var errorMsg = "";
+
                 // 1. CHECAGEM DE EXTENSÃO
                 if (!allowedExts.includes(ext)) {
-                    this.value = ""; 
-                    alert("🚫 EXTENSÃO PROIBIDA! (." + ext + ")\n\nArquivos compactados (ZIP/RAR) não são aceitos.\nEnvie apenas: PDF, Documentos, Imagens ou Vídeo.");
-                    
-                    fileNameDisplay.innerHTML = "<span style=\'color:red; font-weight:800;\'><i class=\'fa fa-ban\'></i> ARQUIVO INVÁLIDO (." + ext + ")</span>";
-                    zone.style.borderColor = "#ef4444";
-                    zone.style.background = "#fee2e2";
-                    return; 
+                    errorMsg = "<strong>Erro:</strong> Extensão ." + ext + " não é permitida.<br>Apenas PDF, Word, Imagens ou MP4.";
                 }
-
                 // 2. CHECAGEM DE TAMANHO
-                if(f.size > 10 * 1024 * 1024) {
-                    this.value = ""; 
-                    alert("🚫 ARQUIVO GIGANTE!\n\nSeu arquivo tem " + (f.size/1024/1024).toFixed(1) + "MB.\nO máximo permitido é 10MB.");
-                    
-                    fileNameDisplay.innerHTML = "<span style=\'color:red; font-weight:800;\'><i class=\'fa fa-times\'></i> Arquivo muito grande (" + (f.size/1024/1024).toFixed(1) + "MB)</span>";
-                    zone.style.borderColor = "#ef4444";
-                    zone.style.background = "#fee2e2";
-                    return;
+                else if(f.size > maxSizeBytes) {
+                    var sizeMB = (f.size/1024/1024).toFixed(1);
+                    errorMsg = "<strong>Erro:</strong> Arquivo muito grande (" + sizeMB + "MB).<br>O limite é " + maxSizeMB + "MB.";
                 }
 
-                // 3. SUCESSO
-                fileNameDisplay.innerHTML = "<i class=\'fa fa-check-circle\'></i> " + f.name;
-                zone.style.borderColor = "#4CAF50";
-                zone.style.background = "#e8f5e9";
+                if (errorMsg) {
+                    // ERRO ENCONTRADO
+                    this.value = ""; // Limpa o input
+                    if(btnSubmit) btnSubmit.disabled = true; // Trava botão
+
+                    // Atualiza a área de nome com o ícone de erro
+                    fileNameDisplay.innerHTML = "<span style=\'color:#dc3545; font-weight:800;\'><i class=\'fa fa-times-circle\'></i> Arquivo Inválido</span>";
+                    
+                    // Mostra o detalhe do erro na área de info (caixa vermelha)
+                    if (fileInfoText) {
+                        fileInfoText.innerHTML = "<span style=\'color:#dc3545; font-size:13px;\'>" + errorMsg + "</span>";
+                    }
+
+                    // Aplica estilos visuais na zona
+                    zone.classList.add("error-border");
+                    zone.style.borderColor = "#dc3545";
+                    zone.style.backgroundColor = "#fff5f5";
+
+                } else {
+                    // SUCESSO
+                    fileNameDisplay.innerHTML = "<span style=\'color:#28a745; font-weight:bold;\'><i class=\'fa fa-check-circle\'></i> " + f.name + "</span>";
+                    
+                    if (fileInfoText) {
+                        fileInfoText.innerHTML = "<span style=\'color:#28a745;\'>Arquivo pronto para envio! (" + (f.size/1024/1024).toFixed(2) + "MB)</span>";
+                    }
+
+                    zone.style.borderColor = "#28a745";
+                    zone.style.backgroundColor = "#f0fff4";
+                }
             }
         });
     }
 
-    // Trava Extra no Botão
+    // Trava Extra no Submit (Segurança final)
     var forms = document.querySelectorAll("form[enctype=\'multipart/form-data\']");
     forms.forEach(function(form) {
         form.addEventListener("submit", function(event) {
             var input = form.querySelector("input[type=file]");
-            if (!input || !input.files || input.files.length === 0) return; 
-
-            var file = input.files[0];
-            var ext = file.name.split(".").pop().toLowerCase();
-
-            if (file.size > 10 * 1024 * 1024) {
-                alert("Erro: Arquivo maior que 10MB.");
-                event.preventDefault();
-            }
-            if (!allowedExts.includes(ext)) {
-                alert("Erro: Extensão ." + ext + " proibida.");
-                event.preventDefault();
+            // Se o input foi limpo pelo erro, não deixa enviar
+            if (!input || !input.value) {
+                 event.preventDefault();
+                 // Feedback visual rápido se tentar forçar
+                 zone.classList.add("error-border");
             }
         });
     });
@@ -258,6 +301,7 @@ window.SPLMS_CONTEXT = {
                                 <input type="file" name="uploaded_file" id="file-upload-input" style="display: none;" required>
                                 <label for="file-upload-input" class="btn-upload-custom"><i class="fa fa-folder-open-o"></i> Selecionar Novo Arquivo</label>
                                 <div id="file-name-text" class="file-name-display">Nenhum arquivo selecionado</div>
+                                <div class="file-info-text">Formatos: PDF, Word, Imagem, MP4 (Max: 10MB)</div>
                             </div>
                             <input type="hidden" name="course_id" value="<?php echo $this->item->course_id; ?>" />
                             <input type="hidden" name="lesson_id" value="<?php echo $this->item->id; ?>" />
