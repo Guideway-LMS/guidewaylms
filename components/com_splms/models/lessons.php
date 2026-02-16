@@ -140,8 +140,9 @@ class SplmsModelLessons extends ListModel {
         return true; // Já existe → evita duplicação
     }
 		$query = $db->getQuery(true);
-		$columns = array('user_id', 'item_id', 'item_type', 'published');
-		$values  = array($db->quote($user_id), $db->quote($item_id), $db->quote($item_type), $db->quote(1) );
+		$columns = array('user_id', 'item_id', 'item_type', 'published', 'created', 'modified');
+		$date = Factory::getDate()->toSql();
+		$values  = array($db->quote($user_id), $db->quote($item_id), $db->quote($item_type), $db->quote(1), $db->quote($date), $db->quote($date) );
 		$query
 		    ->insert($db->quoteName('#__splms_useritems'))
 		    ->columns($db->quoteName($columns))
