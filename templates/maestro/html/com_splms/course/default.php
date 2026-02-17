@@ -119,9 +119,9 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 				<!-- Navigation -->
 
 				<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
-					<div class="splms-course-announcements splms-section" style="margin-bottom: 30px; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid #1a73e8;">
-						<h3 class="splms-title" style="margin-top: 0; display: flex; align-items: center; color: #1a73e8;">
-							<i class="fa fa-bullhorn" aria-hidden="true" style="margin-right: 10px;"></i> Mural de Avisos
+					<div class="splms-course-announcements splms-section guideway-announcements">
+						<h3 class="splms-title guideway-section-title">
+							<i class="fa fa-bullhorn" aria-hidden="true"></i> Mural de Avisos
 						</h3>
 
 						<?php
@@ -142,8 +142,8 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 				<?php } ?>
 
 				<?php if ((!empty($this->item->topics) && count($this->item->topics)) || (!empty($this->item->lessons) && count($this->item->lessons))) { ?>
-					<div id="course-lessons" class="course-lessons" style="margin-bottom: 70px;">
-						<h3><i class="fa fa-book" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_LESSONS'); ?></h3>
+					<div id="course-lessons" class="course-lessons guideway-course-section">
+						<h3><i class="fa fa-book guideway-icon" aria-hidden="true"></i><?php echo Text::_('COM_SPLMS_LESSONS'); ?></h3>
 						<?php if (!empty($this->item->topics) && count($this->item->topics)) { ?>
 							<div id="topicAccordion">
 								<?php foreach ($this->item->topics as $key => $topic) { ?>
@@ -175,8 +175,8 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
 		<!-- Has quiz -->
 		<?php if (!empty($this->quizzes) && count($this->quizzes) && $this->quizzes) { ?>
-			<div class="splms-course-quizzes" style="margin-bottom: 70px;">
-				<h3><i class="fa fa-pencil-square-o" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
+			<div class="splms-course-quizzes guideway-course-section">
+				<h3><i class="fa fa-pencil-square-o guideway-icon" aria-hidden="true"></i><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
 				<ul class="list-unstyled">
 					<?php foreach ($this->quizzes as $quiz) {
 						$qtype = ($quiz->quiz_type == 1) ? Text::_('COM_SPLMS_PAID') : Text::_('COM_SPLMS_FREE');
@@ -204,8 +204,8 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
 					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
 						
-						<div class="splms-course-forum splms-section" style="margin-bottom: 70px;">
-							<h3 class="splms-title"><i class="fa fa-comments" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i>Fórum de Dúvidas</h3>
+						<div class="splms-course-forum splms-section guideway-course-section">
+							<h3 class="splms-title"><i class="fa fa-comments guideway-icon" aria-hidden="true"></i>Fórum de Dúvidas</h3>
 							
 							<?php
 							try {
@@ -236,8 +236,8 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
 				<!-- Has teacher -->
 				<?php if (!empty($this->teachers)) { ?>
-					<div id="course-instructor" class="splms-course-teachers" style="margin-bottom: 70px;">
-						<h3><i class="fa fa-users" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i><?php echo Text::_('COM_SPLMS_MEET_OUR_COURSE_TEACHER'); ?></h3>
+					<div id="course-instructor" class="splms-course-teachers guideway-course-section">
+						<h3><i class="fa fa-users guideway-icon" aria-hidden="true"></i><?php echo Text::_('COM_SPLMS_MEET_OUR_COURSE_TEACHER'); ?></h3>
 						<div class="splms-row">
 							<?php foreach ($this->teachers as $teacher) { ?>
 								<div class="splms-course-teacher">
@@ -271,7 +271,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 						<div id="reviewsAccordion">
 							<h3 data-toggle="collapse" data-target="#collapseReviews" data-bs-toggle="collapse" data-bs-target="#collapseReviews" aria-expanded="false" aria-controls="collapseReviews" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
 								<span>
-									<i class="fa fa-star" aria-hidden="true" style="margin-right: 10px; color: #1a73e8; font-size: 1.1em;"></i>
+									<i class="fa fa-star guideway-icon" aria-hidden="true"></i>
 									<?php echo Text::_('COM_SPLMS_REVIEWS'); ?>
 									<?php if ($rating > 0) { ?>
 										<span style="font-size: 0.85em; font-weight: normal; margin-left: 5px;"> - ⭐ <?php echo $rating; ?> (<?php echo $this->ratings->count; ?>)</span>

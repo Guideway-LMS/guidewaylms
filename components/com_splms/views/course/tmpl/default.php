@@ -159,18 +159,20 @@ $user = Factory::getUser();
                     <h3 class="splms-title"><?php echo Text::_('COM_SPLMS_COURSE_INFO'); ?></h3>
                     <div class="splms-course-sessions-meta">
                         <?php foreach ($this->item->course_infos as $course_info) { ?>
-                            <div class="splms-course-info-media-type">
-                                <?php if (!empty($course_info['icon_image'])) {
-                                    if ($course_info['icon_image'] == 'icon') { ?>
-                                        <i class="<?php echo $course_info['icon'] ?> course_info-icon"></i>
-                                    <?php } elseif ($course_info['icon_image'] == 'image') { ?>
-                                        <img src="<?php echo Uri::root() . $course_info['image']; ?>" alt="" class="mcourse_info-image">
-                                <?php }
-                                }  ?>
-                            </div>
-                            <div>
-                                <h5><?php echo $course_info['info_text'] ?></h5>
-                                <span class="count"><?php echo $course_info['info_number'] ?></span>
+                            <div class="splms-course-info-media-wrap">
+                                <div class="splms-course-info-media-type">
+                                    <?php if (!empty($course_info['icon_image'])) {
+                                        if ($course_info['icon_image'] == 'icon') { ?>
+                                            <i class="<?php echo $course_info['icon'] ?> course_info-icon"></i>
+                                        <?php } elseif ($course_info['icon_image'] == 'image') { ?>
+                                            <img src="<?php echo Uri::root() . $course_info['image']; ?>" alt="" class="mcourse_info-image">
+                                    <?php }
+                                    }  ?>
+                                </div>
+                                <div>
+                                    <h5><?php echo $course_info['info_text'] ?></h5>
+                                    <span class="count"><?php echo $course_info['info_number'] ?></span>
+                                </div>
                             </div>
 
 

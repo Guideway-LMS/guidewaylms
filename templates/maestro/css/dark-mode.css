@@ -1,0 +1,792 @@
+/* Dark Mode Variables and Overrides */
+
+[data-theme="dark"] {
+    /* Dark Theme */
+    --body-bg: #121212;
+    --body-text: #E0E0E0;
+    --header-bg: #1F1F1F;
+    --footer-bg: #000000;
+    --footer-text: #CCCCCC;
+    --link-color: #4da3ff;
+    --card-bg: #1E1E1E;
+    --card-text: #E0E0E0;
+    --border-color: #333333;
+    --input-bg: #2D2D2D;
+    --input-text: #E0E0E0;
+}
+
+/* Dark Mode Toggle Switch Specifics */
+[data-theme="dark"] #theme-toggle {
+    background-color: #000;
+    border-color: #333;
+}
+
+[data-theme="dark"] #theme-toggle .toggle-icon-dark {
+    color: #fff;
+}
+
+/* Move ball when Dark Mode is active */
+[data-theme="dark"] #theme-toggle .toggle-ball {
+    transform: translateX(30px);
+    background-color: #FFF; 
+}
+
+/* --- Dark Mode Specific Overrides --- */
+
+/* Force high contrast variables on root in dark mode */
+html[data-theme="dark"] {
+    --body-text: #E0E0E0 !important;
+    --link-color: #4da3ff !important;
+    --header-bg: #1F1F1F !important;
+}
+
+/* Force text color on all common text elements in Dark Mode */
+html[data-theme="dark"] body,
+html[data-theme="dark"] p,
+html[data-theme="dark"] span,
+html[data-theme="dark"] div,
+html[data-theme="dark"] li,
+html[data-theme="dark"] td,
+html[data-theme="dark"] th {
+    color: var(--body-text) !important;
+}
+
+/* Headings */
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6,
+html[data-theme="dark"] .splms-title,
+html[data-theme="dark"] .course-title,
+html[data-theme="dark"] .splms-topic-title {
+    color: var(--body-text) !important;
+}
+
+/* Icons */
+html[data-theme="dark"] i.fa,
+html[data-theme="dark"] span.fa,
+html[data-theme="dark"] .fas,
+html[data-theme="dark"] .far {
+     color: var(--link-color) !important;
+}
+
+/* Specific Containers that usually have white backgrounds */
+html[data-theme="dark"] .splms-course-announcements,
+html[data-theme="dark"] .splms-section,
+html[data-theme="dark"] .course-header {
+    background: var(--card-bg) !important;
+    color: var(--card-text) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* User Request: Remove background from Teachers and Reviews */
+html[data-theme="dark"] .splms-course-teachers,
+html[data-theme="dark"] .user-reviews,
+html[data-theme="dark"] .course-lessons,
+html[data-theme="dark"] .course-lessons .card,
+html[data-theme="dark"] .course-lessons .card-header,
+html[data-theme="dark"] .course-lessons .card-body,
+html[data-theme="dark"] .splms-course-quizzes,
+/* User Request: Remove background from Course Intro Text */
+html[data-theme="dark"] .splms-course-introtext,
+html[data-theme="dark"] .splms-course-intro,
+/* Reviews Side Item (Menu/Summary/Breakdown) */
+html[data-theme="dark"] .reviews-menu {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--body-text) !important;
+}
+
+html[data-theme="dark"] .reviews-wrapper {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 1px solid #ffffff !important; /* White border */
+    border-radius: 8px; /* Standard radius */
+    padding: 15px; /* Add padding for content */
+    box-shadow: none !important;
+    color: var(--body-text) !important;
+}
+
+/* User Request: Yellow Stars in Dark Mode (High Specificity) */
+html[data-theme="dark"] i.fa-star,
+html[data-theme="dark"] i.fa-star-o,
+html[data-theme="dark"] i.fa-star-half-o,
+html[data-theme="dark"] span.fa-star,
+html[data-theme="dark"] .fa.fa-star {
+    color: #f1c40f !important;
+}
+
+/* User Request: Restore Blue Color to Guideway Icon in Dark Mode */
+html[data-theme="dark"] .guideway-icon.fa-star {
+    color: #4da3ff !important;
+}
+
+/* User Request: Light Theme Blue for Related Courses Titles in Dark Mode */
+html[data-theme="dark"] .splms-similar-courses .splms-course-title a {
+    color: #1a73e8 !important; /* Guideway Blue */
+}
+
+/* Navigation & Header Overrides */
+html[data-theme="dark"] .nav-area {
+    background-color: transparent !important;
+    border-bottom: none !important;
+}
+html[data-theme="dark"] .nav-area ul li a {
+    color: var(--body-text) !important;
+}
+
+/* Course Level Badge */
+html[data-theme="dark"] .course-level {
+    color: #FFFFFF !important;
+    background-color: transparent !important;
+}
+
+/* Offcanvas Menu (Side Menu) Styling for Dark Mode */
+html[data-theme="dark"] .offcanvas-menu {
+    background-color: var(--header-bg) !important;
+    color: var(--body-text) !important;
+}
+
+html[data-theme="dark"] .offcanvas-menu .offcanvas-inner ul.menu > li a,
+html[data-theme="dark"] .offcanvas-menu .offcanvas-inner ul.menu > li span {
+    color: #FFFFFF !important; /* Force white for menu items */
+}
+
+html[data-theme="dark"] .offcanvas-menu .offcanvas-inner ul.menu > li a:hover,
+html[data-theme="dark"] .offcanvas-menu .offcanvas-inner ul.menu > li span:hover,
+html[data-theme="dark"] .offcanvas-menu .offcanvas-inner ul.menu > li.active > a {
+    color: var(--link-color) !important;
+}
+
+html[data-theme="dark"] .close-offcanvas,
+html[data-theme="dark"] .close-offcanvas .fas, 
+html[data-theme="dark"] .close-offcanvas .fa {
+    color: #FFFFFF !important; /* Force white for close icon */
+}
+
+html[data-theme="dark"] #offcanvas-toggler .fa,
+html[data-theme="dark"] #offcanvas-toggler .fas {
+    color: var(--body-text) !important; /* Menu burger icon */
+}
+
+/* Main Mega Menu Styling for Dark Mode */
+html[data-theme="dark"] .sp-megamenu-parent > li > a,
+html[data-theme="dark"] .sp-megamenu-parent > li > span {
+    color: var(--body-text) !important;
+}
+
+/* SP Page Builder / Home Page Text Fixes */
+html[data-theme="dark"] .sppb-addon-title,
+html[data-theme="dark"] .sppb-addon-content,
+html[data-theme="dark"] .sppb-addon-text,
+html[data-theme="dark"] .sppb-title-heading,
+html[data-theme="dark"] h1.sppb-title-heading,
+html[data-theme="dark"] h2.sppb-addon-title,
+html[data-theme="dark"] .sppb-addon-header {
+    color: #FFFFFF !important;
+}
+
+/* Specific fix for "Digital Marketing Course" text box (User ID) */
+html[data-theme="dark"] #sppb-addon-1655362854359 {
+    background-color: var(--card-bg) !important;
+    color: var(--body-text) !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* Add subtle shadow for depth */
+    border: 1px solid rgba(255,255,255,0.05); /* Subtle border for definition */
+}
+
+/* Ensure headings inside this specific box are also white/readable */
+html[data-theme="dark"] #sppb-addon-1655362854359 h1,
+html[data-theme="dark"] #sppb-addon-1655362854359 h2,
+html[data-theme="dark"] #sppb-addon-1655362854359 h3,
+html[data-theme="dark"] #sppb-addon-1655362854359 p {
+    color: #FFFFFF !important;
+}
+
+/* Generic Fallbacks */
+html[data-theme="dark"] .sppb-section .sppb-addon-wrapper,
+html[data-theme="dark"] .sppb-section p,
+html[data-theme="dark"] .sppb-section div {
+    color: var(--body-text); /* Use our variable, or #FFFFFF if needed */
+}
+
+/* Course Titles in Dark Mode */
+html[data-theme="dark"] .sp-lms-course-title,
+html[data-theme="dark"] .sp-lms-course-title a,
+html[data-theme="dark"] .splms-course-title,
+html[data-theme="dark"] .splms-course-title a,
+html[data-theme="dark"] .course-title,
+html[data-theme="dark"] .course-title a,
+html[data-theme="dark"] h3.sppb-addon-title,
+html[data-theme="dark"] h4.sp-lms-course-title {
+    color: #FFFFFF !important;
+}
+
+/* Article Addon H3 Fix */
+html[data-theme="dark"] .sppb-addon-article.sppb-addon-article-layout-content h3,
+html[data-theme="dark"] .sppb-addon-article-layout-content h3 a {
+    color: #FFFFFF !important;
+}
+
+/* Match Readmore to Meta Date Color (Dark Mode) */
+html[data-theme="dark"] .sppb-readmore,
+html[data-theme="dark"] .sppb-readmore a,
+html[data-theme="dark"] .sppb-meta-date.sppb-meta-date-unmodified,
+html[data-theme="dark"] .sppb-meta-date.sppb-meta-date-unmodified span {
+    color: #AAAAAA !important; /* Muted gray for meta/secondary text */
+}
+
+/* Fix Course Discount Badge (Percentage) in Dark Mode */
+html[data-theme="dark"] .splms-course-discount-price {
+    background-color: var(--card-bg) !important; /* Dark background */
+    color: #FFFFFF !important; /* White text */
+    border-color: rgba(255, 255, 255, 0.2) !important; /* Subtle lighter border */
+}
+
+/* Header Visibility Fixes (User Request - Aggressive Override) */
+/* Force ALL text and icons in the header to be white in Dark Mode */
+html[data-theme="dark"] #sp-header,
+html[data-theme="dark"] #sp-header a,
+html[data-theme="dark"] #sp-header span,
+html[data-theme="dark"] #sp-header i,
+html[data-theme="dark"] #sp-header .fa,
+html[data-theme="dark"] #sp-header .fas,
+html[data-theme="dark"] #sp-header .fab,
+html[data-theme="dark"] #sp-header h1,
+html[data-theme="dark"] #sp-header h2,
+html[data-theme="dark"] #sp-header h3,
+html[data-theme="dark"] #sp-header div {
+    color: #FFFFFF !important;
+}
+
+/* Specific Logo Targeting */
+html[data-theme="dark"] #sp-logo a,
+html[data-theme="dark"] .logo-wrapper a,
+html[data-theme="dark"] .sp-logo {
+     color: #FFFFFF !important;
+}
+
+/* Burger Menu & Icons Transparency/Color Fix */
+html[data-theme="dark"] #offcanvas-toggler,
+html[data-theme="dark"] .offcanvas-toggler,
+html[data-theme="dark"] .burger-icon,
+html[data-theme="dark"] .offcanvas-toggler .fa,
+html[data-theme="dark"] .offcanvas-toggler .fas,
+html[data-theme="dark"] .offcanvas-toggler > i {
+    color: #FFFFFF !important;
+}
+
+/* Message Icon Specifics (Targeting Parent Containers & Icons) */
+html[data-theme="dark"] .sp-contact-email,
+html[data-theme="dark"] .sp-contact-email a,
+html[data-theme="dark"] .sp-contact-email span,
+html[data-theme="dark"] .sp-contact-email i,
+html[data-theme="dark"] .sp-contact-mobile,
+html[data-theme="dark"] .sp-contact-mobile a,
+html[data-theme="dark"] .sp-contact-mobile span,
+html[data-theme="dark"] .sp-contact-mobile i,
+html[data-theme="dark"] li.sp-contact-email,
+html[data-theme="dark"] li.sp-contact-mobile {
+    color: #FFFFFF !important;
+}
+
+/* Direct Icon Targeting */
+html[data-theme="dark"] .fa-envelope,
+html[data-theme="dark"] .fa-envelope-o,
+html[data-theme="dark"] .icon-envelope,
+html[data-theme="dark"] .fa-envelope::before,
+html[data-theme="dark"] .far.fa-envelope,
+html[data-theme="dark"] .fas.fa-envelope {
+    color: #FFFFFF !important;
+}
+
+/* Burger Menu - Broader Capture */
+html[data-theme="dark"] .burger-icon,
+html[data-theme="dark"] #offcanvas-toggler,
+html[data-theme="dark"] .offcanvas-toggler {
+    color: #FFFFFF !important;
+}
+
+/* Fix for Burger Icon Lines (often span elements with background color) */
+html[data-theme="dark"] .burger-icon > span,
+html[data-theme="dark"] #offcanvas-toggler > span,
+html[data-theme="dark"] .offcanvas-toggler > span {
+    background-color: #FFFFFF !important;
+}
+
+/* Sticky Header variant often overrides colors, force it back */
+html[data-theme="dark"] #sp-header.header-sticky,
+html[data-theme="dark"] #sp-header.header-sticky a,
+html[data-theme="dark"] #sp-header.header-sticky i {
+    color: #FFFFFF !important;
+}
+
+/* SVG Icon Support (if they are SVGs) */
+html[data-theme="dark"] #sp-header svg,
+html[data-theme="dark"] #sp-header svg path {
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+}
+
+/* Force removal of dark color overrides on icons */
+html[data-theme="dark"] #sp-header i {
+    color: #FFFFFF !important;
+}
+
+/* If the logo is an image, we can try to invert it if it's black text on transparency */
+html[data-theme="dark"] #sp-logo img,
+html[data-theme="dark"] .logo-image,
+html[data-theme="dark"] #sp-header img.sppb-img-responsive,
+html[data-theme="dark"] .sp-contact-email img {
+    filter: brightness(0) invert(1) !important;
+}
+
+html[data-theme="dark"] .sp-megamenu-parent .sp-dropdown .sp-dropdown-inner {
+    background-color: var(--card-bg) !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+html[data-theme="dark"] .sp-megamenu-parent .sp-dropdown li.sp-menu-item > a {
+    color: var(--card-text) !important;
+}
+
+html[data-theme="dark"] .sp-megamenu-parent .sp-dropdown li.sp-menu-item:hover > a,
+html[data-theme="dark"] .sp-megamenu-parent .sp-dropdown li.sp-menu-item.active > a {
+    color: var(--link-color) !important;
+}
+
+/* Cards & Accordions */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .card-body {
+    background-color: var(--card-bg) !important;
+    color: var(--card-text) !important;
+    border-color: var(--border-color);
+}
+html[data-theme="dark"] .btn-link {
+    color: var(--link-color) !important;
+}
+
+/* Tables */
+html[data-theme="dark"] .table {
+    color: var(--body-text) !important;
+}
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .table td {
+    border-color: var(--border-color) !important;
+}
+
+/* User Request: Lighten Lesson Names and Icons in Dark Mode */
+html[data-theme="dark"] .course-lessons .card-body ul li,
+html[data-theme="dark"] .course-lessons .card-body ul li a,
+html[data-theme="dark"] .course-lessons .card-body ul li i,
+html[data-theme="dark"] .course-lessons .card-body ul li span {
+    color: #E0E0E0 !important;
+    transition: color 0.2s ease;
+}
+
+/* User Request: Blue Hover for Name and Duration */
+html[data-theme="dark"] .course-lessons .card-body ul li:hover,
+html[data-theme="dark"] .course-lessons .card-body ul li:hover a,
+html[data-theme="dark"] .course-lessons .card-body ul li:hover i,
+html[data-theme="dark"] .course-lessons .card-body ul li:hover span {
+    color: var(--link-color) !important;
+}
+
+/* Dark Mode Overrides - Aggressive Title Fixes */
+html[data-theme="dark"] .guideway-announcements {
+    background: var(--card-bg) !important;
+    border-left-color: var(--link-color);
+    box-shadow: none;
+    color: var(--body-text);
+}
+
+html[data-theme="dark"] .guideway-section-title,
+html[data-theme="dark"] .guideway-icon {
+    color: #FFFFFF !important; /* Force White */
+}
+
+/* Global Heading Overrides for Course View */
+html[data-theme="dark"] .view-splms-course h1,
+html[data-theme="dark"] .view-splms-course h2,
+html[data-theme="dark"] .view-splms-course h3,
+html[data-theme="dark"] .view-splms-course h4,
+html[data-theme="dark"] .view-splms-course h5,
+html[data-theme="dark"] .view-splms-course h6,
+html[data-theme="dark"] .view-splms-course .splms-title,
+html[data-theme="dark"] .view-splms-course .course-title,
+html[data-theme="dark"] .view-splms-course .splms-topic-title {
+    color: #FFFFFF !important;
+}
+
+/* Match Course Introduction Background to Header */
+html[data-theme="dark"] .splms-course-introduction {
+    background-color: var(--card-bg) !important;
+}
+
+/* Force white icons/images in Course Introduction */
+html[data-theme="dark"] .splms-course-introduction img {
+    filter: brightness(0) invert(1) !important;
+}
+html[data-theme="dark"] .splms-course-introduction i,
+html[data-theme="dark"] .splms-course-introduction .fab,
+html[data-theme="dark"] .splms-course-introduction .fas,
+html[data-theme="dark"] .splms-course-introduction .fa {
+    color: #FFFFFF !important;
+}
+
+/* Course Session Meta (Icons & Text) */
+html[data-theme="dark"] .splms-course-sessions-meta,
+html[data-theme="dark"] .splms-course-sessions-meta h5,
+html[data-theme="dark"] .splms-course-sessions-meta .count,
+html[data-theme="dark"] .splms-course-sessions-meta i,
+html[data-theme="dark"] .splms-course-sessions-meta span {
+    color: #FFFFFF !important;
+}
+
+/* Course Information Items Wrapper */
+html[data-theme="dark"] .splms-course-info-media-wrap {
+    background-color: #2d2d2d !important; /* "Cinza clarinho" relative to black body */
+    color: #FFFFFF !important;
+    border: 1px solid #FFFFFF !important;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px; /* Spacing between items if they stack */
+    display: flex; /* Ensure layout integrity if needed */
+    align-items: center;
+    gap: 10px;
+}
+
+/* Ensure headings inside are also visible if they aren't already */
+html[data-theme="dark"] .splms-course-info-media-wrap h3,
+html[data-theme="dark"] .splms-course-info-media-wrap h5,
+html[data-theme="dark"] .splms-course-info-media-wrap span {
+    color: #FFFFFF !important;
+}
+
+/* Make images (icons) white in dark mode using filter */
+html[data-theme="dark"] .splms-course-info-media-wrap img {
+    filter: brightness(0) invert(1) !important;
+}
+
+/* Ensure links inside headings are also white (unless hovered) */
+html[data-theme="dark"] .view-splms-course h1 a,
+html[data-theme="dark"] .view-splms-course h2 a,
+html[data-theme="dark"] .view-splms-course h3 a,
+html[data-theme="dark"] .view-splms-course h4 a,
+html[data-theme="dark"] .view-splms-course h5 a,
+html[data-theme="dark"] .view-splms-course h6 a,
+html[data-theme="dark"] h3.splms-courses-title a,
+html[data-theme="dark"] h4.splms-course-title a {
+    color: #FFFFFF !important;
+}
+
+html[data-theme="dark"] .view-splms-course a:hover h4,
+html[data-theme="dark"] .view-splms-course h4 a:hover {
+    color: var(--link-color) !important;
+}
+
+/* =========================================
+   Sidebar Course Info Configuration (Dark Mode)
+   ========================================= */
+
+/* 1. Reset all Text to Soft White (#E0E0E0) */
+html[data-theme="dark"] ul.course-info li,
+html[data-theme="dark"] ul.course-info li a,
+html[data-theme="dark"] ul.course-info li span,
+html[data-theme="dark"] #splms-multiteacher-toogle,
+html[data-theme="dark"] ul.course-info li.splms-course-teacher a {
+    color: #E0E0E0 !important;
+}
+
+/* 2. Force all Icons to Light Blue (#4da3ff) */
+html[data-theme="dark"] ul.course-info i,
+html[data-theme="dark"] ul.course-info i::before,
+html[data-theme="dark"] ul.course-info li [class^="splms-icon-"],
+html[data-theme="dark"] ul.course-info li [class*=" splms-icon-"],
+html[data-theme="dark"] .splms-icon-teacher,
+html[data-theme="dark"] .splms-icon-teacher::before,
+html[data-theme="dark"] .splms-icon-users,
+html[data-theme="dark"] .splms-icon-users::before {
+    color: #4da3ff !important;
+}
+
+/* Teacher Name and Link - Force White (Using Existing Classes) */
+html[data-theme="dark"] .splms-course-teacher,
+html[data-theme="dark"] .splms-course-teacher a,
+html[data-theme="dark"] li.splms-course-teacher a,
+html[data-theme="dark"] div.splms-course-teacher a {
+    color: #E0E0E0 !important;
+}
+
+/* Teacher Icon - Force Blue (Using Existing Classes) */
+html[data-theme="dark"] .splms-course-teacher i,
+html[data-theme="dark"] li.splms-course-teacher i,
+html[data-theme="dark"] div.splms-course-teacher i {
+    color: var(--link-color) !important;
+}
+
+/* Teacher Profile Page - Remove Backgrounds from Sections (Bio, Skills, Courses) */
+html[data-theme="dark"] .view-splms-teacher .splms-section {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Teacher Social Icons (below message button) */
+html[data-theme="dark"] ul.splms-persion-social-icons li a i {
+    color: var(--link-color) !important;
+}
+
+/* Teacher Website Link */
+html[data-theme="dark"] .splms-person-website a {
+    color: var(--link-color) !important;
+}
+
+/* Teacher Profile - Course List Items (Light Background Card Style) */
+html[data-theme="dark"] ul.splms-teacher-courses li {
+    background-color: #D0D0D0 !important;
+    padding: 10px 15px !important;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #999;
+}
+
+/* Course Title in List (Dark text for light bg) */
+html[data-theme="dark"] ul.splms-teacher-courses li a {
+    color: #333333 !important;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+/* Course Duration (Black text as requested) */
+html[data-theme="dark"] ul.splms-teacher-courses li .splms-course-duration {
+    color: #000000 !important;
+    font-weight: normal;
+    background: transparent !important;
+}
+
+/* User Request: Lighten Login Page Text (Username, Password, Remember Me) in Dark Mode */
+html[data-theme="dark"] .login label,
+html[data-theme="dark"] .login .checkbox label,
+html[data-theme="dark"] .login .form-check-label {
+    color: #E0E0E0 !important;
+}
+
+/* User Request: Style Announcements Wall (Mural de Avisos) in Dark Mode */
+html[data-theme="dark"] .splms-announcement-item {
+    background: transparent !important;
+    border-color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .splms-announcement-item h4 {
+    color: #1a73e8 !important; /* Guideway Blue */
+}
+
+html[data-theme="dark"] .splms-announcement-item small {
+    color: #aaa !important;
+    border-bottom-color: #444 !important;
+}
+
+html[data-theme="dark"] .splms-announcement-message,
+html[data-theme="dark"] .splms-announcement-message p {
+    color: #E0E0E0 !important;
+}
+
+html[data-theme="dark"] .splms-no-announcements {
+    background: transparent !important;
+    color: #E0E0E0 !important;
+    border: 1px solid #444;
+}
+
+/* User Request: Style Blog Page (Titles and Continue Reading) in Dark Mode */
+html[data-theme="dark"] .article-header h2 a {
+    color: #FFFFFF !important; /* White for better visibility on dark */
+    font-weight: 600;
+}
+
+html[data-theme="dark"] .readmore a {
+    color: #f0f0f0 !important; /* Light Grey/White for button link text */
+    background: transparent !important; /* Ensure no conflicting background if button style */
+    border: 1px solid #ffffff; /* Add border to make it look like an outlined button */
+    padding: 5px 15px;
+    border-radius: 4px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+html[data-theme="dark"] .readmore a:hover {
+    background: #ffffff !important;
+    color: #000000 !important;
+    text-decoration: none;
+}
+
+
+/* User Request: Make professor specialization (Design, Development, Language) visible in Dark Mode */
+html[data-theme="dark"] .splms-course-teachers .splms-course-teacher small,
+html[data-theme="dark"] .splms-course-teachers .splms-course-teacher small span,
+html[data-theme="dark"] .splms-course-teachers .splms-course-teacher small i,
+html[data-theme="dark"] .splms-course-teachers .splms-course-teacher small * {
+    color: #AAAAAA !important; /* Slightly darker white/gray to differentiate from name */
+    opacity: 1 !important;
+}
+
+/* User Request: Course Progress Container Visibility in Dark Mode */
+html[data-theme="dark"] .course-progress-container {
+    background-color: var(--card-bg) !important;
+    background: var(--card-bg) !important;
+    color: var(--card-text) !important;
+    box-shadow: none !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+html[data-theme="dark"] .course-progress-title {
+    color: #FFFFFF !important;
+}
+
+html[data-theme="dark"] .course-progress-track {
+    background: #333333 !important; /* Darker track for dark mode */
+}
+
+html[data-theme="dark"] .course-progress-text {
+   color: #FFFFFF !important;
+   z-index: 10;
+   text-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+html[data-theme="dark"] .course-progress-message {
+    color: #AAAAAA !important;
+}
+
+/* User Request: Fix Sidebar Lesson Hover in Dark Mode (Lesson View) */
+html[data-theme="dark"] .course-lessons ul.lessons li.lesson:hover,
+html[data-theme="dark"] .course-lessons ul.lessons li.lesson:hover a {
+    background-color: transparent !important; /* Remove white background */
+    color: var(--link-color) !important; /* Make text blue */
+}
+
+html[data-theme="dark"] .course-lessons ul.lessons li.lesson:hover span.lesson-title {
+    color: var(--link-color) !important;
+}
+
+html[data-theme="dark"] .course-lessons ul.lessons li.lesson:hover .lesson-completed-icon,
+html[data-theme="dark"] .course-lessons ul.lessons li.lesson:hover .lesson-pending-icon {
+    /* Keep icons visible */
+}
+
+/* User Request: Fix Active Lesson Visibility (Selected Lesson) */
+html[data-theme="dark"] .course-lessons ul.lessons li.lesson.active,
+html[data-theme="dark"] .course-lessons ul.lessons li.lesson.active a {
+    background-color: #2D2D2D !important; /* Slight background difference */
+    color: var(--link-color) !important;
+    border-left: 3px solid var(--link-color); /* Visual indicator */
+}
+
+/* User Request: Fix Certificate Content Colors (Dark Mode) */
+/* Force the certificate container to look like "Light Mode" (Paper/White) */
+html[data-theme="dark"] .view-certificate .certificate {
+    background-color: #FFFFFF !important;
+    color: #333333 !important; /* Default dark grey text */
+    border: 1px solid #e5e5e5 !important;
+}
+
+/* Specific Element Colors to mimic nice Light Mode styling */
+/* Title: "Certificate of Completion" */
+html[data-theme="dark"] .view-certificate .certificate .header h3,
+html[data-theme="dark"] .view-certificate .certificate .left-part .header h3,
+html[data-theme="dark"] .view-certificate .certificate .header h3 span {
+    color: #000000 !important; /* Black as requested */
+}
+
+/* Body Text: "Isto é para certificar...", "concluiu com sucesso..." */
+html[data-theme="dark"] .view-certificate .certificate p.info {
+    color: #000000 !important;
+}
+
+/* Instructor Name: "Ketut Susilo" */
+html[data-theme="dark"] .view-certificate .certificate p.name,
+html[data-theme="dark"] .view-certificate .certificate .left-part .name {
+    color: #000000 !important;
+    font-weight: bold;
+}
+
+/* Course Title */
+html[data-theme="dark"] .view-certificate .certificate .course-title,
+html[data-theme="dark"] .view-certificate .certificate p.course-title,
+html[data-theme="dark"] .view-certificate .certificate .left-part .course-title {
+    color: #1a73e8 !important; /* Blue for course name matching styling */
+}
+
+/* General fallback for other text inside certificate */
+html[data-theme="dark"] .view-certificate .certificate span,
+html[data-theme="dark"] .view-certificate .certificate strong,
+html[data-theme="dark"] .view-certificate .certificate i,
+html[data-theme="dark"] .view-certificate .certificate div {
+    color: #333333 !important;
+}
+
+/* Pricing Table Dark Mode - Dark Gray Cards */
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-box,
+html[data-theme="dark"] .pricing-table {
+    background-color: #2D2D2D !important; /* Specific Dark Gray */
+    color: #FFFFFF !important;
+    border: none !important; /* No Border as requested */
+    box-shadow: none !important; /* No Shadow as requested */
+}
+
+/* Ensure inner containers are transparent */
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-header,
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-features,
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-footer,
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-price-container {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+/* Pricing Title: Blue */
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-header .sppb-addon-title,
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-title {
+    color: var(--link-color) !important;
+}
+
+/* Price & Content: White/Light */
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-price-container span,
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-price,
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-price-symbol {
+    color: #FFFFFF !important;
+}
+
+/* Features List: Readable Light Gray */
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-features ul li {
+    color: #E0E0E0 !important;
+    border-bottom: 1px solid #444444 !important;
+}
+
+/* Duration */
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-pricing-duration {
+    color: #AAAAAA !important;
+}
+
+/* Pricing Button: Blue Text (User Request) */
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-btn {
+    color: var(--link-color) !important;
+    background-color: transparent !important; /* Ensure it doesn't clash */
+    border-color: var(--link-color) !important; /* Blue Border */
+    box-shadow: none !important;
+}
+html[data-theme="dark"] .sppb-addon-pricing-table .sppb-btn:hover {
+    background-color: var(--link-color) !important;
+    color: #FFFFFF !important; /* White text on hover */
+    border-color: var(--link-color) !important;
+}
+
+/* FAQ / Accordion "Q" Tag Styling (User Request) */
+html[data-theme="dark"] .sppb-addon-accordion strong,
+html[data-theme="dark"] .faq strong {
+    color: #FFFFFF !important;
+}

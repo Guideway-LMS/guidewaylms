@@ -1,0 +1,220 @@
+:root {
+    /* Default Light Theme */
+    --body-bg: #FBFBFB;
+    --body-text: #2D3437;
+    --header-bg: #EEEDE3;
+    --footer-bg: #2D3437;
+    --footer-text: #FFFFFF;
+    --link-color: #0029FF;
+    --card-bg: #FFFFFF;
+    --card-text: #2D3437;
+    --border-color: #e5e5e5;
+    --input-bg: #FFFFFF;
+    --input-text: #495057;
+}
+
+/* Base Styles Override */
+body, .body-innerwrapper {
+    background-color: var(--body-bg) !important;
+    color: var(--body-text) !important;
+}
+
+#sp-header, .sp-megamenu-parent .sp-dropdown .sp-dropdown-inner {
+    background: var(--header-bg) !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#sp-footer, #sp-bottom {
+    background: var(--footer-bg) !important;
+    color: var(--footer-text) !important;
+}
+
+/* Links */
+a {
+    color: var(--link-color);
+}
+a:hover {
+    color: var(--body-text);
+}
+
+/* Cards & Content Areas */
+.card, .sp-module, .article-details {
+    background-color: var(--card-bg);
+    color: var(--card-text);
+    border-color: var(--border-color);
+}
+
+/* Fix generic module background in Footer (Light & Dark) */
+#sp-footer .sp-module,
+#sp-bottom .sp-module {
+    background-color: transparent !important;
+    color: inherit !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+#sp-footer .sp-module .latestnews > div > a,
+#sp-bottom .sp-module .latestnews > div > a {
+     color: inherit !important;
+}
+
+/* Inputs & Forms */
+input, textarea, select, .form-control {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Specific Helix Elements */
+.offcanvas-menu {
+    background-color: var(--body-bg) !important;
+    color: var(--body-text) !important;
+}
+
+/* Dark Mode Toggle Switch (Pill Style) */
+#theme-toggle {
+    position: fixed;
+    top: 25px; /* Vertical alignment in header */
+    right: 20px; /* Desktop Right */
+    z-index: 99999;
+    
+    width: 60px;
+    height: 30px;
+    background-color: #2D3437; /* Dark bg for the track */
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Track background changes in Light Mode if desired, or keep constant */
+[data-theme="light"] #theme-toggle {
+    background-color: #EEEDE3; /* Match header or slightly darker */
+    border-color: #ccc;
+}
+
+/* Icons inside the toggle */
+#theme-toggle .fas {
+    font-size: 14px;
+    z-index: 1; /* Below the ball if we want ball to cover, or side-by-side */
+    transition: color 0.3s ease;
+}
+
+#theme-toggle .toggle-icon-light {
+    color: #f1c40f; /* Sun color */
+    margin-left: 2px;
+}
+
+#theme-toggle .toggle-icon-dark {
+    color: #f39c12; /* Moon color, initially dimmed or just distinctive */
+    margin-right: 2px;
+}
+
+/* The Sliding Ball */
+#theme-toggle .toggle-ball {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    background-color: #FFF;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    z-index: 2; /* On top of icons if overlapping, or icons are decoration */
+}
+
+/* Mobile Position Adjustment */
+@media (max-width: 991.98px) {
+    #theme-toggle {
+        right: 70px; /* Left of message icon */
+    }
+}
+
+/* Hover Effect */
+#theme-toggle:hover {
+    transform: scale(1.05);
+}
+
+/* --- Dark Mode Specific Overrides are now in css/dark-mode.css --- */
+
+/* Specific fix for ID 1656582577278 - Force BLACK text in ALL modes (User Request) */
+#sppb-addon-1656582577278,
+#sppb-addon-1656582577278 h1,
+#sppb-addon-1656582577278 h2,
+#sppb-addon-1656582577278 h3,
+#sppb-addon-1656582577278 p,
+#sppb-addon-1656582577278 div,
+#sppb-addon-1656582577278 span {
+    color: #000000; /* Default to black in light mode */
+}
+
+/* --- Explicit Light Mode Restoration (Safety) --- */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+    color: #2D3437 !important; /* Default dark grey */
+}
+
+/* Fix Footer Visibility in Light Mode */
+[data-theme="light"] #sp-footer h1,
+[data-theme="light"] #sp-footer h2,
+[data-theme="light"] #sp-footer h3,
+[data-theme="light"] #sp-footer h4,
+[data-theme="light"] #sp-footer h5,
+[data-theme="light"] #sp-footer h6,
+[data-theme="light"] #sp-footer p,
+[data-theme="light"] #sp-footer span,
+[data-theme="light"] #sp-footer a,
+[data-theme="light"] #sp-footer li,
+[data-theme="light"] #sp-footer i {
+    color: #FFFFFF !important;
+    background: transparent !important; /* Remove background from fonts */
+}
+
+/* Remove unwanted backgrounds from text generally */
+h1, h2, h3, h4, h5, h6, p, span, a, li {
+    background-color: transparent;
+}
+
+[data-theme="light"] .splms-course-announcements,
+[data-theme="light"] .splms-section {
+    /* Keep original styling - do not force background white if not needed */
+    color: #2D3437 !important;
+}
+
+/* --- Guideway Custom Classes for Course Page --- */
+
+/* Light Mode Defaults */
+.guideway-announcements {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-left: 5px solid #1a73e8;
+}
+
+.guideway-section-title {
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    color: #1a73e8;
+}
+
+.guideway-icon {
+    margin-right: 10px;
+    font-size: 1.1em;
+    color: #1a73e8;
+}
+.guideway-course-section {
+    margin-bottom: 70px;
+}
