@@ -37,7 +37,6 @@ if (!$user->guest) {
 // Carregar script de progresso
 $document = Factory::getDocument();
 $document->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-progress.js');
-$document->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
 ?>
 
 <script>
@@ -205,7 +204,7 @@ window.SPLMS_CONTEXT = {
     </div>
   <?php } ?>
   
-  <div class="splms-lesson-completed-lesson-wrapper" data-course-id="<?php echo $this->item->course_id ?? 0; ?>">
+  <div class="splms-lesson-completed-lesson-wrapper">
     <?php if($user->guest) { 
       $link =  base64_encode(Uri::getInstance()->toString());
       $login_link = Route::_('index.php?option=com_users&view=login'. SplmsHelper::getItemid('login') .'&return=' . $link);
@@ -217,7 +216,6 @@ window.SPLMS_CONTEXT = {
       <form id="splms-completed-item-form">
         <input type="hidden" name="user_id" value="<?php echo $user->id; ?>">
         <input type="hidden" name="item_id" value="<?php echo $this->item->id; ?>">
-        <input type="hidden" name="course_id" value="<?php echo $this->item->course_id ?? 0; ?>">
         <input type="hidden" name="item_type" value="lesson">
         <a class="btn btn-primary" id="splms-completed-item" href="#">
           <?php echo Text::_('COM_SPLMS_LESSON_COMPLETE'); ?>

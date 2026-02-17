@@ -19,40 +19,6 @@ $doc->addStyleSheet(JURI::root(true) . '/administrator/components/com_splms/asse
 $doc->addScript(JUri::root(true) . '/administrator/components/com_splms/assets/js/guideway_ai.js');
 $doc->addScript(JUri::root(true) . '/administrator/components/com_splms/assets/js/guideway_ai_chat.js');
 
-// Script para carregar tópicos dinamicamente
-$doc->addScriptDeclaration("
-jQuery(document).ready(function($) {
-    $('#jform_course_id').on('change', function() {
-        var courseId = $(this).val();
-        var topicSelect = $('#jform_topic_id');
-        
-        // Limpar opções e resetar Chosen
-        topicSelect.empty();
-        topicSelect.append('<option value=\"\">' + Joomla.JText._('COM_SPLMS_LESSON_FIELD_SELECT_TOPIC', '- Selecionar tópico da lição -') + '</option>');
-        topicSelect.trigger('chosen:updated');
-        topicSelect.trigger('liszt:updated');
-        
-        if (courseId) {
-            $.ajax({
-                url: 'index.php?option=com_splms&task=lesson.getTopics',
-                data: { course_id: courseId },
-                dataType: 'json',
-                success: function(data) {
-                    if (data && data.length > 0) {
-                        $.each(data, function(i, item) {
-                            topicSelect.append('<option value=\"' + item.id + '\">' + item.title + '</option>');
-                        });
-                    }
-                    // Atualizar visual do Chosen após popular
-                    topicSelect.trigger('chosen:updated');
-                    topicSelect.trigger('liszt:updated');
-                }
-            });
-        }
-    });
-});
-");
-
 HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
 if(SplmsHelper::getJoomlaVersion() < 4)

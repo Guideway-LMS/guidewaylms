@@ -9,15 +9,15 @@
  */
 function completedItem(lessonId) {
     const userId = document.querySelector('input[name="user_id"]')?.value;
-
+    
     if (!userId || !lessonId) {
-        console.error('❌ Dados inválidos:', { userId, lessonId });
+        console.error('❌ Dados inválidos:', {userId, lessonId});
         alert('Erro: Dados inválidos');
         return;
     }
-
-    console.log('📤 Marcando aula como concluída...', { userId, lessonId });
-
+    
+    console.log('📤 Marcando aula como concluída...', {userId, lessonId});
+    
     jQuery.ajax({
         url: 'index.php?option=com_splms&task=lesson.completeditem',
         type: 'POST',
@@ -27,54 +27,27 @@ function completedItem(lessonId) {
             item_type: 'lesson'
         },
         dataType: 'json',
-        success: function (response) {
+        success: function(response) {
             console.log('✅ Resposta recebida:', response);
-
+            
             if (response.status) {
                 console.log('✅ Aula marcada como concluída!');
-
+                
                 // Atualizar UI do botão
                 updateButtonState(true);
-
-                // UX: Rolar para o topo suavemente em vez de alertar
-                // Isso permite que o usuário veja a barra de progresso atualizando
-                jQuery('html, body').animate({
-                    scrollTop: jQuery(".course-progress-container").offset().top - 100
-                }, 800);
-
-                // Atualizar barra de progresso do curso
-                if (typeof loadCourseProgress === 'function') {
-                    // Tenta obter o ID do curso de várias formas
-                    let courseId = null;
-                    if (typeof getCourseId === 'function') {
-                        courseId = getCourseId();
-                    }
-
-                    if (!courseId) {
-                        // Fallback simples se getCourseId não estiver disponível
-                        const urlParams = new URLSearchParams(window.location.search);
-                        courseId = urlParams.get('course_id') || urlParams.get('id');
-                        if (!courseId) {
-                            const pathMatch = window.location.pathname.match(/\/courses\/(\d+)/);
-                            if (pathMatch) courseId = pathMatch[1];
-                        }
-                    }
-
-                    if (courseId) {
-                        console.log('🔄 Atualizando progresso do curso:', courseId);
-                        loadCourseProgress(courseId);
-                    } else {
-                        console.warn('⚠️ Não foi possível obter ID do curso para atualizar progresso');
-                    }
+                
+                // Mostrar mensagem de sucesso
+                if (response.content) {
+                    alert(response.content);
                 }
-
+                
             } else {
                 console.error('❌ Erro:', response.content);
                 alert('Erro: ' + response.content);
             }
         },
-        error: function (xhr, status, error) {
-            console.error('❌ Erro AJAX:', { xhr, status, error });
+        error: function(xhr, status, error) {
+            console.error('❌ Erro AJAX:', {xhr, status, error});
             console.log('Response:', xhr.responseText);
             alert('Erro ao marcar aula como concluída');
         }
@@ -88,15 +61,15 @@ function completedItem(lessonId) {
  */
 function hasCompleted(lessonId, callback) {
     const userId = document.querySelector('input[name="user_id"]')?.value;
-
+    
     if (!userId || !lessonId) {
-        console.error('❌ Dados inválidos:', { userId, lessonId });
+        console.error('❌ Dados inválidos:', {userId, lessonId});
         if (callback) callback(false);
         return;
     }
-
-    console.log('🔍 Verificando status da aula...', { userId, lessonId });
-
+    
+    console.log('🔍 Verificando status da aula...', {userId, lessonId});
+    
     jQuery.ajax({
         url: 'index.php?option=com_splms&task=lesson.hascompleted',
         type: 'GET',
@@ -105,21 +78,21 @@ function hasCompleted(lessonId, callback) {
             lesson_id: lessonId
         },
         dataType: 'json',
-        success: function (response) {
+        success: function(response) {
             console.log('✅ Status verificado:', response);
-
+            
             const isCompleted = response.completed === true;
-
+            
             // Atualizar UI baseado no status
             updateButtonState(isCompleted);
-
+            
             // Executar callback se fornecido
             if (callback) {
                 callback(isCompleted);
             }
         },
-        error: function (xhr, status, error) {
-            console.error('❌ Erro ao verificar status:', { xhr, status, error });
+        error: function(xhr, status, error) {
+            console.error('❌ Erro ao verificar status:', {xhr, status, error});
             if (callback) {
                 callback(false);
             }
@@ -133,12 +106,12 @@ function hasCompleted(lessonId, callback) {
  */
 function updateButtonState(completed) {
     const btn = jQuery('#splms-completed-item');
-
+    
     if (!btn.length) {
         console.warn('⚠️ Botão não encontrado');
         return;
     }
-
+    
     if (completed) {
         btn.text('✓ Concluída');
         btn.addClass('completed btn-success');
@@ -159,24 +132,24 @@ function updateButtonState(completed) {
 /**
  * Inicialização ao carregar a página
  */
-jQuery(document).ready(function () {
+jQuery(document).ready(function() {
     console.log('🚀 Sistema de Progresso de Aulas carregado');
-
+    
     const lessonId = jQuery('input[name="item_id"]').val();
-
+    
     if (lessonId) {
         console.log('📚 Aula detectada:', lessonId);
-
+        
         // Verificar se já está concluída ao carregar
         hasCompleted(lessonId);
-
+        
         // Vincular evento de click ao botão
-        jQuery('#splms-completed-item').on('click', function (e) {
+        jQuery('#splms-completed-item').on('click', function(e) {
             e.preventDefault();
             console.log('🖱️ Botão clicado');
             completedItem(lessonId);
         });
-
+        
         console.log('✅ Event listener adicionado ao botão');
     } else {
         console.warn('⚠️ ID da lição não encontrado');
