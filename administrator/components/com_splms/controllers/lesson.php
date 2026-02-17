@@ -336,4 +336,31 @@ class SplmsControllerLesson extends FormController {
 		die();
 	}
 
+	/**
+	 * Retorna os tópicos de um curso via AJAX em JSON
+	 */
+	public function getTopics() {
+		$app = Factory::getApplication();
+		$input = $app->input;
+		$db = Factory::getDbo();
+		
+		$courseId = $input->getInt('course_id');
+		$results = [];
+
+		if ($courseId) {
+			$query = $db->getQuery(true);
+			$query->select($db->quoteName(array('id', 'title')));
+			$query->from($db->quoteName('#__splms_lessiontopics'));
+			$query->where($db->quoteName('course_id') . ' = ' . $db->quote($courseId));
+			$query->where($db->quoteName('published') . ' = 1');
+			$query->order($db->quoteName('ordering') . ' ASC');
+			
+			$db->setQuery($query);
+			$results = $db->loadObjectList();
+		}
+		
+		echo json_encode($results);
+		$app->close();
+	}
+
 }

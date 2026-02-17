@@ -1,14 +1,13 @@
-/*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.6.24-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.45, for Linux (x86_64)
 --
--- Host: localhost    Database: guideway_lms_db
+-- Host: 127.0.0.1    Database: guideway_lms_db
 -- ------------------------------------------------------
--- Server version	10.6.24-MariaDB-ubu2204
+-- Server version	5.5.5-10.6.24-MariaDB-ubu2204
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -22,7 +21,7 @@
 
 DROP TABLE IF EXISTS `bak_lepgs_action_log_config`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_action_log_config` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type_title` varchar(255) NOT NULL DEFAULT '',
@@ -51,7 +50,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_action_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_action_logs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `message_language_key` varchar(255) NOT NULL DEFAULT '',
@@ -84,7 +83,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_action_logs_extensions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_action_logs_extensions` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `extension` varchar(255) NOT NULL DEFAULT '',
@@ -108,7 +107,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_action_logs_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_action_logs_users` (
   `user_id` int(10) unsigned NOT NULL,
   `notify` tinyint(3) unsigned NOT NULL,
@@ -133,7 +132,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_adminiplist`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_adminiplist` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `ip` varchar(255) DEFAULT NULL,
@@ -158,7 +157,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_badwords`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_badwords` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `word` varchar(255) DEFAULT NULL,
@@ -182,7 +181,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_cookies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_cookies` (
   `series` varchar(255) NOT NULL,
   `client_hash` varchar(255) NOT NULL,
@@ -206,7 +205,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_customperms`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_customperms` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `path` varchar(255) NOT NULL,
@@ -231,7 +230,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_filescache`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_filescache` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `path` varchar(2048) NOT NULL,
@@ -258,7 +257,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_ipallow`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_ipallow` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `ip` varchar(255) DEFAULT NULL,
@@ -282,7 +281,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_ipautoban`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_ipautoban` (
   `ip` varchar(255) NOT NULL,
   `reason` varchar(255) DEFAULT 'other',
@@ -306,7 +305,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_ipautobanhistory`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_ipautobanhistory` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `ip` varchar(255) NOT NULL,
@@ -331,7 +330,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_ipblock`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_ipblock` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `ip` varchar(255) DEFAULT NULL,
@@ -356,7 +355,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_log` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `logdate` datetime NOT NULL,
@@ -384,7 +383,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_redirects`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_redirects` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `source` varchar(255) DEFAULT NULL,
@@ -417,7 +416,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_scanalerts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_scanalerts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `path` varchar(2048) NOT NULL,
@@ -444,7 +443,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_scans`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_scans` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `comment` longtext DEFAULT NULL,
@@ -473,7 +472,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_storage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_storage` (
   `key` varchar(255) NOT NULL,
   `value` longtext NOT NULL,
@@ -497,7 +496,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_tempsupers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_tempsupers` (
   `user_id` bigint(20) NOT NULL,
   `expiration` datetime NOT NULL,
@@ -520,7 +519,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_wafblacklists`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_wafblacklists` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `option` varchar(255) NOT NULL,
@@ -552,7 +551,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_admintools_wafexceptions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_admintools_wafexceptions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `option` varchar(255) DEFAULT NULL,
@@ -578,7 +577,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_akeeba_common`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_akeeba_common` (
   `key` varchar(190) NOT NULL,
   `value` longtext NOT NULL,
@@ -602,7 +601,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_assets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_assets` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `parent_id` int(11) NOT NULL DEFAULT 0 COMMENT 'Nested set parent.',
@@ -635,7 +634,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_associations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_associations` (
   `id` int(11) NOT NULL COMMENT 'A reference to the associated item.',
   `context` varchar(50) NOT NULL COMMENT 'The context of the associated item.',
@@ -660,7 +659,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_banner_clients`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_banner_clients` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
@@ -697,7 +696,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_banner_tracks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_banner_tracks` (
   `track_date` datetime NOT NULL,
   `track_type` int(10) unsigned NOT NULL,
@@ -725,7 +724,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_banners`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_banners` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cid` int(11) NOT NULL DEFAULT 0,
@@ -785,7 +784,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'FK to the #__assets table.',
@@ -841,7 +840,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_contact_details`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_contact_details` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -912,7 +911,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_content`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_content` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'FK to the #__assets table.',
@@ -972,7 +971,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_content_frontpage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_content_frontpage` (
   `content_id` int(11) NOT NULL DEFAULT 0,
   `ordering` int(11) NOT NULL DEFAULT 0,
@@ -997,7 +996,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_content_rating`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_content_rating` (
   `content_id` int(11) NOT NULL DEFAULT 0,
   `rating_sum` int(10) unsigned NOT NULL DEFAULT 0,
@@ -1023,7 +1022,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_content_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_content_types` (
   `type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type_title` varchar(255) NOT NULL DEFAULT '',
@@ -1054,7 +1053,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_contentitem_tag_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_contentitem_tag_map` (
   `type_alias` varchar(255) NOT NULL DEFAULT '',
   `core_content_id` int(10) unsigned NOT NULL COMMENT 'PK from the core content table',
@@ -1084,7 +1083,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_extensions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_extensions` (
   `extension_id` int(11) NOT NULL AUTO_INCREMENT,
   `package_id` int(11) NOT NULL DEFAULT 0 COMMENT 'Parent package ID for extensions installed as a package.',
@@ -1129,7 +1128,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_fields`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_fields` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT 0,
@@ -1181,7 +1180,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_fields_categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_fields_categories` (
   `field_id` int(11) NOT NULL DEFAULT 0,
   `category_id` int(11) NOT NULL DEFAULT 0,
@@ -1204,7 +1203,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_fields_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_fields_groups` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT 0,
@@ -1248,7 +1247,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_fields_values`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_fields_values` (
   `field_id` int(10) unsigned NOT NULL,
   `item_id` varchar(255) NOT NULL COMMENT 'Allow references to items which have strings as ids, eg. none db systems.',
@@ -1273,7 +1272,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_filters`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_filters` (
   `filter_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -1308,7 +1307,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_links`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_links` (
   `link_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `url` varchar(255) NOT NULL,
@@ -1355,7 +1354,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_links_terms`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_links_terms` (
   `link_id` int(10) unsigned NOT NULL,
   `term_id` int(10) unsigned NOT NULL,
@@ -1381,7 +1380,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_logging`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_logging` (
   `searchterm` varchar(255) NOT NULL DEFAULT '',
   `md5sum` varchar(32) NOT NULL DEFAULT '',
@@ -1408,7 +1407,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_taxonomy`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_taxonomy` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) unsigned NOT NULL DEFAULT 0,
@@ -1449,7 +1448,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_taxonomy_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_taxonomy_map` (
   `link_id` int(10) unsigned NOT NULL,
   `node_id` int(10) unsigned NOT NULL,
@@ -1474,7 +1473,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_terms`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_terms` (
   `term_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `term` varchar(75) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -1510,7 +1509,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_terms_common`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_terms_common` (
   `term` varchar(75) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '',
   `language` char(7) NOT NULL DEFAULT '',
@@ -1536,7 +1535,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_tokens`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_tokens` (
   `term` varchar(75) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `stem` varchar(75) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '',
@@ -1567,7 +1566,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_tokens_aggregate`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_tokens_aggregate` (
   `term_id` int(10) unsigned NOT NULL,
   `term` varchar(75) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -1599,7 +1598,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_finder_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_finder_types` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(100) NOT NULL,
@@ -1624,7 +1623,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_gptranslate`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_gptranslate` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `pagelink` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -1655,7 +1654,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_guidedtour_steps`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_guidedtour_steps` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tour_id` int(11) NOT NULL DEFAULT 0,
@@ -1700,7 +1699,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_guidedtours`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_guidedtours` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL DEFAULT '',
@@ -1744,7 +1743,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_history` (
   `version_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `item_id` varchar(50) NOT NULL,
@@ -1776,7 +1775,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_languages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_languages` (
   `lang_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT 0,
@@ -1816,7 +1815,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_mail_templates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_mail_templates` (
   `template_id` varchar(127) NOT NULL DEFAULT '',
   `extension` varchar(127) NOT NULL DEFAULT '',
@@ -1846,7 +1845,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_menu`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_menu` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `menutype` varchar(24) NOT NULL COMMENT 'The type of menu this item belongs to. FK to #__menu_types.menutype',
@@ -1901,7 +1900,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_menu_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_menu_types` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT 0,
@@ -1931,7 +1930,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_messages` (
   `message_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id_from` int(10) unsigned NOT NULL DEFAULT 0,
@@ -1962,7 +1961,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_messages_cfg`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_messages_cfg` (
   `user_id` int(10) unsigned NOT NULL DEFAULT 0,
   `cfg_name` varchar(100) NOT NULL DEFAULT '',
@@ -1986,7 +1985,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_modules`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_modules` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'FK to the #__assets table.',
@@ -2029,7 +2028,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_modules_menu`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_modules_menu` (
   `moduleid` int(11) NOT NULL DEFAULT 0,
   `menuid` int(11) NOT NULL DEFAULT 0,
@@ -2053,7 +2052,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_newsfeeds`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_newsfeeds` (
   `catid` int(11) NOT NULL DEFAULT 0,
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -2109,7 +2108,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_overrider`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_overrider` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `constant` varchar(255) NOT NULL,
@@ -2134,7 +2133,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_postinstall_messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_postinstall_messages` (
   `postinstall_message_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `extension_id` bigint(20) NOT NULL DEFAULT 700 COMMENT 'FK to #__extensions',
@@ -2170,7 +2169,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_privacy_consents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_privacy_consents` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL DEFAULT 0,
@@ -2200,7 +2199,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_privacy_requests`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_privacy_requests` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `email` varchar(100) NOT NULL DEFAULT '',
@@ -2228,7 +2227,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_redirect_links`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_redirect_links` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `old_url` varchar(2048) NOT NULL,
@@ -2261,7 +2260,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_scheduler_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_scheduler_logs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `taskname` varchar(255) NOT NULL DEFAULT '',
@@ -2296,7 +2295,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_scheduler_tasks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_scheduler_tasks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'FK to the #__assets table.',
@@ -2348,7 +2347,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_schemaorg`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_schemaorg` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `itemId` int(10) unsigned DEFAULT NULL,
@@ -2374,7 +2373,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_schemas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_schemas` (
   `extension_id` int(11) NOT NULL,
   `version_id` varchar(20) NOT NULL,
@@ -2398,7 +2397,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_session`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_session` (
   `session_id` varbinary(192) NOT NULL,
   `client_id` tinyint(3) unsigned DEFAULT NULL,
@@ -2420,7 +2419,7 @@ CREATE TABLE `bak_lepgs_session` (
 
 LOCK TABLES `bak_lepgs_session` WRITE;
 /*!40000 ALTER TABLE `bak_lepgs_session` DISABLE KEYS */;
-INSERT INTO `bak_lepgs_session` VALUES ('020da4e2166cbfa5ebc5c5c4f111ddf4',1,0,1764603548,'joomla|s:1016:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjY6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjI0O3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDU3NTQ4OTtzOjQ6Imxhc3QiO2k6MTc2NDYwMzU0NztzOjM6Im5vdyI7aToxNzY0NjAzNTQ3O31zOjU6InRva2VuIjtzOjMyOiJmMmNiNTgxM2EwNTRlODlhZTFiN2ZlY2ZhMDc3YmQ5YSI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MTt9czoxMToiYXBwbGljYXRpb24iO086ODoic3RkQ2xhc3MiOjE6e3M6NToicXVldWUiO2E6MDp7fX1zOjk6ImNvbV91c2VycyI7Tzo4OiJzdGRDbGFzcyI6MTp7czoxMToibWZhX2NoZWNrZWQiO2k6MTt9czoxNDoiY29tX2FkbWludG9vbHMiO086ODoic3RkQ2xhc3MiOjE6e3M6MTQ6InN1cGVydXNlcnNsaXN0IjtPOjg6InN0ZENsYXNzIjoyOntzOjc6InNhZmVpZHMiO2E6MDp7fXM6OToiY3JlYXRlbmV3IjtiOjA7fX19czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fQ==\";',1,'lmswill'),('2227824650fb0607443591d2abab8153',1,0,1764677659,'joomla|s:1184:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjY6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjMyO3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDYyODk2MDtzOjQ6Imxhc3QiO2k6MTc2NDY3NzY1ODtzOjM6Im5vdyI7aToxNzY0Njc3NjU5O31zOjU6InRva2VuIjtzOjMyOiJiNTg1ZjlhZTUwOGNlNWVmMDc4ZmRjOTBlMDg2MDkyZSI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjoxOntzOjk6ImNvbV9zcGxtcyI7Tzo4OiJzdGRDbGFzcyI6MTp7czo0OiJlZGl0IjtPOjg6InN0ZENsYXNzIjoxOntzOjY6Imxlc3NvbiI7Tzo4OiJzdGRDbGFzcyI6Mjp7czo0OiJkYXRhIjtOO3M6MjoiaWQiO2E6MTp7aTowO2k6Mzk7fX19fX1zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9czo0OiJ1c2VyIjtPOjIwOiJKb29tbGFcQ01TXFVzZXJcVXNlciI6MTp7czoyOiJpZCI7aToxO31zOjExOiJhcHBsaWNhdGlvbiI7Tzo4OiJzdGRDbGFzcyI6MTp7czo1OiJxdWV1ZSI7YTowOnt9fXM6OToiY29tX3VzZXJzIjtPOjg6InN0ZENsYXNzIjoxOntzOjExOiJtZmFfY2hlY2tlZCI7aToxO31zOjE0OiJjb21fYWRtaW50b29scyI7Tzo4OiJzdGRDbGFzcyI6MTp7czoxNDoic3VwZXJ1c2Vyc2xpc3QiO086ODoic3RkQ2xhc3MiOjI6e3M6Nzoic2FmZWlkcyI7TjtzOjk6ImNyZWF0ZW5ldyI7Tjt9fX1zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";',1,'lmswill'),('3575f746af0ac6ddac9d29b0800e33fe',0,1,1764729783,'joomla|s:804:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjQ6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjQyO3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDcyODMzMDtzOjQ6Imxhc3QiO2k6MTc2NDcyOTc4MjtzOjM6Im5vdyI7aToxNzY0NzI5NzgzO31zOjU6InRva2VuIjtzOjMyOiJkMzZkYTVjOGU5YTI5NzNlYjEwNDQ2MmM0N2U3YjU0ZSI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MDt9czoyNToicGxnX3N5c3RlbV9sYW5ndWFnZWZpbHRlciI7Tzo4OiJzdGRDbGFzcyI6MTp7czo4OiJsYW5ndWFnZSI7czo1OiJwdC1CUiI7fX1zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";',0,''),('66aabdb1fc38b0a359123c456dd94ccc',1,0,1764729579,'joomla|s:2448:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjY6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjQ0O3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDcyODMyOTtzOjQ6Imxhc3QiO2k6MTc2NDcyOTU3OTtzOjM6Im5vdyI7aToxNzY0NzI5NTc5O31zOjU6InRva2VuIjtzOjMyOiI1NDBlZTEwZjQ5NzAwOTU3ZGYyZjE1NGFmMjVjZDBjZiI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjo0OntzOjE2OiJjb21fam9vbWxhdXBkYXRlIjtPOjg6InN0ZENsYXNzIjoxOntzOjQ6ImZpbGUiO047fXM6OToiY29tX21lbnVzIjtPOjg6InN0ZENsYXNzIjoxOntzOjU6Iml0ZW1zIjtPOjg6InN0ZENsYXNzIjo1OntzOjg6Im1lbnV0eXBlIjtzOjg6Im1haW5tZW51IjtzOjk6ImNsaWVudF9pZCI7aTowO3M6MTA6ImxpbWl0c3RhcnQiO2k6MDtzOjQ6Imxpc3QiO2E6Mjp7czoxMjoiZnVsbG9yZGVyaW5nIjtzOjk6ImEubGZ0IEFTQyI7czo1OiJsaW1pdCI7czoyOiIyMCI7fXM6NjoiZmlsdGVyIjthOjc6e3M6Njoic2VhcmNoIjtzOjA6IiI7czo5OiJwdWJsaXNoZWQiO3M6MDoiIjtzOjY6ImFjY2VzcyI7czowOiIiO3M6ODoibGFuZ3VhZ2UiO3M6MDoiIjtzOjU6ImxldmVsIjtzOjA6IiI7czo5OiJwYXJlbnRfaWQiO3M6MDoiIjtzOjEzOiJjb21wb25lbnROYW1lIjtzOjA6IiI7fX19czo5OiJjb21fdXNlcnMiO086ODoic3RkQ2xhc3MiOjE6e3M6NDoiZWRpdCI7Tzo4OiJzdGRDbGFzcyI6MTp7czo0OiJ1c2VyIjtPOjg6InN0ZENsYXNzIjoyOntzOjI6ImlkIjthOjE6e2k6MDtpOjE7fXM6NDoiZGF0YSI7Tjt9fX1zOjk6ImNvbV9zcGxtcyI7Tzo4OiJzdGRDbGFzcyI6Mjp7czo3OiJsZXNzb25zIjtPOjg6InN0ZENsYXNzIjozOntzOjY6ImZpbHRlciI7YTo3OntzOjY6InNlYXJjaCI7czo1OiJ0ZXN0ZSI7czo5OiJwdWJsaXNoZWQiO3M6MDoiIjtzOjk6ImNvdXJzZV9pZCI7czowOiIiO3M6ODoidG9waWNfaWQiO3M6MDoiIjtzOjEwOiJ0ZWFjaGVyX2lkIjtzOjA6IiI7czo2OiJhY2Nlc3MiO3M6MDoiIjtzOjg6Imxhbmd1YWdlIjtzOjA6IiI7fXM6NDoibGlzdCI7YToyOntzOjEyOiJmdWxsb3JkZXJpbmciO3M6MTQ6ImEub3JkZXJpbmcgQVNDIjtzOjU6ImxpbWl0IjtzOjI6IjIwIjt9czoxMDoibGltaXRzdGFydCI7aTowO31zOjQ6ImVkaXQiO086ODoic3RkQ2xhc3MiOjI6e3M6NjoibGVzc29uIjtPOjg6InN0ZENsYXNzIjoyOntzOjI6ImlkIjthOjA6e31zOjQ6ImRhdGEiO047fXM6NjoiY291cnNlIjtPOjg6InN0ZENsYXNzIjoyOntzOjI6ImlkIjthOjE6e2k6MDtpOjE7fXM6NDoiZGF0YSI7Tjt9fX19czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MTt9czo5OiJjb21fdXNlcnMiO086ODoic3RkQ2xhc3MiOjE6e3M6MTE6Im1mYV9jaGVja2VkIjtpOjE7fXM6MTQ6ImNvbV9hZG1pbnRvb2xzIjtPOjg6InN0ZENsYXNzIjoxOntzOjE0OiJzdXBlcnVzZXJzbGlzdCI7Tzo4OiJzdGRDbGFzcyI6Mjp7czo3OiJzYWZlaWRzIjtOO3M6OToiY3JlYXRlbmV3IjtOO319czoxMToiYXBwbGljYXRpb24iO086ODoic3RkQ2xhc3MiOjE6e3M6NToicXVldWUiO2E6MDp7fX19czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fQ==\";',1,'lmswill'),('7d746fcecd1bc3628f2763f939d0d8e4',0,1,1764677664,'joomla|s:1056:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjc6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjYwO3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDYyODk1MztzOjQ6Imxhc3QiO2k6MTc2NDY3NzY2NDtzOjM6Im5vdyI7aToxNzY0Njc3NjY0O31zOjU6InRva2VuIjtzOjMyOiJiNzBhMTgwMzI3NWU5YTFhYjg4M2VmNmRmNjE4NzhjOCI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MDt9czoyNToicGxnX3N5c3RlbV9sYW5ndWFnZWZpbHRlciI7Tzo4OiJzdGRDbGFzcyI6MTp7czo4OiJsYW5ndWFnZSI7czo1OiJwdC1CUiI7fXM6NDk6Im1heF9yZXF1ZXN0c185MzU3NjczYy04ZDAyLTRhYjctYjJlZS1jMDBjYjcxODM0NTgiO2k6MTA7czo1NDoiZW5hYmxlX3JhdGVfbGltaXRfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjA7czo0ODoidGltZV93aW5kb3dfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjYwO31zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";sitename|s:57:\"Guideway LMS - O caminho simples para o seu curso online.\";isFormBuilderEnabledCaptcha_9357673c-8d02-4ab7-b2ee-c00cb7183458|b:0;',0,''),('9091fad966f9ed82b7d2f1a7e2ef4124',0,1,1764602508,'joomla|s:1056:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjc6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjE4O3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDU3NTQ4MztzOjQ6Imxhc3QiO2k6MTc2NDYwMjM5NTtzOjM6Im5vdyI7aToxNzY0NjAyNTA3O31zOjU6InRva2VuIjtzOjMyOiI3NjFjNTBjNWUzMjdiMDAxMDA1ZjJhNjY4YzIyZTA5NCI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MDt9czoyNToicGxnX3N5c3RlbV9sYW5ndWFnZWZpbHRlciI7Tzo4OiJzdGRDbGFzcyI6MTp7czo4OiJsYW5ndWFnZSI7czo1OiJwdC1CUiI7fXM6NDk6Im1heF9yZXF1ZXN0c185MzU3NjczYy04ZDAyLTRhYjctYjJlZS1jMDBjYjcxODM0NTgiO2k6MTA7czo1NDoiZW5hYmxlX3JhdGVfbGltaXRfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjA7czo0ODoidGltZV93aW5kb3dfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjYwO31zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";sitename|s:57:\"Guideway LMS - O caminho simples para o seu curso online.\";isFormBuilderEnabledCaptcha_9357673c-8d02-4ab7-b2ee-c00cb7183458|b:0;',0,''),('b50bdf2c1f1cab099fb09daa9a690094',1,0,1764344323,'joomla|s:940:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjU6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjE1O3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDM0Mzk1MTtzOjQ6Imxhc3QiO2k6MTc2NDM0NDMyMjtzOjM6Im5vdyI7aToxNzY0MzQ0MzIzO31zOjU6InRva2VuIjtzOjMyOiIyOWFiYWZlNTNhMTYyZjQ5MTQ0ZWUyMDAwZjVkMzFkMyI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MTt9czo5OiJjb21fdXNlcnMiO086ODoic3RkQ2xhc3MiOjE6e3M6MTE6Im1mYV9jaGVja2VkIjtpOjE7fXM6MTQ6ImNvbV9hZG1pbnRvb2xzIjtPOjg6InN0ZENsYXNzIjoxOntzOjE0OiJzdXBlcnVzZXJzbGlzdCI7Tzo4OiJzdGRDbGFzcyI6Mjp7czo3OiJzYWZlaWRzIjthOjA6e31zOjk6ImNyZWF0ZW5ldyI7YjowO319fXM6MTQ6IgAqAGluaXRpYWxpemVkIjtiOjA7czoxMjoiACoAc2VwYXJhdG9yIjtzOjE6Ii4iO30=\";',1,'lmswill'),('f505b449afcb23308289e20cc973c88e',0,1,1764345845,'joomla|s:1056:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjc6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjMwO3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDM0Mzk1MjtzOjQ6Imxhc3QiO2k6MTc2NDM0NTg0MDtzOjM6Im5vdyI7aToxNzY0MzQ1ODQ1O31zOjU6InRva2VuIjtzOjMyOiJlNDFjMGFkN2FhYjA1MGQ3YmJkODgzZDg1ZjcwYjRkMCI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MDt9czoyNToicGxnX3N5c3RlbV9sYW5ndWFnZWZpbHRlciI7Tzo4OiJzdGRDbGFzcyI6MTp7czo4OiJsYW5ndWFnZSI7czo1OiJwdC1CUiI7fXM6NDk6Im1heF9yZXF1ZXN0c185MzU3NjczYy04ZDAyLTRhYjctYjJlZS1jMDBjYjcxODM0NTgiO2k6MTA7czo1NDoiZW5hYmxlX3JhdGVfbGltaXRfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjA7czo0ODoidGltZV93aW5kb3dfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjYwO31zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";sitename|s:57:\"Guideway LMS - O caminho simples para o seu curso online.\";isFormBuilderEnabledCaptcha_9357673c-8d02-4ab7-b2ee-c00cb7183458|b:0;',0,'');
+INSERT INTO `bak_lepgs_session` VALUES (_binary '020da4e2166cbfa5ebc5c5c4f111ddf4',1,0,1764603548,'joomla|s:1016:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjY6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjI0O3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDU3NTQ4OTtzOjQ6Imxhc3QiO2k6MTc2NDYwMzU0NztzOjM6Im5vdyI7aToxNzY0NjAzNTQ3O31zOjU6InRva2VuIjtzOjMyOiJmMmNiNTgxM2EwNTRlODlhZTFiN2ZlY2ZhMDc3YmQ5YSI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MTt9czoxMToiYXBwbGljYXRpb24iO086ODoic3RkQ2xhc3MiOjE6e3M6NToicXVldWUiO2E6MDp7fX1zOjk6ImNvbV91c2VycyI7Tzo4OiJzdGRDbGFzcyI6MTp7czoxMToibWZhX2NoZWNrZWQiO2k6MTt9czoxNDoiY29tX2FkbWludG9vbHMiO086ODoic3RkQ2xhc3MiOjE6e3M6MTQ6InN1cGVydXNlcnNsaXN0IjtPOjg6InN0ZENsYXNzIjoyOntzOjc6InNhZmVpZHMiO2E6MDp7fXM6OToiY3JlYXRlbmV3IjtiOjA7fX19czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fQ==\";',1,'lmswill'),(_binary '2227824650fb0607443591d2abab8153',1,0,1764677659,'joomla|s:1184:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjY6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjMyO3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDYyODk2MDtzOjQ6Imxhc3QiO2k6MTc2NDY3NzY1ODtzOjM6Im5vdyI7aToxNzY0Njc3NjU5O31zOjU6InRva2VuIjtzOjMyOiJiNTg1ZjlhZTUwOGNlNWVmMDc4ZmRjOTBlMDg2MDkyZSI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjoxOntzOjk6ImNvbV9zcGxtcyI7Tzo4OiJzdGRDbGFzcyI6MTp7czo0OiJlZGl0IjtPOjg6InN0ZENsYXNzIjoxOntzOjY6Imxlc3NvbiI7Tzo4OiJzdGRDbGFzcyI6Mjp7czo0OiJkYXRhIjtOO3M6MjoiaWQiO2E6MTp7aTowO2k6Mzk7fX19fX1zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9czo0OiJ1c2VyIjtPOjIwOiJKb29tbGFcQ01TXFVzZXJcVXNlciI6MTp7czoyOiJpZCI7aToxO31zOjExOiJhcHBsaWNhdGlvbiI7Tzo4OiJzdGRDbGFzcyI6MTp7czo1OiJxdWV1ZSI7YTowOnt9fXM6OToiY29tX3VzZXJzIjtPOjg6InN0ZENsYXNzIjoxOntzOjExOiJtZmFfY2hlY2tlZCI7aToxO31zOjE0OiJjb21fYWRtaW50b29scyI7Tzo4OiJzdGRDbGFzcyI6MTp7czoxNDoic3VwZXJ1c2Vyc2xpc3QiO086ODoic3RkQ2xhc3MiOjI6e3M6Nzoic2FmZWlkcyI7TjtzOjk6ImNyZWF0ZW5ldyI7Tjt9fX1zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";',1,'lmswill'),(_binary '3575f746af0ac6ddac9d29b0800e33fe',0,1,1764729783,'joomla|s:804:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjQ6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjQyO3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDcyODMzMDtzOjQ6Imxhc3QiO2k6MTc2NDcyOTc4MjtzOjM6Im5vdyI7aToxNzY0NzI5NzgzO31zOjU6InRva2VuIjtzOjMyOiJkMzZkYTVjOGU5YTI5NzNlYjEwNDQ2MmM0N2U3YjU0ZSI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MDt9czoyNToicGxnX3N5c3RlbV9sYW5ndWFnZWZpbHRlciI7Tzo4OiJzdGRDbGFzcyI6MTp7czo4OiJsYW5ndWFnZSI7czo1OiJwdC1CUiI7fX1zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";',0,''),(_binary '66aabdb1fc38b0a359123c456dd94ccc',1,0,1764729579,'joomla|s:2448:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjY6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjQ0O3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDcyODMyOTtzOjQ6Imxhc3QiO2k6MTc2NDcyOTU3OTtzOjM6Im5vdyI7aToxNzY0NzI5NTc5O31zOjU6InRva2VuIjtzOjMyOiI1NDBlZTEwZjQ5NzAwOTU3ZGYyZjE1NGFmMjVjZDBjZiI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjo0OntzOjE2OiJjb21fam9vbWxhdXBkYXRlIjtPOjg6InN0ZENsYXNzIjoxOntzOjQ6ImZpbGUiO047fXM6OToiY29tX21lbnVzIjtPOjg6InN0ZENsYXNzIjoxOntzOjU6Iml0ZW1zIjtPOjg6InN0ZENsYXNzIjo1OntzOjg6Im1lbnV0eXBlIjtzOjg6Im1haW5tZW51IjtzOjk6ImNsaWVudF9pZCI7aTowO3M6MTA6ImxpbWl0c3RhcnQiO2k6MDtzOjQ6Imxpc3QiO2E6Mjp7czoxMjoiZnVsbG9yZGVyaW5nIjtzOjk6ImEubGZ0IEFTQyI7czo1OiJsaW1pdCI7czoyOiIyMCI7fXM6NjoiZmlsdGVyIjthOjc6e3M6Njoic2VhcmNoIjtzOjA6IiI7czo5OiJwdWJsaXNoZWQiO3M6MDoiIjtzOjY6ImFjY2VzcyI7czowOiIiO3M6ODoibGFuZ3VhZ2UiO3M6MDoiIjtzOjU6ImxldmVsIjtzOjA6IiI7czo5OiJwYXJlbnRfaWQiO3M6MDoiIjtzOjEzOiJjb21wb25lbnROYW1lIjtzOjA6IiI7fX19czo5OiJjb21fdXNlcnMiO086ODoic3RkQ2xhc3MiOjE6e3M6NDoiZWRpdCI7Tzo4OiJzdGRDbGFzcyI6MTp7czo0OiJ1c2VyIjtPOjg6InN0ZENsYXNzIjoyOntzOjI6ImlkIjthOjE6e2k6MDtpOjE7fXM6NDoiZGF0YSI7Tjt9fX1zOjk6ImNvbV9zcGxtcyI7Tzo4OiJzdGRDbGFzcyI6Mjp7czo3OiJsZXNzb25zIjtPOjg6InN0ZENsYXNzIjozOntzOjY6ImZpbHRlciI7YTo3OntzOjY6InNlYXJjaCI7czo1OiJ0ZXN0ZSI7czo5OiJwdWJsaXNoZWQiO3M6MDoiIjtzOjk6ImNvdXJzZV9pZCI7czowOiIiO3M6ODoidG9waWNfaWQiO3M6MDoiIjtzOjEwOiJ0ZWFjaGVyX2lkIjtzOjA6IiI7czo2OiJhY2Nlc3MiO3M6MDoiIjtzOjg6Imxhbmd1YWdlIjtzOjA6IiI7fXM6NDoibGlzdCI7YToyOntzOjEyOiJmdWxsb3JkZXJpbmciO3M6MTQ6ImEub3JkZXJpbmcgQVNDIjtzOjU6ImxpbWl0IjtzOjI6IjIwIjt9czoxMDoibGltaXRzdGFydCI7aTowO31zOjQ6ImVkaXQiO086ODoic3RkQ2xhc3MiOjI6e3M6NjoibGVzc29uIjtPOjg6InN0ZENsYXNzIjoyOntzOjI6ImlkIjthOjA6e31zOjQ6ImRhdGEiO047fXM6NjoiY291cnNlIjtPOjg6InN0ZENsYXNzIjoyOntzOjI6ImlkIjthOjE6e2k6MDtpOjE7fXM6NDoiZGF0YSI7Tjt9fX19czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MTt9czo5OiJjb21fdXNlcnMiO086ODoic3RkQ2xhc3MiOjE6e3M6MTE6Im1mYV9jaGVja2VkIjtpOjE7fXM6MTQ6ImNvbV9hZG1pbnRvb2xzIjtPOjg6InN0ZENsYXNzIjoxOntzOjE0OiJzdXBlcnVzZXJzbGlzdCI7Tzo4OiJzdGRDbGFzcyI6Mjp7czo3OiJzYWZlaWRzIjtOO3M6OToiY3JlYXRlbmV3IjtOO319czoxMToiYXBwbGljYXRpb24iO086ODoic3RkQ2xhc3MiOjE6e3M6NToicXVldWUiO2E6MDp7fX19czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fQ==\";',1,'lmswill'),(_binary '7d746fcecd1bc3628f2763f939d0d8e4',0,1,1764677664,'joomla|s:1056:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjc6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjYwO3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDYyODk1MztzOjQ6Imxhc3QiO2k6MTc2NDY3NzY2NDtzOjM6Im5vdyI7aToxNzY0Njc3NjY0O31zOjU6InRva2VuIjtzOjMyOiJiNzBhMTgwMzI3NWU5YTFhYjg4M2VmNmRmNjE4NzhjOCI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MDt9czoyNToicGxnX3N5c3RlbV9sYW5ndWFnZWZpbHRlciI7Tzo4OiJzdGRDbGFzcyI6MTp7czo4OiJsYW5ndWFnZSI7czo1OiJwdC1CUiI7fXM6NDk6Im1heF9yZXF1ZXN0c185MzU3NjczYy04ZDAyLTRhYjctYjJlZS1jMDBjYjcxODM0NTgiO2k6MTA7czo1NDoiZW5hYmxlX3JhdGVfbGltaXRfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjA7czo0ODoidGltZV93aW5kb3dfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjYwO31zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";sitename|s:57:\"Guideway LMS - O caminho simples para o seu curso online.\";isFormBuilderEnabledCaptcha_9357673c-8d02-4ab7-b2ee-c00cb7183458|b:0;',0,''),(_binary '9091fad966f9ed82b7d2f1a7e2ef4124',0,1,1764602508,'joomla|s:1056:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjc6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjE4O3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDU3NTQ4MztzOjQ6Imxhc3QiO2k6MTc2NDYwMjM5NTtzOjM6Im5vdyI7aToxNzY0NjAyNTA3O31zOjU6InRva2VuIjtzOjMyOiI3NjFjNTBjNWUzMjdiMDAxMDA1ZjJhNjY4YzIyZTA5NCI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MDt9czoyNToicGxnX3N5c3RlbV9sYW5ndWFnZWZpbHRlciI7Tzo4OiJzdGRDbGFzcyI6MTp7czo4OiJsYW5ndWFnZSI7czo1OiJwdC1CUiI7fXM6NDk6Im1heF9yZXF1ZXN0c185MzU3NjczYy04ZDAyLTRhYjctYjJlZS1jMDBjYjcxODM0NTgiO2k6MTA7czo1NDoiZW5hYmxlX3JhdGVfbGltaXRfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjA7czo0ODoidGltZV93aW5kb3dfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjYwO31zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";sitename|s:57:\"Guideway LMS - O caminho simples para o seu curso online.\";isFormBuilderEnabledCaptcha_9357673c-8d02-4ab7-b2ee-c00cb7183458|b:0;',0,''),(_binary 'b50bdf2c1f1cab099fb09daa9a690094',1,0,1764344323,'joomla|s:940:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjU6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjE1O3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDM0Mzk1MTtzOjQ6Imxhc3QiO2k6MTc2NDM0NDMyMjtzOjM6Im5vdyI7aToxNzY0MzQ0MzIzO31zOjU6InRva2VuIjtzOjMyOiIyOWFiYWZlNTNhMTYyZjQ5MTQ0ZWUyMDAwZjVkMzFkMyI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MTt9czo5OiJjb21fdXNlcnMiO086ODoic3RkQ2xhc3MiOjE6e3M6MTE6Im1mYV9jaGVja2VkIjtpOjE7fXM6MTQ6ImNvbV9hZG1pbnRvb2xzIjtPOjg6InN0ZENsYXNzIjoxOntzOjE0OiJzdXBlcnVzZXJzbGlzdCI7Tzo4OiJzdGRDbGFzcyI6Mjp7czo3OiJzYWZlaWRzIjthOjA6e31zOjk6ImNyZWF0ZW5ldyI7YjowO319fXM6MTQ6IgAqAGluaXRpYWxpemVkIjtiOjA7czoxMjoiACoAc2VwYXJhdG9yIjtzOjE6Ii4iO30=\";',1,'lmswill'),(_binary 'f505b449afcb23308289e20cc973c88e',0,1,1764345845,'joomla|s:1056:\"TzoyNDoiSm9vbWxhXFJlZ2lzdHJ5XFJlZ2lzdHJ5IjozOntzOjc6IgAqAGRhdGEiO086ODoic3RkQ2xhc3MiOjc6e3M6Nzoic2Vzc2lvbiI7Tzo4OiJzdGRDbGFzcyI6Mzp7czo3OiJjb3VudGVyIjtpOjMwO3M6NToidGltZXIiO086ODoic3RkQ2xhc3MiOjM6e3M6NToic3RhcnQiO2k6MTc2NDM0Mzk1MjtzOjQ6Imxhc3QiO2k6MTc2NDM0NTg0MDtzOjM6Im5vdyI7aToxNzY0MzQ1ODQ1O31zOjU6InRva2VuIjtzOjMyOiJlNDFjMGFkN2FhYjA1MGQ3YmJkODgzZDg1ZjcwYjRkMCI7fXM6ODoicmVnaXN0cnkiO086MjQ6Ikpvb21sYVxSZWdpc3RyeVxSZWdpc3RyeSI6Mzp7czo3OiIAKgBkYXRhIjtPOjg6InN0ZENsYXNzIjowOnt9czoxNDoiACoAaW5pdGlhbGl6ZWQiO2I6MDtzOjEyOiIAKgBzZXBhcmF0b3IiO3M6MToiLiI7fXM6NDoidXNlciI7TzoyMDoiSm9vbWxhXENNU1xVc2VyXFVzZXIiOjE6e3M6MjoiaWQiO2k6MDt9czoyNToicGxnX3N5c3RlbV9sYW5ndWFnZWZpbHRlciI7Tzo4OiJzdGRDbGFzcyI6MTp7czo4OiJsYW5ndWFnZSI7czo1OiJwdC1CUiI7fXM6NDk6Im1heF9yZXF1ZXN0c185MzU3NjczYy04ZDAyLTRhYjctYjJlZS1jMDBjYjcxODM0NTgiO2k6MTA7czo1NDoiZW5hYmxlX3JhdGVfbGltaXRfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjA7czo0ODoidGltZV93aW5kb3dfOTM1NzY3M2MtOGQwMi00YWI3LWIyZWUtYzAwY2I3MTgzNDU4IjtpOjYwO31zOjE0OiIAKgBpbml0aWFsaXplZCI7YjowO3M6MTI6IgAqAHNlcGFyYXRvciI7czoxOiIuIjt9\";sitename|s:57:\"Guideway LMS - O caminho simples para o seu curso online.\";isFormBuilderEnabledCaptcha_9357673c-8d02-4ab7-b2ee-c00cb7183458|b:0;',0,'');
 /*!40000 ALTER TABLE `bak_lepgs_session` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2430,7 +2429,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_certificates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_certificates` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT NULL,
@@ -2469,7 +2468,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_courses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_courses` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT NULL,
@@ -2524,7 +2523,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_coursescategories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_coursescategories` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -2566,7 +2565,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_followers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_followers` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `teacher` bigint(20) NOT NULL,
@@ -2588,12 +2587,40 @@ LOCK TABLES `bak_lepgs_splms_followers` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `bak_lepgs_splms_forum_votes`
+--
+
+DROP TABLE IF EXISTS `bak_lepgs_splms_forum_votes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bak_lepgs_splms_forum_votes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `item_type` varchar(20) NOT NULL,
+  `vote` tinyint(2) NOT NULL,
+  `created_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_user_vote` (`user_id`,`item_id`,`item_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bak_lepgs_splms_forum_votes`
+--
+
+LOCK TABLES `bak_lepgs_splms_forum_votes` WRITE;
+/*!40000 ALTER TABLE `bak_lepgs_splms_forum_votes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bak_lepgs_splms_forum_votes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `bak_lepgs_splms_lessiontopics`
 --
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_lessiontopics`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_lessiontopics` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT NULL,
@@ -2630,7 +2657,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_lessons`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_lessons` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT NULL,
@@ -2676,7 +2703,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_orders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_orders` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `order_user_id` bigint(20) NOT NULL,
@@ -2719,7 +2746,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_quizquestions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_quizquestions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT NULL,
@@ -2760,7 +2787,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_quizresults`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_quizresults` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `point` int(11) DEFAULT NULL,
@@ -2795,7 +2822,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_reviews`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_reviews` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `course_id` int(11) DEFAULT NULL,
@@ -2829,7 +2856,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_speakers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_speakers` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT NULL,
@@ -2874,11 +2901,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_submissions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_submissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL COMMENT 'ID do Aluno que enviou',
   `lesson_id` bigint(20) unsigned NOT NULL COMMENT 'ID da Lição vinculada',
+  `course_id` int(10) unsigned NOT NULL,
   `file_path` varchar(255) NOT NULL COMMENT 'Caminho onde o arquivo foi salvo',
   `grade` int(3) DEFAULT NULL COMMENT 'Nota de 0 a 100',
   `feedback` text DEFAULT NULL COMMENT 'Comentário do Professor',
@@ -2903,7 +2931,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_teachers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_teachers` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT NULL,
@@ -2952,7 +2980,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_splms_useritems`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_splms_useritems` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `item_id` int(11) DEFAULT 0,
@@ -2985,7 +3013,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_spmedia`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_spmedia` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL DEFAULT '',
@@ -3021,7 +3049,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) NOT NULL DEFAULT 0,
@@ -3072,7 +3100,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_addonlist`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_addonlist` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -3098,7 +3126,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_addons`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_addons` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL DEFAULT '',
@@ -3126,7 +3154,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_assets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_assets` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `type` varchar(100) NOT NULL DEFAULT '',
@@ -3157,7 +3185,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_collection_fields`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_collection_fields` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `collection_id` bigint(20) unsigned NOT NULL,
@@ -3204,7 +3232,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_collection_imports`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_collection_imports` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `data` text DEFAULT NULL,
@@ -3230,7 +3258,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_collection_item_values`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_collection_item_values` (
   `item_id` bigint(20) unsigned NOT NULL,
   `field_id` bigint(20) unsigned NOT NULL,
@@ -3260,7 +3288,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_collection_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_collection_items` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -3294,7 +3322,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_collections`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_collections` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `asset_id` bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -3327,7 +3355,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_colors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_colors` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL DEFAULT '',
@@ -3354,7 +3382,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_comments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_comments` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `source_type` varchar(50) NOT NULL DEFAULT 'article',
@@ -3390,7 +3418,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_fonts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_fonts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `family_name` varchar(100) NOT NULL DEFAULT '',
@@ -3419,7 +3447,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_image_shapes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_image_shapes` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL DEFAULT '',
@@ -3445,7 +3473,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_integrations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_integrations` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -3472,7 +3500,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_languages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_languages` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL DEFAULT '',
@@ -3500,7 +3528,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_likes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_likes` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) NOT NULL,
@@ -3527,7 +3555,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_presets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_presets` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL DEFAULT '',
@@ -3556,7 +3584,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_sections`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_sections` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL DEFAULT '',
@@ -3584,7 +3612,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_sppagebuilder_typography`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_sppagebuilder_typography` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL DEFAULT '',
@@ -3611,7 +3639,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_tags` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) unsigned NOT NULL DEFAULT 0,
@@ -3670,7 +3698,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_template_overrides`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_template_overrides` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `template` varchar(50) NOT NULL DEFAULT '',
@@ -3703,7 +3731,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_template_styles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_template_styles` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `template` varchar(50) NOT NULL DEFAULT '',
@@ -3736,7 +3764,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_tuf_metadata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_tuf_metadata` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `update_site_id` int(11) DEFAULT 0,
@@ -3765,7 +3793,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_ucm_base`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_ucm_base` (
   `ucm_id` int(10) unsigned NOT NULL,
   `ucm_item_id` int(11) NOT NULL,
@@ -3793,7 +3821,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_ucm_content`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_ucm_content` (
   `core_content_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `core_type_alias` varchar(400) NOT NULL DEFAULT '' COMMENT 'FK to the content types table',
@@ -3858,7 +3886,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_update_sites`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_update_sites` (
   `update_site_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) DEFAULT '',
@@ -3889,7 +3917,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_update_sites_extensions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_update_sites_extensions` (
   `update_site_id` int(11) NOT NULL DEFAULT 0,
   `extension_id` int(11) NOT NULL DEFAULT 0,
@@ -3913,7 +3941,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_updates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_updates` (
   `update_id` int(11) NOT NULL AUTO_INCREMENT,
   `update_site_id` int(11) DEFAULT 0,
@@ -3950,7 +3978,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_user_keys`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_user_keys` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` varchar(150) NOT NULL,
@@ -3979,7 +4007,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_user_mfa`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_user_mfa` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
@@ -4011,7 +4039,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_user_notes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_user_notes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL DEFAULT 0,
@@ -4049,7 +4077,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_user_profiles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_user_profiles` (
   `user_id` int(11) NOT NULL,
   `profile_key` varchar(100) NOT NULL,
@@ -4075,7 +4103,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_user_usergroup_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_user_usergroup_map` (
   `user_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Foreign Key to #__users.id',
   `group_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Foreign Key to #__usergroups.id',
@@ -4099,7 +4127,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_usergroups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_usergroups` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `parent_id` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Adjacency List Reference Id',
@@ -4130,7 +4158,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(400) NOT NULL DEFAULT '',
@@ -4173,7 +4201,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_viewlevels`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_viewlevels` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `title` varchar(100) NOT NULL DEFAULT '',
@@ -4200,7 +4228,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_webauthn_credentials`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_webauthn_credentials` (
   `id` varchar(1000) NOT NULL COMMENT 'Credential ID',
   `user_id` varchar(128) NOT NULL COMMENT 'User handle',
@@ -4226,7 +4254,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_workflow_associations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_workflow_associations` (
   `item_id` int(11) NOT NULL DEFAULT 0 COMMENT 'Extension table id value',
   `stage_id` int(11) NOT NULL COMMENT 'Foreign Key to #__workflow_stages.id',
@@ -4255,7 +4283,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_workflow_stages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_workflow_stages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT 0,
@@ -4292,7 +4320,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_workflow_transitions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_workflow_transitions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT 0,
@@ -4332,7 +4360,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bak_lepgs_workflows`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bak_lepgs_workflows` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `asset_id` int(11) DEFAULT 0,
@@ -4380,4 +4408,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-29 17:12:03
+-- Dump completed on 2026-02-03 10:54:04

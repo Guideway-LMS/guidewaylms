@@ -1,189 +1,176 @@
 <?php
 /**
- * @package com_splms
- * @author JoomShaper http://www.joomshaper.com
- * @copyright Copyright (c) 2010 - 2024 JoomShaper
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
- **/
-
+ * @package     com_splms
+ * @copyright   Copyright (c) 2010 - 2024 JoomShaper
+ * @license     http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
+ */
 defined('_JEXEC') or die('Restricted Access');
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Filesystem\Path; // Adicionado para garantir compatibilidade
+use Joomla\CMS\Filesystem\Path;
+use Joomla\CMS\Table\Table;
+use Joomla\CMS\Session\Session;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 class SplmsControllerLesson extends FormController {
 
-  public function __construct($config = array()) {
-    parent::__construct($config);
-  }
-
-  public function getModel($name = 'Lessons', $prefix = 'SplmsModel', $config = array()) {
-    return parent::getModel($name, $prefix, $config);
-  }
-
-  public function completeditem() {
-    $model  = $this->getModel();
-    $user   = Factory::getUser();
-    $input  = Factory::getApplication()->input;
-    $output = array();
-
-    if(!$user->id) {
-      $output['status'] = false;
-      $output['content'] = Text::_('COM_SPLMS_LOGIN_TO_REVIEW');
-      echo json_encode($output);
-      die();
+    // Redirecionamento de compatibilidade
+    public function submit() {
+        return $this->uploadAssignment();
     }
 
-    $item_id   = $input->post->get('item_id', 0, 'INT');
-    $item_type = $input->post->get('item_type', NULL, 'STRING');
+    public function completeditem() {
+        // Habilita reporte de erros para debug (será capturado pelo try/catch ou log)
+        error_reporting(E_ALL);
+        ini_set('display_errors', 0); // Não exibir no output para não quebrar JSON
 
-    $output['status'] = false;
-    if($item_id && $item_type) {
-      $submitted = $model->completedItem($item_id, $item_type, $user->id);
-      $output['content'] = Text::_('COM_SPLMS_LESSON_COMPLETED');
-      $output['status'] = true;
+        $app = Factory::getApplication();
+        $input = $app->input;
+        $user = Factory::getUser();
+        $response = array('status' => false, 'content' => '');
+
+        // 1. Verificação de Login
+        if ($user->guest) {
+            $response['content'] = Text::_('COM_SPLMS_LOGIN_TO_COMPLETE');
+            echo json_encode($response);
+            $app->close();
+        }
+
+        // 2. Validação de Input
+        $itemId   = $input->getInt('item_id');
+        $itemType = $input->getString('item_type', 'lesson');
+
+        if (!$itemId) {
+            $response['content'] = 'Item ID inválido';
+            echo json_encode($response);
+            $app->close();
+        }
+
+        try {
+            // 3. Carregar Model com Caminho Explícito
+            BaseDatabaseModel::addIncludePath(JPATH_COMPONENT . '/models');
+            $model = $this->getModel('Lessons', 'SplmsModel');
+
+            if (!$model) {
+                throw new Exception('Model Lessons não encontrado.');
+            }
+
+            // 4. Executar Ação
+            $result = $model->completedItem($itemId, $itemType, $user->id);
+            
+            if ($result !== false) {
+                $response['status'] = true;
+                $response['content'] = Text::_('COM_SPLMS_LESSON_COMPLETED');
+            } else {
+                $response['content'] = 'Erro desconhecido ao registrar conclusão.';
+            }
+
+        } catch (Exception $e) {
+            // Captura erros fatais/exceptions e retorna 200 OK com mensagem de erro
+            $response['status'] = false;
+            $response['content'] = 'Erro no Servidor: ' . $e->getMessage();
+            // Logar erro para admin checar se necessário
+            // JLog::add($e->getMessage(), JLog::ERROR, 'com_splms');
+        }
+
+        // 5. Retorno JSON Seguro
+        echo json_encode($response);
+        $app->close();
     }
 
-    echo json_encode($output);
-    die();
-  }
-// --- FUNÇÃO DE ENVIO COM SEGURANÇA (VALIDAÇÃO DE TIPO E TAMANHO) ---
- public function submit() {
-      $app   = Factory::getApplication();
-      $input = $app->input;
-      $user  = Factory::getUser();
+    public function uploadAssignment() {
+        $app   = Factory::getApplication();
+        $input = $app->input;
+        $user  = Factory::getUser();
 
-      // --- VACINA CONTRA ARQUIVO GIGANTE (SERVER CRASH) ---
-      if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
-          
-          $lesson_id = $input->getInt('lesson_id', 0); 
+        // 1. DADOS CRÍTICOS
+        $lesson_id = $input->getInt('lesson_id');
+        $itemId    = $input->getInt('Itemid');
 
-          if (!$lesson_id) {
-             // MUDANÇA: Se o ID sumiu, vai para a página inicial (seguro)
-             $redirectUrl = 'index.php'; 
-          } else {
-             $redirectUrl = 'index.php?option=com_splms&view=lesson&id=' . $lesson_id;
-          }
+        // 2. MONTAGEM DA URL DE RETORNO (Blindada)
+        if ($lesson_id) {
+            $url = 'index.php?option=com_splms&view=lesson&id=' . $lesson_id;
+            if ($itemId) {
+                $url .= '&Itemid=' . $itemId;
+            }
+            $redirectUrl = Route::_($url, false);
+        } else {
+            $redirectUrl = $input->server->getString('HTTP_REFERER', 'index.php');
+        }
 
-          $this->setRedirect(
-              Route::_($redirectUrl, false),
-              'Erro: O arquivo é maior do que o servidor permite (Crash). Tente um arquivo menor que 2MB.',
-              'error'
-          );
-          return false;
-      }
-      // -----------------------------------------------------
+        // 3. SEGURANÇA
+        if ($user->guest) {
+            $this->setRedirect(Route::_('index.php?option=com_users&view=login', false), 'Faça login.', 'warning');
+            return false;
+        }
 
-      // 1. Verificação de Login
-      if ($user->guest) {
-          $this->setRedirect('index.php', 'Você precisa estar logado.', 'warning');
-          return false;
-      }
+        // 4. UPLOAD COM MELHORIAS DE SEGURANÇA - GUIDEWAY CUSTOM - Joshua
+        $file = $input->files->get('uploaded_file');
+        if (!$file || $file['error'] != 0) {
+            $this->setRedirect($redirectUrl, 'Selecione um arquivo válido.', 'warning');
+            return false;
+        }
 
-      // 2. Verificação de Token (CSRF)
-      if (!JSession::checkToken()) {
-          $this->setRedirect('index.php', 'Token de segurança inválido. Tente recarregar a página.', 'error');
-          return false;
-      }
+        // GUIDEWAY CUSTOM - Armazenamento fora do public_html
+        $uploadDir = '/var/www/uploads_privados/trabalhos/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+            file_put_contents($uploadDir . 'index.html', '');
+        }
 
-      $lesson_id = $input->getInt('lesson_id');
-      $file      = $input->files->get('uploaded_file');
-      $comment   = $input->getString('student_comment', ''); // Captura o comentário (se já tiver criado a coluna no banco)
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        
+        // GUIDEWAY CUSTOM - Anonimização com random_bytes
+        $hash = bin2hex(random_bytes(20));
+        $newFileName = $hash . '.' . $ext;
+        
+        $targetPath = $uploadDir . $newFileName;
+        $dbPath = 'uploads_privados/trabalhos/' . $newFileName;
+        
+        // GUIDEWAY CUSTOM - Guardar nome original
+        $originalFileName = $file['name'];
 
-      // Configurações de Segurança
-      $maxSize = 10 * 1024 * 1024; // 10MB em Bytes
-$allowedExts = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'mp4'];
+        if (!File::upload($file['tmp_name'], $targetPath)) {
+            $this->setRedirect($redirectUrl, 'Erro ao salvar arquivo.', 'error');
+            return false;
+        }
 
-      if ($file && $file['error'] == 0) {
-          
-          $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        // 5. BANCO DE DADOS
+        try {
+            Table::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_splms/tables');
+            $table = Table::getInstance('Submission', 'SplmsTable');
+            
+            $data = [
+                'user_id' => $user->id,
+                'lesson_id' => $lesson_id,
+                'file_path' => $dbPath,
+                'original_filename' => $originalFileName, // GUIDEWAY CUSTOM
+                'status' => 0,
+                'submitted_at' => Factory::getDate()->toSql()
+            ];
+            
+            if (!$table->bind($data) || !$table->store()) {
+                throw new Exception($table->getError());
+            }
 
-          // TRAVA 1: Extensão não permitida (Bloqueia .exe, .php, etc)
-          if (!in_array($ext, $allowedExts)) {
-              $this->setRedirect(
-                  Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-                  'Erro: Formato de arquivo não permitido (.' . $ext . '). Envie apenas: PDF, ZIP, DOC, Imagens ou MP4.',
-                  'error'
-              );
-              return false;
-          }
+            // Marca lição como completa
+            $model = $this->getModel('Lessons', 'SplmsModel');
+            if ($model) $model->completedItem($lesson_id, 'lesson', $user->id);
 
-          // TRAVA 2: Tamanho do Arquivo (Bloqueia > 10MB)
-          if ($file['size'] > $maxSize) {
-              $this->setRedirect(
-                  Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-                  'Erro: O arquivo é muito grande. O limite máximo é 10MB.',
-                  'error'
-              );
-              return false;
-          }
-
-          // Se passou pelas travas, prepara o upload
-          $uploadDir = JPATH_ROOT . '/images/uploads/submissions/';
-          if (!file_exists($uploadDir)) {
-              mkdir($uploadDir, 0755, true);
-          }
-
-          // Limpeza do nome do arquivo (Segurança extra)
-          $cleanName = Path::clean(pathinfo($file['name'], PATHINFO_FILENAME));
-          $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '', $cleanName); 
-          $newFileName = time() . '_' . $cleanName . '.' . $ext;
-          $targetPath = $uploadDir . $newFileName;
-          $dbPath = 'images/uploads/submissions/' . $newFileName;
-
-          if (File::upload($file['tmp_name'], $targetPath)) {
-              $db = Factory::getDbo();
-              $query = $db->getQuery(true);
-              
-              // Verifica se a coluna student_comment existe na tabela antes de tentar inserir
-              // Se você ainda não rodou o SQL da coluna, remova 'student_comment' daqui temporariamente
-              $columns = array('user_id', 'lesson_id', 'file_path', 'status', 'submitted_at'); 
-              $values  = array((int) $user->id, (int) $lesson_id, $db->quote($dbPath), 0, 'NOW()');
-
-              // Se quiser salvar o comentário, descomente a linha abaixo quando atualizar o banco:
-              // $columns[] = 'student_comment'; $values[] = $db->quote($comment);
-
-              $query->insert($db->quoteName('#__splms_submissions'))
-                    ->columns($db->quoteName($columns))
-                    ->values(implode(',', $values));
-              
-              $db->setQuery($query);
-              
-              try {
-                  $db->execute();
-
-                  // Marca a lição como completa no sistema geral do SPLMS
-                  $model = $this->getModel();
-                  $model->completedItem($lesson_id, 'lesson', $user->id); 
-
-                  $this->setRedirect(
-                      Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-                      'Trabalho enviado com sucesso! Aguarde a correção.'
-                  );
-                  return true;
-
-              } catch (Exception $e) {
-                  $this->setRedirect(
-                      Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-                      'Erro ao salvar no banco: ' . $e->getMessage(),
-                      'error'
-                  );
-                  return false;
-              }
-          }
-      }
-
-      // Erro genérico de upload (ex: arquivo corrompido ou maior que o post_max_size do PHP)
-      $this->setRedirect(
-          Route::_('index.php?option=com_splms&view=lesson&id=' . $lesson_id, false),
-          'Erro no upload. Verifique se o arquivo não ultrapassa o limite do servidor.',
-          'error'
-      );
-      return false;
-  }
- 
+            $this->setRedirect($redirectUrl, 'Trabalho enviado com sucesso!', 'success');
+            return true;
+            
+        } catch (Exception $e) {
+            // Limpa arquivo se der erro no banco
+            if (file_exists($targetPath)) {
+                File::delete($targetPath);
+            }
+            $this->setRedirect($redirectUrl, 'Erro: ' . $e->getMessage(), 'error');
+            return false;
+        }
+    }
 }

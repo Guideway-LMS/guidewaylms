@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="filter">
+        <field
+            name="search"
+            type="text"
+            label="JSEARCH_FILTER_LABEL"
+            description="JSEARCH_FILTER_DESC"
+            hint="JSEARCH_FILTER_SUBMIT"
+        />
+
+        <field
+            name="course_id"
+            type="sql"
+            label="Filtrar por Curso"
+            query="SELECT id, title FROM #__splms_courses ORDER BY title ASC"
+            key_field="id"
+            value_field="title"
+            onchange="this.form.submit();"
+            >
+            <option value="">- Selecionar Curso -</option>
+        </field>
+    </fields>
+
+    <fields name="list">
+        <field
+            name="limit"
+            type="limitbox"
+            class="input-mini"
+            default="25"
+            label="JGLOBAL_LIST_LIMIT"
+            description="JGLOBAL_LIST_LIMIT_DESC"
+            onchange="this.form.submit();"
+        />
+    </fields>
+</form>

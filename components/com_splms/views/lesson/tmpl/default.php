@@ -6,146 +6,40 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
  */
 // No Direct Access
-defined('_JEXEC') or die('Restricted Access');
+defined ('_JEXEC') or die('Resticted Aceess');
 
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
-use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\HTML\HTMLHelper;
 
-Factory::getDocument()->addStyleSheet(Uri::root() . 'templates/maestro/css/splms-progress.css');
-$params = JComponentHelper::getParams('com_splms');
-$percentualMinimoConclusao = (int) $params->get('percentual_minimo_conclusao', 90);
+// 1. INICIALIZAÇÃO E CAPTURA DE DADOS VITAIS
+$user = Factory::getUser();
+$app  = Factory::getApplication();
+$currentItemId = $app->input->getInt('Itemid', 0); // Captura o ID do Menu para não perder a rota
 
-// --- CONFIGURAÇÃO DE TENTATIVAS ---
-$maxAttempts = 3; // Limite Total
-
-$doc = Factory::getDocument();
-$doc->addScriptOptions('splmsConfig', [
-    'percentualMinimoConclusao' => $percentualMinimoConclusao
-]);
-
-$user   = $this->user ?? Factory::getUser();
-$userId = (int) $user->id;
-$db = Factory::getDbo();
-
-// =============================================================================
-// 1. CONSULTA AO BANCO (ÚLTIMO ENVIO E CONTAGEM)
-// =============================================================================
+// 2. VERIFICAÇÃO DIRETA NO BANCO DE DADOS (Self-Contained Logic)
+// Consultamos aqui mesmo se existe um envio, sem depender da View Class.
 $submission = null;
-$submissionCount = 0;
-
-if ((int) $this->item->lesson_type === 2) {
-    // Busca o último envio para mostrar status
+if (!$user->guest) {
+    $db = Factory::getDbo();
     $query = $db->getQuery(true)
         ->select('*')
-        ->from($db->quoteName('bak_lepgs_splms_submissions'))
-        ->where($db->quoteName('user_id') . ' = ' . $userId)
-        ->where($db->quoteName('lesson_id') . ' = ' . (int)$this->item->id)
-        ->order('id DESC'); 
-    
-    $db->setQuery($query, 0, 1);
-    $submission = $db->loadObject();
-
-    // CONTAGEM TOTAL DE TENTATIVAS USADAS
-    $queryCount = $db->getQuery(true)
-        ->select('COUNT(*)')
-        ->from($db->quoteName('bak_lepgs_splms_submissions'))
-        ->where($db->quoteName('user_id') . ' = ' . $userId)
+        ->from($db->quoteName('#__splms_submissions'))
+        ->where($db->quoteName('user_id') . ' = ' . (int)$user->id)
         ->where($db->quoteName('lesson_id') . ' = ' . (int)$this->item->id);
-    
-    $db->setQuery($queryCount);
-    $submissionCount = (int) $db->loadResult();
+    $db->setQuery($query);
+    $submission = $db->loadObject();
 }
 
-// CÁLCULO DE RESTANTES
-$attemptsLeft = max(0, $maxAttempts - $submissionCount);
-
-// Lógica de Lições (Mantida igual)
-$lessonStates = [];
-if ($userId && !empty($this->item->course_id)) {
-    BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models', 'SplmsModel');
-    $courseModel = BaseDatabaseModel::getInstance('Course', 'SplmsModel');
-    if ($courseModel) {
-        $lessonStates = $courseModel->getLessonStatesByCourse((int) $this->item->course_id, $userId);
-    }
-}
-$this->lessonStates = $lessonStates;
-
-$doc->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
-$doc->addScript(Uri::root() . 'media/gw-progress-alert/js/alerta-conclusao.js');
-$doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
-$doc->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-complete-handler.js');
-
-// CSS GERAL
-$doc->addStyleDeclaration('
-    .upload-card { background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 40px; text-align: center; transition: transform 0.2s ease; border: 1px solid #f0f0f0; }
-    .upload-zone { border: 2px dashed #e0e7ff; border-radius: 12px; padding: 30px; background: #fafbff; transition: all 0.3s ease; margin-bottom: 15px; position: relative; }
-    .upload-zone:hover { border-color: #4CAF50; background: #f0fff4; }
-    .status-icon { font-size: 48px; margin-bottom: 15px; display: block; }
-    .status-graded { color: #22c55e; }
-    .status-rejected { color: #ef4444; }
-    .status-pending { color: #f59e0b; }
-    .status-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
-    .grade-display { font-size: 3rem; font-weight: 800; color: #333; margin: 15px 0; }
-    .upload-title { font-size: 22px; font-weight: 600; color: #1e293b; margin-bottom: 10px; }
-    .btn-upload-custom { background: #3b82f6; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s; border: none; margin-top: 15px; }
-    .btn-upload-custom:hover { background: #2563eb; color: white; }
-    .file-name-display { margin-top: 15px; font-weight: 600; color: #4CAF50; font-size: 14px; min-height: 20px; }
-    .file-info-text { font-size: 12px; color: #94a3b8; margin-top: 5px; }
-    .comment-wrapper { text-align: left; margin-top: 20px; margin-bottom: 20px; }
-    .comment-label { font-size: 14px; font-weight: 600; color: #475569; display: block; margin-bottom: 8px; }
-    .comment-textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; resize: vertical; font-family: inherit; min-height: 80px; background: #f8fafc; }
-    .comment-textarea:focus { outline: none; border-color: #4CAF50; background: #fff; }
-    .btn-send { width: 100%; background: #4CAF50; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; color: white; margin-top: 10px; cursor: pointer; transition: background 0.3s; }
-    .btn-send:hover { background: #45a049; }
-    
-    /* NOVO CSS PARA O BOX DE TENTATIVAS */
-    .attempts-box { 
-        background: #f8fafc; 
-        border: 1px solid #cbd5e1; 
-        border-radius: 8px; 
-        padding: 10px 15px; 
-        margin-bottom: 20px; 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        font-size: 14px;
-        color: #334155;
-    }
-    .badge-attempts {
-        background: #3b82f6;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-weight: bold;
-        font-size: 12px;
-    }
-    .badge-warning-custom {
-        background: #f59e0b;
-        color: #fff;
-    }
-');
-
-$doc->addScriptDeclaration('
-document.addEventListener("DOMContentLoaded", function() {
-    var fileInput = document.getElementById("file-upload-input");
-    var fileNameDisplay = document.getElementById("file-name-text");
-    var zone = document.querySelector(".upload-zone");
-    if(fileInput) {
-        fileInput.addEventListener("change", function() {
-            if (this.files && this.files.length > 0) {
-                fileNameDisplay.innerHTML = "<i class=\'fa fa-check-circle\'></i> " + this.files[0].name;
-                zone.style.borderColor = "#4CAF50";
-                zone.style.background = "#e8f5e9";
-            }
-        });
-    }
-});
-');
+// Carregar script de progresso
+$document = Factory::getDocument();
+$document->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-progress.js');
+$document->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
 ?>
+
 <script>
 window.SPLMS_CONTEXT = {
   itemId: <?php echo (int) $this->item->id; ?>,
@@ -157,6 +51,7 @@ window.SPLMS_CONTEXT = {
 </script>
 
 <div id="splms" class="splms splms-lessons splms-lesson-details"> 
+  
   <div class="course-progress-container">
     <h3 class="course-progress-title">📚 Seu Progresso no Curso</h3>
     <div id="progress-emoji" class="course-progress-emoji">📋</div>
@@ -167,241 +62,172 @@ window.SPLMS_CONTEXT = {
     <div id="progress-message" class="course-progress-message">Carregando...</div>
   </div>
 
-  <div class="row">
-    <div class="col-md-7">
-      <div class="splms-lesson-video-wrapper">
-
-        <?php 
-        // LÓGICA DE DECISÃO: É TRABALHO (TIPO 2) OU VÍDEO?
-        if ((int) $this->item->lesson_type === 2) : 
-        ?>
-
-            <div style="margin-bottom: 25px;">
-                <h2 style="font-weight: 700; color: #1e293b; margin: 0; font-size: 28px;">
-                    <i class="fa fa-cloud-upload" style="color: #4CAF50; margin-right: 10px;"></i> Envio de Trabalho
-                </h2>
-                <p style="color: #64748b; font-size: 16px; margin-top: 5px;">Esta etapa é obrigatória para a conclusão do módulo.</p>
-            </div>
-
-            <div class="upload-card">
-                
-                <?php 
-                // 1. CASO APROVADO (Status 1)
-                if ($submission && $submission->status == 1) : 
-                ?>
-                    <i class="fa fa-check-circle status-icon status-graded"></i>
-                    <h3 class="status-title status-graded">Trabalho Aprovado!</h3>
-                    <div class="grade-display">
-                        <?php echo number_format($submission->grade, 1); ?> <span style="font-size: 1rem; color: #999;">/ 100</span>
-                    </div>
-                    <?php if (!empty($submission->feedback)) : ?>
-                        <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; text-align: left; border: 1px solid #c8e6c9; margin-top: 15px;">
-                            <strong style="color: #2e7d32;">Feedback do Professor:</strong>
-                            <p style="margin: 5px 0 0 0; color: #333;"><?php echo $submission->feedback; ?></p>
-                        </div>
-                    <?php endif; ?>
-
-                <?php 
-                // 2. CASO REPROVADO (Status 2)
-                elseif ($submission && $submission->status == 2) : 
-                ?>
-                    <div style="border: 1px solid #fecaca; background: #fef2f2; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                        <i class="fa fa-times-circle status-icon status-rejected"></i>
-                        <h3 class="status-title status-rejected">Trabalho Reprovado</h3>
-                        <div class="grade-display" style="color: #ef4444;">
-                            <?php echo number_format($submission->grade, 1); ?>
-                        </div>
-                        
-                        <?php if (!empty($submission->feedback)) : ?>
-                            <div style="background: #fff; padding: 15px; border-radius: 8px; text-align: left; border: 1px solid #fee2e2; margin-top: 15px;">
-                                <strong style="color: #b91c1c;">O que melhorar:</strong>
-                                <p style="margin: 5px 0 0 0; color: #333;"><?php echo $submission->feedback; ?></p>
-                            </div>
-                        <?php endif; ?>
-
-                        <div style="margin-top: 15px; font-weight: bold; color: #b91c1c;">
-                            👇 Envie uma nova versão abaixo:
-                        </div>
-                    </div>
-
-                    <?php if ($attemptsLeft > 0) : ?>
-                         
-                         <div class="attempts-box">
-                            <span><i class="fa fa-history"></i> Tentativas Usadas: <strong><?php echo $submissionCount; ?> / <?php echo $maxAttempts; ?></strong></span>
-                            <span class="badge-attempts badge-warning-custom">Restam: <?php echo $attemptsLeft; ?></span>
-                         </div>
-
-                         <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
-                            <div class="upload-zone">
-                                <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
-                                <h3 class="upload-title" style="font-size: 18px;">Enviar Correção</h3>
-                                <input type="file" name="uploaded_file" id="file-upload-input" style="display: none;" required>
-                                <label for="file-upload-input" class="btn-upload-custom"><i class="fa fa-folder-open-o"></i> Selecionar Novo Arquivo</label>
-                                <div id="file-name-text" class="file-name-display">Nenhum arquivo selecionado</div>
-                            </div>
-                            <input type="hidden" name="course_id" value="<?php echo $this->item->course_id; ?>" />
-                            <input type="hidden" name="lesson_id" value="<?php echo $this->item->id; ?>" />
-                            <?php echo JHtml::_('form.token'); ?>
-                            <button type="submit" class="btn-send">REENVIAR TRABALHO <i class="fa fa-refresh"></i></button>
-                        </form>
-                    <?php else: ?>
-                        <div class="alert alert-danger">
-                            <strong>🚫 Tentativas Esgotadas.</strong> Você atingiu o limite máximo de envios para este trabalho (<?php echo $submissionCount; ?>/<?php echo $maxAttempts; ?>). Entre em contato com o suporte ou professor.
-                        </div>
-                    <?php endif; ?>
-
-                <?php 
-                // 3. CASO PENDENTE (Existe envio, mas sem nota e sem status final)
-                elseif ($submission) : 
-                ?>
-                    <div class="upload-zone" style="border-color: #f59e0b; background: #fffbf0;">
-                        <i class="fa fa-clock-o status-icon status-pending"></i>
-                        <h3 class="status-title status-pending">Aguardando Correção</h3>
-                        <p style="color: #666;">Arquivo enviado com sucesso:</p>
-                        <div style="background: white; padding: 8px 15px; border-radius: 20px; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-top: 10px; font-family: monospace;">
-                            <i class="fa fa-file-text-o"></i> <?php echo basename($submission->file_path); ?>
-                        </div>
-                        <p style="font-size: 12px; color: #999; margin-top: 15px;">Enviado em: <?php echo date('d/m/Y H:i', strtotime($submission->submitted_at)); ?></p>
-                    </div>
-                    <div style="color: #64748b; font-size: 14px;">Você será notificado assim que sua nota for lançada.</div>
-
-                <?php 
-                // 4. CASO NOVO (Nenhum envio)
-                else : 
-                ?>
-                    <div class="attempts-box">
-                        <span><i class="fa fa-history"></i> Tentativas Usadas: <strong>0 / <?php echo $maxAttempts; ?></strong></span>
-                        <span class="badge-attempts">Restam: <?php echo $maxAttempts; ?></span>
-                    </div>
-
-                    <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
-                        <div class="upload-zone">
-                            <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
-                            <h3 class="upload-title" style="font-size: 18px;">Área de Transferência</h3>
-                            <input type="file" name="uploaded_file" id="file-upload-input" style="display: none;" required>
-                            <label for="file-upload-input" class="btn-upload-custom"><i class="fa fa-folder-open-o"></i> Escolher Arquivo no Computador</label>
-                            <div id="file-name-text" class="file-name-display">Nenhum arquivo selecionado</div>
-                            <div class="file-info-text">Formatos: PDF, ZIP, MP4 (Max: 10MB)</div>
-                        </div>
-                        
-                        <div class="comment-wrapper">
-                            <label for="student_comment" class="comment-label">Comentário (Opcional):</label>
-                            <textarea name="student_comment" id="student_comment" class="comment-textarea" placeholder="Escreva uma mensagem para o professor..."></textarea>
-                        </div>
-                        
-                        <input type="hidden" name="course_id" value="<?php echo $this->item->course_id; ?>" />
-                        <input type="hidden" name="lesson_id" value="<?php echo $this->item->id; ?>" />
-                        <?php echo JHtml::_('form.token'); ?>
-                        <button type="submit" class="btn-send">ENVIAR TRABALHO <i class="fa fa-paper-plane"></i></button>
-                    </form>
-                <?php endif; ?>
-            </div>
-
-            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
-                <h5 style="font-weight: 700; color: #555; font-size: 16px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Sobre esta atividade:</h5>
-                <div class="splms-lesson-description" style="color: #666; font-size: 14px; line-height: 1.6;">
-                    <?php echo $this->item->description; ?>
-                </div>
-            </div>
-
-        <?php else : ?>
-            
-            <?php if (!empty($this->item->video_url)) { ?>
-              <div class="lesson-video"><?php echo LayoutHelper::render('player', array('video' => $this->item->video_url, 'thumbnail' => $this->item->vdo_thumb)); ?></div>
-            <?php } elseif ($this->item->vdo_thumb) { ?>
-              <div class="lesson-thumbnail"><img class="splms-img-responsive" src="<?php echo $this->item->vdo_thumb; ?>" alt="<?php echo $this->item->title; ?>"></div>
-            <?php } ?>
-            <div class="splms-lesson-description item-content" style="margin-top: 20px;">
-              <h2><?php echo $this->item->title; ?></h2>
-              <div class="splms-lesson-description"><?php echo $this->item->description; ?></div>
-            </div>
-            <?php if (isset($this->item->attachment) && $this->item->attachment) { ?>
-              <div class="item-content splms-lesson-attachment-wrapper"><a class="btn btn-default attachment-button" target="_blank" href="<?php echo Uri::root() . $this->item->attachment; ?>"><?php echo Text::_('COM_SPLMS_LESSON_DOWNLOAD_ATTACHMENT') ?></a></div>
-            <?php } ?>
-
-        <?php endif; ?>
-
-      </div>
+  <?php if(!empty($this->item->video_url)) { ?>
+    <div class="lesson-video">
+      <?php echo LayoutHelper::render('player', array('video'=> $this->item->video_url, 'thumbnail' => $this->item->vdo_thumb)); ?>
     </div>
-    
-    <div class="col-md-5">
-      <?php if (!empty($this->lessons) && count($this->lessons) && $this->lessons) { ?>
-        <div class="course-lessons">
-          <h3><?php echo Text::_('COM_SPLMS_LESOSNS_LIST'); ?></h3>
-          <ul class="lessons list-unstyled">
-            <?php foreach ($this->lessons as $lesson) { ?>
-            
-              <?php
-                    $active_lesson = ($this->item->id == $lesson->id) ? ' active' : '';
-                    $lessonStates = $this->lessonStates ?? [];
-                    $state = $lessonStates[$lesson->id] ?? 0;
-                    $isCompleted = ($state === 1);
-                    $isPending   = ($state === 2);
-              ?>
-              <?php if ($lesson->lesson_type == 0 || $this->isAuthorised != '' || $this->courese->price == 0) : ?>
-                <li class="lesson<?php echo $active_lesson; ?>
-                      <?php echo $isCompleted ? ' lesson-completed' : ''; ?>
-                      <?php echo $isPending ? ' lesson-pending' : ''; ?>"
-                      data-lesson-id="<?php echo (int) $lesson->id; ?>">
-                 
-                  <?php if (!empty($lesson->video_url)) : ?>
-                      <span>
-                        <a href="<?php echo $lesson->lesson_url; ?>">
-                          <span class="lesson-title">
-                            <?php echo $lesson->title; ?>
-                            <?php if ($isCompleted) : ?>
-                              <span class="lesson-completed-icon"> ✅</span>
-                            <?php elseif ($isPending) : ?>
-                              <span class="lesson-pending-icon"> ⏳</span>
-                            <?php endif; ?>
-                          </span>
-                        </a>
-                      </span>
-                      <span class="pull-right lesson-duration">
-                        <span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span>
-                        <?php echo $lesson->video_duration; ?>
-                      </span>
+  <?php } elseif($this->item->vdo_thumb) { ?>
+    <div class="lesson-thumbnail">
+      <img class="splms-img-responsive" src="<?php echo $this->item->vdo_thumb; ?>" alt="<?php echo $this->item->title; ?>">
+    </div>
+  <?php } ?>
 
-                  <?php else : ?>
-
-                      <a href="<?php echo $lesson->lesson_url; ?>">
-                        <span class="lesson-title">
-                          <?php echo $lesson->title; ?>
-                          <?php if ($isCompleted) : ?>
-                            <span class="lesson-completed-icon"> ✅</span>
-                          <?php elseif ($isPending) : ?>
-                            <span class="lesson-pending-icon"> ⏳</span>
-                          <?php endif; ?>
-                        </span>
-                      </a>
-
-                  <?php endif; ?>
-                </li>
-              <?php else : ?>
-                <li class="lesson splms-lesson-unauthorised"><span><i class="splms-icon-book"></i><i class="splms-icon-lock"></i><?php echo $lesson->title; ?></span><span class="pull-right lesson-duration"><span><?php echo Text::_('COM_SPLMS_COMMON_DURATION') . Text::_(': '); ?></span><?php echo $lesson->video_duration; ?></span></li>
-              <?php endif; ?>
-            <?php } ?>
-          </ul>
-        </div>
-      <?php } ?>
+  <div class="splms-lesson-description item-content">
+    <h2><?php echo $this->item->title; ?></h2>
+    <div class="splms-lesson-description">
+      <?php echo $this->item->description; ?>
     </div>
   </div>
 
-  <div class="splms-lesson-completed-lesson-wrapper" 
-    <?php if (isset($this->item->course_id)) : ?> data-course-id="<?php echo (int) $this->item->course_id; ?>" <?php endif; ?> >
-    
-    <?php if ((int) $this->item->lesson_type !== 2) : ?>
-        <?php if ($this->user->guest) { 
-          $link =  base64_encode(Uri::getInstance()->toString()); 
-          $login_link = Route::_('index.php?option=com_users&view=login' . SplmsHelper::getItemid('login') . '&return=' . $link); 
-        ?>
-          <a class="btn btn-primary" href="<?php echo $login_link; ?>"><?php echo Text::_('COM_SPLMS_LOGIN_TO_COMPLETE'); ?></a>
-        <?php } elseif (!$this->has_complete_lesson) { ?>
-          <form id="splms-completed-item-form"><input type="hidden" name="user_id" value="<?php echo $this->user->id; ?>"><input type="hidden" name="item_id" value="<?php echo $this->item->id; ?>"><input type="hidden" name="item_type" value="lesson"><input type="hidden" name="course_id" value="<?php echo isset($this->item->course_id) ? (int) $this->item->course_id : ''; ?>"><a class="btn btn-primary" id="splms-completed-item" href="#"><?php echo Text::_('COM_SPLMS_LESSON_COMPLETE'); ?></a></form>
-        <?php } else { ?>
-          <a class="btn btn-primary" id="splms-completed-item" href="#"><?php echo Text::_('COM_SPLMS_LESSON_COMPLETED'); ?></a>
+  <?php if (isset($this->item->attachment) && $this->item->attachment) { ?>
+  <div class="item-content splms-lesson-attachment-wrapper">
+    <a class="btn btn-default attachment-button" target="_blank" href="<?php echo Uri::root(). $this->item->attachment; ?>">
+      <?php echo Text::_('COM_SPLMS_LESSON_DOWNLOAD_ATTACHMENT')?>
+    </a>
+  </div>
+  <?php } ?>
+  
+  <div class="item-content splms-assignment-wrapper" style="margin-top: 30px; padding: 20px; border: 1px solid #eee; border-radius: 5px; background: #fafafa;">
+      
+      <?php if ($submission) : ?>
+          <h3 style="margin-top:0; color: #28a745;">✅ Trabalho Enviado</h3>
+          
+          <div class="submission-status-card p-3" style="background: #fff; border: 1px solid #ddd; border-left: 5px solid #28a745;">
+              <p><strong>Status:</strong> 
+                  <?php 
+                  if ($submission->status == 1) {
+                      echo '<span class="badge badge-success" style="background:green; color:white; padding:3px 8px;">Aprovado</span>';
+                  } elseif ($submission->status == 2) {
+                      echo '<span class="badge badge-danger" style="background:red; color:white; padding:3px 8px;">Rejeitado</span>';
+                  } else {
+                      echo '<span class="badge badge-warning" style="background:orange; color:white; padding:3px 8px;">Em Correção</span>';
+                  }
+                  ?>
+              </p>
+              <p><strong>Data de Envio:</strong> <?php echo date('d/m/Y H:i', strtotime($submission->submitted_at)); ?></p>
+              
+              <?php if (!empty($submission->teacher_comment)) : ?>
+                  <hr>
+                  <p><strong>Comentário do Professor:</strong></p>
+                  <div class="alert alert-info">
+                      <?php echo nl2br($submission->teacher_comment); ?>
+                  </div>
+              <?php else: ?>
+                  <p class="text-muted"><small>O professor ainda não comentou seu trabalho.</small></p>
+              <?php endif; ?>
+          </div>
+
+      <?php else : ?>
+          <h3 style="margin-top:0;">📤 Enviar Trabalho / Atividade</h3>
+          
+          <?php if ($user->guest) : 
+              $returnUrl = base64_encode(Uri::getInstance()->toString());
+              $loginUrl  = Route::_('index.php?option=com_users&view=login&return=' . $returnUrl);
+          ?>
+              <div class="alert alert-info text-center p-4">
+                  <h4>🔒 Acesso Restrito</h4>
+                  <p>Você precisa estar identificado para enviar seu trabalho.</p>
+                  <a href="<?php echo $loginUrl; ?>" class="btn btn-primary btn-lg" style="margin-top:10px;">
+                      <span class="icon-user"></span> Fazer Login para Enviar
+                  </a>
+              </div>
+
+          <?php else : ?>
+
+              <form action="<?php echo Route::_('index.php?option=com_splms&task=lesson.uploadAssignment'); ?>" 
+                    method="post" enctype="multipart/form-data">
+                  
+                  <input type="hidden" name="lesson_id" value="<?php echo $this->item->id; ?>" />
+                  <input type="hidden" name="Itemid" value="<?php echo $currentItemId; ?>" />
+                  
+                  <div class="control-group">
+                      <label><strong>Selecione seu arquivo:</strong> <small class="text-muted">(PDF, ZIP, Imagem - Máx 10MB)</small></label>
+                      <input type="file" name="uploaded_file" class="form-control" required style="margin-bottom: 10px;" />
+                  </div>
+                  
+                  <button type="submit" class="btn btn-success">
+                      <span class="icon-upload"></span> Enviar Arquivo
+                  </button>
+                  
+                  <?php echo HTMLHelper::_('form.token'); ?>
+              </form>
+
+          <?php endif; ?>
+
+      <?php endif; ?>
+  </div>
+  <?php if (!empty($this->item->topics) && count($this->item->topics) && $this->item->topics) {?>
+    <div class="course-lessons">
+      <h3><?php echo Text::_('COM_SPLMS_LESOSNS_LIST'); ?></h3>
+      <div id="topicAccordion">
+        <?php foreach ($this->item->topics as $key => $topic) { ?>
+          <?php if (!empty($topic->lessons) && count($topic->lessons) && $topic->lessons) { ?>
+            <div class="card">
+              <div class="card-header" id="topicId<?php echo $key; ?>" data-toggle="collapse" data-target="#topicBody<?php echo $key; ?>" data-bs-toggle="collapse" data-bs-target="#topicBody<?php echo $key; ?>" aria-expanded="true">
+                <span class="splms-topic-title"><?php echo $topic->title; ?></span>
+              </div>
+              <?php $selectedLesson = in_array($this->item->id, array_column($topic->lessons, 'id'));?>
+              <div id="topicBody<?php echo $key; ?>" class="collapse <?php echo $selectedLesson ? 'show collapse in' : ''; ?>" data-parent="#topicAccordion" data-bs-parent="#topicAccordion">
+                <div class="card-body">
+                  <ul class="lessons list-unstyled">
+                    <?php foreach ($topic->lessons as $lesson) { ?>
+                      <?php echo LayoutHelper::render('lesson', array('contents' => [$lesson, $this->courese->price, $this->isAuthorised, $this->item->id])); ?>
+                    <?php } ?>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          <?php } ?>
         <?php } ?>
-    <?php endif; ?>
+      </div>
+    </div>
+  <?php }?>
+
+  <?php if(isset($this->teacher) && $this->teacher){ ?>
+    <div class="splms-lesson-teacher-wrapper">
+      <h2 class="splms-lesson-teacher-info-title"><?php echo Text::_('COM_SPLMS_COMMON_TEACHER_INFO'); ?></h2>
+      <div class="splms-row">
+        <div class="splms-teacher-img-wraper splms-col-sm-4 splms-col-md-3">
+          <div class="splms-teacher-thumb">
+            <img src="<?php echo $this->teacher->image; ?>" class="splms-img-responsive img-thumbnail" alt="<?php echo $this->teacher->title; ?>">
+          </div>
+        </div>
+        <div class="splms-teacher-info-wraper splms-col-sm-8 splms-col-md-9">
+          <h3 class="splms-lesson-teacher-name">
+            <a href="<?php echo $this->teacher->url; ?>">
+            <?php echo $this->teacher->title;?>
+            </a>
+          </h3>
+          <ul class="teachers-details list-unstyled">
+             </ul>
+        </div>
+      </div>
+    </div>
+  <?php } ?>
+  
+  <div class="splms-lesson-completed-lesson-wrapper" data-course-id="<?php echo $this->item->course_id ?? 0; ?>">
+    <?php if($user->guest) { 
+      $link =  base64_encode(Uri::getInstance()->toString());
+      $login_link = Route::_('index.php?option=com_users&view=login'. SplmsHelper::getItemid('login') .'&return=' . $link);
+    ?>
+      <a class="btn btn-primary" href="<?php echo $login_link; ?>">
+        <?php echo Text::_('COM_SPLMS_LOGIN_TO_COMPLETE'); ?>
+      </a>
+    <?php } elseif(!$this->has_complete_lesson) {?>
+      <form id="splms-completed-item-form">
+        <input type="hidden" name="user_id" value="<?php echo $user->id; ?>">
+        <input type="hidden" name="item_id" value="<?php echo $this->item->id; ?>">
+        <input type="hidden" name="course_id" value="<?php echo $this->item->course_id ?? 0; ?>">
+        <input type="hidden" name="item_type" value="lesson">
+        <a class="btn btn-primary" id="splms-completed-item" href="#">
+          <?php echo Text::_('COM_SPLMS_LESSON_COMPLETE'); ?>
+        </a>
+      </form>
+    <?php } else { ?>
+      <a class="btn btn-primary" id="splms-completed-item" href="#">
+        <?php echo Text::_('COM_SPLMS_LESSON_COMPLETED'); ?>
+      </a>
+    <?php } ?>
   </div>
 
 </div>
