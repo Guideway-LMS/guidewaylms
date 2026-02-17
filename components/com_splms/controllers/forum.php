@@ -9,6 +9,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
 
 class SplmsControllerForum extends BaseController
@@ -224,6 +225,52 @@ class SplmsControllerForum extends BaseController
 			echo json_encode(['success' => false, 'message' => 'Erro ao computar voto.']);
 		}
 
+		$app->close();
+	}
+	public function getAnswersAjax()
+	{
+
+		$app = Factory::getApplication();
+		$input = $app->input;
+		$user = Factory::getUser();
+
+		// Set header json
+		$app->mimeType = 'application/json';
+		
+		$questionId = $input->getInt('question_id');
+
+        if (!$questionId) {
+            while (ob_get_level()) { ob_end_clean(); }
+            echo json_encode(['success' => false, 'message' => 'ID da pergunta inválido.']);
+            $app->close();
+        }
+
+		$model = $this->getModel('Forum', 'SplmsModel');
+        if (!$model) {
+             while (ob_get_level()) { ob_end_clean(); }
+             echo json_encode(['success' => false, 'message' => 'Model not found.']);
+             $app->close();
+        }
+
+		$answers = $model->getAnswers($questionId);
+
+		// Format date and other necessary fields for JS
+		if (!empty($answers)) {
+			foreach ($answers as &$answer) {
+				$answer->created_on_formatted = HTMLHelper::_('date', $answer->created_on, 'd/m/Y H:i');
+				$answer->is_owner = ($user->id == $answer->user_id);
+				$answer->is_admin = $user->authorise('core.admin');
+                $answer->author_name = htmlspecialchars($answer->author_name, ENT_QUOTES, 'UTF-8');
+			}
+		}
+
+        // Clean buffer to avoid warnings breaking JSON
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        $json = json_encode(['success' => true, 'answers' => $answers]);
+		echo $json;
 		$app->close();
 	}
 }

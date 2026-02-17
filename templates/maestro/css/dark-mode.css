@@ -790,3 +790,390 @@ html[data-theme="dark"] .sppb-addon-accordion strong,
 html[data-theme="dark"] .faq strong {
     color: #FFFFFF !important;
 }
+
+/* =========================================
+   Doubt Forum Styling (Dark Mode)
+   ========================================= */
+
+/* Container */
+html[data-theme="dark"] .splms-forum-container {
+    color: var(--body-text);
+}
+
+/* Forum Header & Title */
+html[data-theme="dark"] .splms-forum-container h3 {
+    color: #FFFFFF !important;
+}
+
+/* Inputs (Search, Select, etc.) */
+html[data-theme="dark"] .splms-forum-container .form-control,
+html[data-theme="dark"] .splms-forum-container .form-select,
+html[data-theme="dark"] .splms-forum-container input[type="text"],
+html[data-theme="dark"] .splms-forum-container textarea {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .splms-forum-container .form-control::placeholder {
+    color: #aaa;
+}
+
+/* Question & Answer Cards */
+html[data-theme="dark"] .splms-forum-container .card,
+html[data-theme="dark"] .splms-forum-container .question-card,
+html[data-theme="dark"] .splms-forum-container .answer-card {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--card-text) !important;
+}
+
+html[data-theme="dark"] .splms-forum-container .card-header {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: #FFFFFF !important;
+}
+
+html[data-theme="dark"] .splms-forum-container .card-header strong {
+     color: #FFFFFF !important;
+}
+
+/* Titles and Links */
+html[data-theme="dark"] .splms-forum-container .card-title a,
+html[data-theme="dark"] .splms-forum-container h4 a {
+    color: var(--link-color) !important;
+    text-decoration: none;
+}
+html[data-theme="dark"] .splms-forum-container .card-title a:hover,
+html[data-theme="dark"] .splms-forum-container h4 a:hover {
+    text-decoration: underline;
+}
+
+/* Stats (Votes/Answers) */
+html[data-theme="dark"] .splms-forum-container .stat-box {
+    border: 1px solid var(--border-color);
+    background-color: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+html[data-theme="dark"] .splms-forum-container .stat-box .count {
+    color: #FFFFFF !important;
+    font-weight: bold;
+    display: block;
+}
+
+html[data-theme="dark"] .splms-forum-container .stat-box .label {
+    color: #aaa !important;
+    font-size: 0.8em;
+}
+
+/* Highlight "Has Answers" */
+html[data-theme="dark"] .splms-forum-container .stat-box.answers.has-answers {
+    border-color: var(--link-color);
+    background-color: rgba(26, 115, 232, 0.1);
+}
+html[data-theme="dark"] .splms-forum-container .stat-box.answers.has-answers .count {
+    color: var(--link-color) !important;
+}
+
+/* Tags */
+html[data-theme="dark"] .splms-forum-container .badge.bg-info.text-dark {
+    background-color: rgba(23, 162, 184, 0.2) !important; /* Proper transparency */
+    color: #17a2b8 !important; /* Cyan text */
+    border: 1px solid #17a2b8;
+}
+
+/* Solved Badge */
+html[data-theme="dark"] .splms-forum-container .badge.bg-success {
+    background-color: rgba(40, 167, 69, 0.2) !important;
+    color: #28a745 !important;
+    border: 1px solid #28a745;
+}
+
+/* Accepted Answer Border */
+html[data-theme="dark"] .splms-forum-container .answer-card.is-accepted {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.1);
+}
+
+/* Voting Buttons */
+html[data-theme="dark"] .vote-section .vote-btn {
+    color: #666; /* Idle color in dark mode */
+}
+html[data-theme="dark"] .vote-section .vote-btn:hover {
+    color: #aaa;
+}
+html[data-theme="dark"] .vote-section .vote-btn.upvote.active {
+    color: #2ecc71 !important; /* Brighter Green */
+}
+html[data-theme="dark"] .vote-section .vote-btn.downvote.active {
+    color: #e74c3c !important; /* Brighter Red */
+}
+
+/* Editor Specifics (TinyMCE usually creates an iframe with its own body, but simple textareas handled above) */
+/* If using default Joomla editor rendering, we might need to target the iframe container if possible, 
+   but usually that requires JS or editor-specific CSS content_css. 
+   For now, styling the wrapper. */
+
+/* Meta Info (Author, Date) */
+html[data-theme="dark"] .splms-forum-container .text-muted {
+    color: #AAAAAA !important;
+}
+
+html[data-theme="dark"] .splms-forum-container strong {
+    color: #E0E0E0 !important;
+}
+
+/* Back Button */
+html[data-theme="dark"] .splms-forum-container .btn-secondary {
+    background-color: #444;
+    border-color: #555;
+    color: #fff;
+}
+html[data-theme="dark"] .splms-forum-container .btn-outline-secondary {
+    color: #aaa;
+    border-color: #555;
+}
+html[data-theme="dark"] .splms-forum-container .btn-outline-secondary:hover {
+    background-color: #555;
+    color: #fff;
+}
+
+/* User Request: Readable Label for "Título" */
+html[data-theme="dark"] .splms-forum-container label[for="title"],
+html[data-theme="dark"] .splms-forum-container .form-label {
+    color: #FFFFFF !important;
+}
+
+/* Accordion Answers Dark Mode */
+html[data-theme="dark"] .splms-forum-container .answers-accordion .list-group-item {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Override JS inline style */
+    border-color: var(--border-color) !important;
+    color: var(--card-text) !important;
+    margin-bottom: 10px !important;
+    border-radius: 8px !important;
+}
+html[data-theme="dark"] .splms-forum-container .answers-accordion small.text-muted {
+    color: #aaa !important;
+}
+html[data-theme="dark"] .splms-forum-container .answers-accordion .list-group-item.border-success {
+    border-color: #28a745 !important;
+    background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+/* Force View Answers Button to stay Blue and maintain Outline style */
+html[data-theme="dark"] .splms-forum-container .view-answers-btn,
+html[data-theme="dark"] .splms-forum-container .view-answers-btn:visited,
+html[data-theme="dark"] .splms-forum-container .view-answers-btn:active,
+html[data-theme="dark"] .splms-forum-container .view-answers-btn.active,
+html[data-theme="dark"] .splms-forum-container .view-answers-btn:focus {
+    color: var(--link-color) !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .splms-forum-container .view-answers-btn:hover {
+    color: var(--link-color) !important;
+    background-color: transparent !important;
+    border-color: var(--link-color) !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .splms-forum-container .view-answers-btn * {
+    color: inherit !important;
+}
+
+html[data-theme="dark"] .splms-forum-container .view-answers-btn span.badge {
+     background-color: var(--link-color) !important;
+     color: #fff !important; 
+}
+
+html[data-theme="dark"] .splms-forum-container .view-answers-btn span.badge {
+     background-color: var(--link-color) !important;
+     color: #fff !important;
+}
+/* System Alerts / Toasts in Dark Mode */
+html[data-theme="dark"] .alert {
+    border: none !important;
+    color: #fff !important;
+}
+
+html[data-theme="dark"] .alert-success,
+html[data-theme="dark"] .toast-success {
+    background-color: #198754 !important; /* Bootstrap Success Darker */
+}
+
+html[data-theme="dark"] .alert-danger,
+html[data-theme="dark"] .alert-error,
+html[data-theme="dark"] .toast-error,
+html[data-theme="dark"] .toast-danger {
+    background-color: #dc3545 !important; /* Bootstrap Danger */
+}
+
+html[data-theme="dark"] .alert-warning,
+html[data-theme="dark"] .toast-warning {
+    background-color: #ffc107 !important; /* Bootstrap Warning */
+    color: #000 !important; /* Warning usually needs dark text */
+}
+
+html[data-theme="dark"] .alert-info,
+html[data-theme="dark"] .toast-info {
+    background-color: #0dcaf0 !important; /* Bootstrap Info */
+    color: #000 !important;
+}
+
+/* Close button reconstruction for dark mode alerts */
+/* This "remakes" the icon as requested by hiding the original and overlaying a new one */
+html[data-theme="dark"] .alert .btn-close,
+html[data-theme="dark"] .alert .close,
+html[data-theme="dark"] .joomla-alert--close {
+    filter: none !important;
+    background: none !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    position: relative !important;
+    
+    /* Hide the original text/icon */
+    color: transparent !important;
+    text-shadow: none !important;
+}
+
+/* The new black Close Icon */
+html[data-theme="dark"] .alert .btn-close::after,
+html[data-theme="dark"] .alert .close::after,
+html[data-theme="dark"] .joomla-alert--close::after {
+    content: "\00d7" !important; /* standard multiplication sign similar to &times; */
+    font-family: "Arial", sans-serif !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    color: #000000 !important; /* Force Black */
+    
+    /* Center it perfectly */
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    display: block !important;
+    pointer-events: none !important; /* Let clicks pass through to the button */
+}
+
+/* Hover state for the fake icon */
+html[data-theme="dark"] .alert .btn-close:hover::after,
+html[data-theme="dark"] .alert .close:hover::after,
+html[data-theme="dark"] .joomla-alert--close:hover::after,
+html[data-theme="dark"] .joomla-alert--close:focus::after {
+    opacity: 0.75 !important;
+}
+
+/* Force CSS Variables for Joomla Alert Custom Element in Dark Mode (Backup) */
+html[data-theme="dark"] joomla-alert {
+    --jui-alert-button-color-dark: #000 !important;
+    --jui-alert-button-color-light: #fff !important; 
+}
+
+html[data-theme="dark"] .alert .alert-heading,
+html[data-theme="dark"] .alert a {
+    color: inherit !important;
+    text-decoration: underline;
+}
+
+/* TinyMCE (Joomla Editor) Dark Mode Overrides - Stronger Specificity */
+html[data-theme="dark"] .tox.tox-tinymce,
+html[data-theme="dark"] .tox.tox-tinymce-aux {
+    border-color: #444 !important;
+}
+
+/* Toolbar and Header Backgrounds */
+html[data-theme="dark"] .tox .tox-toolbar,
+html[data-theme="dark"] .tox .tox-toolbar__primary,
+html[data-theme="dark"] .tox .tox-toolbar-overlord,
+html[data-theme="dark"] .tox .tox-editor-header,
+html[data-theme="dark"] .tox .tox-menubar {
+    background-color: #2d2d2d !important;
+    background: #2d2d2d !important;
+    border-bottom-color: #444 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Toolbar Buttons */
+html[data-theme="dark"] .tox .tox-tbtn,
+html[data-theme="dark"] .tox .tox-mbtn {
+    color: #e0e0e0 !important;
+    background: transparent !important;
+}
+
+html[data-theme="dark"] .tox .tox-tbtn svg,
+html[data-theme="dark"] .tox .tox-tbtn__icon svg,
+html[data-theme="dark"] .tox .tox-mbtn svg {
+    fill: #e0e0e0 !important;
+}
+
+/* Hover States */
+html[data-theme="dark"] .tox .tox-tbtn:hover,
+html[data-theme="dark"] .tox .tox-mbtn:hover,
+html[data-theme="dark"] .tox .tox-mbtn--active,
+html[data-theme="dark"] .tox .tox-collection__item--active {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+
+html[data-theme="dark"] .tox .tox-tbtn:hover svg,
+html[data-theme="dark"] .tox .tox-mbtn:hover svg {
+    fill: #fff !important;
+}
+
+/* Disabled State */
+html[data-theme="dark"] .tox .tox-tbtn--disabled,
+html[data-theme="dark"] .tox .tox-tbtn--disabled svg {
+    opacity: 0.5 !important;
+}
+
+/* Status Bar */
+html[data-theme="dark"] .tox .tox-statusbar {
+    background-color: #2d2d2d !important;
+    border-top-color: #444 !important;
+    color: #e0e0e0 !important;
+}
+
+html[data-theme="dark"] .tox .tox-statusbar a,
+html[data-theme="dark"] .tox .tox-statusbar__path-item,
+html[data-theme="dark"] .tox .tox-statusbar__wordcount {
+    color: #e0e0e0 !important;
+}
+
+/* Dropdowns and Menus */
+html[data-theme="dark"] .tox-menu,
+html[data-theme="dark"] .tox-pop,
+html[data-theme="dark"] .tox-pop__dialog,
+html[data-theme="dark"] .tox-collection__item {
+    background-color: #2d2d2d !important;
+    border-color: #444 !important;
+    color: #e0e0e0 !important;
+}
+
+html[data-theme="dark"] .tox-collection__item-icon svg {
+    fill: #e0e0e0 !important;
+}
+
+/* Fix text-success visibility in dark mode */
+html[data-theme="dark"] .text-success {
+    color: #2ecc71 !important; /* Lighter green */
+}
+
+/* Ensure alert messages are visible and on top */
+html[data-theme="dark"] .alert-message {
+    color: #212529 !important;
+}
+
+/* Fix System Message Container Z-Index */
+#system-message-container {
+    z-index: 9999 !important;
+}

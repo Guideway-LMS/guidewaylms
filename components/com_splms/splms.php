@@ -15,6 +15,9 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route; 
 
+// DEBUG LOGGING
+file_put_contents(JPATH_COMPONENT . '/debug_log.txt', date('Y-m-d H:i:s') . " - SPLMS Entry - Request: " . print_r($_REQUEST, true) . "\n", FILE_APPEND);
+
 // ============================================================================
 // 🔒 BLOQUEIO DE SEGURANÇA INTELIGENTE (GUIDEWAY LMS)
 // ============================================================================
@@ -74,7 +77,43 @@ if (file_exists($languageFilePath))
     require_once $languageFilePath;
 }
 
-$controller = BaseController::getInstance('Splms');
+// Load Main Controller (Parent Class) first
+require_once JPATH_COMPONENT . '/controller.php';
+
+// ROUTING FIX FOR SUB-CONTROLLERS (e.g. Forum AJAX)
+// ----------------------------------------------------------------------------
 $input = Factory::getApplication()->input;
-$controller->execute($input->getCmd('task'));
+$task = $input->getCmd('task');
+$controllerName = 'Splms';
+
+if (!empty($task) && strpos($task, '.') !== false) {
+    list($controllerName, $taskMethod) = explode('.', $task, 2);
+}
+
+// Convert to Class Name format (e.g., forum -> Forum)
+$controllerName = ucfirst($controllerName);
+
+if ($controllerName != 'Splms') {
+    $path = JPATH_COMPONENT . '/controllers/' . strtolower($controllerName) . '.php';
+    if (file_exists($path)) {
+        require_once $path;
+        $className = 'SplmsController' . $controllerName;
+        
+        if (class_exists($className)) {
+            $controller = new $className();
+        } else {
+             $controller = BaseController::getInstance('Splms');
+        }
+    } else {
+        $controller = BaseController::getInstance('Splms');
+    }
+} else {
+    $controller = BaseController::getInstance('Splms');
+}
+
+if (isset($taskMethod) && !empty($taskMethod)) {
+    $controller->execute($taskMethod);
+} else {
+    $controller->execute($task);
+}
 $controller->redirect();

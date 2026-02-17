@@ -215,6 +215,16 @@ h1, h2, h3, h4, h5, h6, p, span, a, li {
     font-size: 1.1em;
     color: #1a73e8;
 }
-.guideway-course-section {
-    margin-bottom: 70px;
+
+/* Forum Answers Styling (Light Mode / Default) */
+.splms-forum-container .answers-accordion .list-group-item {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #e5e5e5);
+}
+
+/* Ensure Votes and Answers text is visible in Light Mode */
+.splms-forum-container .stat-box .count,
+.splms-forum-container .stat-box .label {
+    color: var(--body-text, #2D3437) !important;
 }

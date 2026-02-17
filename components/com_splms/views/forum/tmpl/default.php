@@ -21,7 +21,7 @@ use Joomla\CMS\Uri\Uri;
 
 <div class="splms-forum-container">
 	<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-		<h3 class="mb-0">Comunidade do Curso</h3>
+
 		
 		<form action="<?php echo Route::_('index.php?option=com_splms&view=forum&course_id=' . $this->courseId); ?>" method="get" class="d-flex mt-2 mt-md-0">
             <input type="hidden" name="option" value="com_splms" />
@@ -55,8 +55,7 @@ use Joomla\CMS\Uri\Uri;
                         <input type="text" class="form-control" id="title" name="title" required placeholder="Qual é sua dúvida?">
                     </div>
                     <div class="mb-3">
-                        <label for="body" class="form-label">Detalhes</label>
-                        <label for="body" class="form-label">Detalhes</label>
+                        <label for="body" class="form-label">Descrição</label>
                         <?php echo \Joomla\CMS\Editor\Editor::getInstance(Factory::getConfig()->get('editor'))->display('body', '', '100%', '300', '60', '20', false); ?>
                     </div>
                     <div class="mb-3">
@@ -132,6 +131,27 @@ use Joomla\CMS\Uri\Uri;
 								Por <?php echo $this->escape((string) $item->author_name); ?> 
                                 em <?php echo HTMLHelper::_('date', (string) $item->created_on, 'd/m/Y H:i'); ?>
 							</p>
+
+                            <!-- Accordion Trigger -->
+                            <?php if ($item->total_answers > 0): ?>
+                                <button class="btn btn-sm btn-outline-primary mt-2 toggle-answers view-answers-btn" 
+                                        type="button" 
+                                        data-question-id="<?php echo $item->id; ?>"
+                                        onclick="toggleAnswers(<?php echo $item->id; ?>, this)">
+                                    <i class="fa fa-comments-o"></i> Ver <?php echo $item->total_answers; ?> Respostas
+                                </button>
+                                
+                                <div id="answers-container-<?php echo $item->id; ?>" class="answers-accordion mt-3" style="display: none;">
+                                    <div class="answers-content">
+                                        <!-- Loading Spinner -->
+                                        <div class="text-center p-3 loading-spinner">
+                                            <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <span class="text-muted small mt-2 d-inline-block">Sem respostas ainda.</span>
+                            <?php endif; ?>
 						</div>
 					</div>
 				</div>
@@ -144,3 +164,77 @@ use Joomla\CMS\Uri\Uri;
 	    <?php echo $this->pagination->getPagesLinks(); ?>
 	</div>
 </div>
+
+<script>
+function toggleAnswers(questionId, btn) {
+    const container = document.getElementById('answers-container-' + questionId);
+    if (!container) return;
+
+    // Get count from data attribute or extract from text if not set
+    let count = btn.getAttribute('data-count');
+    if (!count) {
+        count = btn.innerText.replace(/[^0-9]/g, '');
+        if (count) {
+            btn.setAttribute('data-count', count);
+        }
+    }
+    // Default to empty if still no count, but usually it should represent a number
+    const countText = count ? ' ' + count : '';
+
+    // Toggle visibility
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        btn.innerHTML = `<i class="fa fa-chevron-up"></i> Ocultar${countText} Respostas`;
+        
+        // Load content if empty or just spinner
+        const contentDiv = container.querySelector('.answers-content');
+        if (contentDiv.querySelector('.loading-spinner') || contentDiv.innerHTML.trim() === '') {
+            loadAnswers(questionId, contentDiv);
+        }
+    } else {
+        container.style.display = 'none';
+        btn.innerHTML = `<i class="fa fa-comments-o"></i> Ver${countText} Respostas`;
+    }
+}
+
+function loadAnswers(questionId, container) {
+    const url = '<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_splms&task=forum.getAnswersAjax&question_id=' + questionId;
+    
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.answers && data.answers.length > 0) {
+                let html = '<div class="list-group list-group-flush">';
+                data.answers.forEach(answer => {
+                    const isAccepted = answer.is_accepted == 1 ? 'border-success' : '';
+                    const acceptedBadge = answer.is_accepted == 1 ? '<span class="badge bg-success mb-2"><i class="fa fa-check"></i> Solução</span>' : '';
+                    const bgStyle = 'background-color: rgba(0,0,0,0.02);'; 
+                    
+                    html += `
+                        <div class="list-group-item ${isAccepted}" style="${bgStyle}">
+                            ${acceptedBadge}
+                            <div class="d-flex w-100 justify-content-between">
+                                <small class="text-muted">
+                                    <strong>${answer.author_name}</strong> em ${answer.created_on_formatted}
+                                </small>
+                            </div>
+                            <div class="mt-2 mb-1">${answer.body}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<p class="text-muted p-3">Nenhuma resposta encontrada.</p>';
+            }
+        } else {
+            container.innerHTML = '<p class="text-danger p-3">Erro ao carregar respostas.</p>';
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        container.innerHTML = '<p class="text-danger p-3">Erro de conexão.</p>';
+    });
+}
+</script>
