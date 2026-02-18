@@ -7,8 +7,8 @@
 */
 
 
-// No Direct Access
-defined ('_JEXEC') or die('Resticted Aceess');
+// Sem Acesso Direto
+defined ('_JEXEC') or die('Acesso Restrito');
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -24,33 +24,33 @@ class SplmsViewQuizquestion extends HtmlView{
 	protected $params;
 
 	function display($tpl = null) {
-		// Assign data to the view
+		// Atribuir dados à view
 		$this->item 	= $this->get('Item');
 		$app 			= Factory::getApplication();
 		$this->params 	= $app->getParams();
 		$menus 			= Factory::getApplication()->getMenu();
 		$menu 			= $menus->getActive();
 
-		// Import Joomla component helper
-		//get Component Params
+		// Importar helper do componente Joomla
+		// Obter parâmetros do componente
 		$this->lmsParams = ComponentHelper::getParams('com_splms');
-		// Load Lessons model
+		// Carregar model de Lições
 		BaseDatabaseModel::addIncludePath(JPATH_SITE.'/components/com_splms/models');
 
-		// Check for errors.
+		// Verificar erros.
 		if (count($errors = $this->get('Errors'))) {
 			throw new \Exception(implode("\n", $errors), 500);
 			return false;
 		}
 
-		// Load courses & lesson Model
+		// Carregar Models de cursos e lições
 		$quiz_model  	= BaseDatabaseModel::getInstance( 'Quizquestions', 'SplmsModel' );
 		$courses_model 	= BaseDatabaseModel::getInstance( 'Courses', 'SplmsModel' );
 		
-		// Get login user ID
+		// Obter ID do usuário logado
 		$user = Factory::getUser();
 		$userId = $user->id;
-		// guest doensn't access
+		// Visitante não tem acesso
 		if($user->guest) {
 			echo '<p class="alert alert-danger">' . Text::_('COM_SPLMS_QUIZ_LOGIN') . '</p>';
 			return;	
@@ -58,7 +58,7 @@ class SplmsViewQuizquestion extends HtmlView{
 
 		$this->isAuthorised = $courses_model->getIsbuycourse($userId, $this->item->course_id);
 		$this->courese  	= $courses_model->getCourse($this->item->course_id);
-		// check authorised or free quiz
+		// Verificar autorização ou quiz gratuito
 		if(!$this->isAuthorised && $this->item->quiz_type > 0) {
 			$output  = '<div class="alert alert-warning">';
 			$output .= '<p>' . Text::_('COM_SPLMS_QUIZ_NOT_PREMITTED') .'</p>';
@@ -69,7 +69,7 @@ class SplmsViewQuizquestion extends HtmlView{
 			return;	
 		}
 
-		//if already given quiz
+		// Se o quiz já foi realizado
 		$db = Factory::getDbo();
 		$this->quiz_results = $quiz_model->getQuizById( $user->id, $this->item->id );
 		if(!empty($this->quiz_results)) {
@@ -77,7 +77,7 @@ class SplmsViewQuizquestion extends HtmlView{
 			$qrTotal = (int)$this->quiz_results->total_marks;
 			$qrPercent = ($qrTotal > 0) ? round(($qrPoint / $qrTotal) * 100) : 0;
 			
-			// Get passing score from lesson if available
+			// Obter nota de corte da lição, se disponível
 			$lessonId = $app->input->getInt('lesson_id', 0);
 			$qrPassingScore = 0;
 			if ($lessonId > 0) {
@@ -88,13 +88,27 @@ class SplmsViewQuizquestion extends HtmlView{
 				$db->setQuery($psQuery);
 				$qrPassingScore = (int)$db->loadResult();
 			}
-			$qrPassed = ($qrPassingScore <= 0 || $qrPercent >= $qrPassingScore);
+			// Fallback: buscar pelo quiz_id
+			if ($qrPassingScore <= 0 && !empty($this->item->id)) {
+				$psQuery2 = $db->getQuery(true)
+					->select('passing_score')
+					->from('#__splms_lessons')
+					->where('quiz_id = ' . (int)$this->item->id)
+					->where('published = 1');
+				$db->setQuery($psQuery2, 0, 1);
+				$qrPassingScore = (int)$db->loadResult();
+			}
+			// Default: 70%
+			if ($qrPassingScore <= 0) {
+				$qrPassingScore = 70;
+			}
+			$qrPassed = ($qrPercent >= $qrPassingScore);
 			$qrColor = $qrPassed ? '#22c55e' : '#ef4444';
 			$qrIcon = $qrPassed ? 'fa-check-circle' : 'fa-times-circle';
 			$qrTitle = $qrPassed ? 'Quiz Concluído com Sucesso!' : 'Nota Insuficiente';
 			$qrMessage = $qrPassed ? 'Parabéns! Você completou este quiz.' : 'Você não atingiu a nota mínima de ' . $qrPassingScore . '%.';
 			
-			// Course back URL
+			// URL de retorno ao curso
 			$courseUrl = !empty($this->courese->url) ? $this->courese->url : Uri::root();
 			
 			$doc = Factory::getDocument();
@@ -160,11 +174,13 @@ class SplmsViewQuizquestion extends HtmlView{
 		
 		<!-- Quiz Questions -->
 		<?php
-		// GUIDEWAY CUSTOM: Get Passing Score for JS Logic
+		// GUIDEWAY CUSTOM: Obter Nota de Corte para Lógica JS
 		$lessonId = $app->input->getInt('lesson_id', 0);
 		$jsPassingScore = 0;
+		$db = Factory::getDbo();
+		
+		// 1. Buscar pelo lesson_id
 		if ($lessonId > 0) {
-			$db = Factory::getDbo();
 			$psQuery = $db->getQuery(true)
 				->select('passing_score')
 				->from('#__splms_lessons')
@@ -172,11 +188,27 @@ class SplmsViewQuizquestion extends HtmlView{
 			$db->setQuery($psQuery);
 			$jsPassingScore = (int)$db->loadResult();
 		}
+		
+		// 2. Fallback: buscar pelo quiz_id
+		if ($jsPassingScore <= 0 && !empty($this->item->id)) {
+			$psQuery2 = $db->getQuery(true)
+				->select('passing_score')
+				->from('#__splms_lessons')
+				->where('quiz_id = ' . (int)$this->item->id)
+				->where('published = 1');
+			$db->setQuery($psQuery2, 0, 1);
+			$jsPassingScore = (int)$db->loadResult();
+		}
+		
+		// 3. Padrão: 70% se nada configurado
+		if ($jsPassingScore <= 0) {
+			$jsPassingScore = 70;
+		}
 		?>
 
 		
 		<?php
-		// GUIDEWAY CUSTOM: CSS for JS Result Card
+		// GUIDEWAY CUSTOM: CSS para Card de Resultado JS
 		$doc = Factory::getDocument();
 		$doc->addStyleDeclaration('
 			.quiz-result-card {
@@ -209,7 +241,7 @@ class SplmsViewQuizquestion extends HtmlView{
 			(function() {
 				"use strict";
 			
-			// GUIDEWAY CUSTOM: Passing Score from PHP
+			// GUIDEWAY CUSTOM: Nota de Corte vinda do PHP
 			var passingScore = <?php echo $jsPassingScore; ?>;
 
 			$(".startQuiz").click(function(){
@@ -238,11 +270,11 @@ class SplmsViewQuizquestion extends HtmlView{
 
 			$(document).ready(function () {
 
-			    // Display the first question
+			    // Exibir a primeira pergunta
 			    displayCurrentQuestion();
 			    $(this).find(".quizMessage").hide();
 
-			    // On clicking next, display the next question
+			    // Ao clicar em próximo, exibir a próxima pergunta
 			    $(this).find(".nextButton").on("click", function () {
 			        if (!quizOver) {
 
@@ -259,12 +291,12 @@ class SplmsViewQuizquestion extends HtmlView{
 			                    correctAnswers++;
 			                }
 
-			                currentQuestion++; // Since we have already displayed the first question on DOM ready
+			                currentQuestion++; // Já exibimos a primeira pergunta no DOM ready
 			                if (currentQuestion < questions.length) {
 			                    displayCurrentQuestion();
 			                } else {
 			                	insertScore();
-			                    // Change the text in the next button to ask if user wants to play again
+			                    // Alterar o botão para perguntar se o usuário quer jogar novamente
 			                    $('.countdown-wrapper').hide();
 			                    $(".quizContainer .nextButton").hide();
 			                    //$(".quizContainer .nextButton").text("Start Again?");
@@ -299,10 +331,10 @@ class SplmsViewQuizquestion extends HtmlView{
 			    $(document).find(".quizContainer .ques-ans-wrapper").show();
 				$('.countdown-wrapper').show();
 
-			    // Set the questionClass text to the current question
+			    // Definir o texto da pergunta atual
 			    $(questionClass).text(question);
 
-			    // Remove all current <li> elements (if any)
+			    // Remover todos os elementos <li> atuais (se houver)
 			    $(choiceList).find("li").remove();
 
 			    var choice;
@@ -325,8 +357,8 @@ class SplmsViewQuizquestion extends HtmlView{
 			    
 			    var percentage = Math.round((correctAnswers / questions.length) * 100);
 			    
-			    // GUIDEWAY CUSTOM: Pass/Fail Logic
-			    var passed = (passingScore <= 0) || (percentage >= passingScore);
+			    // GUIDEWAY CUSTOM: Lógica de Aprovação/Reprovação
+			    var passed = (percentage >= passingScore);
 			    
 			    var color = passed ? '#22c55e' : '#ef4444'; 
 			    var secondaryColor = passed ? '#e2e8f0' : '#fee2e2';
@@ -389,10 +421,10 @@ class SplmsViewQuizquestion extends HtmlView{
 					}
 				});
 
-			}) // END:: onclick start countdown
+			}) // FIM:: onclick iniciar contagem regressiva
 
 
-			//Ajax inserir dados do formulário
+			// Ajax inserir dados do formulário
 			function insertScore() {
 				jQuery(function($) {
 
@@ -409,7 +441,7 @@ class SplmsViewQuizquestion extends HtmlView{
 				            	user_id: <?php echo $userId; ?>,
 				            	quiz_id: <?php echo $this->item->id; ?>,
 				            	course_id: <?php echo $this->item->course_id; ?>,
-                                lesson_id: <?php echo $app->input->getInt('lesson_id', 0); ?>, // GUIDEWAY CUSTOM: Pass Lesson ID
+                                lesson_id: <?php echo $app->input->getInt('lesson_id', 0); ?>, // GUIDEWAY CUSTOM: Passar ID da Lição
 				            	total_marks: questions.length,
 				            	q_result: correctAnswers,
 				            }
@@ -449,7 +481,7 @@ class SplmsViewQuizquestion extends HtmlView{
 			</script>
 		<?php 
 
-		//Generate Item Meta
+		// Gerar Metadados do Item
         $itemMeta               = array();
         $itemMeta['title']      = $this->item->title;
         $cleanText              = $this->item->description;

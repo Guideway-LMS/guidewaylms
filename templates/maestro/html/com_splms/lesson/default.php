@@ -5,7 +5,7 @@
  * @copyright Copyright (c) 2010 - 2024 JoomShaper
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
  */
-// No Direct Access
+// Sem Acesso Direto
 defined('_JEXEC') or die('Restricted Access');
 
 use Joomla\CMS\Uri\Uri;
@@ -308,15 +308,15 @@ window.SPLMS_CONTEXT = {
 
         <?php else : ?>
             <?php 
-            // GUIDEWAY CUSTOM: Check if this is a Quiz lesson
+            // GUIDEWAY CUSTOM: Verificar se é uma lição do tipo Quiz
             $isQuizLesson = (isset($this->item->lesson_format) && $this->item->lesson_format === 'quiz' && !empty($this->item->quiz_id));
             ?>
             <?php if ($isQuizLesson) : ?>
                 <?php 
-                // Build Quiz URL
+                // Construir URL do Quiz
                 $quizUrl = Route::_('index.php?option=com_splms&view=quizquestion&id=' . (int)$this->item->quiz_id . '&course_id=' . (int)$this->item->course_id . '&lesson_id=' . (int)$this->item->id . SplmsHelper::getItemid('courses'));
                 
-                // GUIDEWAY CUSTOM: Query actual quiz result from DB
+                // GUIDEWAY CUSTOM: Buscar resultado real do quiz no BD
                 $quizResult = null;
                 if ($userId > 0) {
                     $qrQuery = $db->getQuery(true)
@@ -334,8 +334,8 @@ window.SPLMS_CONTEXT = {
                 $quizScore = $hasTakenQuiz ? (int)$quizResult->point : 0;
                 $quizTotal = $hasTakenQuiz ? (int)$quizResult->total_marks : 0;
                 $quizPercent = ($quizTotal > 0) ? round(($quizScore / $quizTotal) * 100) : 0;
-                $passingScore = !empty($this->item->passing_score) ? (int)$this->item->passing_score : 0;
-                $quizPassed = $hasTakenQuiz && ($passingScore <= 0 || $quizPercent >= $passingScore);
+                $passingScore = !empty($this->item->passing_score) ? (int)$this->item->passing_score : 70;
+                $quizPassed = $hasTakenQuiz && ($quizPercent >= $passingScore);
                 ?>
                 <div style="margin-bottom: 25px;">
                     <h2 style="font-weight: 700; color: #1e293b; margin: 0; font-size: 28px;">
@@ -447,7 +447,7 @@ window.SPLMS_CONTEXT = {
 
   <div class="splms-lesson-completed-lesson-wrapper" <?php if (isset($this->item->course_id)) : ?> data-course-id="<?php echo (int) $this->item->course_id; ?>" <?php endif; ?> >
     <?php 
-    // GUIDEWAY CUSTOM: Hide manual complete button for quiz and assignment lessons
+    // GUIDEWAY CUSTOM: Ocultar botão de conclusão manual para lições de quiz e atividades
     $isQuizLessonBottom = (isset($this->item->lesson_format) && $this->item->lesson_format === 'quiz' && !empty($this->item->quiz_id));
     if (!$isAssignment && !$isQuizLessonBottom) : 
     ?>
