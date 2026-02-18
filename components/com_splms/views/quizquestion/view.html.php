@@ -70,9 +70,72 @@ class SplmsViewQuizquestion extends HtmlView{
 		}
 
 		//if already given quiz
+		$db = Factory::getDbo();
 		$this->quiz_results = $quiz_model->getQuizById( $user->id, $this->item->id );
 		if(!empty($this->quiz_results)) {
-			echo '<p class="alert alert-danger">' . Text::_('COM_SPLMS_ALREADY_GIVEN_QUIZ') . '</p>';
+			$qrPoint = (int)$this->quiz_results->point;
+			$qrTotal = (int)$this->quiz_results->total_marks;
+			$qrPercent = ($qrTotal > 0) ? round(($qrPoint / $qrTotal) * 100) : 0;
+			
+			// Get passing score from lesson if available
+			$lessonId = $app->input->getInt('lesson_id', 0);
+			$qrPassingScore = 0;
+			if ($lessonId > 0) {
+				$psQuery = $db->getQuery(true)
+					->select('passing_score')
+					->from('#__splms_lessons')
+					->where('id = ' . $lessonId);
+				$db->setQuery($psQuery);
+				$qrPassingScore = (int)$db->loadResult();
+			}
+			$qrPassed = ($qrPassingScore <= 0 || $qrPercent >= $qrPassingScore);
+			$qrColor = $qrPassed ? '#22c55e' : '#ef4444';
+			$qrIcon = $qrPassed ? 'fa-check-circle' : 'fa-times-circle';
+			$qrTitle = $qrPassed ? 'Quiz Concluído com Sucesso!' : 'Nota Insuficiente';
+			$qrMessage = $qrPassed ? 'Parabéns! Você completou este quiz.' : 'Você não atingiu a nota mínima de ' . $qrPassingScore . '%.';
+			
+			// Course back URL
+			$courseUrl = !empty($this->courese->url) ? $this->courese->url : Uri::root();
+			
+			$doc = Factory::getDocument();
+			$doc->addStyleDeclaration('
+				.quiz-completed-card {
+					max-width: 600px; margin: 60px auto; text-align: center; padding: 50px 40px;
+					background: #fff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+					border: 1px solid #f0f0f0;
+				}
+				.quiz-completed-icon { font-size: 56px; display: block; margin-bottom: 15px; }
+				.quiz-completed-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+				.quiz-completed-score { font-size: 4rem; font-weight: 800; margin: 20px 0; line-height: 1; }
+				.quiz-completed-detail { color: #64748b; font-size: 16px; margin-bottom: 5px; }
+				.quiz-completed-message { color: #94a3b8; font-size: 14px; margin-top: 15px; }
+				.quiz-completed-actions { margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+				.quiz-btn-back { padding: 14px 35px; border-radius: 10px; font-weight: 700; font-size: 16px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+				.quiz-btn-back:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-decoration: none; }
+				.quiz-btn-primary { background: #3b82f6; color: #fff; border: none; }
+				.quiz-btn-primary:hover { background: #2563eb; color: #fff; }
+				.quiz-btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+				.quiz-btn-secondary:hover { background: #e2e8f0; color: #334155; }
+				.quiz-score-bar-track { width: 80%; max-width: 300px; height: 10px; background: #e2e8f0; border-radius: 5px; margin: 10px auto; overflow: hidden; }
+				.quiz-score-bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+			');
+			
+			echo '<div id="splms" class="splms view-splms-quiz">';
+			echo '<div class="quiz-completed-card">';
+			echo '  <i class="fa ' . $qrIcon . ' quiz-completed-icon" style="color: ' . $qrColor . ';"></i>';
+			echo '  <h3 class="quiz-completed-title" style="color: ' . $qrColor . ';">' . $qrTitle . '</h3>';
+			echo '  <div class="quiz-completed-score" style="color: ' . $qrColor . ';">' . $qrPercent . '%</div>';
+			echo '  <div class="quiz-score-bar-track"><div class="quiz-score-bar-fill" style="width: ' . $qrPercent . '%; background: ' . $qrColor . ';"></div></div>';
+			echo '  <p class="quiz-completed-detail">Acertos: <strong>' . $qrPoint . '</strong> de <strong>' . $qrTotal . '</strong></p>';
+			if ($qrPassingScore > 0) {
+				echo '  <p class="quiz-completed-detail" style="font-size: 14px;">Nota mínima: <strong style="color: #f59e0b;">' . $qrPassingScore . '%</strong></p>';
+			}
+			echo '  <p class="quiz-completed-message">' . $qrMessage . '</p>';
+			echo '  <div class="quiz-completed-actions">';
+			echo '    <a href="' . $courseUrl . '" class="quiz-btn-back quiz-btn-primary"><i class="fa fa-arrow-left"></i> Voltar ao Curso</a>';
+			echo '  </div>';
+			echo '</div>';
+			echo '</div>';
 			return;	
 		}
 
@@ -96,6 +159,48 @@ class SplmsViewQuizquestion extends HtmlView{
 		?>
 		
 		<!-- Quiz Questions -->
+		<?php
+		// GUIDEWAY CUSTOM: Get Passing Score for JS Logic
+		$lessonId = $app->input->getInt('lesson_id', 0);
+		$jsPassingScore = 0;
+		if ($lessonId > 0) {
+			$db = Factory::getDbo();
+			$psQuery = $db->getQuery(true)
+				->select('passing_score')
+				->from('#__splms_lessons')
+				->where('id = ' . (int)$lessonId);
+			$db->setQuery($psQuery);
+			$jsPassingScore = (int)$db->loadResult();
+		}
+		?>
+
+		
+		<?php
+		// GUIDEWAY CUSTOM: CSS for JS Result Card
+		$doc = Factory::getDocument();
+		$doc->addStyleDeclaration('
+			.quiz-result-card {
+				text-align: center; padding: 40px; background: #fff; border-radius: 20px;
+				box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid #f0f0f0;
+				max-width: 500px; margin: 40px auto;
+			}
+			.circular-progress {
+				position: relative; height: 160px; width: 160px; border-radius: 50%;
+				display: grid; place-items: center; margin: 0 auto 25px auto;
+			}
+			.circular-progress:before {
+				content: ""; position: absolute; height: 84%; width: 84%;
+				background-color: #ffffff; border-radius: 50%;
+			}
+			.inner-circle { position: relative; font-family: sans-serif; }
+			.score-percent { font-size: 3rem; font-weight: 800; display: block; line-height: 1; margin-bottom: 5px; }
+			.score-fraction { font-size: 0.9rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+			.result-submessage { color: #64748b; margin-bottom: 25px; font-size: 15px; }
+			.btn-restart { padding: 12px 30px; border-radius: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 14px; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2); transition: transform 0.2s; }
+			.btn-restart:hover { transform: translateY(-2px); box-shadow: 0 6px 8px rgba(59, 130, 246, 0.3); }
+		');
+		?>
+
 		<script type="text/javascript">
 
 			jQuery(function($) {
@@ -103,6 +208,9 @@ class SplmsViewQuizquestion extends HtmlView{
 			// IIFE para encapsular variáveis e evitar poluição do escopo global
 			(function() {
 				"use strict";
+			
+			// GUIDEWAY CUSTOM: Passing Score from PHP
+			var passingScore = <?php echo $jsPassingScore; ?>;
 
 			$(".startQuiz").click(function(){
 				$(document).find(".quizContainer").show();
@@ -216,19 +324,31 @@ class SplmsViewQuizquestion extends HtmlView{
 				$(document).find(".before-start-quiz").hide();
 			    
 			    var percentage = Math.round((correctAnswers / questions.length) * 100);
-			    var message = percentage >= 70 ? "Excelente!" : "Bom esforço!";
-			    var subMessage = percentage >= 70 ? "Você domina este assunto." : "Continue estudando para melhorar";
+			    
+			    // GUIDEWAY CUSTOM: Pass/Fail Logic
+			    var passed = (passingScore <= 0) || (percentage >= passingScore);
+			    
+			    var color = passed ? '#22c55e' : '#ef4444'; 
+			    var secondaryColor = passed ? '#e2e8f0' : '#fee2e2';
+			    
+			    var message = passed ? "Excelente!" : "Nota Insuficiente";
+			    var subMessage = passed 
+			        ? "Você domina este assunto." 
+			        : "Você não atingiu a nota mínima de " + passingScore + "%.";
+			    
+			    var btnText = passed ? "Voltar ao Curso" : "Tentar Novamente";
+			    var btnAction = passed ? 'href="<?php echo $this->courese->url; ?>"' : 'href="javascript:location.reload(true)"';
 			    
 			    var html = '<div class="quiz-result-card" role="alert" aria-live="polite">' +
-			               '<div class="circular-progress" style="background: conic-gradient(#3b82f6 ' + percentage + '%, #e2e8f0 ' + percentage + '%);">' +
+			               '<div class="circular-progress" style="background: conic-gradient(' + color + ' ' + percentage + '%, ' + secondaryColor + ' ' + percentage + '%);">' +
 			                   '<div class="inner-circle">' +
-			                       '<span class="score-percent">' + percentage + '%</span>' +
+			                       '<span class="score-percent" style="color: ' + color + ';">' + percentage + '%</span>' +
 			                       '<span class="score-fraction">Acertos: ' + correctAnswers + ' de ' + questions.length + '</span>' +
 			                   '</div>' +
 			               '</div>' +
-			               '<h3>' + message + '</h3>' +
+			               '<h3 style="color: ' + color + ';">' + message + '</h3>' +
 			               '<p class="result-submessage">' + subMessage + '</p>' +
-			               '<a class="btn btn-primary btn-lg btn-restart" href="<?php echo $this->courese->url; ?>">Voltar ao Curso</a>' +
+			               '<a class="btn btn-primary btn-lg btn-restart" ' + btnAction + '>' + btnText + '</a>' +
 			               '</div>';
 
 			    $(document).find(".lms-result-wrapper .result").html(html);

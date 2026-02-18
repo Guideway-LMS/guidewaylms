@@ -307,18 +307,107 @@ window.SPLMS_CONTEXT = {
             </div>
 
         <?php else : ?>
-            <?php if (!empty($this->item->video_url)) { ?>
-              <div class="lesson-video"><?php echo LayoutHelper::render('player', array('video' => $this->item->video_url, 'thumbnail' => $this->item->vdo_thumb)); ?></div>
-            <?php } elseif ($this->item->vdo_thumb) { ?>
-              <div class="lesson-thumbnail"><img class="splms-img-responsive" src="<?php echo $this->item->vdo_thumb; ?>" alt="<?php echo $this->item->title; ?>"></div>
-            <?php } ?>
-            <div class="splms-lesson-description item-content" style="margin-top: 20px;">
-              <h2><?php echo $this->item->title; ?></h2>
-              <div class="splms-lesson-description"><?php echo $this->item->description; ?></div>
-            </div>
-            <?php if (isset($this->item->attachment) && $this->item->attachment) { ?>
-              <div class="item-content splms-lesson-attachment-wrapper"><a class="btn btn-default attachment-button" target="_blank" href="<?php echo Uri::root() . $this->item->attachment; ?>"><?php echo Text::_('COM_SPLMS_LESSON_DOWNLOAD_ATTACHMENT') ?></a></div>
-            <?php } ?>
+            <?php 
+            // GUIDEWAY CUSTOM: Check if this is a Quiz lesson
+            $isQuizLesson = (isset($this->item->lesson_format) && $this->item->lesson_format === 'quiz' && !empty($this->item->quiz_id));
+            ?>
+            <?php if ($isQuizLesson) : ?>
+                <?php 
+                // Build Quiz URL
+                $quizUrl = Route::_('index.php?option=com_splms&view=quizquestion&id=' . (int)$this->item->quiz_id . '&course_id=' . (int)$this->item->course_id . '&lesson_id=' . (int)$this->item->id . SplmsHelper::getItemid('courses'));
+                
+                // GUIDEWAY CUSTOM: Query actual quiz result from DB
+                $quizResult = null;
+                if ($userId > 0) {
+                    $qrQuery = $db->getQuery(true)
+                        ->select('point, total_marks')
+                        ->from('#__splms_quizresults')
+                        ->where('user_id = ' . $userId)
+                        ->where('quizquestion_id = ' . (int)$this->item->quiz_id)
+                        ->where('published = 1')
+                        ->order('id DESC');
+                    $db->setQuery($qrQuery, 0, 1);
+                    $quizResult = $db->loadObject();
+                }
+                
+                $hasTakenQuiz = !empty($quizResult);
+                $quizScore = $hasTakenQuiz ? (int)$quizResult->point : 0;
+                $quizTotal = $hasTakenQuiz ? (int)$quizResult->total_marks : 0;
+                $quizPercent = ($quizTotal > 0) ? round(($quizScore / $quizTotal) * 100) : 0;
+                $passingScore = !empty($this->item->passing_score) ? (int)$this->item->passing_score : 0;
+                $quizPassed = $hasTakenQuiz && ($passingScore <= 0 || $quizPercent >= $passingScore);
+                ?>
+                <div style="margin-bottom: 25px;">
+                    <h2 style="font-weight: 700; color: #1e293b; margin: 0; font-size: 28px;">
+                        <i class="fa fa-question-circle" style="color: #3b82f6; margin-right: 10px;"></i> Quiz
+                    </h2>
+                    <p style="color: #64748b; font-size: 16px; margin-top: 5px;">Responda o quiz para concluir esta etapa.</p>
+                </div>
+
+                <div class="upload-card" style="text-align: center;">
+                    <?php if ($hasTakenQuiz && $quizPassed) : ?>
+                        <!-- APROVADO -->
+                        <i class="fa fa-check-circle" style="font-size: 48px; color: #22c55e; display: block; margin-bottom: 15px;"></i>
+                        <h3 style="font-size: 22px; font-weight: 700; color: #22c55e; margin-bottom: 10px;">Quiz Concluído!</h3>
+                        <div style="font-size: 3rem; font-weight: 800; color: #22c55e; margin: 15px 0;">
+                            <?php echo $quizPercent; ?>%
+                        </div>
+                        <p style="color: #64748b;">Acertos: <strong><?php echo $quizScore; ?></strong> de <strong><?php echo $quizTotal; ?></strong></p>
+                        <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 12px 30px; border-radius: 8px; font-weight: 600;">
+                            <i class="fa fa-refresh"></i> Refazer Quiz
+                        </a>
+
+                    <?php elseif ($hasTakenQuiz && !$quizPassed) : ?>
+                        <!-- REPROVADO -->
+                        <i class="fa fa-times-circle" style="font-size: 48px; color: #ef4444; display: block; margin-bottom: 15px;"></i>
+                        <h3 style="font-size: 22px; font-weight: 700; color: #ef4444; margin-bottom: 10px;">Nota Insuficiente</h3>
+                        <div style="font-size: 3rem; font-weight: 800; color: #ef4444; margin: 15px 0;">
+                            <?php echo $quizPercent; ?>%
+                        </div>
+                        <p style="color: #64748b;">Acertos: <strong><?php echo $quizScore; ?></strong> de <strong><?php echo $quizTotal; ?></strong></p>
+                        <?php if ($passingScore > 0) : ?>
+                            <p style="color: #f59e0b; font-weight: 600;">Nota mínima: <?php echo $passingScore; ?>%</p>
+                        <?php endif; ?>
+                        <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: 700; background: #f59e0b; border: none; display: inline-flex; align-items: center; gap: 10px;">
+                            <i class="fa fa-refresh"></i> Tentar Novamente
+                        </a>
+
+                    <?php else : ?>
+                        <!-- NÃO FEZ AINDA -->
+                        <i class="fa fa-pencil-square-o" style="font-size: 48px; color: #3b82f6; display: block; margin-bottom: 15px;"></i>
+                        <h3 style="font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">Pronto para o Quiz?</h3>
+                        <?php if ($passingScore > 0) : ?>
+                            <p style="color: #64748b; margin-bottom: 5px;">
+                                Nota mínima para aprovação: <strong style="color: #f59e0b;"><?php echo $passingScore; ?>%</strong>
+                            </p>
+                        <?php endif; ?>
+                        <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 20px; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: 700; background: #3b82f6; border: none; display: inline-flex; align-items: center; gap: 10px;">
+                            <i class="fa fa-play-circle"></i> Iniciar Quiz
+                        </a>
+                    <?php endif; ?>
+                </div>
+
+                <?php if (!empty($this->item->description)) : ?>
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <h5 style="font-weight: 700; color: #555; font-size: 16px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Sobre este Quiz:</h5>
+                    <div class="splms-lesson-description" style="color: #666; font-size: 14px; line-height: 1.6;"><?php echo $this->item->description; ?></div>
+                </div>
+                <?php endif; ?>
+
+            <?php else : ?>
+                <?php if (!empty($this->item->video_url)) { ?>
+                  <div class="lesson-video"><?php echo LayoutHelper::render('player', array('video' => $this->item->video_url, 'thumbnail' => $this->item->vdo_thumb)); ?></div>
+                <?php } elseif ($this->item->vdo_thumb) { ?>
+                  <div class="lesson-thumbnail"><img class="splms-img-responsive" src="<?php echo $this->item->vdo_thumb; ?>" alt="<?php echo $this->item->title; ?>"></div>
+                <?php } ?>
+                <div class="splms-lesson-description item-content" style="margin-top: 20px;">
+                  <h2><?php echo $this->item->title; ?></h2>
+                  <div class="splms-lesson-description"><?php echo $this->item->description; ?></div>
+                </div>
+                <?php if (isset($this->item->attachment) && $this->item->attachment) { ?>
+                  <div class="item-content splms-lesson-attachment-wrapper"><a class="btn btn-default attachment-button" target="_blank" href="<?php echo Uri::root() . $this->item->attachment; ?>"><?php echo Text::_('COM_SPLMS_LESSON_DOWNLOAD_ATTACHMENT') ?></a></div>
+                <?php } ?>
+            <?php endif; ?>
 
         <?php endif; ?>
 
@@ -357,7 +446,11 @@ window.SPLMS_CONTEXT = {
   </div>
 
   <div class="splms-lesson-completed-lesson-wrapper" <?php if (isset($this->item->course_id)) : ?> data-course-id="<?php echo (int) $this->item->course_id; ?>" <?php endif; ?> >
-    <?php if (!$isAssignment) : ?>
+    <?php 
+    // GUIDEWAY CUSTOM: Hide manual complete button for quiz and assignment lessons
+    $isQuizLessonBottom = (isset($this->item->lesson_format) && $this->item->lesson_format === 'quiz' && !empty($this->item->quiz_id));
+    if (!$isAssignment && !$isQuizLessonBottom) : 
+    ?>
         <?php if ($this->user->guest) { $link =  base64_encode(Uri::getInstance()->toString()); $login_link = Route::_('index.php?option=com_users&view=login' . SplmsHelper::getItemid('login') . '&return=' . $link); ?>
           <a class="btn btn-primary" href="<?php echo $login_link; ?>"><?php echo Text::_('COM_SPLMS_LOGIN_TO_COMPLETE'); ?></a>
         <?php } elseif (!$this->has_complete_lesson) { ?>
