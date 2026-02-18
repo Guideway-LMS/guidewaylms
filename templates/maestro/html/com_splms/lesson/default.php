@@ -74,6 +74,7 @@ if ($userId && !empty($this->item->course_id)) {
 $this->lessonStates = $lessonStates;
 
 $doc->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
+$doc->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-complete-handler.js');
 $doc->addScript(Uri::root() . 'media/gw-progress-alert/js/alerta-conclusao.js');
 $doc->addStyleSheet(Uri::root() . 'media/gw-progress-alert/css/alerta-conclusao.css');
 $doc->addScript(Uri::root() . 'components/com_splms/assets/js/lesson-complete-handler.js');

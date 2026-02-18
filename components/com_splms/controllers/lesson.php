@@ -28,6 +28,7 @@ class SplmsControllerLesson extends FormController {
 
         // 1. DADOS CRÍTICOS
         $lesson_id = $input->getInt('lesson_id');
+	$course_id = $input->getInt('course_id');
         $itemId    = $input->getInt('Itemid');
 
         // 2. MONTAGEM DA URL DE RETORNO (Blindada)
@@ -64,7 +65,7 @@ class SplmsControllerLesson extends FormController {
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         
         // GUIDEWAY CUSTOM - Anonimização com random_bytes
-        $hash = bin2hex(random_bytes(20));
+        $hash = bin2hex(random_bytes(8)); // 16 caracteres (já está em 8, ok)
         $newFileName = $hash . '.' . $ext;
         
         $targetPath = $uploadDir . $newFileName;
@@ -84,13 +85,14 @@ class SplmsControllerLesson extends FormController {
             $table = Table::getInstance('Submission', 'SplmsTable');
             
             $data = [
-                'user_id' => $user->id,
-                'lesson_id' => $lesson_id,
-                'file_path' => $dbPath,
-                'original_filename' => $originalFileName, // GUIDEWAY CUSTOM
-                'status' => 0,
-                'submitted_at' => Factory::getDate()->toSql()
-            ];
+    'user_id' => $user->id,
+    'lesson_id' => $lesson_id,
+    'course_id' => $course_id,
+    'file_path' => $dbPath,
+    'original_filename' => $originalFileName,
+    'status' => 0,
+    'submitted_at' => Factory::getDate()->toSql()
+];
             
             if (!$table->bind($data) || !$table->store()) {
                 throw new Exception($table->getError());
