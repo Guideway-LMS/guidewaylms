@@ -5,6 +5,14 @@
  * Interface unificada com abas para separar Testes e Documentação
  */
 
+// Bootstrap do Joomla (necessário para Factory::getDbo na aba Quiz)
+define('_JEXEC', 1);
+define('JPATH_BASE', dirname(__DIR__));
+require_once JPATH_BASE . '/includes/defines.php';
+require_once JPATH_BASE . '/includes/framework.php';
+
+use Joomla\CMS\Factory;
+
 $readmePath = __DIR__ . '/README.md';
 $markdown = file_exists($readmePath) ? file_get_contents($readmePath) : '';
 
@@ -89,6 +97,7 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
         .card.ai { border-left: 3px solid #ed8936; }
         .card.db { border-left: 3px solid #4299e1; }
         .card.doc { border-left: 3px solid #9f7aea; }
+        .card.quiz { border-left: 3px solid #f59e0b; }
         
         /* Documentation content */
         .doc-content { background: #16213e; border-radius: 12px; padding: 30px; border: 1px solid #0f3460; }
@@ -118,6 +127,7 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
         <div class="tab active" onclick="showTab('tests')">🧪 Testes</div>
         <div class="tab" onclick="showTab('docs')">📚 Documentação</div>
         <div class="tab" onclick="showTab('status')">📊 Status</div>
+        <div class="tab" onclick="showTab('quiz')">🎓 Quiz</div>
         <div class="tab" onclick="showTab('project')">📖 Sobre o Projeto</div>
     </div>
 
@@ -230,6 +240,193 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
             </div>
         </div>
 
+        <!-- TAB: Quiz Integration -->
+        <div id="tab-quiz" class="tab-content">
+            <?php
+            // Lógica de migração
+            $migrationColumns = [
+                'lesson_format' => ['type' => "VARCHAR(30) NOT NULL DEFAULT 'content'", 'desc' => 'Tipo de lição: content, quiz, assignment'],
+                'quiz_id'       => ['type' => 'INT(11) NOT NULL DEFAULT 0', 'desc' => 'ID do quiz vinculado à lição'],
+                'passing_score' => ['type' => 'INT(11) NOT NULL DEFAULT 0', 'desc' => 'Nota de corte personalizada (%)'],
+                'is_optional'   => ['type' => 'TINYINT(1) NOT NULL DEFAULT 0', 'desc' => 'Se a lição é opcional no progresso'],
+            ];
+
+            $db = Factory::getDbo();
+            $existingColumns = $db->getTableColumns('#__splms_lessons');
+            $migrationResults = [];
+
+            // Processar migração se solicitado
+            if (isset($_POST['run_quiz_migration'])) {
+                foreach ($migrationColumns as $colName => $colInfo) {
+                    if (array_key_exists($colName, $existingColumns)) {
+                        $migrationResults[$colName] = ['status' => 'skip', 'msg' => 'Já existe'];
+                    } else {
+                        try {
+                            $sql = 'ALTER TABLE ' . $db->quoteName('#__splms_lessons') . ' ADD COLUMN ' . $db->quoteName($colName) . ' ' . $colInfo['type'];
+                            $db->setQuery($sql);
+                            $db->execute();
+                            $migrationResults[$colName] = ['status' => 'ok', 'msg' => 'Criada com sucesso'];
+                        } catch (Exception $e) {
+                            $migrationResults[$colName] = ['status' => 'error', 'msg' => $e->getMessage()];
+                        }
+                    }
+                }
+                // Recarregar colunas
+                $existingColumns = $db->getTableColumns('#__splms_lessons');
+            }
+            ?>
+
+            <!-- Seção A: Migração -->
+            <div class="info-box">
+                <h4>🗄️ Migração de Banco de Dados</h4>
+                <p>Colunas necessárias na tabela <code>#__splms_lessons</code> para as funcionalidades de Quiz.</p>
+            </div>
+
+            <div class="doc-content" style="margin-bottom: 30px;">
+                <h2 style="color: #f59e0b; margin-top: 0;">Status das Colunas</h2>
+                <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr style="border-bottom: 2px solid #0f3460;">
+                        <th style="padding: 12px; text-align: left; color: #f59e0b;">Coluna</th>
+                        <th style="padding: 12px; text-align: left; color: #f59e0b;">Tipo</th>
+                        <th style="padding: 12px; text-align: left; color: #f59e0b;">Descrição</th>
+                        <th style="padding: 12px; text-align: center; color: #f59e0b;">Status</th>
+                    </tr>
+                    <?php foreach ($migrationColumns as $colName => $colInfo) : 
+                        $exists = array_key_exists($colName, $existingColumns);
+                        $icon = $exists ? '✅' : '❌';
+                        $rowBg = $exists ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)';
+                    ?>
+                    <tr style="border-bottom: 1px solid #0f3460; background: <?php echo $rowBg; ?>;">
+                        <td style="padding: 10px; font-weight: 700;"><code><?php echo $colName; ?></code></td>
+                        <td style="padding: 10px; font-size: 13px; color: #a0aec0;"><code><?php echo $colInfo['type']; ?></code></td>
+                        <td style="padding: 10px; font-size: 13px; color: #a0aec0;"><?php echo $colInfo['desc']; ?></td>
+                        <td style="padding: 10px; text-align: center; font-size: 20px;"><?php echo $icon; ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+
+                <?php if (!empty($migrationResults)) : ?>
+                <div style="background: #0a0a15; border-radius: 8px; padding: 15px; margin: 15px 0;">
+                    <h4 style="color: #48bb78; margin-bottom: 10px;">📋 Resultado da Migração</h4>
+                    <?php foreach ($migrationResults as $col => $res) : 
+                        $color = $res['status'] === 'ok' ? '#22c55e' : ($res['status'] === 'skip' ? '#f59e0b' : '#ef4444');
+                        $icon = $res['status'] === 'ok' ? '✅' : ($res['status'] === 'skip' ? '⏭️' : '❌');
+                    ?>
+                    <p style="color: <?php echo $color; ?>; margin: 5px 0;">
+                        <?php echo $icon; ?> <code><?php echo $col; ?></code> — <?php echo htmlspecialchars($res['msg']); ?>
+                    </p>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+
+                <?php 
+                $allExist = true;
+                foreach ($migrationColumns as $colName => $colInfo) {
+                    if (!array_key_exists($colName, $existingColumns)) { $allExist = false; break; }
+                }
+                ?>
+
+                <?php if ($allExist) : ?>
+                <div style="background: rgba(34,197,94,0.15); border: 1px solid #22c55e; border-radius: 8px; padding: 15px; text-align: center;">
+                    <p style="color: #22c55e; font-weight: 700; font-size: 16px;">✅ Todas as colunas já existem. Nenhuma migração necessária.</p>
+                </div>
+                <?php else : ?>
+                <form method="POST" style="text-align: center; margin-top: 20px;">
+                    <input type="hidden" name="run_quiz_migration" value="1">
+                    <button type="submit" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; padding: 14px 40px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(245,158,11,0.3);">
+                        🚀 Aplicar Migração
+                    </button>
+                    <p style="color: #a0aec0; font-size: 12px; margin-top: 10px;">Apenas as colunas faltantes serão adicionadas.</p>
+                </form>
+                <?php endif; ?>
+            </div>
+
+            <!-- Seção B: Documentação -->
+            <div class="info-box">
+                <h4>📖 Documentação da Implementação</h4>
+                <p>Resumo técnico dos arquivos modificados e funções chave da integração Quiz → Progresso.</p>
+            </div>
+
+            <div class="doc-content">
+                <h2 style="color: #f59e0b; margin-top: 0;">Arquivos Modificados</h2>
+                <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr style="border-bottom: 2px solid #0f3460;">
+                        <th style="padding: 10px; text-align: left; color: #4299e1;">Arquivo</th>
+                        <th style="padding: 10px; text-align: left; color: #4299e1;">Função</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>views/quizquestion/view.html.php</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">View do quiz: resultado colorido (verde/vermelho), CSS, lógica de nota de corte</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>layouts/course/content.php</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">Badges "★ Obrigatório" / "● Opcional" na lista de aulas</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>templates/maestro/.../lesson/default.php</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">Seção Quiz na página de lição, botão "Iniciar Quiz", status de resultado</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>controllers/quizquestions.php</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">Salva resultado do quiz e marca lição como concluída automaticamente</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>models/course.php</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">Filtra lições opcionais do cálculo de progresso do curso</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>models/forms/lesson.xml</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">Campos admin: lesson_format, quiz_id, passing_score, is_optional</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>admin/models/quizquestion.php</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">Criação automática de lição ao salvar quiz no admin</td>
+                    </tr>
+                </table>
+
+                <h2 style="color: #f59e0b;">Funções Chave</h2>
+                <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr style="border-bottom: 2px solid #0f3460;">
+                        <th style="padding: 10px; text-align: left; color: #48bb78;">Função</th>
+                        <th style="padding: 10px; text-align: left; color: #48bb78;">Arquivo</th>
+                        <th style="padding: 10px; text-align: left; color: #48bb78;">Propósito</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>displayScore()</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">view.html.php (JS)</td>
+                        <td style="padding: 10px; color: #a0aec0;">Exibe resultado com cores verde/vermelha baseado na nota de corte</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>insertScore()</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">view.html.php (JS)</td>
+                        <td style="padding: 10px; color: #a0aec0;">Envia resultado via AJAX para o backend</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>submit_result()</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">controllers/quizquestions.php</td>
+                        <td style="padding: 10px; color: #a0aec0;">Salva no BD e marca lição como concluída se aprovado</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #0f3460;">
+                        <td style="padding: 10px;"><code>getCourseLessons()</code></td>
+                        <td style="padding: 10px; color: #a0aec0;">models/course.php</td>
+                        <td style="padding: 10px; color: #a0aec0;">Filtra lições opcionais do cálculo de progresso</td>
+                    </tr>
+                </table>
+
+                <h2 style="color: #f59e0b;">Fluxo de Funcionamento</h2>
+                <div style="background: #0a0a15; border-radius: 8px; padding: 20px; margin: 15px 0; font-family: monospace; font-size: 13px; color: #a0aec0; line-height: 1.8;">
+                    <span style="color: #4299e1;">1.</span> Admin cria Quiz → Lição criada automaticamente com <code>lesson_format='quiz'</code><br>
+                    <span style="color: #4299e1;">2.</span> Aluno acessa Lição → Vê botão "Iniciar Quiz" + nota de corte<br>
+                    <span style="color: #4299e1;">3.</span> Aluno responde questões → JS calcula acertos<br>
+                    <span style="color: #4299e1;">4.</span> <code>insertScore()</code> envia resultado via AJAX → <code>submit_result()</code><br>
+                    <span style="color: #4299e1;">5.</span> Backend salva em <code>#__splms_quizresults</code><br>
+                    <span style="color: #4299e1;">6.</span> Se aprovado → marca lição como concluída em <code>#__splms_lesson_completed</code><br>
+                    <span style="color: #4299e1;">7.</span> <code>displayScore()</code> mostra resultado: <span style="color: #22c55e;">verde</span> (aprovado) ou <span style="color: #ef4444;">vermelho</span> (reprovado)<br>
+                    <span style="color: #4299e1;">8.</span> Progresso do curso recalculado filtrando lições opcionais
+                </div>
+            </div>
+        </div>
+
         <!-- TAB: Sobre o Projeto -->
         <div id="tab-project" class="tab-content">
             <div class="doc-content">
@@ -300,7 +497,7 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
             document.getElementById('tab-' + tabName).classList.add('active');
             
             // Highlight tab button
-            const tabIndex = {'tests': 0, 'docs': 1, 'status': 2, 'project': 3, 'readme': 1, 'composer': 1}[tabName];
+            const tabIndex = {'tests': 0, 'docs': 1, 'status': 2, 'quiz': 3, 'project': 4, 'readme': 1, 'composer': 1}[tabName];
             if (document.querySelectorAll('.tab')[tabIndex]) {
                 document.querySelectorAll('.tab')[tabIndex].classList.add('active');
             }
