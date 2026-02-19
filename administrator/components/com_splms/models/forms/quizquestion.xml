@@ -36,15 +36,43 @@
  		/>
 
  		<field name="course_id"
-	     	type="sql"
-	     	translate="false"
-	     	query="SELECT id,title title FROM #__splms_courses WHERE published = 1"
-	     	key_field="id"
-	     	label="COM_SPLMS_FIELD_COURSE"
-	     	value_field="title"
+	     	type="courselist"
+	     	default=""
+	     	label="COM_SPLMS_LESSON_FIELD_SELECT_COURSE"
+	     	description="COM_SPLMS_LESSON_FIELD_SELECT_COURSE_DESC"
+	     	topicid="topic_id"
 	     	required="true"
-			layout="joomla.form.field.list-fancy-select"
      	/>
+
+        <!-- GUIDEWAY CUSTOM: Topic Selection for Auto-Lesson Creation -->
+        <field 
+            name="topic_id" 
+            type="lessontopics" 
+            default="" 
+            label="COM_SPLMS_LESSON_FIELD_SELECT_TOPIC" 
+            description="Selecione o Tópico para criar automaticamente a lição." 
+            required="false" 
+        />
+        
+        <field 
+            name="passing_score" 
+            type="number" 
+            label="Nota de Corte da Aula" 
+            description="Se deixar em branco, usa o padrão global." 
+            min="0" 
+            max="100" 
+        />
+
+        <field 
+            name="is_optional" 
+            type="radio" 
+            label="Lição Opcional?" 
+            class="btn-group btn-group-yesno" 
+            default="0"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
 
  		<field name="description" type="editor"
  			class="inputbox span6"

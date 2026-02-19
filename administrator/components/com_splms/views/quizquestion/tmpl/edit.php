@@ -34,6 +34,52 @@ $doc->addScript(Uri::base(true) . '/components/com_splms/assets/js/guideway_ai.j
 // Script for "Create Description" (Chat/PDF)
 $doc->addScript(Uri::base(true) . '/components/com_splms/assets/js/guideway_ai_chat.js');
 
+// GUIDEWAY CUSTOM: Script para carregar tópicos dinamicamente (Portado de Lesson View)
+$doc->addScriptDeclaration("
+jQuery(document).ready(function($) {
+    // Quando o curso muda
+    $('#jform_course_id').on('change', function() {
+        var courseId = $(this).val();
+        var topicSelect = $('#jform_topic_id');
+        
+        // Limpar opções atuais
+        topicSelect.empty();
+        topicSelect.append('<option value=\"\">' + Joomla.JText._('COM_SPLMS_LESSON_FIELD_SELECT_TOPIC', '- Selecionar Tópico -') + '</option>');
+        
+        // Resetar Chosen/Select2
+        topicSelect.trigger('chosen:updated');
+        topicSelect.trigger('liszt:updated');
+        
+        if (courseId) {
+            // Fazer chamada AJAX para obter tópicos do curso
+            $.ajax({
+                url: 'index.php?option=com_splms&task=lesson.getTopics',
+                data: { course_id: courseId },
+                dataType: 'json',
+                success: function(data) {
+                    if (data && data.length > 0) {
+                        $.each(data, function(i, item) {
+                            topicSelect.append('<option value=\"' + item.id + '\">' + item.title + '</option>');
+                        });
+                    }
+                    // Atualizar UI
+                    topicSelect.trigger('chosen:updated');
+                    topicSelect.trigger('liszt:updated');
+                },
+                error: function(xhr, status, error) {
+                     console.error('Erro ao carregar tópicos:', error);
+                }
+            });
+        }
+    });
+
+    // Disparar change inicial caso esteja editando (e já tenha curso selecionado), 
+    // MAS cuidado para não limpar o tópico já selecionado. 
+    // O Joomla geralmente renderiza o tópico selecionado no HTML server-side.
+    // Então só precisamos do listener para MUDANÇAS.
+});
+");
+
 $rowClass = SplmsHelper::getJoomlaVersion() < 4 ? 'row-fluid' : 'row';
 $colClass = SplmsHelper::getJoomlaVersion() < 4 ? 'span' : 'col-lg-';
 

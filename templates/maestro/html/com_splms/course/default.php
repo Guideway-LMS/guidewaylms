@@ -174,6 +174,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 					</div>
 
 		<!-- Has quiz -->
+		<?php /* GUIDEWAY CUSTOM: Removed Legacy Quiz Logic (Now integrated into Lessons)
 		<?php if (!empty($this->quizzes) && count($this->quizzes) && $this->quizzes) { ?>
 			<div class="splms-course-quizzes guideway-course-section">
 				<h3><i class="fa fa-pencil-square-o guideway-icon" aria-hidden="true"></i><?php echo Text::_('COM_SPLMS_QUIZ'); ?></h3>
@@ -197,6 +198,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 				</ul>
 			</div>
 		<?php } ?>
+		*/ ?>
 		<!-- END::  quiz -->
 
 

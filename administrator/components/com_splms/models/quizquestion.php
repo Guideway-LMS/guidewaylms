@@ -109,11 +109,85 @@ class SplmsModelQuizquestion extends AdminModel {
 		}
 
 		if (parent::save($data)) {
+			
+			// GUIDEWAY CUSTOM: Auto-Create/Update Lesson
+			$quizId = (int)$this->getState($this->getName() . '.id');
+			$topicId = isset($data['topic_id']) ? (int)$data['topic_id'] : 0;
+
+			if ($quizId > 0 && $topicId > 0) {
+				$this->createOrUpdateLesson($quizId, $data);
+			}
+
 			return true;
 		}
 
 		return false;
 	}
+
+	/**
+	 * Creates or Updates a Lesson "wrapper" for the Quiz.
+	 */
+	protected function createOrUpdateLesson($quizId, $data) {
+		
+		// Load Lesson Table
+		$lessonTable = Table::getInstance('Lesson', 'SplmsTable');
+		
+		// Check if a lesson already exists for this quiz
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select('id')
+			->from('#__splms_lessons')
+			->where('quiz_id = ' . (int)$quizId)
+			->where('lesson_format = ' . $db->quote('quiz'));
+		$db->setQuery($query);
+		$existingId = (int)$db->loadResult();
+
+		if ($existingId) {
+			$lessonTable->load($existingId);
+		} else {
+			// New Lesson Defaults
+			$lessonTable->lesson_format = 'quiz';
+			$lessonTable->quiz_id = $quizId;
+			$lessonTable->published = 1;
+			$lessonTable->created = Factory::getDate()->toSql();
+			$lessonTable->created_by = Factory::getUser()->id;
+			$lessonTable->lesson_type = isset($data['quiz_type']) ? $data['quiz_type'] : 1;
+			
+			// Generate unique alias
+			if (Factory::getConfig()->get('unicodeslugs') == 1) {
+				$lessonTable->alias = OutputFilter::stringURLUnicodeSlug($data['title']) . '-quiz';
+			} else {
+				$lessonTable->alias = OutputFilter::stringURLSafe($data['title']) . '-quiz';
+			}
+		}
+
+		// Sync Fields
+		$lessonTable->title = $data['title'];
+		$lessonTable->course_id = isset($data['course_id']) ? $data['course_id'] : 0;
+		$lessonTable->topic_id = isset($data['topic_id']) ? $data['topic_id'] : 0;
+		$lessonTable->description = isset($data['description']) ? $data['description'] : '';
+		
+		// Set Defaults for required fields to avoid SQL errors
+		if (empty($lessonTable->vdo_thumb)) $lessonTable->vdo_thumb = '';
+		if (empty($lessonTable->video_url)) $lessonTable->video_url = '';
+		if (empty($lessonTable->attachment)) $lessonTable->attachment = '';
+
+		// GUIDEWAY CUSTOM: Sync New Fields
+		$lessonTable->passing_score = isset($data['passing_score']) ? $data['passing_score'] : null;
+		$lessonTable->is_optional = isset($data['is_optional']) ? $data['is_optional'] : 0;
+
+		// Attempt to Save
+		try {
+			if ($lessonTable->store()) {
+				Factory::getApplication()->enqueueMessage('Lição vinculada ao Quiz criada/atualizada com sucesso!', 'message');
+			} else {
+				Factory::getApplication()->enqueueMessage('Erro ao salvar Lição Automática: ' . $lessonTable->getError(), 'error');
+			}
+		} catch (Exception $e) {
+			Factory::getApplication()->enqueueMessage('Aviso: Não foi possível sincronizar a Lição automaticamente. ' . $e->getMessage(), 'warning');
+		}
+	}
+
 
 	/**
 	* Method to check if it's OK to delete a message. Overwrites JModelAdmin::canDelete
