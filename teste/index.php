@@ -124,16 +124,16 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
     </div>
 
     <div class="tabs">
-        <div class="tab active" onclick="showTab('tests')">🧪 Testes</div>
+        <div class="tab" onclick="showTab('tests')">🧪 Testes</div>
         <div class="tab" onclick="showTab('docs')">📚 Documentação</div>
         <div class="tab" onclick="showTab('status')">📊 Status</div>
-        <div class="tab" onclick="showTab('quiz')">🎓 Quiz</div>
+        <div class="tab active" onclick="showTab('quiz')">🎓 Quiz</div>
         <div class="tab" onclick="showTab('project')">📖 Sobre o Projeto</div>
     </div>
 
     <div class="content">
         <!-- TAB: Testes -->
-        <div id="tab-tests" class="tab-content active">
+        <div id="tab-tests" class="tab-content">
             <div class="info-box">
                 <h4>ℹ️ Ambiente de Testes</h4>
                 <p>Scripts de verificação e debug para desenvolvimento. Não usar em produção.</p>
@@ -241,7 +241,7 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
         </div>
 
         <!-- TAB: Quiz Integration -->
-        <div id="tab-quiz" class="tab-content">
+        <div id="tab-quiz" class="tab-content active">
             <?php
             // Lógica de migração
             $migrationColumns = [

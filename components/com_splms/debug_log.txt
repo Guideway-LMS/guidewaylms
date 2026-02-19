@@ -471,3 +471,110 @@
     [question_id] => 1
 )
 
+2026-02-19 17:49:34 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-19 17:50:12 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 1:introduction
+)
+
+2026-02-19 17:50:14 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-19 17:50:19 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 7:introduction2
+)
+
+2026-02-19 17:50:19 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 7:introduction2
+)
+
+2026-02-19 17:50:20 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-19 17:50:27 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 9:easier-with-a-solid-foundation-the-core-principles2
+)
+
+2026-02-19 17:50:28 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-19 17:50:42 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 42:quiz-teste-biologia-quiz
+)
+
+2026-02-19 17:50:43 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-19 17:50:48 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 43:quiz-opcional-teste-quiz
+)
+
+2026-02-19 17:50:49 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-19 17:50:58 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 11:project-documentation2
+)
+
+2026-02-19 17:50:59 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-19 17:51:04 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => lesson.completeditem
+    [item_id] => 11
+    [item_type] => lesson
+    [courseId] => 1
+)
+
+2026-02-19 17:51:04 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => lesson.completeditem
+    [user_id] => 1
+    [item_id] => 11
+    [item_type] => lesson
+    [course_id] => 1
+)
+
