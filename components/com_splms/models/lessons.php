@@ -149,6 +149,10 @@ class SplmsModelLessons extends ListModel {
 	    $db->setQuery($query);
 		$db->execute();
 
+		 // 👇 NOVO: verificar conclusão de curso ERICK 21-02
+    	if ($item_type !== 'course') {
+        	$this->checkCourseCompletion($item_id, $user_id);
+    	}
 		return true;
 	}
 
@@ -166,6 +170,40 @@ class SplmsModelLessons extends ListModel {
 		$result = $db->loadResult();
 
 		return $result;
+	}
+	//Checa se tiver curso ta com 100%   ERICK 21-02
+	private function checkCourseCompletion($lesson_id, $user_id)
+	{
+    $courseId = $this->getCourseIdFromLesson($lesson_id);
+
+    if (!$courseId) {
+        return;
+ 		}
+
+    // Instancia o CourseModel
+    $courseModel = \Joomla\CMS\MVC\Model\BaseDatabaseModel::getInstance('Course', 'SplmsModel');
+
+    $progress = $courseModel->getCourseProgress($courseId, $user_id);
+
+    if ($progress >= 100 && !self::hasCompleted($courseId, $user_id, 'course')) {
+        $this->completedItem($courseId, 'course', $user_id);
+   	 }
+	}
+	
+	private function getCourseIdFromLesson($lesson_id)
+	{
+    $db = Factory::getDbo();
+    $query = $db->getQuery(true);
+
+    $query->select($db->quoteName('course_id'))
+          ->from($db->quoteName('#__splms_lessons'))
+          ->where($db->quoteName('id') . ' = ' . (int) $lesson_id);
+
+    $db->setQuery($query);
+
+    $courseId = $db->loadResult();
+
+    return $courseId ? (int) $courseId : null;
 	}
 
 	// **** Attachment Upload system **** //
