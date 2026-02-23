@@ -43,14 +43,14 @@ list($content, $price, $isAuthorised, $active) = $contents;
             
             if (isset($content->is_optional) && $content->is_optional == 1) {
                 $badgeText = '● Opcional';
-                $badgeStyle = 'background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;';
+                $badgeClass = 'guideway-badge-optional';
             } elseif (isset($content->lesson_format) && ($content->lesson_format == 'quiz' || $content->lesson_format == 'assignment')) {
                  $badgeText = '★ Obrigatório';
-                 $badgeStyle = 'background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5;';
+                 $badgeClass = 'guideway-badge-required';
             }
             
             if ($badgeText) {
-                echo '<span class="pull-right" style="' . $badgeStyle . ' margin-left: 10px; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.3px; white-space: nowrap;">' . $badgeText . '</span>';
+                echo '<span class="pull-right ' . $badgeClass . '">' . $badgeText . '</span>';
             }
             ?>
         <?php endif;?>

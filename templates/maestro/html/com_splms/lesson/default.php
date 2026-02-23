@@ -303,8 +303,8 @@ window.SPLMS_CONTEXT = {
             </div>
 
             <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
-                <h5 style="font-weight: 700; color: #555; font-size: 16px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Sobre esta atividade:</h5>
-                <div class="splms-lesson-description" style="color: #666; font-size: 14px; line-height: 1.6;"><?php echo $this->item->description; ?></div>
+                <h5 style="font-weight: 700; font-size: 16px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Sobre esta atividade:</h5>
+                <div class="splms-lesson-description" style="font-size: 14px; line-height: 1.6;"><?php echo $this->item->description; ?></div>
             </div>
 
         <?php else : ?>
@@ -339,10 +339,10 @@ window.SPLMS_CONTEXT = {
                 $quizPassed = $hasTakenQuiz && ($quizPercent >= $passingScore);
                 ?>
                 <div style="margin-bottom: 25px;">
-                    <h2 style="font-weight: 700; color: #1e293b; margin: 0; font-size: 28px;">
+                    <h2 class="quiz-section-title" style="font-weight: 700; margin: 0; font-size: 28px;">
                         <i class="fa fa-question-circle" style="color: #3b82f6; margin-right: 10px;"></i> Quiz
                     </h2>
-                    <p style="color: #64748b; font-size: 16px; margin-top: 5px;">Responda o quiz para concluir esta etapa.</p>
+                    <p class="quiz-section-desc" style="font-size: 16px; margin-top: 5px;">Responda o quiz para concluir esta etapa.</p>
                 </div>
 
                 <div class="upload-card" style="text-align: center;">

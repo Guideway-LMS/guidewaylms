@@ -578,3 +578,185 @@
     [course_id] => 1
 )
 
+2026-02-19 18:40:04 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-19 18:40:07 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-19 18:40:15 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+)
+
+2026-02-19 18:40:27 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+)
+
+2026-02-19 18:40:41 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-19 18:57:06 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+)
+
+2026-02-19 19:09:52 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+)
+
+2026-02-19 19:09:56 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-19 19:10:00 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-19 19:10:04 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 5
+    [lesson_id] => 42
+)
+
+2026-02-19 19:10:07 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+)
+
+2026-02-19 19:10:23 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+)
+
+2026-02-19 19:10:41 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 5
+    [lesson_id] => 42
+)
+
+2026-02-19 19:10:51 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-19 19:10:54 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+)
+
+2026-02-19 19:11:12 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+    [option] => com_splms
+    [controller] => quizquestions
+    [task] => quizquestions.submit_result
+    [data] => Array
+        (
+            [user_id] => 1
+            [quiz_id] => 6
+            [course_id] => 1
+            [lesson_id] => 43
+            [total_marks] => 5
+            [q_result] => 2
+        )
+
+)
+
+2026-02-19 20:34:46 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 6
+    [lesson_id] => 43
+)
+
+2026-02-19 20:34:50 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-19 20:34:54 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 5
+    [lesson_id] => 42
+)
+
+2026-02-19 20:34:56 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-23 18:25:09 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-23 18:25:42 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-23 18:25:54 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 1:introduction
+)
+
+2026-02-23 18:25:54 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-23 18:26:07 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => lesson.completeditem
+)
+
+2026-02-23 18:26:13 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 7:introduction2
+)
+
+2026-02-23 18:26:13 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-23 18:26:22 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 43:quiz-opcional-teste-quiz
+)
+
+2026-02-23 18:26:22 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+

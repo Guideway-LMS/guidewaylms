@@ -224,7 +224,30 @@ h1, h2, h3, h4, h5, h6, p, span, a, li {
 }
 
 /* Ensure Votes and Answers text is visible in Light Mode */
-.splms-forum-container .stat-box .count,
-.splms-forum-container .stat-box .label {
-    color: var(--body-text, #2D3437) !important;
+
+/* --- Badge Styles (Base/Light Mode) --- */
+.guideway-badge-optional {
+    background: #e0f2fe; 
+    color: #0369a1; 
+    border: 1px solid #7dd3fc;
+    margin-left: 10px; 
+    font-size: 12px; 
+    font-weight: 700; 
+    padding: 4px 12px; 
+    border-radius: 20px; 
+    letter-spacing: 0.3px; 
+    white-space: nowrap;
+}
+
+.guideway-badge-required {
+    background: #fef2f2; 
+    color: #dc2626; 
+    border: 1px solid #fca5a5;
+    margin-left: 10px; 
+    font-size: 12px; 
+    font-weight: 700; 
+    padding: 4px 12px; 
+    border-radius: 20px; 
+    letter-spacing: 0.3px; 
+    white-space: nowrap;
 }
