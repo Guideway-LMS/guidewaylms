@@ -190,10 +190,10 @@ $composerGuideHtml = convertMarkdownToHTML($composerGuideMarkdown);
 
             <h2 class="section-title">⚙️ DevOps & Infraestrutura</h2>
             <div class="cards-grid">
-                <a href="dump_manager.php" class="card devops">
-                    <div class="card-icon">📦</div>
-                    <h3>Gerenciador de Dumps</h3>
-                    <p>Gerar e baixar backups do banco</p>
+                <a href="database.php" class="card devops">
+                    <div class="card-icon">🗄️</div>
+                    <h3>Database Sync & Dumps</h3>
+                    <p>Schema Checker, Updates e Dumps</p>
                 </a>
             </div>
         </div>
