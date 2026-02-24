@@ -209,15 +209,33 @@ function loadAnswers(questionId, container) {
                 data.answers.forEach(answer => {
                     const isAccepted = answer.is_accepted == 1 ? 'border-success' : '';
                     const acceptedBadge = answer.is_accepted == 1 ? '<span class="badge bg-success mb-2"><i class="fa fa-check"></i> Solução</span>' : '';
-                    const bgStyle = 'background-color: rgba(0,0,0,0.02);'; 
-                    
+                    const bgStyle = 'background-color: rgba(0,0,0,0.02);';
+                    const upvoteClass = answer.user_vote == 1 ? 'text-success' : 'text-muted';
+                    const downvoteClass = answer.user_vote == -1 ? 'text-danger' : 'text-muted';
+
                     html += `
                         <div class="list-group-item ${isAccepted}" style="${bgStyle}">
                             ${acceptedBadge}
-                            <div class="d-flex w-100 justify-content-between">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
                                 <small class="text-muted">
                                     <strong>${answer.author_name}</strong> em ${answer.created_on_formatted}
                                 </small>
+                                <div class="course-vote-section d-flex align-items-center gap-2 ms-2">
+                                    <button type="button"
+                                        class="btn btn-sm btn-link p-0 text-decoration-none course-vote-btn ${upvoteClass}"
+                                        onclick="splmsCourseVote(${answer.id}, 'answer', 1, this)"
+                                        title="Gostei">
+                                        <i class="fa fa-thumbs-up fa-lg"></i>
+                                        <span class="course-vote-count-up">${answer.upvotes}</span>
+                                    </button>
+                                    <button type="button"
+                                        class="btn btn-sm btn-link p-0 text-decoration-none course-vote-btn ${downvoteClass}"
+                                        onclick="splmsCourseVote(${answer.id}, 'answer', -1, this)"
+                                        title="Não gostei">
+                                        <i class="fa fa-thumbs-down fa-lg"></i>
+                                        <span class="course-vote-count-down">${answer.downvotes}</span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="mt-2 mb-1">${answer.body}</div>
                         </div>
@@ -235,6 +253,47 @@ function loadAnswers(questionId, container) {
     .catch(err => {
         console.error(err);
         container.innerHTML = '<p class="text-danger p-3">Erro de conexão.</p>';
+    });
+}
+
+function splmsCourseVote(itemId, itemType, value, btn) {
+    const url = '<?php echo \Joomla\CMS\Uri\Uri::root(); ?>index.php?option=com_splms&task=forum.vote';
+    const formData = new FormData();
+    formData.append('item_id', itemId);
+    formData.append('item_type', itemType);
+    formData.append('value', value);
+
+    fetch(url, { method: 'POST', body: formData })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const section = btn.closest('.course-vote-section');
+            if (section) {
+                section.querySelector('.course-vote-count-up').textContent = data.upvotes;
+                section.querySelector('.course-vote-count-down').textContent = data.downvotes;
+
+                // Reset active state on all buttons in this section
+                section.querySelectorAll('.course-vote-btn').forEach(b => {
+                    b.classList.remove('text-success', 'text-danger');
+                    b.classList.add('text-muted');
+                });
+
+                // Apply active state
+                if (data.user_vote == 1) {
+                    btn.classList.remove('text-muted');
+                    btn.classList.add('text-success');
+                } else if (data.user_vote == -1) {
+                    btn.classList.remove('text-muted');
+                    btn.classList.add('text-danger');
+                }
+            }
+        } else {
+            alert(data.message || 'Erro ao votar.');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Erro de conexão.');
     });
 }
 </script>
