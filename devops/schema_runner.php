@@ -44,13 +44,13 @@ try {
 
     // 1. Run SQL (if requested)
     if (!$saveOnly) {
-        $pdo->beginTransaction();
         try {
-            // Can be multiple queries separated by semicolons
+            // Can be multiple queries separated by semicolons.
+            // Note: We don't use beginTransaction() here because DDL commands 
+            // like ALTER TABLE and CREATE TABLE trigger implicit commits in MySQL, 
+            // which causes "There is no active transaction" errors on rollBack().
             $pdo->exec($sql);
-            $pdo->commit();
         } catch (Exception $e) {
-            $pdo->rollBack();
             throw new Exception("Erro ao executar SQL no banco: " . $e->getMessage());
         }
     }

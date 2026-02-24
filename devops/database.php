@@ -224,12 +224,16 @@ if (is_dir($updatesDir)) {
     </div>
 
     <script>
+        // Array global para armazenar SQLs do checker (evita problemas com aspas no onclick)
+        let pendingSqls = [];
+
         // Init Checker
         document.addEventListener("DOMContentLoaded", runChecker);
 
         function runChecker() {
             document.getElementById('checker-loading').style.display = 'block';
             document.getElementById('checker-result').style.display = 'none';
+            pendingSqls = [];
 
             fetch('schema_checker.php')
                 .then(res => res.json())
@@ -254,25 +258,29 @@ if (is_dir($updatesDir)) {
                     } else {
                         // Missing Tables
                         data.diff.missing_tables.forEach(t => {
+                            const idx = pendingSqls.length;
+                            pendingSqls.push(t.sql);
                             html += `
                             <div class="diff-item">
                                 <div>
                                     <span style="color:#fc8181; font-weight:bold;">Tabela Faltando Local:</span> <code>${t.table}</code>
                                     <div class="file-meta" style="margin-top:4px;">Ela está no Git mas não no seu BD.</div>
                                 </div>
-                                <button class="btn btn-sm btn-orange" onclick="runAutoFix(btoa(unescape(encodeURIComponent('${t.sql}'))), true)">Aplicar Automático</button>
+                                <button class="btn btn-sm btn-orange" onclick="applyPendingSql(${idx})">Aplicar Automático</button>
                             </div>`;
                         });
                         
                         // Missing Columns
                         data.diff.missing_columns.forEach(c => {
+                            const idx = pendingSqls.length;
+                            pendingSqls.push(c.sql);
                             html += `
                             <div class="diff-item">
                                 <div>
                                     <span style="color:#fc8181; font-weight:bold;">Coluna Faltando Local:</span> <code>${c.column}</code> na tabela <code>${c.table}</code>
                                     <div class="file-meta" style="margin-top:4px;">Ela está no Git mas não no seu BD.</div>
                                 </div>
-                                <button class="btn btn-sm btn-orange" onclick="runAutoFix(btoa(unescape(encodeURIComponent('${c.sql}'))), true)">Aplicar Automático</button>
+                                <button class="btn btn-sm btn-orange" onclick="applyPendingSql(${idx})">Aplicar Automático</button>
                             </div>`;
                         });
 
@@ -290,6 +298,10 @@ if (is_dir($updatesDir)) {
                     document.getElementById('checker-loading').style.display = 'none';
                     document.getElementById('checker-result').innerHTML = `<div class="info-box error"><p>Erro de conexão com o painel.</p></div>`;
                 });
+        }
+
+        function applyPendingSql(index) {
+            runAutoFix(pendingSqls[index], false);
         }
 
         function runAutoFix(sqlData, isBase64) {
