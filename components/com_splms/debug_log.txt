@@ -1,48 +1,22 @@
-2026-02-17 16:23:31 - SPLMS Entry - Request: Array
+2026-02-24 12:26:31 - SPLMS Entry - Request: Array
 (
-    [view] => forum
-    [layout] => question
-    [id] => 1
 )
 
-2026-02-17 16:23:33 - SPLMS Entry - Request: Array
+2026-02-24 12:26:33 - SPLMS Entry - Request: Array
 (
-    [task] => forum.acceptAnswer
-    [answer_id] => 1
+    [option] => com_splms
+    [task] => forum.getAnswersAjax
     [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
 )
 
-2026-02-17 16:23:33 - SPLMS Entry - Request: Array
+2026-02-24 12:26:44 - SPLMS Entry - Request: Array
 (
     [view] => forum
     [layout] => question
     [id] => 1
 )
 
-2026-02-17 16:23:36 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:23:38 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 3
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:23:38 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:23:48 - SPLMS Entry - Request: Array
+2026-02-24 12:26:48 - SPLMS Entry - Request: Array
 (
     [option] => com_splms
     [task] => forum.vote
@@ -51,7 +25,7 @@
     [value] => -1
 )
 
-2026-02-17 16:23:49 - SPLMS Entry - Request: Array
+2026-02-24 12:26:50 - SPLMS Entry - Request: Array
 (
     [option] => com_splms
     [task] => forum.vote
@@ -60,415 +34,152 @@
     [value] => 1
 )
 
-2026-02-17 16:25:54 - SPLMS Entry - Request: Array
+2026-02-24 12:26:51 - SPLMS Entry - Request: Array
 (
-    [view] => forum
-    [layout] => question
-    [id] => 1
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => 1
 )
 
-2026-02-17 16:25:56 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 1
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:25:56 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:27:33 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:27:35 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 3
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:27:35 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:29:05 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:29:07 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 1
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:29:07 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:29:12 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:29:16 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 3
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:29:16 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:30:20 - SPLMS Entry - Request: Array
+2026-02-24 12:26:52 - SPLMS Entry - Request: Array
 (
 )
 
-2026-02-17 16:30:24 - SPLMS Entry - Request: Array
-(
-)
-
-2026-02-17 16:32:48 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:32:51 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 1
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:32:51 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:37:31 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:37:33 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 3
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:37:33 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:37:35 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:37:37 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 1
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:37:37 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:43:51 - SPLMS Entry - Request: Array
+2026-02-24 12:26:54 - SPLMS Entry - Request: Array
 (
     [option] => com_splms
     [task] => forum.getAnswersAjax
     [question_id] => 1
 )
 
-2026-02-17 16:44:50 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:44:55 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:44:58 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:44:59 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:45:02 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 3
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:45:02 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:47:18 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:47:22 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 1
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:47:22 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:47:31 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:47:34 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 3
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:47:34 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:47:37 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:47:38 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:47:40 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 1
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:47:41 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:52:59 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:53:02 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 3
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:53:02 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:53:08 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 1
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:53:08 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:53:15 - SPLMS Entry - Request: Array
-(
-    [task] => forum.acceptAnswer
-    [answer_id] => 3
-    [question_id] => 1
-    [a22d9529dbb4a78af8659922b4b858ef] => 1
-)
-
-2026-02-17 16:53:15 - SPLMS Entry - Request: Array
-(
-    [view] => forum
-    [layout] => question
-    [id] => 1
-)
-
-2026-02-17 16:58:42 - SPLMS Entry - Request: Array
+2026-02-24 12:28:59 - SPLMS Entry - Request: Array
 (
 )
 
-2026-02-17 17:03:11 - SPLMS Entry - Request: Array
+2026-02-24 12:29:03 - SPLMS Entry - Request: Array
 (
     [option] => com_splms
     [task] => forum.getAnswersAjax
     [question_id] => 1
 )
 
-2026-02-17 17:03:14 - SPLMS Entry - Request: Array
+2026-02-24 12:29:04 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => 1
+)
+
+2026-02-24 12:29:06 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => -1
+)
+
+2026-02-24 12:29:07 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => -1
+)
+
+2026-02-24 12:29:08 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => 1
+)
+
+2026-02-24 12:29:09 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 1
+    [item_type] => answer
+    [value] => 1
+)
+
+2026-02-24 12:29:16 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => -1
+)
+
+2026-02-24 12:29:29 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => 1
+)
+
+2026-02-24 12:29:33 - SPLMS Entry - Request: Array
+(
+    [view] => forum
+    [layout] => question
+    [id] => 1
+)
+
+2026-02-24 12:29:39 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => -1
+)
+
+2026-02-24 12:29:40 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => 1
+)
+
+2026-02-24 12:31:01 - SPLMS Entry - Request: Array
 (
 )
 
-2026-02-17 17:03:16 - SPLMS Entry - Request: Array
+2026-02-24 12:31:03 - SPLMS Entry - Request: Array
 (
     [option] => com_splms
     [task] => forum.getAnswersAjax
     [question_id] => 1
 )
 
-2026-02-17 17:05:09 - SPLMS Entry - Request: Array
-(
-)
-
-2026-02-17 17:05:19 - SPLMS Entry - Request: Array
-(
-)
-
-2026-02-17 17:10:01 - SPLMS Entry - Request: Array
-(
-)
-
-2026-02-17 17:16:17 - SPLMS Entry - Request: Array
+2026-02-24 12:31:05 - SPLMS Entry - Request: Array
 (
     [option] => com_splms
-    [task] => forum.getAnswersAjax
-    [question_id] => 1
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => -1
 )
 
-2026-02-17 17:16:20 - SPLMS Entry - Request: Array
-(
-)
-
-2026-02-17 17:16:23 - SPLMS Entry - Request: Array
+2026-02-24 12:31:06 - SPLMS Entry - Request: Array
 (
     [option] => com_splms
-    [task] => forum.getAnswersAjax
-    [question_id] => 1
-)
-
-2026-02-17 17:16:26 - SPLMS Entry - Request: Array
-(
-)
-
-2026-02-17 17:16:28 - SPLMS Entry - Request: Array
-(
-    [option] => com_splms
-    [task] => forum.getAnswersAjax
-    [question_id] => 1
-)
-
-2026-02-17 17:18:43 - SPLMS Entry - Request: Array
-(
-)
-
-2026-02-17 17:18:48 - SPLMS Entry - Request: Array
-(
-    [option] => com_splms
-    [task] => forum.getAnswersAjax
-    [question_id] => 1
+    [task] => forum.vote
+    [item_id] => 3
+    [item_type] => answer
+    [value] => 1
 )
 
 2026-02-19 17:49:34 - SPLMS Entry - Request: Array
