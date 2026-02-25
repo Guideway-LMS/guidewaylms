@@ -193,7 +193,7 @@ window.SPLMS_CONTEXT = {
     <h3 class="course-progress-title">📚 Seu Progresso no Curso</h3>
     <div id="progress-emoji" class="course-progress-emoji">📋</div>
     <div class="course-progress-track">
-        <div id="course-progress-bar" class="course-progress-fill" style="width: 0%;"></div>
+        <div id="course-progress-bar" class="course-progress-fill" style="width: 0%; transition: width 0.6s ease;"></div>
         <div id="course-progress-text" class="course-progress-text">0%</div>
     </div>
     <div id="progress-message" class="course-progress-message">Carregando...</div>
@@ -201,7 +201,7 @@ window.SPLMS_CONTEXT = {
 
   <div class="row">
     <div class="col-md-7">
-      <div class="splms-lesson-video-wrapper">
+      <div class="splms-lesson-video-wrapper" id="splms-lesson-dynamic-area">
 
         <?php 
         // USANDO A VARIÁVEL ROBUSTA
@@ -252,7 +252,7 @@ window.SPLMS_CONTEXT = {
                     </div>
 
                     <?php if ($attemptsLeft > 0) : ?>
-                         <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
+                         <form id="upload-form-trabalho" action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
                             <div class="upload-zone">
                                 <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
                                 <h3 class="upload-title" style="font-size: 18px;">Enviar Correção</h3>
@@ -281,7 +281,7 @@ window.SPLMS_CONTEXT = {
                     </div>
 
                 <?php else : ?>
-                    <form action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
+                    <form id="upload-form-trabalho" action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
                         <div class="upload-zone">
                             <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
                             <h3 class="upload-title" style="font-size: 18px;">Área de Transferência</h3>
@@ -347,7 +347,6 @@ window.SPLMS_CONTEXT = {
 
                 <div class="upload-card" style="text-align: center;">
                     <?php if ($hasTakenQuiz && $quizPassed) : ?>
-                        <!-- APROVADO -->
                         <i class="fa fa-check-circle" style="font-size: 48px; color: #22c55e; display: block; margin-bottom: 15px;"></i>
                         <h3 style="font-size: 22px; font-weight: 700; color: #22c55e; margin-bottom: 10px;">Quiz Concluído!</h3>
                         <div style="font-size: 3rem; font-weight: 800; color: #22c55e; margin: 15px 0;">
@@ -359,7 +358,6 @@ window.SPLMS_CONTEXT = {
                         </a>
 
                     <?php elseif ($hasTakenQuiz && !$quizPassed) : ?>
-                        <!-- REPROVADO -->
                         <i class="fa fa-times-circle" style="font-size: 48px; color: #ef4444; display: block; margin-bottom: 15px;"></i>
                         <h3 style="font-size: 22px; font-weight: 700; color: #ef4444; margin-bottom: 10px;">Nota Insuficiente</h3>
                         <div style="font-size: 3rem; font-weight: 800; color: #ef4444; margin: 15px 0;">
@@ -374,7 +372,6 @@ window.SPLMS_CONTEXT = {
                         </a>
 
                     <?php else : ?>
-                        <!-- NÃO FEZ AINDA -->
                         <i class="fa fa-pencil-square-o" style="font-size: 48px; color: #3b82f6; display: block; margin-bottom: 15px;"></i>
                         <h3 style="font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">Pronto para o Quiz?</h3>
                         <?php if ($passingScore > 0) : ?>
@@ -463,3 +460,96 @@ window.SPLMS_CONTEXT = {
   </div>
 
 </div>
+
+<script>
+jQuery(function($) {
+    "use strict";
+
+    window.atualizarInterfaceCurso = function() {
+        var url = window.location.href.split('#')[0];
+        url += (url.indexOf('?') !== -1 ? '&' : '?') + 'nocache=' + new Date().getTime();
+
+        $.get(url, function(html) {
+            var doc = $(html);
+            
+            // 1. Substitui APENAS a Lista Lateral (Ela trará o ✅ do banco de dados)
+            var novaLista = doc.find('.course-lessons');
+            if (novaLista.length > 0) {
+                $('.course-lessons').replaceWith(novaLista);
+            }
+
+            // 2. Substitui EXCLUSIVAMENTE o card de upload.
+            // Se for um vídeo, o vídeo não tem a classe .upload-card, então ele fica intocado na tela!
+            var novoUploadCard = doc.find('.upload-card');
+            if (novoUploadCard.length > 0 && $('.upload-card').length > 0) {
+                $('.upload-card').replaceWith(novoUploadCard);
+            }
+
+            // 3. MATEMÁTICA PURA (Corrigida com decimais e preservando o subtexto)
+            var total = $('.course-lessons .lesson').length;
+            var concluidas = $('.course-lessons .lesson-completed').length;
+            
+            if (total > 0) {
+                var percentReal = (concluidas / total) * 100;
+                
+                // Formata os decimais corretamente com vírgula (Ex: 33,33)
+                var percentFormatado = (percentReal % 1 === 0) 
+                    ? percentReal 
+                    : percentReal.toFixed(2).replace('.', ',');
+                
+                // Injeta APENAS a porcentagem na barra mantendo a DIV original para o CSS agir
+                $('#course-progress-bar').css('width', percentReal + '%');
+                $('#course-progress-text').text(percentFormatado + '%');
+                
+                // Nota: O $('#progress-message') que troca a frase foi removido.
+                
+                if (percentReal === 100) {
+                    $('#progress-emoji').text('🏆');
+                }
+            }
+        });
+    };
+
+    // Escuta a notificação global do vídeo ou do botão manual (quando termina a aula)
+    $(document).ajaxSuccess(function(event, xhr, settings) {
+        if (settings.url && settings.url.indexOf('task=lesson.completeditem') !== -1) {
+            window.atualizarInterfaceCurso();
+        }
+    });
+
+    // Escuta específica para o formulário de envio de trabalho
+    $('body').on('submit', '#upload-form-trabalho', function(e) {
+        e.preventDefault(); 
+        
+        var form = $(this);
+        var btn = form.find('.btn-send');
+        var originalText = btn.html();
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enviando Trabalho...');
+        
+        var formData = new FormData(this[0]);
+        
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false, 
+            contentType: false, 
+            success: function(response) {
+                btn.removeClass('btn-send').css({'background-color': '#22c55e', 'color': 'white'})
+                   .html('<i class="fa fa-check"></i> Enviado com Sucesso!');
+                
+                window.atualizarInterfaceCurso();
+                
+                if (typeof mostrarAlertaConclusao === "function") {
+                    mostrarAlertaConclusao();
+                }
+            },
+            error: function() {
+                btn.prop('disabled', false).html(originalText);
+                alert("Ocorreu um erro ao enviar o trabalho. Verifique o tamanho do arquivo ou atualize a página.");
+            }
+        });
+    });
+});
+</script>
