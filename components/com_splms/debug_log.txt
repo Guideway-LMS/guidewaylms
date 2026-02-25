@@ -764,3 +764,48 @@
 (
 )
 
+2026-02-24 22:17:18 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 5
+    [lesson_id] => 42
+)
+
+2026-02-24 22:17:49 - SPLMS Entry - Request: Array
+(
+)
+
+2026-02-24 22:28:08 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 42:quiz-teste-biologia-quiz
+)
+
+2026-02-24 22:28:09 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-24 22:28:31 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 42:quiz-teste-biologia-quiz
+)
+
+2026-02-24 22:28:31 - SPLMS Entry - Request: Array
+(
+    [option] => com_splms
+    [task] => courses.getCourseProgress
+    [course_id] => 1
+)
+
+2026-02-24 22:28:35 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 5
+    [course_id] => 1
+    [lesson_id] => 42
+)
+

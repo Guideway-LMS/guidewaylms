@@ -96,6 +96,24 @@ if (is_dir($updatesDir)) {
         
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid white; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .modal-overlay.show { opacity: 1; pointer-events: all; }
+        .modal-box { background: #1a1a2e; border: 1px solid #1f4068; border-radius: 16px; padding: 30px; max-width: 440px; width: 90%; transform: scale(0.95); transition: transform 0.25s; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .modal-overlay.show .modal-box { transform: scale(1); }
+        .modal-icon { font-size: 40px; text-align: center; margin-bottom: 16px; }
+        .modal-title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+        .modal-msg { font-size: 14px; color: #a0aec0; text-align: center; line-height: 1.6; margin-bottom: 24px; word-break: break-word; }
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        .modal-btn { padding: 10px 28px; border-radius: 8px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        .modal-btn-cancel { background: #2d3748; color: #a0aec0; }
+        .modal-btn-cancel:hover { background: #4a5568; }
+        .modal-btn-confirm { background: linear-gradient(135deg, #48bb78, #38a169); color: #fff; }
+        .modal-btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(72,187,120,0.4); }
+        .modal-btn-ok { background: linear-gradient(135deg, #4299e1, #3182ce); color: #fff; min-width: 120px; }
+        .modal-btn-ok:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,153,225,0.4); }
+        .modal-btn-error { background: linear-gradient(135deg, #e53e3e, #c53030); color: #fff; min-width: 120px; }
     </style>
 </head>
 <body>
@@ -223,6 +241,16 @@ if (is_dir($updatesDir)) {
         </div>
     </div>
 
+    <!-- Modal Custom -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <div class="modal-icon" id="modal-icon"></div>
+            <div class="modal-title" id="modal-title"></div>
+            <div class="modal-msg" id="modal-msg"></div>
+            <div class="modal-actions" id="modal-actions"></div>
+        </div>
+    </div>
+
     <script>
         // Array global para armazenar SQLs do checker (evita problemas com aspas no onclick)
         let pendingSqls = [];
@@ -304,41 +332,73 @@ if (is_dir($updatesDir)) {
             runAutoFix(pendingSqls[index], false);
         }
 
+        // === Modal Functions ===
+        function showModal(icon, title, msg, buttons) {
+            document.getElementById('modal-icon').textContent = icon;
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-msg').textContent = msg;
+            const actionsDiv = document.getElementById('modal-actions');
+            actionsDiv.innerHTML = '';
+            buttons.forEach(b => {
+                const btn = document.createElement('button');
+                btn.className = 'modal-btn ' + (b.cls || '');
+                btn.textContent = b.label;
+                btn.onclick = () => { closeModal(); if (b.action) b.action(); };
+                actionsDiv.appendChild(btn);
+            });
+            document.getElementById('modal').classList.add('show');
+        }
+        function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+        function showSuccess(msg, onOk) {
+            showModal('✅', 'Sucesso!', msg, [{ label: 'OK', cls: 'modal-btn-ok', action: onOk }]);
+        }
+        function showError(msg) {
+            showModal('❌', 'Erro', msg, [{ label: 'Fechar', cls: 'modal-btn-error' }]);
+        }
+        function showConfirm(msg, onConfirm) {
+            showModal('⚠️', 'Confirmação', msg, [
+                { label: 'Cancelar', cls: 'modal-btn-cancel' },
+                { label: 'Confirmar', cls: 'modal-btn-confirm', action: onConfirm }
+            ]);
+        }
+
+        // === Auto Fix ===
         function runAutoFix(sqlData, isBase64) {
             let sql = sqlData;
             if (isBase64) {
                 try {
                     sql = decodeURIComponent(escape(atob(sqlData)));
                 } catch(e) {
-                    alert("Erro ao decodificar SQL"); return;
+                    showError('Erro ao decodificar SQL.'); return;
                 }
             }
             
-            if(!confirm("Deseja aplicar esta alteração no seu Banco de Dados?")) return;
+            showConfirm('Deseja aplicar esta alteração no seu Banco de Dados?', () => {
+                const fd = new FormData();
+                fd.append('action', 'auto');
+                fd.append('sql', sql);
 
-            const fd = new FormData();
-            fd.append('action', 'auto');
-            fd.append('sql', sql);
-
-            fetch('schema_runner.php', { method: 'POST', body: fd })
-                .then(r => r.json())
-                .then(data => {
-                    if(data.success) {
-                        alert(data.message);
-                        window.location.reload();
-                    } else {
-                        alert("Erro: " + data.message);
-                    }
-                });
+                fetch('schema_runner.php', { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(data => {
+                        if(data.success) {
+                            showSuccess(data.message, () => window.location.reload());
+                        } else {
+                            showError(data.message);
+                        }
+                    });
+            });
         }
 
+        // === Manual Script ===
         function runManualScript(saveOnly) {
             const title = document.getElementById('manual_title').value;
             const sql = document.getElementById('manual_sql').value;
             const statusDiv = document.getElementById('ms-status');
 
             if(!title || !sql) {
-                alert("Preencha título e comando SQL."); return;
+                showError('Preencha o título e o comando SQL.'); return;
             }
 
             const fd = new FormData();
