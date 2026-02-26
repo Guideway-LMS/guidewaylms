@@ -39,10 +39,34 @@ try {
         $files = scandir($dumpDir);
         foreach ($files as $file) {
             if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
-                $mtime = filemtime($dumpDir . '/' . $file);
-                if ($mtime > $latestTime) {
-                    $latestTime = $mtime;
-                    $latestDumpFile = $dumpDir . '/' . $file;
+                $filePath = $dumpDir . '/' . $file;
+                
+                // Read the first few lines to find the internal generation date
+                // This is immune to git pull changing the filemtime
+                $handle = @fopen($filePath, "r");
+                $internalTime = 0;
+                if ($handle) {
+                    for ($i = 0; $i < 5; $i++) {
+                        $line = fgets($handle);
+                        if ($line === false) break;
+                        
+                        // Example: -- Gerado em: 2026-02-25 15:30:00
+                        if (preg_match('/-- Gerado em: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $line, $matches)) {
+                            $internalTime = strtotime($matches[1]);
+                            break;
+                        }
+                    }
+                    fclose($handle);
+                }
+                
+                // Fallback to filemtime if no internal date was found
+                if ($internalTime === 0) {
+                    $internalTime = filemtime($filePath);
+                }
+
+                if ($internalTime > $latestTime) {
+                    $latestTime = $internalTime;
+                    $latestDumpFile = $filePath;
                 }
             }
         }

@@ -492,3 +492,27 @@
     [lesson_id] => 42
 )
 
+2026-02-25 22:55:18 - SPLMS Entry - Request: Array
+(
+    [view] => quizquestion
+    [id] => 5
+    [course_id] => 1
+    [lesson_id] => 42
+)
+
+2026-02-25 23:12:52 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 1:introduction
+)
+
+2026-02-25 23:12:56 - SPLMS Entry - Request: Array
+(
+    [view] => lesson
+    [id] => 42:quiz-teste-biologia-quiz
+)
+
+2026-02-25 23:12:58 - SPLMS Entry - Request: Array
+(
+)
+

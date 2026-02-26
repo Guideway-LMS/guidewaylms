@@ -15,9 +15,12 @@ $dbPass = 'us35#w3(b)%';
 $dbName = 'guideway_lms_db';
 
 // Configurações do Arquivo
-$groupNumber = isset($_POST['group']) ? intval($_POST['group']) : 2;
-$date = date('dmy');
-$filename = "grupo{$groupNumber}_{$date}.sql";
+$usernameRaw = isset($_POST['username']) ? $_POST['username'] : 'dev';
+$username = preg_replace('/[^a-zA-Z0-9_]/', '', strtolower($usernameRaw));
+if (empty($username)) $username = 'dev';
+
+$date = date('dmy_His'); // Added His for better uniqueness when multiple dumps happen
+$filename = "{$username}_{$date}.sql";
 $outputDir = JPATH_BASE . '/_dumps';
 $outputFile = $outputDir . '/' . $filename;
 
@@ -39,7 +42,7 @@ try {
     // Iniciar arquivo de dump
     $dump = "-- Guideway LMS Database Dump\n";
     $dump .= "-- Gerado em: " . date('Y-m-d H:i:s') . "\n";
-    $dump .= "-- Grupo: {$groupNumber}\n";
+    $dump .= "-- Autor do Dump: {$usernameRaw}\n";
     $dump .= "-- Host: {$dbHost}:{$dbPort}\n";
     $dump .= "-- Database: {$dbName}\n\n";
     $dump .= "SET FOREIGN_KEY_CHECKS=0;\n";

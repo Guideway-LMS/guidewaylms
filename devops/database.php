@@ -114,6 +114,17 @@ if (is_dir($updatesDir)) {
         .modal-btn-ok { background: linear-gradient(135deg, #4299e1, #3182ce); color: #fff; min-width: 120px; }
         .modal-btn-ok:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,153,225,0.4); }
         .modal-btn-error { background: linear-gradient(135deg, #e53e3e, #c53030); color: #fff; min-width: 120px; }
+
+        /* Rules Accordion */
+        .rules-accordion { background: #16213e; border: 1px solid #1f4068; border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+        .rules-header { padding: 15px 25px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #fff; font-weight: 600; background: rgba(0,0,0,0.1); }
+        .rules-header:hover { background: rgba(255,255,255,0.05); }
+        .rules-content { padding: 0 25px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease; background: #0f3460; }
+        .rules-content.open { padding: 20px 25px; max-height: 500px; }
+        .rules-list { list-style: none; color: #a0aec0; font-size: 14px; line-height: 1.6; }
+        .rules-list li { margin-bottom: 12px; position: relative; padding-left: 24px; }
+        .rules-list li::before { content: "👉"; position: absolute; left: 0; top: 0; }
+        .rules-list strong { color: #fff; }
     </style>
 </head>
 <body>
@@ -124,6 +135,23 @@ if (is_dir($updatesDir)) {
                 <p>Gerenciamento inteligente de schema, Dumps e versionamento de SQL</p>
             </div>
             <a href="index.php" class="back-btn">← Voltar p/ Dashboard</a>
+        </div>
+
+        <div class="rules-accordion">
+            <div class="rules-header" onclick="document.getElementById('rules-content').classList.toggle('open')">
+                <span>📘 Regras de Uso e Fluxo de Trabalho do Banco</span>
+                <span>▼</span>
+            </div>
+            <div class="rules-content" id="rules-content">
+                <p style="color: #cbd5e0; font-size: 14px; margin-bottom: 15px; line-height: 1.5;">
+                    <strong>Como esse sistema funciona:</strong> Ele automatiza a sincronização do banco de dados entre a equipe. Ao invés de ficar importando arquivos pesados de backup o tempo todo, esse painel lê o arquivo oficial de Dump (`.sql`) do repositório, cruza com o seu Banco de Dados Local ao vivo, e descobre sozinho exatamente quais tabelas ou colunas estão faltando pra você.
+                </p>
+                <ul class="rules-list">
+                    <li><strong>Sincronize antes de codar:</strong> Sempre que der `git pull`, abra essa tela. Se o Checker apontar colunas/tabelas faltando, clique em "Aplicar Automático".</li>
+                    <li><strong>Não altere o banco no DBeaver/HeidiSQL:</strong> Se precisar criar uma coluna ou tabela, use a área "Inserir Script Manual" abaixo. Isso garante que a equipe toda receba o update via Git.</li>
+                    <li><strong>Coisas Novas Locais = Dump Novo:</strong> Se o painel alertar que seu banco tem colunas/tabelas a mais que o Dump oficial, isso significa que você criou algo novo. Gere um novo Dump com o seu Nome para que os outros baixem sua estrutura!</li>
+                </ul>
+            </div>
         </div>
 
         <div class="dashboard-grid">
@@ -179,8 +207,8 @@ if (is_dir($updatesDir)) {
                 
                 <div class="action-area">
                     <div class="input-group">
-                        <label>Grupo:</label>
-                        <input type="number" id="group-num" value="2" min="1" style="width: 60px;">
+                        <label>Nome do Dev:</label>
+                        <input type="text" id="username" placeholder="joaosilva" style="width: 120px;">
                     </div>
                     <button class="btn btn-green" id="btn-generate" onclick="generateDump()">
                         <div class="spinner" id="spinner-dump"></div> <span id="btn-text">Gerar Dump</span>
@@ -314,9 +342,20 @@ if (is_dir($updatesDir)) {
 
                         // Extra warnings
                         if (data.diff.extra_tables.length > 0 || data.diff.extra_columns.length > 0) {
-                             html += `<div class="info-box warning" style="margin-top: 20px;">
-                                <strong>⚠️ Aviso: Seu Banco Local tem coisas novas</strong><br>
-                                Tabelas ou colunas extras foram encontradas localmente. Caso seja você desenvolvendo, lembre-se de Gerar Dumps e colocar seus SQLs no Painel Manual!
+                             let extrasList = '';
+                             data.diff.extra_tables.forEach(t => {
+                                 extrasList += `<li>Tabela nova: <strong>${t}</strong></li>`;
+                             });
+                             data.diff.extra_columns.forEach(c => {
+                                 extrasList += `<li>Coluna nova: <strong>${c.column}</strong> na tabela <strong>${c.table}</strong></li>`;
+                             });
+
+                             html += `<div class="info-box warning" style="margin-top: 20px; border-left-color: #ed8936; background: rgba(237,137,54,0.1);">
+                                <strong style="color: #ed8936;">⚠️ Aviso: Seu Banco Local possui itens extras não mapeados no Dump!</strong><br>
+                                <p style="margin-bottom: 8px;">Caso você tenha criado essas estruturas recentemente, gere um novo Dump abaixo para enviá-las ao repositório.</p>
+                                <ul style="margin-left: 20px; font-size: 13px; color: #cbd5e0; line-height: 1.6;">
+                                    ${extrasList}
+                                </ul>
                              </div>`;
                         }
                     }
@@ -434,14 +473,19 @@ if (is_dir($updatesDir)) {
             const spinner = document.getElementById('spinner-dump');
             const btnText = document.getElementById('btn-text');
             const statusMsg = document.getElementById('status-msg');
-            const group = document.getElementById('group-num').value;
+            const username = document.getElementById('username').value.trim();
+
+            if (!username) {
+                showError("Por favor, preencha o seu Nome de Dev antes de gerar o Dump.");
+                return;
+            }
 
             btn.disabled = true;
             spinner.style.display = 'block';
             btnText.textContent = 'Gerando...';
 
             const formData = new FormData();
-            formData.append('group', group);
+            formData.append('username', username);
 
             fetch('generate_dump.php', { method: 'POST', body: formData })
             .then(r => r.json())
