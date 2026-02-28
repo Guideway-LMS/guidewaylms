@@ -125,6 +125,14 @@ if (is_dir($updatesDir)) {
         .rules-list li { margin-bottom: 12px; position: relative; padding-left: 24px; }
         .rules-list li::before { content: "👉"; position: absolute; left: 0; top: 0; }
         .rules-list strong { color: #fff; }
+
+        /* User Buttons */
+        .user-btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .user-btn-label { width: 100%; font-size: 13px; color: #a0aec0; margin-bottom: 4px; font-weight: 600; }
+        .user-btn { background: #1a1a2e; border: 1px solid #2d3748; color: #cbd5e0; padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+        .user-btn:hover { background: #2d3748; border-color: #4a5568; }
+        .user-btn.active { background: rgba(56,161,105,0.2); border-color: #48bb78; color: #48bb78; font-weight: 600; box-shadow: 0 0 8px rgba(72,187,120,0.2); }
+        #custom-username-box { display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -205,13 +213,40 @@ if (is_dir($updatesDir)) {
                     <h2>Dumps Oficiais do Repositório</h2>
                 </div>
                 
-                <div class="action-area">
-                    <div class="input-group">
-                        <label>Nome do Dev:</label>
-                        <input type="text" id="username" placeholder="joaosilva" style="width: 120px;">
+                <div class="action-area" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+                    
+                    <div style="width: 100%;">
+                        <div class="user-btn-label">Grupo 1:</div>
+                        <div class="user-btn-group" id="btn-group-1">
+                            <button class="user-btn" onclick="selectUser(this, 'iris')">Iris</button>
+                            <button class="user-btn" onclick="selectUser(this, 'joshua')">Joshua</button>
+                            <button class="user-btn" onclick="selectUser(this, 'michaeln')">Michael N.</button>
+                            <button class="user-btn" onclick="selectUser(this, 'erick')">Erick</button>
+                            <button class="user-btn" onclick="selectUser(this, 'vitoria')">Vitória</button>
+                        </div>
+                        
+                        <div class="user-btn-label">Grupo 2:</div>
+                        <div class="user-btn-group" id="btn-group-2">
+                            <button class="user-btn" onclick="selectUser(this, 'dante')">Dante</button>
+                            <button class="user-btn" onclick="selectUser(this, 'guilherme')">Guilherme</button>
+                            <button class="user-btn" onclick="selectUser(this, 'jonathan')">Jonathan</button>
+                            <button class="user-btn" onclick="selectUser(this, 'luis')">Luis</button>
+                            <button class="user-btn" onclick="selectUser(this, 'michelf')">Michel F.</button>
+                        </div>
+
+                        <div class="user-btn-label">Orientação & Extras:</div>
+                        <div class="user-btn-group" id="btn-group-3">
+                            <button class="user-btn" onclick="selectUser(this, 'johnny')">Johnny</button>
+                            <button class="user-btn" onclick="selectUser(this, 'outro')" style="background: rgba(255,255,255,0.05); border-style: dashed;">Ou digitar outro...</button>
+                        </div>
+                        
+                        <div id="custom-username-box">
+                            <input type="text" id="custom_username" placeholder="Digite seu nome (sem espaços)..." style="width: 100%; max-width: 300px; padding: 10px; border-radius: 6px; background: #1a1a2e; border: 1px solid #1f4068; color: #fff;">
+                        </div>
                     </div>
+
                     <button class="btn btn-green" id="btn-generate" onclick="generateDump()">
-                        <div class="spinner" id="spinner-dump"></div> <span id="btn-text">Gerar Dump</span>
+                        <div class="spinner" id="spinner-dump"></div> <span id="btn-text">Gerar Dump Oficial</span>
                     </button>
                 </div>
                 <div id="status-msg"></div>
@@ -468,15 +503,40 @@ if (is_dir($updatesDir)) {
                 });
         }
 
+        // === Dumps ===
+        let selectedUsername = '';
+
+        function selectUser(btn, val) {
+            // Remove active de todos
+            document.querySelectorAll('.user-btn').forEach(el => el.classList.remove('active'));
+            // Add active no clicado
+            btn.classList.add('active');
+            
+            selectedUsername = val;
+
+            const customBox = document.getElementById('custom-username-box');
+            if (val === 'outro') {
+                customBox.style.display = 'block';
+                document.getElementById('custom_username').focus();
+            } else {
+                customBox.style.display = 'none';
+                document.getElementById('custom_username').value = '';
+            }
+        }
+
         function generateDump() {
             const btn = document.getElementById('btn-generate');
             const spinner = document.getElementById('spinner-dump');
             const btnText = document.getElementById('btn-text');
             const statusMsg = document.getElementById('status-msg');
-            const username = document.getElementById('username').value.trim();
+            
+            let finalUsername = selectedUsername;
+            if (finalUsername === 'outro') {
+                finalUsername = document.getElementById('custom_username').value.trim();
+            }
 
-            if (!username) {
-                showError("Por favor, preencha o seu Nome de Dev antes de gerar o Dump.");
+            if (!finalUsername) {
+                showError("Por favor, selecione seu nome ou digite no campo 'Outro' antes de gerar o Dump.");
                 return;
             }
 
@@ -485,7 +545,7 @@ if (is_dir($updatesDir)) {
             btnText.textContent = 'Gerando...';
 
             const formData = new FormData();
-            formData.append('username', username);
+            formData.append('username', finalUsername);
 
             fetch('generate_dump.php', { method: 'POST', body: formData })
             .then(r => r.json())
