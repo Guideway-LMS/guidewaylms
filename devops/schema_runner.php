@@ -60,7 +60,7 @@ try {
     $message = "Operação concluída com sucesso!";
 
     if ($action === 'manual') {
-        $updatesDir = JPATH_BASE . '/database/updates';
+        $updatesDir = JPATH_BASE . '/devops/database/updates';
         if (!is_dir($updatesDir)) {
             mkdir($updatesDir, 0755, true);
         }
@@ -79,11 +79,11 @@ try {
         $fileContent .= $portableSql . ";\n";
 
         if (file_put_contents($filePath, $fileContent) === false) {
-            throw new Exception("SQL executado, mas falha ao salvar o arquivo em database/updates/.");
+            throw new Exception("SQL executado, mas falha ao salvar o arquivo em devops/database/updates/.");
         }
 
         $message = $saveOnly 
-            ? "Script '$fileName' salvo com sucesso na pasta database/updates/."
+            ? "Script '$fileName' salvo com sucesso na pasta devops/database/updates/."
             : "Script executado no banco e salvo como '$fileName'.";
     } elseif ($action === 'auto') {
         $message = "Sincronização automática aplicada com sucesso no MariaDB!";

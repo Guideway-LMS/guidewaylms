@@ -3,7 +3,7 @@ define('_JEXEC', 1);
 define('JPATH_BASE', dirname(__DIR__));
 
 // Lista de Dumps
-$dumpDir = JPATH_BASE . '/_dumps';
+$dumpDir = JPATH_BASE . '/devops/database/_dumps';
 $files = [];
 if (is_dir($dumpDir)) {
     $scanned_files = scandir($dumpDir);
@@ -22,7 +22,7 @@ if (is_dir($dumpDir)) {
 }
 
 // Lista de Updates
-$updatesDir = JPATH_BASE . '/database/updates';
+$updatesDir = JPATH_BASE . '/devops/database/updates';
 $updateFiles = [];
 if (is_dir($updatesDir)) {
     $uScanned_files = scandir($updatesDir);
@@ -187,7 +187,7 @@ if (is_dir($updatesDir)) {
                     <h2>Inserir Script Manual</h2>
                 </div>
                 <div class="info-box" style="margin-bottom: 15px; padding: 12px;">
-                    <p style="margin-top:0; font-size: 13px;">Gera um arquivo <code>.sql</code> na pasta <code>database/updates/</code> com timestamp.</p>
+                    <p style="margin-top:0; font-size: 13px;">Gera um arquivo <code>.sql</code> na pasta <code>devops/database/updates/</code> com timestamp.</p>
                 </div>
                 
                 <div class="form-group">
@@ -200,7 +200,7 @@ if (is_dir($updatesDir)) {
                 </div>
                 
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button class="btn btn-blue" onclick="runManualScript(true)" id="btn-ms-save" title="Salva na pasta database/updates/ mas NÃO aplica no DB.">💾 Só Salvar</button>
+                    <button class="btn btn-blue" onclick="runManualScript(true)" id="btn-ms-save" title="Salva na pasta devops/database/updates/ mas NÃO aplica no DB.">💾 Só Salvar</button>
                     <button class="btn btn-orange" onclick="runManualScript(false)" id="btn-ms-exec" title="Salva na pasta e aplica a query no seu Banco.">🚀 Salvar e Executar</button>
                 </div>
                 <div id="ms-status" style="margin-top: 10px; font-size: 13px;"></div>
@@ -252,7 +252,7 @@ if (is_dir($updatesDir)) {
                 <div id="status-msg"></div>
 
                 <div style="margin-top: 20px;">
-                    <h3 style="font-size: 14px; color: #a0aec0; margin-bottom: 10px;">📁 _dumps/</h3>
+                    <h3 style="font-size: 14px; color: #a0aec0; margin-bottom: 10px;">📁 database/_dumps/</h3>
                     <?php if (empty($files)): ?>
                         <div class="empty-state">Nenhum dump.</div>
                     <?php else: ?>
@@ -264,7 +264,7 @@ if (is_dir($updatesDir)) {
                                         <span class="file-meta">📅 <?php echo $file['date']; ?> • 💾 <?php echo $file['size']; ?></span>
                                     </div>
                                     <div class="file-actions">
-                                        <a href="../_dumps/<?php echo urlencode($file['name']); ?>" download>⬇</a>
+                                        <a href="database/_dumps/<?php echo urlencode($file['name']); ?>" download>⬇</a>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -278,7 +278,7 @@ if (is_dir($updatesDir)) {
                 <div class="panel-header">
                     <div class="panel-icon">🔄</div>
                     <h2>Scripts de Update Pendentes</h2>
-                    <span style="margin-left:auto; font-size:12px; color:#a0aec0;">database/updates/*.sql</span>
+                    <span style="margin-left:auto; font-size:12px; color:#a0aec0;">devops/database/updates/*.sql</span>
                 </div>
                 <?php if (empty($updateFiles)): ?>
                     <div class="empty-state" style="padding: 20px;">Nenhum script de update manual encontrado.</div>

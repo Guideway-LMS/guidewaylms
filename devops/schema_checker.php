@@ -31,7 +31,7 @@ try {
     ]);
 
     // 1. Achar o Dump Mais Recente
-    $dumpDir = JPATH_BASE . '/_dumps';
+    $dumpDir = JPATH_BASE . '/devops/database/_dumps';
     $latestDumpFile = null;
     $latestTime = 0;
 
@@ -73,7 +73,7 @@ try {
     }
 
     if (!$latestDumpFile) {
-        throw new Exception("Nenhum dump encontrado na pasta _dumps/.");
+        throw new Exception("Nenhum dump encontrado na pasta devops/database/_dumps/.");
     }
 
     $dumpContent = file_get_contents($latestDumpFile);

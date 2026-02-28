@@ -21,7 +21,7 @@ if (empty($username)) $username = 'dev';
 
 $date = date('dmy_His'); // Added His for better uniqueness when multiple dumps happen
 $filename = "{$username}_{$date}.sql";
-$outputDir = JPATH_BASE . '/_dumps';
+$outputDir = JPATH_BASE . '/devops/database/_dumps';
 $outputFile = $outputDir . '/' . $filename;
 
 // Garante que a pasta existe
