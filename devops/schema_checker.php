@@ -45,23 +45,26 @@ try {
                 // Isso é imune ao git pull alterando o filemtime
                 $handle = @fopen($filePath, "r");
                 $internalTime = 0;
+                $isOfficialDump = false;
+
                 if ($handle) {
                     for ($i = 0; $i < 5; $i++) {
                         $line = fgets($handle);
                         if ($line === false) break;
                         
-                        // Example: -- Gerado em: 2026-02-25 15:30:00
+                        // Exemplo: -- Gerado em: 2026-02-25 15:30:00
                         if (preg_match('/-- Gerado em: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $line, $matches)) {
                             $internalTime = strtotime($matches[1]);
+                            $isOfficialDump = true;
                             break;
                         }
                     }
                     fclose($handle);
                 }
                 
-                // Fallback para o filemtime caso não ache a data interna
-                if ($internalTime === 0) {
-                    $internalTime = filemtime($filePath);
+                // Ignorar completamente arquivos que não possuem o cabeçalho oficial de Dump
+                if (!$isOfficialDump) {
+                    continue;
                 }
 
                 if ($internalTime > $latestTime) {

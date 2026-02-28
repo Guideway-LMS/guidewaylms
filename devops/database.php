@@ -9,15 +9,41 @@ if (is_dir($dumpDir)) {
     $scanned_files = scandir($dumpDir);
     foreach ($scanned_files as $file) {
         if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
-            $files[] = [
-                'name' => $file,
-                'date' => date("d/m/Y H:i:s", filemtime($dumpDir . '/' . $file)),
-                'size' => round(filesize($dumpDir . '/' . $file) / 1024 / 1024, 2) . ' MB'
-            ];
+            $filePath = $dumpDir . '/' . $file;
+            
+            // Verificar se é um dump oficial lendo as primeiras linhas
+            $isOfficialDump = false;
+            $internalTime = filemtime($filePath); // Default para fallback visual se precisar
+            
+            $handle = @fopen($filePath, "r");
+            if ($handle) {
+                for ($i = 0; $i < 5; $i++) {
+                    $line = fgets($handle);
+                    if ($line === false) break;
+                    
+                    if (preg_match('/-- Gerado em: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $line, $matches)) {
+                        $internalTime = strtotime($matches[1]);
+                        $isOfficialDump = true;
+                        break;
+                    }
+                }
+                fclose($handle);
+            }
+
+            // Só adiciona na lista se tiver o cabeçalho oficial de Dump
+            if ($isOfficialDump) {
+                $files[] = [
+                    'name' => $file,
+                    'date' => date("d/m/Y H:i:s", $internalTime),
+                    'internalTime' => $internalTime,
+                    'size' => round(filesize($filePath) / 1024 / 1024, 2) . ' MB'
+                ];
+            }
         }
     }
-    usort($files, function($a, $b) use ($dumpDir) {
-        return filemtime($dumpDir . '/' . $b['name']) - filemtime($dumpDir . '/' . $a['name']);
+    // Ordenar pela data interna, decrescente
+    usort($files, function($a, $b) {
+        return $b['internalTime'] - $a['internalTime'];
     });
 }
 
@@ -57,7 +83,7 @@ if (is_dir($updatesDir)) {
         .back-btn { background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; }
         .back-btn:hover { background: rgba(255,255,255,0.2); }
 
-        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start; }
         .full-width { grid-column: 1 / -1; }
         .panel { background: #16213e; border-radius: 12px; padding: 25px; border: 1px solid #1f4068; }
         .panel-header { display: flex; align-items: center; margin-bottom: 20px; gap: 10px; border-bottom: 1px solid #1f4068; padding-bottom: 15px; }
@@ -133,6 +159,14 @@ if (is_dir($updatesDir)) {
         .user-btn:hover { background: #2d3748; border-color: #4a5568; }
         .user-btn.active { background: rgba(56,161,105,0.2); border-color: #48bb78; color: #48bb78; font-weight: 600; box-shadow: 0 0 8px rgba(72,187,120,0.2); }
         #custom-username-box { display: none; margin-top: 10px; }
+
+        /* Responsividade */
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; text-align: center; gap: 15px; }
+            .action-area { flex-direction: column; align-items: stretch; }
+            #btn-generate { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body>
@@ -180,30 +214,60 @@ if (is_dir($updatesDir)) {
                 <div id="checker-result" style="display: none;"></div>
             </div>
 
-            <!-- Scripts Manuais -->
-            <div class="panel">
-                <div class="panel-header">
-                    <div class="panel-icon">➕</div>
-                    <h2>Inserir Script Manual</h2>
+            <div class="left-column" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Scripts Manuais -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-icon">➕</div>
+                        <h2>Inserir Script Manual</h2>
+                    </div>
+                    <div class="info-box" style="margin-bottom: 15px; padding: 12px;">
+                        <p style="margin-top:0; font-size: 13px;">Gera um arquivo <code>.sql</code> na pasta <code>devops/database/updates/</code> com timestamp.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Título (ex: add_tags)</label>
+                        <input type="text" id="manual_title" placeholder="add_forum_tags">
+                    </div>
+                    <div class="form-group">
+                        <label>Comando SQL (USE #__ PARA PREFIXO)</label>
+                        <textarea id="manual_sql" rows="4" placeholder="ALTER TABLE `#__tabela` ADD COLUMN ..."></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-blue" onclick="runManualScript(true)" id="btn-ms-save" title="Salva na pasta devops/database/updates/ mas NÃO aplica no DB.">💾 Só Salvar</button>
+                        <button class="btn btn-orange" onclick="runManualScript(false)" id="btn-ms-exec" title="Salva na pasta e aplica a query no seu Banco.">🚀 Salvar e Executar</button>
+                    </div>
+                    <div id="ms-status" style="margin-top: 10px; font-size: 13px;"></div>
                 </div>
-                <div class="info-box" style="margin-bottom: 15px; padding: 12px;">
-                    <p style="margin-top:0; font-size: 13px;">Gera um arquivo <code>.sql</code> na pasta <code>devops/database/updates/</code> com timestamp.</p>
+
+                <!-- Updates Pendentes -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-icon">🔄</div>
+                        <h2>Scripts de Update Pendentes</h2>
+                        <span style="margin-left:auto; font-size:12px; color:#a0aec0;">devops/database/updates/*.sql</span>
+                    </div>
+                    <?php if (empty($updateFiles)): ?>
+                        <div class="empty-state" style="padding: 20px;">Nenhum script de update manual encontrado.</div>
+                    <?php else: ?>
+                        <div style="display: grid; gap: 10px;">
+                            <?php foreach ($updateFiles as $idx => $file): ?>
+                                <div class="diff-item" style="border-left-color: #3182ce;">
+                                    <div>
+                                        <div class="file-name"><?php echo htmlspecialchars($file['name']); ?></div>
+                                        <div class="file-meta">Criado em: <?php echo $file['date']; ?></div>
+                                        <div style="margin-top:8px;">
+                                            <code style="font-size:11px;"><?php echo htmlspecialchars(substr($file['content'], 0, 80)); ?>...</code>
+                                        </div>
+                                        <textarea id="up_<?php echo $idx; ?>" style="display:none;"><?php echo htmlspecialchars($file['content']); ?></textarea>
+                                    </div>
+                                    <button class="btn btn-sm btn-green" onclick="runAutoFix(document.getElementById('up_<?php echo $idx; ?>').value, false)">▶ Rodar no Banco</button>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
-                
-                <div class="form-group">
-                    <label>Título (ex: add_tags)</label>
-                    <input type="text" id="manual_title" placeholder="add_forum_tags">
-                </div>
-                <div class="form-group">
-                    <label>Comando SQL (USE #__ PARA PREFIXO)</label>
-                    <textarea id="manual_sql" rows="4" placeholder="ALTER TABLE `#__tabela` ADD COLUMN ..."></textarea>
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button class="btn btn-blue" onclick="runManualScript(true)" id="btn-ms-save" title="Salva na pasta devops/database/updates/ mas NÃO aplica no DB.">💾 Só Salvar</button>
-                    <button class="btn btn-orange" onclick="runManualScript(false)" id="btn-ms-exec" title="Salva na pasta e aplica a query no seu Banco.">🚀 Salvar e Executar</button>
-                </div>
-                <div id="ms-status" style="margin-top: 10px; font-size: 13px;"></div>
             </div>
 
             <!-- Dumps -->
@@ -271,34 +335,6 @@ if (is_dir($updatesDir)) {
                         </div>
                     <?php endif; ?>
                 </div>
-            </div>
-            
-            <!-- Updates Pendentes -->
-            <div class="panel full-width">
-                <div class="panel-header">
-                    <div class="panel-icon">🔄</div>
-                    <h2>Scripts de Update Pendentes</h2>
-                    <span style="margin-left:auto; font-size:12px; color:#a0aec0;">devops/database/updates/*.sql</span>
-                </div>
-                <?php if (empty($updateFiles)): ?>
-                    <div class="empty-state" style="padding: 20px;">Nenhum script de update manual encontrado.</div>
-                <?php else: ?>
-                    <div style="display: grid; gap: 10px;">
-                        <?php foreach ($updateFiles as $idx => $file): ?>
-                            <div class="diff-item" style="border-left-color: #3182ce;">
-                                <div>
-                                    <div class="file-name"><?php echo htmlspecialchars($file['name']); ?></div>
-                                    <div class="file-meta">Criado em: <?php echo $file['date']; ?></div>
-                                    <div style="margin-top:8px;">
-                                        <code style="font-size:11px;"><?php echo htmlspecialchars(substr($file['content'], 0, 80)); ?>...</code>
-                                    </div>
-                                    <textarea id="up_<?php echo $idx; ?>" style="display:none;"><?php echo htmlspecialchars($file['content']); ?></textarea>
-                                </div>
-                                <button class="btn btn-sm btn-green" onclick="runAutoFix(document.getElementById('up_<?php echo $idx; ?>').value, false)">▶ Rodar no Banco</button>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
             </div>
 
         </div>
