@@ -9,7 +9,7 @@ define('JPATH_BASE', dirname(__DIR__));
 header('Content-Type: application/json');
 
 try {
-    // Read from Joomla configuration.php
+    // Ler do configuration.php do Joomla
     $configFile = JPATH_BASE . '/configuration.php';
     if (!file_exists($configFile)) {
         throw new Exception("configuration.php não encontrado.");
@@ -23,7 +23,7 @@ try {
     $dbName = $config->db;
     $prefix = $config->dbprefix;
 
-    // Connect via PDO
+    // Conectar via PDO
     $dsn = "mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4";
     $pdo = new PDO($dsn, $dbUser, $dbPass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -39,23 +39,23 @@ try {
         throw new Exception("O comando SQL não pode estar vazio.");
     }
 
-    // Replace generic #__ with actual prefix
+    // Substituir o genérico #__ pelo prefixo real
     $sql = str_replace('#__', $prefix, $sqlRaw);
 
-    // 1. Run SQL (if requested)
+    // 1. Executar SQL (caso solicitado)
     if (!$saveOnly) {
         try {
-            // Can be multiple queries separated by semicolons.
-            // Note: We don't use beginTransaction() here because DDL commands 
-            // like ALTER TABLE and CREATE TABLE trigger implicit commits in MySQL, 
-            // which causes "There is no active transaction" errors on rollBack().
+            // Podem ser múltiplas queries separadas por ponto-e-vírgula.
+            // Nota: Não usamos beginTransaction() aqui porque os comandos DDL 
+            // como ALTER TABLE e CREATE TABLE engatilham commits implícitos no MySQL, 
+            // o que causa erros de "There is no active transaction" no rollBack().
             $pdo->exec($sql);
         } catch (Exception $e) {
             throw new Exception("Erro ao executar SQL no banco: " . $e->getMessage());
         }
     }
 
-    // 2. Save File (if manual action)
+    // 2. Salvar Arquivo (caso seja ação manual)
     $fileName = null;
     $message = "Operação concluída com sucesso!";
 
@@ -65,7 +65,7 @@ try {
             mkdir($updatesDir, 0755, true);
         }
 
-        // Sanitize title
+        // Sanitizar título
         $titleClean = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($title));
         $dateStr = date('Ymd_His');
         $fileName = "{$dateStr}_{$titleClean}.sql";
@@ -74,7 +74,7 @@ try {
         $fileContent = "-- Guideway LMS Database Update\n";
         $fileContent .= "-- Assunto: " . htmlspecialchars($title) . "\n";
         $fileContent .= "-- Data: " . date('Y-m-d H:i:s') . "\n\n";
-        // Revert any specific prefix back to #__ for portability in the Git repo
+        // Reverter qualquer prefixo específico de volta para #__ visando a portabilidade no repositório Git
         $portableSql = str_replace($prefix, '#__', $sql);
         $fileContent .= $portableSql . ";\n";
 

@@ -9,7 +9,7 @@ define('JPATH_BASE', dirname(__DIR__));
 header('Content-Type: application/json');
 
 try {
-    // Read from Joomla configuration.php
+    // Ler do configuration.php do Joomla
     $configFile = JPATH_BASE . '/configuration.php';
     if (!file_exists($configFile)) {
         throw new Exception("configuration.php não encontrado.");
@@ -23,7 +23,7 @@ try {
     $dbName = $config->db;
     $prefix = $config->dbprefix;
 
-    // Connect via PDO
+    // Conectar via PDO
     $dsn = "mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4";
     $pdo = new PDO($dsn, $dbUser, $dbPass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -41,8 +41,8 @@ try {
             if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
                 $filePath = $dumpDir . '/' . $file;
                 
-                // Read the first few lines to find the internal generation date
-                // This is immune to git pull changing the filemtime
+                // Ler as primeiras linhas para encontrar a data interna de geração
+                // Isso é imune ao git pull alterando o filemtime
                 $handle = @fopen($filePath, "r");
                 $internalTime = 0;
                 if ($handle) {
@@ -59,7 +59,7 @@ try {
                     fclose($handle);
                 }
                 
-                // Fallback to filemtime if no internal date was found
+                // Fallback para o filemtime caso não ache a data interna
                 if ($internalTime === 0) {
                     $internalTime = filemtime($filePath);
                 }
@@ -92,21 +92,21 @@ try {
             $rawColumnsBlock = $tableMatches[2][$index];
             $fullCreateStmt = $tableMatches[0][$index];
             
-            // Normalize prefix to #__
+            // Normalizar prefixo para #__
             $normalizedName = str_replace($prefix, '#__', $tableName);
             
             $dumpCreates[$normalizedName] = $fullCreateStmt;
             $dumpSchema[$normalizedName] = [];
             
-            // Parse columns in the block
+            // Parsear colunas do bloco
             $lines = explode("\n", $rawColumnsBlock);
             foreach ($lines as $line) {
                 $line = trim($line);
-                // Ignore empty lines, keys, constraint etc for column matching
+                // Ignorar linhas vazias, keys, constraint etc., para checagem das colunas
                 if (empty($line)) continue;
                 if (preg_match("/^(PRIMARY KEY|KEY|UNIQUE KEY|CONSTRAINT|FULLTEXT|INDEX)\b/i", $line)) continue;
                 
-                // Match column
+                // Match da coluna
                 if (preg_match("/^\`([^\`]+)\`\s+([A-Za-z0-9_]+(?:\([^)]+\))?.*?)(?:,|$)/i", $line, $colMatch)) {
                     $colName = $colMatch[1];
                     $colDef = $colMatch[2]; // ex: "int(11) NOT NULL AUTO_INCREMENT"

@@ -347,7 +347,7 @@ if (is_dir($updatesDir)) {
                             <p>O seu banco de dados local está idêntico à estrutura do último Dump do Git.</p>
                         </div>`;
                     } else {
-                        // Missing Tables
+                        // Tabelas Faltando (Missing Tables)
                         data.diff.missing_tables.forEach(t => {
                             const idx = pendingSqls.length;
                             pendingSqls.push(t.sql);
@@ -361,7 +361,7 @@ if (is_dir($updatesDir)) {
                             </div>`;
                         });
                         
-                        // Missing Columns
+                        // Colunas Faltando (Missing Columns)
                         data.diff.missing_columns.forEach(c => {
                             const idx = pendingSqls.length;
                             pendingSqls.push(c.sql);
@@ -375,7 +375,7 @@ if (is_dir($updatesDir)) {
                             </div>`;
                         });
 
-                        // Extra warnings
+                        // Alertas Extras (Extra warnings)
                         if (data.diff.extra_tables.length > 0 || data.diff.extra_columns.length > 0) {
                              let extrasList = '';
                              data.diff.extra_tables.forEach(t => {
@@ -406,7 +406,7 @@ if (is_dir($updatesDir)) {
             runAutoFix(pendingSqls[index], false);
         }
 
-        // === Modal Functions ===
+        // === Funções do Modal ===
         function showModal(icon, title, msg, buttons) {
             document.getElementById('modal-icon').textContent = icon;
             document.getElementById('modal-title').textContent = title;
@@ -437,7 +437,7 @@ if (is_dir($updatesDir)) {
             ]);
         }
 
-        // === Auto Fix ===
+        // === Correção Automática (Auto Fix) ===
         function runAutoFix(sqlData, isBase64) {
             let sql = sqlData;
             if (isBase64) {
@@ -509,7 +509,7 @@ if (is_dir($updatesDir)) {
         function selectUser(btn, val) {
             // Remove active de todos
             document.querySelectorAll('.user-btn').forEach(el => el.classList.remove('active'));
-            // Add active no clicado
+            // Adicionar classe active no clicado
             btn.classList.add('active');
             
             selectedUsername = val;

@@ -19,7 +19,7 @@ $usernameRaw = isset($_POST['username']) ? $_POST['username'] : 'dev';
 $username = preg_replace('/[^a-zA-Z0-9_]/', '', strtolower($usernameRaw));
 if (empty($username)) $username = 'dev';
 
-$date = date('dmy_His'); // Added His for better uniqueness when multiple dumps happen
+$date = date('dmy_His'); // Adicionado His para melhor singularidade quando existem múltiplos dumps acontecendo
 $filename = "{$username}_{$date}.sql";
 $outputDir = JPATH_BASE . '/devops/database/_dumps';
 $outputFile = $outputDir . '/' . $filename;
