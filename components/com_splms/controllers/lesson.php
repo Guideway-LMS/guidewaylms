@@ -153,39 +153,50 @@ class SplmsControllerLesson extends FormController {
         }
 
         // 5. BANCO DE DADOS
-        try {
-            Table::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_splms/tables');
-            $table = Table::getInstance('Submission', 'SplmsTable');
-            
-            $data = [
-                'user_id' => $user->id,
-                'lesson_id' => $lesson_id,
-                'course_id' => $course_id,
-                'teacher_id' => $teacher_id, // Variável injetada na gravação do banco
-                'file_path' => $dbPath,
-                'original_filename' => $originalFileName,
-                'status' => 0,
-                'submitted_at' => Factory::getDate()->toSql()
-            ];
-            
-            if (!$table->bind($data) || !$table->store()) {
-                throw new Exception($table->getError());
-            }
-
-            // Marca lição como completa
-            $model = $this->getModel('Lessons', 'SplmsModel');
-            if ($model) $model->completedItem($lesson_id, 'lesson', $user->id);
-
-            $this->setRedirect($redirectUrl, 'Trabalho enviado com sucesso!', 'success');
-            return true;
-            
-        } catch (Exception $e) {
-            // Limpa arquivo se der erro no banco
-            if (file_exists($targetPath)) {
-                File::delete($targetPath);
-            }
-            $this->setRedirect($redirectUrl, 'Erro: ' . $e->getMessage(), 'error');
-            return false;
-        }
+        // 5. BANCO DE DADOS - Usa Model ao invés de código direto
+try {
+    // Carrega o Model
+    BaseDatabaseModel::addIncludePath(JPATH_COMPONENT . '/models');
+    $model = BaseDatabaseModel::getInstance('Trabalho', 'SplmsModel');
+    
+    if (!$model) {
+        throw new Exception('Model Trabalho não encontrado.');
+    }
+    
+    // Busca teacher_id da lição
+    $teacher_id = $model->getTeacherId($lesson_id);
+    
+    // Prepara dados
+    $dados = [
+        'user_id' => $user->id,
+        'teacher_id' => $teacher_id,
+        'lesson_id' => $lesson_id,
+        'course_id' => $course_id,
+        'file_path' => $dbPath,
+        'original_filename' => $originalFileName
+    ];
+    
+    // Salva no banco via Model
+    if (!$model->salvarTrabalho($dados)) {
+        throw new Exception('Erro ao salvar trabalho no banco.');
+    }
+    
+    // Marca lição como completa
+    $lessonModel = $this->getModel('Lessons', 'SplmsModel');
+    if ($lessonModel) {
+        $lessonModel->completedItem($lesson_id, 'lesson', $user->id);
+    }
+    
+    $this->setRedirect($redirectUrl, 'Trabalho enviado com sucesso!', 'success');
+    return true;
+    
+} catch (Exception $e) {
+    // Limpa arquivo se der erro no banco
+    if (file_exists($targetPath)) {
+        File::delete($targetPath);
+    }
+    $this->setRedirect($redirectUrl, 'Erro: ' . $e->getMessage(), 'error');
+    return false;
+	}
     }
 }

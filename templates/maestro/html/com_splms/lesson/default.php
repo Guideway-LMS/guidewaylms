@@ -252,7 +252,7 @@ window.SPLMS_CONTEXT = {
                     </div>
 
                     <?php if ($attemptsLeft > 0) : ?>
-                         <form id="upload-form-trabalho" action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
+                         <form id="upload-form-trabalho" action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.uploadAssignment'); ?>" method="post" enctype="multipart/form-data">
                             <div class="upload-zone">
                                 <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
                                 <h3 class="upload-title" style="font-size: 18px;">Enviar Correção</h3>
@@ -281,7 +281,7 @@ window.SPLMS_CONTEXT = {
                     </div>
 
                 <?php else : ?>
-                    <form id="upload-form-trabalho" action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.submit'); ?>" method="post" enctype="multipart/form-data">
+                    <form id="upload-form-trabalho" action="<?php echo JRoute::_('index.php?option=com_splms&task=lesson.uploadAssignment'); ?>" method="post" enctype="multipart/form-data">
                         <div class="upload-zone">
                             <div style="font-size: 32px; color: #cbd5e1; margin-bottom: 10px;"><i class="fa fa-file-text-o"></i></div>
                             <h3 class="upload-title" style="font-size: 18px;">Área de Transferência</h3>
@@ -527,7 +527,7 @@ jQuery(function($) {
         
         btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enviando Trabalho...');
         
-        var formData = new FormData(this[0]);
+        var formData = new FormData(this);
         
         $.ajax({
             url: form.attr('action'),
