@@ -27,9 +27,9 @@
                         </div>
                     </div>
 
-                    <!-- Botão de Configurações do Quiz -->
-                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-small gw-ai-btn-quiz" title="Gerar Questões a partir do PDF">
-                        <span class="icon-list-view"></span> Gerar Quiz
+                    <!-- Botão de Configurações da Questão -->
+                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-small gw-ai-btn-quiz" title="Gerar Questão a partir do PDF">
+                        <span class="icon-list-view"></span> Gerar Questão
                     </button>
 
                     <!-- Conteúdo do Dropdown (Oculto) -->
@@ -41,11 +41,10 @@
 
                         <!-- Parâmetros (Sempre Ativos) -->
                         <div id="gw-ai-dropdown-params">
-                            <div class="control-group gw-mb-10">
+                            <div class="control-group gw-mb-10" style="display: none;">
                                 <label class="gw-ai-label-small">Tipo de Questão</label>
                                 <select id="gw-ai-qtype" class="form-control form-control-sm gw-ai-select">
-                                    <option value="optativa" selected>Optativa (Múltipla Escolha)</option>
-                                    <option value="dissertativa">Dissertativa</option>
+                                    <option value="dissertativa" selected>Dissertativa</option>
                                 </select>
                             </div>
 
@@ -59,13 +58,8 @@
                             </div>
                             
                             <div class="control-group gw-mb-15">
-                                <label class="gw-ai-label-small">Quantidade</label>
-                                <select id="gw-ai-qcount" class="form-control form-control-sm gw-ai-select">
-                                    <option value="3">3 Questões</option>
-                                    <option value="5" selected>5 Questões</option>
-                                    <option value="10">10 Questões</option>
-                                    <option value="15">15 Questões</option>
-                                </select>
+                                <label class="gw-ai-label-small">Quantidade (ex: 5, 7, 10)</label>
+                                <input type="number" id="gw-ai-qcount" class="form-control form-control-sm gw-ai-select" value="5" min="1" max="50" style="width: 100%; box-sizing: border-box;">
                             </div>
                         </div>
 

@@ -94,90 +94,12 @@ var GuidewayAI = (function ($) {
         return true;
     }
 
-    /**
-     * Formata o JSON de questões para HTML.
-     * @param {string|Array} jsonData - String JSON ou Objeto Array.
-     * @returns {string} HTML formatado.
-     */
-    function formatQuizToHTML(jsonData) {
-        var questions = [];
-        try {
-            questions = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-        } catch (e) {
-            console.error('Erro ao parsear JSON do Quiz', e);
-            return '<p>Erro: O retorno da IA não é um JSON válido.</p><pre>' + jsonData + '</pre>';
-        }
-
-        if (!Array.isArray(questions)) {
-            return '<p>Erro: O formato das questões está incorreto.</p>';
-        }
-
-        // Detecta tipo de questão baseado na primeira entrada
-        var isEssay = (questions.length > 0 && typeof questions[0].answer !== 'undefined');
-        var isMultipleChoice = (questions.length > 0 && typeof questions[0].options !== 'undefined');
-
-        var html = '<div class="gw-quiz-container">';
-        html += '<h3>Questões sobre o Conteúdo</h3>';
-
-        var gabarito = [];
-
-        $.each(questions, function (i, q) {
-            var num = i + 1;
-            html += '<div class="gw-quiz-question" style="margin-bottom: 20px;">';
-            html += '<h4>' + num + '. ' + q.question + '</h4>';
-
-            if (isMultipleChoice && q.options && q.options.length) {
-                // Múltipla Escolha
-                html += '<ul>';
-                var letters = ['A', 'B', 'C', 'D', 'E'];
-
-                $.each(q.options, function (idx, opt) {
-                    var letter = letters[idx] || '?';
-                    html += '<li>' + letter + ') ' + opt + '</li>';
-
-                    if (idx === q.correct_answer) {
-                        gabarito.push(num + ')' + letter);
-                    }
-                });
-                html += '</ul>';
-            } else if (isEssay && q.answer) {
-                // Dissertativa
-                html += '<br>'; // Espaço visual para aluno escrever
-                gabarito.push('<strong>' + num + ')</strong> ' + q.answer);
-            }
-
-            html += '</div>';
-            html += '<hr>';
-        });
-
-        // Adiciona Gabarito no Rodapé
-        if (gabarito.length > 0) {
-            html += '<div class="gw-quiz-footer" style="margin-top: 30px; padding: 15px; background: #f9f9f9; border: 1px solid #eee;">';
-            html += '<h4>Gabarito / Respostas Esperadas</h4>';
-
-            if (isMultipleChoice) {
-                // Múltipla Escolha: Inline
-                html += '<p>' + gabarito.join(' / ') + '</p>';
-            } else {
-                // Dissertativa: Lista
-                html += '<ul>';
-                $.each(gabarito, function (i, item) {
-                    html += '<li style="margin-bottom: 10px;">' + item + '</li>';
-                });
-                html += '</ul>';
-            }
-
-            html += '</div>';
-        }
-
-        html += '</div>';
-        return html;
-    }
+    // Removido formatQuizToHTML pois a IA agora retornará o HTML direto.
 
     /**
-     * Lida com o clique no botão "Gerar Descrição" ou "Gerar Quiz".
+     * Lida com o clique no botão "Gerar Descrição" ou "Gerar Questão".
      * Centraliza a validação e fluxo de envio.
-     * @param {boolean} forceQuiz - Se true, força o modo quiz ignorando outros estados.
+     * @param {boolean} forceQuiz - Se true, força o modo questão ignorando outros estados.
      */
     function handleGenerate(forceQuiz) {
         // Garantir booleano
@@ -189,12 +111,9 @@ var GuidewayAI = (function ($) {
         var prompt = $(selectors.promptInput).val();
         var hasFile = $(selectors.fileInput)[0].files.length > 0;
 
-        // Se forceQuiz não foi passado, verificamos se há algum estado legado (opcional)
-        // mas na nova UI, os botões são distintos.
-
-        // Se for Quiz, arquivo é obrigatório
+        // Se for Questão, arquivo é obrigatório
         if (isQuizMode && !hasFile) {
-            showAlert('Para gerar um Quiz, é obrigatório anexar um arquivo PDF.', 'error');
+            showAlert('Para gerar uma Questão, é obrigatório anexar um arquivo PDF.', 'error');
             return;
         }
 
@@ -217,7 +136,7 @@ var GuidewayAI = (function ($) {
             formData.append('gw_ai_file', $(selectors.fileInput)[0].files[0]);
         }
 
-        // Adiciona parâmetros de Quiz ou Prompt
+        // Adiciona parâmetros de Questão ou Prompt
         if (isQuizMode) {
             formData.append('gw_ai_difficulty', $(selectors.difficulty).val());
             formData.append('gw_ai_qcount', $(selectors.qcount).val());
@@ -245,10 +164,8 @@ var GuidewayAI = (function ($) {
                     var content = response.data || '';
                     console.log('PDF Processado com sucesso');
 
-                    // Se for modo Quiz, formata o JSON
-                    if (isQuizMode) {
-                        content = formatQuizToHTML(content);
-                    }
+                    // A IA agora retorna o HTML direto formatado (ou texto simples)
+                    // Não é mais necessário o formatQuizToHTML()
 
                     // Integração com o Editor TinyMCE
                     if (window.tinymce && tinymce.activeEditor) {
