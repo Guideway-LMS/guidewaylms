@@ -26,6 +26,11 @@ use Joomla\CMS\Uri\Uri;
 					</div>
 					<h3><?php echo $this->item->title; ?></h3>
 					<p><?php echo $this->item->description; ?></p>
+					<?php if (isset($this->attempts_info) && $this->attempts_info['max'] > 0): ?>
+						<p class="alert alert-info">
+							<strong>Tentativas:</strong> Você tem <?php echo $this->attempts_info['left']; ?> tentativa(s) restante(s) de um máximo de <?php echo $this->attempts_info['max']; ?>.
+						</p>
+					<?php endif; ?>
 				</div>
 				<button class="btn btn-primary startQuiz"><?php echo Text::_('COM_SPMS_START_QUIZ'); ?></button>
 				<a href="<?php echo Uri::root(); ?>" class="btn btn-default cancelQuiz">

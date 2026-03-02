@@ -114,7 +114,12 @@ class SplmsModelQuizquestion extends AdminModel {
 			$quizId = (int)$this->getState($this->getName() . '.id');
 			$topicId = isset($data['topic_id']) ? (int)$data['topic_id'] : 0;
 
-			if ($quizId > 0 && $topicId > 0) {
+			$db = Factory::getDbo();
+			$query = $db->getQuery(true)->select('id')->from('#__splms_lessons')->where('quiz_id = ' . (int)$quizId)->where('lesson_format = ' . $db->quote('quiz'));
+			$db->setQuery($query);
+			$existingLessonId = (int)$db->loadResult();
+
+			if ($existingLessonId > 0 || $topicId > 0) {
 				$this->createOrUpdateLesson($quizId, $data);
 			}
 
@@ -163,8 +168,8 @@ class SplmsModelQuizquestion extends AdminModel {
 
 		// Sync Fields
 		$lessonTable->title = $data['title'];
-		$lessonTable->course_id = isset($data['course_id']) ? $data['course_id'] : 0;
-		$lessonTable->topic_id = isset($data['topic_id']) ? $data['topic_id'] : 0;
+		if (!empty($data['course_id'])) $lessonTable->course_id = $data['course_id'];
+		if (!empty($data['topic_id'])) $lessonTable->topic_id = $data['topic_id'];
 		$lessonTable->description = isset($data['description']) ? $data['description'] : '';
 		
 		// Set Defaults for required fields to avoid SQL errors
@@ -173,8 +178,13 @@ class SplmsModelQuizquestion extends AdminModel {
 		if (empty($lessonTable->attachment)) $lessonTable->attachment = '';
 
 		// GUIDEWAY CUSTOM: Sync New Fields
-		$lessonTable->passing_score = isset($data['passing_score']) ? $data['passing_score'] : null;
-		$lessonTable->is_optional = isset($data['is_optional']) ? $data['is_optional'] : 0;
+		$jform = Factory::getApplication()->input->post->get('jform', array(), 'array');
+		
+		$pScore = isset($data['passing_score']) ? $data['passing_score'] : (isset($jform['passing_score']) ? $jform['passing_score'] : null);
+		$isOpt = isset($data['is_optional']) ? $data['is_optional'] : (isset($jform['is_optional']) ? $jform['is_optional'] : 0);
+
+		$lessonTable->passing_score = ($pScore !== null && $pScore !== '') ? (int)$pScore : null;
+		$lessonTable->is_optional = (int)$isOpt;
 
 		// Attempt to Save
 		try {
