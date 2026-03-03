@@ -40,6 +40,10 @@ tests-playwright/auth/*.json
 *.jpg
 *.jpeg
 
+
+node_modules/
+package-lock.json
+*.log
 # Playwright artifacts na raiz (por segurança)
 playwright-report/
 test-results/
