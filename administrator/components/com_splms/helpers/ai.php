@@ -39,30 +39,32 @@ class SplmsHelperAi
         }
 
         // prepare instructions
-        $customInstruction = "Crie um objeto JSON para um quiz.
+        $customInstruction = "Gere questões dissertativas sobre o conteúdo fornecido.
         Tópico: '{$topic}'
         Dificuldade: '{$difficulty}'
         Quantidade: {$count} perguntas.
         
-        O JSON deve seguir EXATAMENTE esta estrutura:
-        {
-            \"title\": \"Título do Quiz\",
-            \"description\": \"<p>Descrição</p>\",
-            \"questions\": [
-                {
-                    \"title\": \"Pergunta\",
-                    \"ans_one\": \"Opção 1\",
-                    \"ans_two\": \"Opção 2\",
-                    \"ans_three\": \"Opção 3\",
-                    \"ans_four\": \"Opção 4\",
-                    \"right_ans\": 0
-                }
-            ]
-        }
+        A saída deve ser EXATAMENTE em HTML, seguindo esta estrutura, sem adicionar crases (```html) ou textos fora do HTML:
+        <div class=\"gw-quiz-container\">
+            <h3>Questões para a Aula</h3>
+            <div class=\"gw-quiz-question\">
+                <h4>1. [Pergunta aqui]</h4>
+                <br><br>
+            </div>
+            <!-- e assim por diante para a quantidade pedida -->
+            <hr>
+            <div class=\"gw-quiz-footer\">
+                <h4>Gabarito Esperado</h4>
+                <ul>
+                    <li><strong>1)</strong> [Resposta esperada aqui]</li>
+                    <!-- e assim por diante... -->
+                </ul>
+            </div>
+        </div>
+
         O idioma deve ser Português do Brasil (pt-BR).";
 
-        // We pass the topic as the "content" to be processed, effectively
-        $contentToProcess = "Gerar quiz sobre: " . $topic;
+        $contentToProcess = "Gerar questões sobre: " . $topic;
 
         // Call the helper
         $result = \GuidewayAIHelper::processarTexto($contentToProcess, 'custom', $customInstruction);
@@ -74,17 +76,11 @@ class SplmsHelperAi
         $content = $result['data'];
         
         // Clean up markdown code blocks if present (despite prompt)
-        $content = preg_replace('/^```json\s*/', '', $content);
+        $content = preg_replace('/^```html\s*/', '', $content);
         $content = preg_replace('/^```\s*/', '', $content);
         $content = preg_replace('/\s*```$/', '', $content);
 
-        $quizData = json_decode($content, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Falha ao processar JSON da IA: ' . json_last_error_msg() . ' - Conteúdo: ' . $content);
-        }
-
-        return $quizData;
+        return $content;
     } // End generateQuiz
 
     /**

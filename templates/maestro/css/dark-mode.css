@@ -881,6 +881,76 @@ html[data-theme="dark"] .upload-card {
 }
 
 
+/* 4b. Quiz Start Screen (Before Quiz) */
+html[data-theme="dark"] .view-splms-quiz .before-start-quiz {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .before-start-quiz h3 {
+    color: #FFFFFF !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .before-start-quiz p {
+    color: #CCCCCC !important;
+}
+
+/* 4c. Quiz Question Container */
+html[data-theme="dark"] .view-splms-quiz .quizContainer {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--card-text) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .quizContainer h3.question {
+    color: #FFFFFF !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .choiceList label {
+    background: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--card-text) !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .choiceList label:hover {
+    background: #333333 !important;
+    border-color: #555555 !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .choiceList input[type='radio']:checked+label {
+    background: rgba(59, 130, 246, 0.15) !important;
+    border-color: #3b82f6 !important;
+    color: #93c5fd !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .countdown-wrapper,
+html[data-theme="dark"] .view-splms-quiz .quizContainer .countdown-wrapper {
+    background: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+    color: #ef4444 !important;
+    box-shadow: none !important;
+}
+
+/* 4d. Quiz Result Container (.result) */
+html[data-theme="dark"] .splms.view-splms-quiz .result {
+    background-color: var(--card-bg) !important;
+}
+
+/* 4e. Attempts Info Alert */
+html[data-theme="dark"] .view-splms-quiz .alert-info {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    color: #93c5fd !important;
+}
+
+/* 4f. Cancel Quiz Button */
+html[data-theme="dark"] .view-splms-quiz .cancelQuiz {
+    background: var(--input-bg) !important;
+    color: var(--card-text) !important;
+}
+
 /* 5. Quiz Result & Completed Cards (JS/PHP Generated) */
 html[data-theme="dark"] .quiz-result-card,
 html[data-theme="dark"] .quiz-completed-card {
@@ -888,6 +958,27 @@ html[data-theme="dark"] .quiz-completed-card {
     border-color: var(--border-color) !important;
     color: var(--card-text) !important;
     box-shadow: none !important;
+}
+
+/* 5b. Quiz Container Radio Labels (JS-generated inside .quizContainer) */
+html[data-theme="dark"] .view-splms-quiz .quizContainer .choiceList label {
+    background: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--card-text) !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .quizContainer .choiceList .radio label {
+    color: var(--card-text) !important;
+}
+
+html[data-theme="dark"] .view-splms-quiz .quizContainer .choiceList input[type="radio"]:checked+label {
+    color: #93c5fd !important;
+    font-weight: 700;
+}
+
+/* 5c. Result card sub-elements */
+html[data-theme="dark"] .lms-result-wrapper .result {
+    background-color: var(--card-bg) !important;
 }
 
 /* 6. Circular Progress Bar (Inner Circle) */
@@ -918,7 +1009,8 @@ html[data-theme="dark"] .quiz-result-card h3,
 html[data-theme="dark"] .quiz-completed-title {
     /* Title color usually handled by JS/inline style (green/red), 
        but we ensure base is visible just in case */
-    text-shadow: 0 0 2px rgba(0,0,0,0.5); /* Improve readability on dark */
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    /* Improve readability on dark */
 }
 
 html[data-theme="dark"] .result-submessage,
@@ -942,8 +1034,9 @@ html[data-theme="dark"] .choiceList li label {
     color: #E0E0E0 !important;
 }
 
-html[data-theme="dark"] .choiceList li .radio input[type="radio"] + label::before {
-    border-color: #666; /* Make radio border visible */
+html[data-theme="dark"] .choiceList li .radio input[type="radio"]+label::before {
+    border-color: #666;
+    /* Make radio border visible */
 }
 
 /* 11. Timer */
