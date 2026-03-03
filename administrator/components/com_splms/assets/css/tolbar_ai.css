@@ -361,3 +361,174 @@ body.theme-dark #gw-ai-loading {
     flex-direction: column;
     align-items: center;
 }
+
+/* --- Estilos do Dropdown Glassmorphism --- */
+
+.gw-ai-glass-dropdown {
+    background: rgba(43, 48, 62, 0.85) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    border-radius: 12px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 20px !important;
+    width: 320px !important;
+}
+
+.gw-ai-glass-dropdown .gw-ai-dropdown-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.gw-ai-glass-dropdown .gw-ai-label-small {
+    color: #a0aec0;
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: block;
+    text-align: center;
+}
+
+/* --- Controle Segmentado para Dificuldade --- */
+.gw-ai-segmented-control {
+    display: flex;
+    justify-content: space-around;
+    gap: 5px;
+    background: rgba(30, 33, 43, 0.6);
+    border-radius: 8px;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    width: 100%;
+}
+
+.gw-ai-segmented-control .btn-check {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+.gw-ai-segmented-control .btn {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 6px 4px;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: #718096;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.gw-ai-segmented-control .btn:hover {
+    color: #cbd5e0;
+}
+
+.gw-ai-segmented-control .btn-check:checked+.btn {
+    background: rgba(59, 130, 246, 0.15) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* --- Estilo do Input Numérico --- */
+.gw-ai-number-input-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.gw-ai-number-input {
+    width: 120px;
+    background: rgba(30, 33, 43, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 8px 15px !important;
+    font-size: 14px !important;
+    outline: none;
+    box-shadow: none !important;
+    text-align: center;
+}
+
+.gw-ai-number-input:focus {
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    background: rgba(30, 33, 43, 0.8) !important;
+}
+
+/* Estilos Customizados para Controles Giratórios Webkit */
+.gw-ai-number-input::-webkit-inner-spin-button,
+.gw-ai-number-input::-webkit-outer-spin-button {
+    opacity: 1;
+    height: 30px;
+    cursor: pointer;
+}
+
+/* --- Botão de Ação com Brilho --- */
+.gw-ai-btn-glow {
+    width: 100%;
+    margin-top: 15px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 10px 15px !important;
+    border-radius: 20px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4) !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.gw-ai-btn-glow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6) !important;
+}
+
+.gw-ai-btn-glow:active {
+    transform: translateY(1px);
+}
+
+/* --- Overlay do Modal e Comportamento --- */
+
+/* Quando o modal estiver ativo, aplica desfoque no fundo */
+body.gw-ai-modal-active>*:not(.gw-ai-dropdown-overlay):not(.gw-ai-dropdown) {
+    filter: blur(5px);
+    transition: filter 0.3s ease;
+    pointer-events: none;
+}
+
+/* Elemento base do overlay para clique externo */
+.gw-ai-dropdown-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    /* Overlay escuro semi-transparente */
+    z-index: 9998;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* Sobrescrita específica do Modal para centralizá-lo */
+.gw-ai-glass-dropdown.gw-ai-modal-mode {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 0;
+    z-index: 9999;
+}

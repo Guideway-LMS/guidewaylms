@@ -279,10 +279,29 @@ var GuidewayAI = (function ($) {
             handleGenerate(false);
         });
 
+        // Funções auxiliares para o modal
+        function showAIModal() {
+            var $dropdown = $(selectors.quizDropdown);
+            var $overlay = $('#gw-ai-dropdown-overlay');
+
+            // Move para o body para evitar problemas com transformações CSS de elementos pais
+            $('body').append($overlay).append($dropdown);
+
+            $dropdown.addClass('gw-ai-modal-mode').fadeIn('fast');
+            $overlay.fadeIn('fast');
+            $('body').addClass('gw-ai-modal-active');
+        }
+
+        function hideAIModal() {
+            $(selectors.quizDropdown).removeClass('gw-ai-modal-mode').hide();
+            $('#gw-ai-dropdown-overlay').hide();
+            $('body').removeClass('gw-ai-modal-active');
+        }
+
         // Botão Interno do Quiz (Geração de Quiz)
         $(document).on('click', selectors.quizSubmitBtn, function () {
             handleGenerate(true); // Força modo quiz
-            $(selectors.quizDropdown).hide(); // Fecha o menu apôs clique
+            hideAIModal();
         });
 
         // Revalida automaticamente ao trocar o arquivo
@@ -297,18 +316,25 @@ var GuidewayAI = (function ($) {
             e.stopPropagation();
             var $dropdown = $(selectors.quizDropdown);
 
-            if ($dropdown.is(':visible')) {
-                $dropdown.hide();
+            if ($dropdown.hasClass('gw-ai-modal-mode') || $dropdown.is(':visible')) {
+                hideAIModal();
             } else {
-                $dropdown.show();
+                showAIModal();
             }
         });
 
-        // Fechar dropdown ao clicar fora
+        // Fechar modal ao clicar no overlay
+        $(document).on('click', '#gw-ai-dropdown-overlay', function (e) {
+            hideAIModal();
+        });
+
+        // Legado: Fechar dropdown ao clicar fora (caso ainda não esteja como modal)
         $(document).on('click', function (e) {
-            // Se o clique não foi no wrapper do upload nem no dropdown em si
-            if (!$(e.target).closest('.gw-ai-upload-wrapper').length) {
-                $(selectors.quizDropdown).hide();
+            // Se o clique não foi no wrapper do upload nem no dropdown/overlay em si
+            if (!$(e.target).closest('.gw-ai-upload-wrapper').length && !$(e.target).closest('#gw-ai-dropdown-overlay').length) {
+                if ($(selectors.quizDropdown).is(':visible') && !$('body').hasClass('gw-ai-modal-active')) {
+                    $(selectors.quizDropdown).hide();
+                }
             }
         });
 
