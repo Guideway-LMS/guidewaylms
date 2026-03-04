@@ -142,6 +142,52 @@ class SplmsControllerLesson extends FormController {
             return false;
         }
 
+        // 5. BANCO DE DADOS
+        // 5. BANCO DE DADOS - Usa Model ao invés de código direto
+try {
+    // Carrega o Model
+    BaseDatabaseModel::addIncludePath(JPATH_COMPONENT . '/models');
+    $model = BaseDatabaseModel::getInstance('Trabalho', 'SplmsModel');
+    
+    if (!$model) {
+        throw new Exception('Model Trabalho não encontrado.');
+    }
+    
+    // Busca teacher_id da lição
+    $teacher_id = $model->getTeacherId($lesson_id);
+    
+    // Prepara dados
+    $dados = [
+        'user_id' => $user->id,
+        'teacher_id' => $teacher_id,
+        'lesson_id' => $lesson_id,
+        'course_id' => $course_id,
+        'file_path' => $dbPath,
+        'original_filename' => $originalFileName
+    ];
+    
+    // Salva no banco via Model
+    if (!$model->salvarTrabalho($dados)) {
+        throw new Exception('Erro ao salvar trabalho no banco.');
+    }
+    
+    // Marca lição como completa
+    $lessonModel = $this->getModel('Lessons', 'SplmsModel');
+    if ($lessonModel) {
+        $lessonModel->completedItem($lesson_id, 'lesson', $user->id);
+    }
+    
+    $this->setRedirect($redirectUrl, 'Trabalho enviado com sucesso!', 'success');
+    return true;
+    
+} catch (Exception $e) {
+    // Limpa arquivo se der erro no banco
+    if (file_exists($targetPath)) {
+        File::delete($targetPath);
+    }
+    $this->setRedirect($redirectUrl, 'Erro: ' . $e->getMessage(), 'error');
+    return false;
+	}
         // 5. BANCO DE DADOS (Blindado contra Erro 500)
         try {
             $data = new \stdClass();

@@ -6,43 +6,50 @@ import {
 } from '../../helpers/mural/mural.mjs';
 
 test('editar aviso existente', async ({ page }) => {
-    await login(page);
+  await login(page);
 
+  // Aguarda redirecionamento para área administrativa
   await page.waitForURL(/administrator/, { timeout: 25000 });
   await page.waitForLoadState('networkidle');
 
- 
-
+  // Navegação até o aviso
   await acessarMuralAvisos(page);
   await abrirPrimeiroAviso(page);
 
-  const novoTitulo = `Aviso editado ${Date.now()}`;
+  const timestamp = Date.now();
+  const tituloAtualizado = `Aviso editado ${timestamp}`;
+  const conteudoAtualizado = `Conteúdo editado automaticamente em ${new Date().toLocaleString()}`;
 
-  const campoTitulo = page.locator('#jform_title');
-  await campoTitulo.waitFor({ state: 'visible' });
-  await campoTitulo.fill(novoTitulo);
+  // Campo título
+  const inputTitulo = page.locator('#jform_title');
+  await inputTitulo.waitFor({ state: 'visible' });
+  await inputTitulo.fill(tituloAtualizado);
 
-  // TinyMCE
-  const editorFrame = page.frameLocator('iframe.tox-edit-area__iframe');
-  const editorBody = editorFrame.locator('body');
+  // Editor TinyMCE
+  const frameEditor = page.frameLocator('iframe.tox-edit-area__iframe');
+  const corpoEditor = frameEditor.locator('body');
 
-  await editorBody.waitFor({ state: 'visible' });
-  await editorBody.click();
-  await editorBody.press('Control+A');
-  await editorBody.press('Backspace');
+  await corpoEditor.waitFor({ state: 'visible' });
 
-  await editorBody.fill(
-    `Conteúdo editado automaticamente em ${new Date().toLocaleString()}`
-  );
+  // Limpa conteúdo anterior
+  await corpoEditor.click();
+  await corpoEditor.press('Control+A');
+  await corpoEditor.press('Delete');
 
-  await page.waitForSelector('#toolbar-save button', { state: 'visible' });
-  await page.click('#toolbar-save button');
+  // Insere novo conteúdo
+  await corpoEditor.fill(conteudoAtualizado);
 
+  // Salvar
+  const botaoSalvar = page.locator('#toolbar-save button');
+  await botaoSalvar.waitFor({ state: 'visible' });
+  await botaoSalvar.click();
+
+  // Validação final
   await page.waitForURL(/view=announcements/, { timeout: 10000 });
-  
-  const mensagemSucesso = page.locator(
+
+  const alertaSucesso = page.locator(
     '.alert-success, .message-success, .alert-message, .alert'
   );
 
-  await expect(mensagemSucesso).toBeVisible({ timeout: 15000 });
+  await expect(alertaSucesso).toBeVisible({ timeout: 15000 });
 });

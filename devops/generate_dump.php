@@ -7,6 +7,9 @@
 define('_JEXEC', 1);
 define('JPATH_BASE', dirname(__DIR__));
 
+// Define o fuso horário padrão para garantir que o timestamp do dump e nome do arquivo estejam corretos
+date_default_timezone_set('America/Sao_Paulo');
+
 // Configurações do Banco (usar 'mariadb' que é o nome do serviço Docker na rede interna)
 $dbHost = 'mariadb';
 $dbPort = '3306';
@@ -15,10 +18,13 @@ $dbPass = 'us35#w3(b)%';
 $dbName = 'guideway_lms_db';
 
 // Configurações do Arquivo
-$groupNumber = isset($_POST['group']) ? intval($_POST['group']) : 2;
-$date = date('dmy');
-$filename = "grupo{$groupNumber}_{$date}.sql";
-$outputDir = JPATH_BASE . '/_dumps';
+$usernameRaw = isset($_POST['username']) ? $_POST['username'] : 'dev';
+$username = preg_replace('/[^a-zA-Z0-9_]/', '', strtolower($usernameRaw));
+if (empty($username)) $username = 'dev';
+
+$date = date('dmy_His'); // Adicionado His para melhor singularidade quando existem múltiplos dumps acontecendo
+$filename = "{$username}_{$date}.sql";
+$outputDir = JPATH_BASE . '/devops/database/_dumps';
 $outputFile = $outputDir . '/' . $filename;
 
 // Garante que a pasta existe
@@ -39,7 +45,7 @@ try {
     // Iniciar arquivo de dump
     $dump = "-- Guideway LMS Database Dump\n";
     $dump .= "-- Gerado em: " . date('Y-m-d H:i:s') . "\n";
-    $dump .= "-- Grupo: {$groupNumber}\n";
+    $dump .= "-- Autor do Dump: {$usernameRaw}\n";
     $dump .= "-- Host: {$dbHost}:{$dbPort}\n";
     $dump .= "-- Database: {$dbName}\n\n";
     $dump .= "SET FOREIGN_KEY_CHECKS=0;\n";

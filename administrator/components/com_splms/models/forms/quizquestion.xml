@@ -35,6 +35,15 @@
  			required="true"
  		/>
 
+        <field 
+            name="max_attempts" 
+            type="number" 
+            label="Limite de Tentativas" 
+            description="Defina o número máximo de vezes que o aluno pode realizar este quiz. Deixe 1 para apenas uma tentativa, ou 0 para ilimitado." 
+            min="0" 
+            default="1" 
+        />
+
  		<field name="course_id"
 	     	type="courselist"
 	     	default=""

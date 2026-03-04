@@ -27,55 +27,51 @@
                         </div>
                     </div>
 
-                    <!-- Botão de Configurações do Quiz -->
-                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-small gw-ai-btn-quiz" title="Gerar Questões a partir do PDF">
-                        <span class="icon-list-view"></span> Gerar Quiz
+                    <!-- Botão de Configurações da Questão -->
+                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-small gw-ai-btn-quiz" title="Gerar Questão a partir do PDF">
+                        <span class="icon-list-view"></span> Gerar Questão
                     </button>
 
-                    <!-- Conteúdo do Dropdown (Oculto) -->
-                    <div id="gw-ai-quiz-dropdown" class="gw-ai-dropdown">
-                        
-                        <div class="gw-ai-dropdown-title">
-                            Configurar e Gerar Questões
-                        </div>
+                    <!-- Overlay do Modal (Bloqueio de tela e desfoque) -->
+                    <div id="gw-ai-dropdown-overlay" class="gw-ai-dropdown-overlay"></div>
 
-                        <!-- Parâmetros (Sempre Ativos) -->
+                    <!-- Conteúdo do Dropdown (Transformado em Modal via JS/CSS) -->
+                    <div id="gw-ai-quiz-dropdown" class="gw-ai-dropdown gw-ai-glass-dropdown">
+                        <div class="gw-ai-dropdown-title">Configurar e Gerar Questões</div>
+
                         <div id="gw-ai-dropdown-params">
-                            <div class="control-group gw-mb-10">
-                                <label class="gw-ai-label-small">Tipo de Questão</label>
-                                <select id="gw-ai-qtype" class="form-control form-control-sm gw-ai-select">
-                                    <option value="optativa" selected>Optativa (Múltipla Escolha)</option>
-                                    <option value="dissertativa">Dissertativa</option>
-                                </select>
+                            <!-- Tipo oculto -->
+                            <input type="hidden" id="gw-ai-qtype" value="dissertativa">
+
+                            <!-- Dificuldade Segmentada -->
+                            <div class="control-group gw-mb-15">
+                                <div class="gw-ai-segmented-control" role="group">
+                                    <input type="radio" class="btn-check" name="gw_ai_difficulty_radio" id="gw-ai-diff-facil" value="facil" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="gw-ai-diff-facil">Fácil</label>
+
+                                    <input type="radio" class="btn-check" name="gw_ai_difficulty_radio" id="gw-ai-diff-medio" value="medio" autocomplete="off" checked>
+                                    <label class="btn btn-outline-primary" for="gw-ai-diff-medio">Médio</label>
+
+                                    <input type="radio" class="btn-check" name="gw_ai_difficulty_radio" id="gw-ai-diff-dificil" value="dificil" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="gw-ai-diff-dificil">Difícil</label>
+                                </div>
+                                <!-- Input oculto para manter compatibilidade com o JS existente -->
+                                <input type="hidden" id="gw-ai-difficulty" value="medio">
                             </div>
 
-                            <div class="control-group gw-mb-10">
-                                <label class="gw-ai-label-small">Dificuldade</label>
-                                <select id="gw-ai-difficulty" class="form-control form-control-sm gw-ai-select">
-                                    <option value="facil">Fácil</option>
-                                    <option value="medio" selected>Médio</option>
-                                    <option value="dificil">Difícil</option>
-                                </select>
-                            </div>
-                            
+                            <!-- Quantidade -->
                             <div class="control-group gw-mb-15">
-                                <label class="gw-ai-label-small">Quantidade</label>
-                                <select id="gw-ai-qcount" class="form-control form-control-sm gw-ai-select">
-                                    <option value="3">3 Questões</option>
-                                    <option value="5" selected>5 Questões</option>
-                                    <option value="10">10 Questões</option>
-                                    <option value="15">15 Questões</option>
-                                </select>
+                                <label class="gw-ai-label-small">Quantidade (ex: 5, 7, 10)</label>
+                                <div class="gw-ai-number-input-wrapper">
+                                    <input type="number" id="gw-ai-qcount" class="gw-ai-number-input" value="5" min="1" max="50">
+                                </div>
                             </div>
                         </div>
-
-                        <hr class="gw-hr-margin">
 
                         <!-- Botão de Ação dentro do Menu -->
-                         <button type="button" id="gw-ai-quiz-submit-btn" class="btn btn-primary btn-small gw-ai-btn-block">
-                            <span class="icon-wand"></span> Gerar Agora
+                        <button type="button" id="gw-ai-quiz-submit-btn" class="gw-ai-btn-glow">
+                            <span class="icon-magic"></span> Gerar Agora
                         </button>
-
                     </div>
                 </div>
 

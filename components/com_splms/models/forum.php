@@ -247,7 +247,7 @@ class SplmsModelForum extends ItemModel
 			->join('LEFT', $db->quoteName('#__splms_forum_votes', 'v') . 
 				' ON a.id = v.item_id AND v.item_type = ' . $db->quote('answer') . ' AND v.user_id = ' . (int)$userId)
 			->where('a.question_id = ' . (int) $questionId)
-			->order('a.is_accepted DESC, a.created_on ASC'); // Respondidas primeiro, depois por data
+			->order('a.is_accepted DESC, upvotes DESC, a.created_on ASC'); // Aceita primeiro, depois mais votadas, depois por data
 
 		$db->setQuery($query);
 		return $db->loadObjectList();

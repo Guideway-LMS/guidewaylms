@@ -2981,7 +2981,7 @@
 
 .splms.view-splms-quiz .result {
   padding: 0;
-  background-color: #ffffff;
+  background-color: var(--card-bg, #ffffff);
   -webkit-transition: color 400ms, background-color 400ms, border-color 400ms;
   -o-transition: color 400ms, background-color 400ms, border-color 400ms;
   transition: color 400ms, background-color 400ms, border-color 400ms;
@@ -3632,15 +3632,15 @@ ul.course-info>li>a {
 
 /* Container Principal - Estilo Cartão */
 .view-splms-quiz .quizContainer {
-  background: #ffffff;
+  background: var(--card-bg, #ffffff);
   padding: 40px;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
   max-width: 850px;
   margin: 40px auto;
   font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #1e293b;
-  border: 1px solid #f1f5f9;
+  color: var(--body-text, #1e293b);
+  border: 1px solid var(--border-color, #f1f5f9);
 }
 
 /* Estilo do Timer - Emblema Flutuante */
@@ -3669,7 +3669,7 @@ ul.course-info>li>a {
 .view-splms-quiz .ques-ans-wrapper h3.question {
   font-size: 1.75rem;
   /* Better scale */
-  color: #0f172a;
+  color: var(--body-text, #0f172a);
   margin-bottom: 35px;
   line-height: 1.4;
   font-weight: 700;
@@ -3700,13 +3700,13 @@ ul.course-info>li>a {
   display: flex;
   align-items: center;
   padding: 18px 24px;
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
+  background: var(--card-bg, #ffffff);
+  border: 2px solid var(--border-color, #e2e8f0);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
-  color: #334155;
+  color: var(--body-text, #334155);
   font-size: 1.05rem;
   position: relative;
   padding-left: 60px;
@@ -3815,17 +3815,17 @@ ul.course-info>li>a {
 .view-splms-quiz .before-start-quiz {
   text-align: justify;
   padding: 80px 40px;
-  background: white;
+  background: var(--card-bg, white);
   border-radius: 24px;
   max-width: 920px;
   margin: 60px auto;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.04));
 }
 
 .view-splms-quiz .before-start-quiz h3 {
   font-size: 2.25rem;
-  color: #0f172a;
+  color: var(--body-text, #0f172a);
   margin-bottom: 24px;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -3833,7 +3833,7 @@ ul.course-info>li>a {
 
 .view-splms-quiz .before-start-quiz p {
   font-size: 1.25rem;
-  color: #475569;
+  color: var(--body-text, #475569);
   margin-bottom: 48px;
   line-height: 1.8;
   max-width: 800px;
@@ -3848,7 +3848,7 @@ ul.course-info>li>a {
 }
 
 .view-splms-quiz .quizContainer .countdown-wrapper {
-  background: #f8fafc;
+  background: var(--card-bg, #f8fafc);
   padding: 12px 24px;
   border-radius: 50px;
   display: inline-block;
@@ -3856,14 +3856,14 @@ ul.course-info>li>a {
   font-weight: 600;
   color: #ef4444;
   /* Vermelho para urgência */
-  border: 1px solid #fee2e2;
+  border: 1px solid var(--border-color, #fee2e2);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .view-splms-quiz .quizContainer h3.question {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--body-text, #1e293b);
   margin-bottom: 30px;
 }
 
@@ -3952,7 +3952,7 @@ ul.course-info>li>a {
 }
 
 .splms.view-splms-quiz .lms-result-wrapper .quiz-result-card {
-  background: #f9fafb;
+  background: var(--card-bg, #f9fafb);
   /* Cinza bem claro */
   padding: 60px 40px;
   border-radius: 24px;
@@ -3960,7 +3960,7 @@ ul.course-info>li>a {
   max-width: 800px;
   width: 100%;
   text-align: center;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.04));
   animation: fadeIn 0.5s ease-out;
   margin: 0 auto;
   display: block;
@@ -3988,7 +3988,7 @@ ul.course-info>li>a {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: #f9fafb;
+  background: var(--card-bg, #f9fafb);
   top: 10px;
   left: 10px;
   z-index: 0;
@@ -4008,7 +4008,7 @@ ul.course-info>li>a {
 .quiz-result-card .score-percent {
   font-size: 42px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--body-text, #1e293b);
   line-height: 1;
   margin-bottom: 5px;
 }
@@ -4023,7 +4023,7 @@ ul.course-info>li>a {
 .quiz-result-card h3 {
   font-size: 26px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--body-text, #0f172a);
   margin-bottom: 8px;
   margin-top: 0;
 }

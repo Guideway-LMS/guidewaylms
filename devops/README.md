@@ -16,7 +16,7 @@ Esta pasta contém scripts de teste e debug para o desenvolvimento do **Guideway
 
 **Como usar:**
 ```
-http://seu-dominio.com/guidewaylms/teste/test_announcements_check.php
+http://seu-dominio.com/guidewaylms/devops/test_announcements_check.php
 ```
 
 **Configuração:**
@@ -36,7 +36,7 @@ http://seu-dominio.com/guidewaylms/teste/test_announcements_check.php
 
 **Como usar:**
 ```
-http://seu-dominio.com/guidewaylms/teste/create_test_data.php
+http://seu-dominio.com/guidewaylms/devops/create_test_data.php
 ```
 
 **Nota:** Execute este script **ANTES** de rodar `test_announcements_check.php` se ainda não houver matrículas no sistema.
@@ -53,7 +53,7 @@ http://seu-dominio.com/guidewaylms/teste/create_test_data.php
 
 **Como usar:**
 ```
-http://seu-dominio.com/guidewaylms/teste/debug_db_columns.php
+http://seu-dominio.com/guidewaylms/devops/debug_db_columns.php
 ```
 
 **Configuração:**
@@ -73,7 +73,7 @@ http://seu-dominio.com/guidewaylms/teste/debug_db_columns.php
 
 **Como usar:**
 ```
-http://seu-dominio.com/guidewaylms/teste/groq_prompt_test.php
+http://seu-dominio.com/guidewaylms/devops/groq_prompt_test.php
 ```
 
 **Como funciona este teste:**
@@ -96,7 +96,7 @@ Este script envia um texto padrão (com erros propositais e propositalmente long
 
 **Como usar:**
 ```
-http://seu-dominio.com/guidewaylms/teste/test_callai_endpoint.php
+http://seu-dominio.com/guidewaylms/devops/test_callai_endpoint.php
 ```
 
 ---
@@ -116,7 +116,7 @@ http://seu-dominio.com/guidewaylms/teste/test_callai_endpoint.php
 
 **Como usar:**
 ```
-http://seu-dominio.com/guidewaylms/teste/pdf_upload_test.php
+http://seu-dominio.com/guidewaylms/devops/pdf_upload_test.php
 ```
 
 **⚠️ REQUISITO IMPORTANTE (Dependência):**
@@ -165,17 +165,17 @@ Se você não tem acesso ao composer no servidor:
 
 1. **Crie dados de teste:**
    ```
-   http://seu-dominio.com/guidewaylms/teste/create_test_data.php
+   http://seu-dominio.com/guidewaylms/devops/create_test_data.php
    ```
 
 2. **Verifique o schema (opcional):**
    ```
-   http://seu-dominio.com/guidewaylms/teste/debug_db_columns.php
+   http://seu-dominio.com/guidewaylms/devops/debug_db_columns.php
    ```
 
 3. **Execute o teste:**
    ```
-   http://seu-dominio.com/guidewaylms/teste/test_announcements_check.php
+   http://seu-dominio.com/guidewaylms/devops/test_announcements_check.php
    ```
 
 ### Debug de Problemas
@@ -226,7 +226,7 @@ Se você não tem acesso ao composer no servidor:
 
 - ⚠️ **NUNCA** deixe estes scripts em produção - são apenas para desenvolvimento/debug
 - ⚠️ Os scripts fazem bootstrap completo do Joomla e podem expor informações sensíveis
-- ⚠️ Mova ou delete a pasta `/teste/` antes do deploy em produção
+- ⚠️ Mova ou delete a pasta `/devops/` antes do deploy em produção
 
 ---
 
@@ -301,7 +301,7 @@ Uma vez configurada a chave, você pode executar o teste de duas formas: via **N
 ### Opção A: Via Navegador (Recomendado)
 
 1.  Acesse a pasta de testes no seu navegador:
-    `http://localhost/guidewaylms/teste/index.php` (ajuste a URL conforme seu ambiente).
+    `http://localhost/guidewaylms/devops/index.php` (ajuste a URL conforme seu ambiente).
 2.  No painel "Scripts de Teste", localize a coluna **🤖 Inteligência Artificial**.
 3.  Clique no botão **🤖 Groq Smoke Test**.
 
@@ -313,12 +313,12 @@ Se preferir ou precisar debugar via CLI:
 
 1.  Verifique se o arquivo está acessível:
     ```bash
-    docker exec -it php8.3 ls -l /var/www/html/guidewaylms/teste/groq_smoke_test.php
+    docker exec -it php8.3 ls -l /var/www/html/guidewaylms/devops/groq_smoke_test.php
     ```
 
 2.  Execute o teste:
     ```bash
-    docker exec -it php8.3 php /var/www/html/guidewaylms/teste/groq_smoke_test.php
+    docker exec -it php8.3 php /var/www/html/guidewaylms/devops/groq_smoke_test.php
     ```
 
 ### 3. Resultado Esperado

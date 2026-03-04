@@ -40,6 +40,10 @@ tests-playwright/auth/*.json
 *.jpg
 *.jpeg
 
+
+node_modules/
+package-lock.json
+*.log
 # Playwright artifacts na raiz (por segurança)
 playwright-report/
 test-results/
@@ -52,3 +56,6 @@ tests-playwright/.env
 
 # Playwright - arquivos gerados
 tests-playwright/package-lock.json
+
+# Debug logs
+components/com_splms/debug_log.txt
