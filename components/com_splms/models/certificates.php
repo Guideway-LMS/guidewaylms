@@ -107,5 +107,25 @@ class SplmsModelCertificates extends ListModel {
 		
 		return $result;
 	}
+	
+	/**
+     * Verifica se o usuário possui certificado para o curso (Regra da Sprint)
+     * Requisito: user_id = usuário logado AND course_id = curso atual
+     */
+    public function hasCertificate($userId, $courseId) {
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select('COUNT(*)')
+              ->from($db->quoteName('#__splms_certificates'))
+              ->where($db->quoteName('userid') . ' = ' . (int) $userId)
+              ->where($db->quoteName('course_id') . ' = ' . (int) $courseId)
+              ->where($db->quoteName('published') . ' = 1');
+
+        $db->setQuery($query);
+        
+        // Retorna true se encontrar um registro, satisfazendo a regra da Sprint
+        return (bool) $db->loadResult();
+    }
 
 }
