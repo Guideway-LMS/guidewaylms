@@ -97,7 +97,14 @@ class SplmsViewCertificate extends HtmlView
 		}
 
 		SplmsHelper::itemMeta($itemMeta);
-			
+
+		// Verifica se há um comando na URL para gerar o PDF (ex: &format=pdf)
+$input = Factory::getApplication()->input;
+if ($input->get('layout') == 'pdf') {
+    JLoader::register('CertificateHelper', JPATH_COMPONENT . '/helpers/CertificateHelper.php');
+    CertificateHelper::gerarPdf($this->item);
+    return;
+}			
 		parent::display($tpl);
 	}
 }

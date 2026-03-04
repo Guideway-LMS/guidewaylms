@@ -116,6 +116,19 @@ $doc->addStyleDeclaration('
     .badge-danger-custom { background: #ef4444; }
 ');
 
+// CSS GERAL E BOTÃO DE CERTIFICADO
+
+$doc->addStyleDeclaration('
+
+    .upload-card { background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 40px; text-align: center; transition: transform 0.2s ease; border: 1px solid #f0f0f0; }
+    .upload-zone { border: 2px dashed #e0e7ff; border-radius: 12px; padding: 30px; background: #fafbff; transition: all 0.3s ease; margin-bottom: 15px; position: relative; }
+    .status-icon { font-size: 48px; margin-bottom: 15px; display: block; }
+    .status-graded { color: #22c55e; }
+    .grade-display { font-size: 3rem; font-weight: 800; color: #333; margin: 15px 0; }
+    .btn-gw-cert { background: #1a73e8; color: white !important; padding: 15px 30px; border-radius: 8px; font-weight: bold; text-transform: uppercase; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; margin-top: 20px; box-shadow: 0 4px 15px rgba(26,115,232,0.3); transition: 0.3s; border:none; }
+    .btn-gw-cert:hover { background: #1557b0; transform: translateY(-2px); }
+');
+
 // --- JAVASCRIPT: A POLÍCIA DO ARQUIVO ---
 $doc->addScriptDeclaration('
 document.addEventListener("DOMContentLoaded", function() {
@@ -238,6 +251,14 @@ window.SPLMS_CONTEXT = {
                 <?php if ($submission && $submission->status == 1) : ?>
                     <i class="fa fa-check-circle status-icon status-graded"></i>
                     <h3 class="status-title status-graded">Trabalho Aprovado!</h3>
+
+                    <div class="gw-certificate-box">
+                        <h4>📜 Certificado Disponível</h4>
+                        <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id; ?>" class="btn-gw-cert" target="_blank">
+                            <i class="fa fa-graduation-cap"></i> BAIXAR MEU CERTIFICADO
+                        </a>
+                    </div>
+
                     <div class="grade-display"><?php echo number_format($submission->grade, 1); ?> <span style="font-size: 1rem; color: #999;">/ 100</span></div>
                     <?php if (!empty($submission->feedback)) : ?>
                         <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; text-align: left; border: 1px solid #c8e6c9; margin-top: 15px;">
@@ -360,6 +381,12 @@ window.SPLMS_CONTEXT = {
                     <?php if ($hasTakenQuiz && $quizPassed) : ?>
                         <i class="fa fa-check-circle" style="font-size: 48px; color: #22c55e; display: block; margin-bottom: 15px;"></i>
                         <h3 style="font-size: 22px; font-weight: 700; color: #22c55e; margin-bottom: 10px;">Quiz Concluído!</h3>
+                        <div style="background: #eff6ff; padding: 20px; border: 2px solid #3b82f6; border-radius: 12px; margin-top: 20px;">
+                            <h4 style="color: #1e40af;">🎓 Parabéns! Certificado Liberado.</h4>
+                            <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id ?? 14; ?>" class="btn-gw-cert" target="_blank">
+                                <i class="fa fa-certificate"></i> GERAR CERTIFICADO DE TESTE
+                            </a>
+                        </div>
                         <div style="font-size: 3rem; font-weight: 800; color: #22c55e; margin: 15px 0;">
                             <?php echo $quizPercent; ?>%
                         </div>
