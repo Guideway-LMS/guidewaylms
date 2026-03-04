@@ -54,15 +54,36 @@ if (is_dir($updatesDir)) {
     $uScanned_files = scandir($updatesDir);
     foreach ($uScanned_files as $file) {
         if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
+            $filePath = $updatesDir . '/' . $file;
+            $internalTime = 0;
+            $dateOutput = '';
+            
+            $handle = @fopen($filePath, "r");
+            if ($handle) {
+                for ($i = 0; $i < 5; $i++) {
+                    $line = fgets($handle);
+                    if ($line === false) break;
+                    
+                    if (preg_match('/-- Data: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $line, $matches)) {
+                        $internalTime = strtotime($matches[1]);
+                        $dateOutput = date("d/m/Y H:i:s", $internalTime);
+                        break;
+                    }
+                }
+                fclose($handle);
+            }
+
             $updateFiles[] = [
                 'name' => $file,
-                'date' => date("d/m/Y H:i:s", filemtime($updatesDir . '/' . $file)),
-                'content' => file_get_contents($updatesDir . '/' . $file)
+                'date' => $dateOutput, // Fica vazio se não achar a data real
+                'internalTime' => $internalTime,
+                'content' => file_get_contents($filePath)
             ];
         }
     }
-    usort($updateFiles, function($a, $b) use ($updatesDir) {
-        return filemtime($updatesDir . '/' . $b['name']) - filemtime($updatesDir . '/' . $a['name']);
+    // Ordenar pela data interna, decrescente (os sem data (0) ficam por último)
+    usort($updateFiles, function($a, $b) {
+        return $b['internalTime'] - $a['internalTime'];
     });
 }
 ?>
@@ -137,6 +158,8 @@ if (is_dir($updatesDir)) {
         .modal-btn-cancel:hover { background: #4a5568; }
         .modal-btn-confirm { background: linear-gradient(135deg, #48bb78, #38a169); color: #fff; }
         .modal-btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(72,187,120,0.4); }
+        .modal-btn-red { background: linear-gradient(135deg, #e53e3e, #c53030); color: #fff; }
+        .modal-btn-red:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229,62,62,0.4); }
         .modal-btn-ok { background: linear-gradient(135deg, #4299e1, #3182ce); color: #fff; min-width: 120px; }
         .modal-btn-ok:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,153,225,0.4); }
         .modal-btn-error { background: linear-gradient(135deg, #e53e3e, #c53030); color: #fff; min-width: 120px; }
@@ -245,7 +268,7 @@ if (is_dir($updatesDir)) {
                 <div class="panel">
                     <div class="panel-header">
                         <div class="panel-icon">🔄</div>
-                        <h2>Scripts de Update Pendentes</h2>
+                        <h2>Scripts de Update Feitos</h2>
                         <span style="margin-left:auto; font-size:12px; color:#a0aec0;">devops/database/updates/*.sql</span>
                     </div>
                     <?php if (empty($updateFiles)): ?>
@@ -256,7 +279,9 @@ if (is_dir($updatesDir)) {
                                 <div class="diff-item" style="border-left-color: #3182ce;">
                                     <div>
                                         <div class="file-name"><?php echo htmlspecialchars($file['name']); ?></div>
-                                        <div class="file-meta">Criado em: <?php echo $file['date']; ?></div>
+                                        <?php if (!empty($file['date'])): ?>
+                                            <div class="file-meta">Criado em: <?php echo $file['date']; ?></div>
+                                        <?php endif; ?>
                                         <div style="margin-top:8px;">
                                             <code style="font-size:11px;"><?php echo htmlspecialchars(substr($file['content'], 0, 80)); ?>...</code>
                                         </div>
@@ -411,20 +436,30 @@ if (is_dir($updatesDir)) {
                             </div>`;
                         });
 
-                        // Alertas Extras (Extra warnings)
+                        // Alertas Extras (Extra warnings) com botões de Desfazer
                         if (data.diff.extra_tables.length > 0 || data.diff.extra_columns.length > 0) {
                              let extrasList = '';
                              data.diff.extra_tables.forEach(t => {
-                                 extrasList += `<li>Tabela nova: <strong>${t}</strong></li>`;
+                                 const idx = pendingSqls.length;
+                                 pendingSqls.push(t.drop_sql);
+                                 extrasList += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
+                                     <span>Tabela nova Local: <strong>${t.table}</strong></span>
+                                     <button class="btn btn-sm btn-red" onclick="confirmDrop(${idx}, 'A tabela ${t.table}')">🗑️ Desfazer (Drop)</button>
+                                 </li>`;
                              });
                              data.diff.extra_columns.forEach(c => {
-                                 extrasList += `<li>Coluna nova: <strong>${c.column}</strong> na tabela <strong>${c.table}</strong></li>`;
+                                 const idx = pendingSqls.length;
+                                 pendingSqls.push(c.drop_sql);
+                                 extrasList += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
+                                     <span>Coluna nova Local: <strong>${c.column}</strong> na tabela <strong>${c.table}</strong></span>
+                                     <button class="btn btn-sm btn-red" onclick="confirmDrop(${idx}, 'A coluna ${c.column}')">🗑️ Desfazer (Drop)</button>
+                                 </li>`;
                              });
 
                              html += `<div class="info-box warning" style="margin-top: 20px; border-left-color: #ed8936; background: rgba(237,137,54,0.1);">
-                                <strong style="color: #ed8936;">⚠️ Aviso: Seu Banco Local possui itens extras não mapeados no Dump!</strong><br>
-                                <p style="margin-bottom: 8px;">Caso você tenha criado essas estruturas recentemente, gere um novo Dump abaixo para enviá-las ao repositório.</p>
-                                <ul style="margin-left: 20px; font-size: 13px; color: #cbd5e0; line-height: 1.6;">
+                                <strong style="color: #ed8936;">⚠️ Aviso: Seu Banco Local possui itens extras não mapeados no Dump Oficial!</strong><br>
+                                <p style="margin-bottom: 12px; margin-top: 5px;">Se você criou essas estruturas para a nova feature, gere um Novo Dump para enviá-las. Se foi apenas um teste e você quer limpar seu banco local voltando-o para o estado oficial do repositório, clique em Desfazer.</p>
+                                <ul style="margin-left: 0; padding-left: 0; list-style: none; font-size: 13px; color: #cbd5e0;">
                                     ${extrasList}
                                 </ul>
                              </div>`;
@@ -440,6 +475,20 @@ if (is_dir($updatesDir)) {
 
         function applyPendingSql(index) {
             runAutoFix(pendingSqls[index], false);
+        }
+
+        // === Checkout/Undo Drop ===
+        function confirmDrop(index, entityName) {
+            showModal('🚨', 'Atenção Crítica: Exclusão de Dados', 
+                `${entityName} e TODOS OS SEUS DADOS INSERIDOS serão apagados permanentemente do seu banco local. Você tem certeza absoluta que deseja remover isso para igualar ao repositório?`,
+                [
+                    { label: 'Cancelar', cls: 'modal-btn-cancel', action: closeModal },
+                    { label: 'Sim, Apagar Agora', cls: 'modal-btn-red', action: () => {
+                        closeModal();
+                        runAutoFix(pendingSqls[index], false);
+                    } }
+                ]
+            );
         }
 
         // === Funções do Modal ===

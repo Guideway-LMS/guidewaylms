@@ -186,7 +186,10 @@ try {
         if (!isset($dumpSchema[$lTable])) {
             // Apenas ignore tabelas que talvez não devam estar lá, exceto se elas tiverem o prefixo
             if (strpos($lTable, '#__') === 0) {
-                $diff['extra_tables'][] = $lTable;
+                $diff['extra_tables'][] = [
+                    'table' => $lTable,
+                    'drop_sql' => "DROP TABLE `{$lTable}`;"
+                ];
             }
             continue;
         }
@@ -195,7 +198,8 @@ try {
             if (!isset($dumpSchema[$lTable][$colName])) {
                 $diff['extra_columns'][] = [
                     'table' => $lTable,
-                    'column' => $colName
+                    'column' => $colName,
+                    'drop_sql' => "ALTER TABLE `{$lTable}` DROP COLUMN `{$colName}`;"
                 ];
             }
         }
