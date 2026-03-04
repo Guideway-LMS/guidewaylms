@@ -31,6 +31,15 @@ $user   = $this->user ?? Factory::getUser();
 $userId = (int) $user->id;
 $db = Factory::getDbo();
 
+// === INJEÇÃO GUIDEWAY: BUSCA O ID DO PROFESSOR (DONO DO CURSO) ===
+$queryTeacher = $db->getQuery(true)
+    ->select($db->quoteName('created_by'))
+    ->from($db->quoteName('#__splms_courses'))
+    ->where($db->quoteName('id') . ' = ' . (int) ($this->item->course_id ?? 0));
+    
+$teacher_id = (int) $db->setQuery($queryTeacher)->loadResult();
+// =================================================================
+
 // =============================================================================
 // 1. CONSULTA AO BANCO
 // =============================================================================
@@ -260,6 +269,7 @@ window.SPLMS_CONTEXT = {
                                 <label for="file-upload-input" class="btn-upload-custom"><i class="fa fa-folder-open-o"></i> Selecionar Novo Arquivo</label>
                                 <div id="file-name-text" class="file-name-display">Nenhum arquivo selecionado</div>
                             </div>
+                            <input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>" />
                             <input type="hidden" name="course_id" value="<?php echo $this->item->course_id; ?>" />
                             <input type="hidden" name="lesson_id" value="<?php echo $this->item->id; ?>" />
                             <?php echo JHtml::_('form.token'); ?>
@@ -294,6 +304,7 @@ window.SPLMS_CONTEXT = {
                             <label for="student_comment" class="comment-label">Comentário (Opcional):</label>
                             <textarea name="student_comment" id="student_comment" class="comment-textarea" placeholder="Escreva uma mensagem para o professor..."></textarea>
                         </div>
+                        <input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>" />
                         <input type="hidden" name="course_id" value="<?php echo $this->item->course_id; ?>" />
                         <input type="hidden" name="lesson_id" value="<?php echo $this->item->id; ?>" />
                         <?php echo JHtml::_('form.token'); ?>
@@ -527,7 +538,8 @@ jQuery(function($) {
         
         btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enviando Trabalho...');
         
-        var formData = new FormData(this[0]);
+        // CORREÇÃO: 'this' é o formulário puro! Impede erro invisível e quebra de tela.
+        var formData = new FormData(this);
         
         $.ajax({
             url: form.attr('action'),

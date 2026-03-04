@@ -10,9 +10,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Filesystem\Path;
-use Joomla\CMS\Table\Table;
-use Joomla\CMS\Session\Session;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Language\Text;
 
@@ -24,7 +21,7 @@ class SplmsControllerLesson extends FormController {
         error_reporting(E_ALL);
         ini_set('display_errors', 0);
 
-        $app  = Factory::getApplication();
+        $app   = Factory::getApplication();
         $input = $app->input;
         $user  = Factory::getUser();
 
@@ -86,23 +83,16 @@ class SplmsControllerLesson extends FormController {
         $app   = Factory::getApplication();
         $input = $app->input;
         $user  = Factory::getUser();
-        $db    = Factory::getDbo(); // Necessário para a consulta de autodescoberta
+        $db    = Factory::getDbo();
 
-        // 1. DADOS CRÍTICOS
-        $lesson_id = $input->getInt('lesson_id');
-        $course_id = $input->getInt('course_id');
-        $itemId    = $input->getInt('Itemid');
+        // 1. DADOS CRÍTICOS - Captura os dados que vieram do formulário de forma segura
+        $lesson_id = $input->getInt('lesson_id', 0);
+        $course_id = $input->getInt('course_id', 0);
+        $itemId    = $input->getInt('Itemid', 0);
 
-        // 1.1 LÓGICA DE AUTODESCOBERTA: Buscar o ID do Professor pelo Curso
+        // === INJEÇÃO GUIDEWAY: CAPTURA O ID DO PROFESSOR ===
         $teacher_id = $input->getInt('teacher_id', 0);
-        if (empty($teacher_id) && $course_id > 0) {
-            $query = $db->getQuery(true)
-                ->select($db->quoteName('created_by'))
-                ->from($db->quoteName('#__splms_courses'))
-                ->where($db->quoteName('id') . ' = ' . (int)$course_id);
-            $db->setQuery($query);
-            $teacher_id = (int) $db->loadResult();
-        }
+        // ===================================================
 
         // 2. MONTAGEM DA URL DE RETORNO (Blindada)
         if ($lesson_id) {
@@ -121,7 +111,7 @@ class SplmsControllerLesson extends FormController {
             return false;
         }
 
-        // 4. UPLOAD COM MELHORIAS DE SEGURANÇA - GUIDEWAY CUSTOM - Joshua
+        // 4. UPLOAD COM MELHORIAS DE SEGURANÇA - GUIDEWAY CUSTOM
         $file = $input->files->get('uploaded_file');
         if (!$file || $file['error'] != 0) {
             $this->setRedirect($redirectUrl, 'Selecione um arquivo válido.', 'warning');
@@ -152,29 +142,27 @@ class SplmsControllerLesson extends FormController {
             return false;
         }
 
-        // 5. BANCO DE DADOS
+        // 5. BANCO DE DADOS (Blindado contra Erro 500)
         try {
-            Table::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_splms/tables');
-            $table = Table::getInstance('Submission', 'SplmsTable');
+            $data = new \stdClass();
+            $data->user_id = $user->id;
+            $data->lesson_id = $lesson_id;
+            $data->course_id = $course_id;
+            $data->teacher_id = $teacher_id; // Injetado do formulário!
+            $data->file_path = $dbPath;
+            $data->original_filename = $originalFileName;
+            $data->status = 0; // 0 = Aguardando Correção
+            $data->submitted_at = Factory::getDate()->toSql();
             
-            $data = [
-                'user_id' => $user->id,
-                'lesson_id' => $lesson_id,
-                'course_id' => $course_id,
-                'teacher_id' => $teacher_id, // Variável injetada na gravação do banco
-                'file_path' => $dbPath,
-                'original_filename' => $originalFileName,
-                'status' => 0,
-                'submitted_at' => Factory::getDate()->toSql()
-            ];
-            
-            if (!$table->bind($data) || !$table->store()) {
-                throw new Exception($table->getError());
+            if (!$db->insertObject('#__splms_submissions', $data)) {
+                throw new Exception("Falha ao gravar envio no banco de dados.");
             }
 
             // Marca lição como completa
             $model = $this->getModel('Lessons', 'SplmsModel');
-            if ($model) $model->completedItem($lesson_id, 'lesson', $user->id);
+            if ($model) {
+                $model->completedItem($lesson_id, 'lesson', $user->id);
+            }
 
             $this->setRedirect($redirectUrl, 'Trabalho enviado com sucesso!', 'success');
             return true;
