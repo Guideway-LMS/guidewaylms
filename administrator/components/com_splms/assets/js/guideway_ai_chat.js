@@ -161,7 +161,7 @@ var GuidewayAI = (function ($) {
             html += '<div class="gw-quiz-gabarito" style="margin-top: 30px; padding-top: 20px; border-top: 2px dashed #ccc;">';
             html += '<h3>Gabarito Esperado</h3>';
             $.each(gabarito, function (k, item) {
-                html += '<div style="margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-left: 4px solid #4CAF50;">' + item + '</div>';
+                html += '<div style="margin-bottom: 15px; padding: 10px; border-left: 4px solid #4CAF50;">' + item + '</div>';
             });
             html += '</div>';
         }

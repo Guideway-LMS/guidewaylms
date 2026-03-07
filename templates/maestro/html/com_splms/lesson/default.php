@@ -24,7 +24,9 @@ $maxAttempts = 3; // Limite Total
 
 $doc = Factory::getDocument();
 $doc->addScriptOptions('splmsConfig', [
-    'percentualMinimoConclusao' => $percentualMinimoConclusao
+    'percentualMinimoConclusao' => $percentualMinimoConclusao,
+    'text_complete' => Text::_('COM_SPLMS_LESSON_COMPLETE'),
+    'text_completed' => Text::_('COM_SPLMS_LESSON_COMPLETED')
 ]);
 
 $user   = $this->user ?? Factory::getUser();
@@ -114,6 +116,8 @@ $doc->addStyleDeclaration('
     .badge-attempts { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; text-transform: uppercase; }
     .badge-warning-custom { background: #f59e0b; }
     .badge-danger-custom { background: #ef4444; }
+    .gw-quiz-gabarito { color: inherit; }
+    .gw-quiz-gabarito div { background: transparent !important; }
 ');
 
 // CSS GERAL E BOTÃO DE CERTIFICADO

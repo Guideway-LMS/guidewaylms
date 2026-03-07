@@ -115,7 +115,7 @@
 
 	 <field name="created" type="calendar"
 		label="COM_SPLMS_TITLE_CREATED_DATE"
-		translateformat="true"
+		
 		default="NOW"
 	 />
 
