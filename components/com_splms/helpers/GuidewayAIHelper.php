@@ -84,7 +84,7 @@ class GuidewayAIHelper
                 $systemPrompt = 'Atue como um revisor de texto experiente em Português. Corrija erros gramaticais, de pontuação e ortografia. Retorne apenas o texto corrigido, mantendo a formatação original tanto quanto possível. Não adicione comentários conversacionais.';
                 break;
             case self::ACTION_RESUMIR:
-                $systemPrompt = 'Atue como um especialista em síntese. Crie um resumo conciso do texto fornecido, capturando os pontos principais. Retorne apenas o resumo em Português.';
+                $systemPrompt = "Atue como um Especialista em Currículo LMS. Sua tarefa é extrair um resumo brilhante, claro e persuasivo do texto de entrada.\n\nRegras OBRIGATÓRIAS de formatação:\n1. Não retorne um parágrafo enorme. Quebre o texto.\n2. Inicie com um pequeno parágrafo introdutório convidativo (ex: 'Neste curso você aprenderá...').\n3. Crie pelo menos uma lista no formato HTML (`<ul><li>...</li></ul>`) destacando os **Pontos Chave/Objetivos**.\n4. Use negrito HTML (`<strong>`) para destacar termos vitais.\nRetorne apenas o resumo formatado em tags HTML de texto (<p>, <ul>, <li>, <strong>), sem marcações Markdown de json ou bloco de código (```html).";
                 break;
             case self::ACTION_REESCREVER:
                 $systemPrompt = 'Atue como um editor profissional. Reescreva o texto para melhorar a fluidez, clareza e vocabulário, mantendo o sentido original. O tom deve ser profissional. Retorne apenas o texto reescrito em Português.';
@@ -148,6 +148,39 @@ class GuidewayAIHelper
             // Parsing da resposta (Extração do conteúdo)
             if (isset($response['choices'][0]['message']['content'])) {
                 $content = $response['choices'][0]['message']['content'];
+                
+                // Conversão de Markdown para HTML básico (pois o componente devolve para um campo TinyMCE WYSIWYG)
+                // Se a IA não soltou um JSON cru (CRIAR_QUESTOES)
+                if ($acao !== self::ACTION_CRIAR_QUESTOES && $acao !== self::ACTION_CUSTOM) {
+                    
+                    // 1. Converter títulos Markdown (###)
+                    $content = preg_replace('/### (.*?)\n/', '<h3>$1</h3>', $content);
+                    $content = preg_replace('/## (.*?)\n/', '<h2>$1</h2>', $content);
+                    
+                    // 2. Converter negritos (**)
+                    $content = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $content);
+                    
+                    // 3. Converter itálicos (*)
+                    $content = preg_replace('/\*([^\*]+)\*/', '<em>$1</em>', $content);
+                    
+                    // 4. Parágrafos e quebras de linha (\n\n)
+                    $paragraphs = explode("\n\n", $content);
+                    $htmlContent = '';
+                    foreach ($paragraphs as $p) {
+                        $p = trim($p);
+                        if (!empty($p)) {
+                            // Se já não começar com uma tag de block level
+                            if (!preg_match('/^<(h[1-6]|ul|ol|li|div|p)>/i', $p)) {
+                                // Troca quebras de linha isoladas por <br>
+                                $p = nl2br($p);
+                                $p = '<p>' . $p . '</p>';
+                            }
+                            $htmlContent .= $p . "\n";
+                        }
+                    }
+                    $content = $htmlContent;
+                }
+                
                 return [
                     'success' => true,
                     'data' => $content

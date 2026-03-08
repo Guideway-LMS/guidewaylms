@@ -28,6 +28,8 @@
                         </div>
                     </div>
 
+                    <?php if (empty($hideGenerateQuestions)): ?>
+
                     <!-- Botão de Configurações da Questão -->
                     <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-primary" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;" title="Gerar Questão a partir do PDF">
                         <span class="icon-list-view"></span> Gerar Questões
@@ -88,6 +90,7 @@
                             <span class="icon-magic"></span> Gerar Agora
                         </button>
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Generate Button -->
