@@ -355,6 +355,7 @@ window.SPLMS_CONTEXT = {
                 
                 // GUIDEWAY CUSTOM: Buscar resultado real do quiz no BD
                 $quizResult = null;
+                $myQuizAttempts = 0;
                 if ($userId > 0) {
                     $qrQuery = $db->getQuery(true)
                         ->select('point, total_marks')
@@ -365,6 +366,25 @@ window.SPLMS_CONTEXT = {
                         ->order('id DESC');
                     $db->setQuery($qrQuery, 0, 1);
                     $quizResult = $db->loadObject();
+                    
+                    $qAttempts = $db->getQuery(true)
+                        ->select('COUNT(*)')
+                        ->from('#__splms_quizresults')
+                        ->where('user_id = ' . (int)$userId)
+                        ->where('quizquestion_id = ' . (int)$this->item->quiz_id)
+                        ->where('published = 1');
+                    $db->setQuery($qAttempts);
+                    $myQuizAttempts = (int) $db->loadResult();
+                }
+
+                $queryMax = $db->getQuery(true)
+                    ->select('max_attempts')
+                    ->from('#__splms_quizquestions')
+                    ->where('id = ' . (int)$this->item->quiz_id);
+                $db->setQuery($queryMax);
+                $quizMaxAttempts = (int) $db->loadResult();
+                if ($quizMaxAttempts <= 0) {
+                    $quizMaxAttempts = 1; //fallback
                 }
                 
                 $hasTakenQuiz = !empty($quizResult);
@@ -385,9 +405,9 @@ window.SPLMS_CONTEXT = {
                     <?php if ($hasTakenQuiz && $quizPassed) : ?>
                         <i class="fa fa-check-circle" style="font-size: 48px; color: #22c55e; display: block; margin-bottom: 15px;"></i>
                         <h3 style="font-size: 22px; font-weight: 700; color: #22c55e; margin-bottom: 10px;">Quiz Concluído!</h3>
-                        <div style="background: #eff6ff; padding: 20px; border: 2px solid #3b82f6; border-radius: 12px; margin-top: 20px;">
-                            <h4 style="color: #1e40af;">🎓 Parabéns! Certificado Liberado.</h4>
-                            <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id ?? 14; ?>" class="btn-gw-cert" target="_blank">
+                        <div style="background: rgba(59, 130, 246, 0.1); padding: 20px; border: 2px solid rgba(59, 130, 246, 0.5); border-radius: 12px; margin-top: 20px;">
+                            <h4 style="color: inherit; font-weight: 700;">🎓 Parabéns! Certificado Liberado.</h4>
+                            <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id ?? 14; ?>" class="btn-gw-cert" target="_blank" style="margin-top: 15px; display: inline-block;">
                                 <i class="fa fa-certificate"></i> GERAR CERTIFICADO DE TESTE
                             </a>
                         </div>
@@ -395,9 +415,15 @@ window.SPLMS_CONTEXT = {
                             <?php echo $quizPercent; ?>%
                         </div>
                         <p style="color: #64748b;">Acertos: <strong><?php echo $quizScore; ?></strong> de <strong><?php echo $quizTotal; ?></strong></p>
-                        <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 12px 30px; border-radius: 8px; font-weight: 600;">
-                            <i class="fa fa-refresh"></i> Refazer Quiz
-                        </a>
+                        <?php if ($myQuizAttempts < $quizMaxAttempts) : ?>
+                            <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 12px 30px; border-radius: 8px; font-weight: 600;">
+                                <i class="fa fa-refresh"></i> Refazer Quiz
+                            </a>
+                        <?php else : ?>
+                            <div style="margin-top: 15px; padding: 12px 30px; border-radius: 8px; font-weight: 600; background: rgba(100, 116, 139, 0.2); color: inherit; display: inline-block;">
+                                <i class="fa fa-ban" style="margin-right: 5px;"></i> Limite de <?php echo $quizMaxAttempts; ?> tentativas alcançado
+                            </div>
+                        <?php endif; ?>
 
                     <?php elseif ($hasTakenQuiz && !$quizPassed) : ?>
                         <i class="fa fa-times-circle" style="font-size: 48px; color: #ef4444; display: block; margin-bottom: 15px;"></i>
@@ -409,9 +435,15 @@ window.SPLMS_CONTEXT = {
                         <?php if ($passingScore > 0) : ?>
                             <p style="color: #f59e0b; font-weight: 600;">Nota mínima: <?php echo $passingScore; ?>%</p>
                         <?php endif; ?>
-                        <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: 700; background: #f59e0b; border: none; display: inline-flex; align-items: center; gap: 10px;">
-                            <i class="fa fa-refresh"></i> Tentar Novamente
-                        </a>
+                        <?php if ($myQuizAttempts < $quizMaxAttempts) : ?>
+                            <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: 700; background: #f59e0b; border: none; display: inline-flex; align-items: center; gap: 10px;">
+                                <i class="fa fa-refresh"></i> Tentar Novamente
+                            </a>
+                        <?php else : ?>
+                            <div style="margin-top: 15px; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: 700; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                <i class="fa fa-ban"></i> Limite de <?php echo $quizMaxAttempts; ?> tentativas esgotado
+                            </div>
+                        <?php endif; ?>
 
                     <?php else : ?>
                         <i class="fa fa-pencil-square-o" style="font-size: 48px; color: #3b82f6; display: block; margin-bottom: 15px;"></i>
