@@ -119,7 +119,27 @@
 			format="%Y-%m-%d"
 			translateformat="true"
 		/>
+		<!-- ERICK 08/03 NOVOS CAMPOS  -->
+		<field name="start_date"
+			type="calendar"
+			label="Data de Início do Curso"
+			format="%Y-%m-%d"
+			translateformat="true"
+		/>
 
+		<field name="end_date"
+			type="calendar"
+			label="Data de Término do Curso"
+			format="%Y-%m-%d"
+			translateformat="true"
+		/>
+
+		<field name="workload_hours"
+			type="number"
+			label="Carga Horária (horas)"
+			default="360"
+			min="1"
+		/>
 		<field name="duration" type="text"
 		 	class="inputbox"
 		 	label="COM_SPLMS_TITLE_COURSE_DURATION"
