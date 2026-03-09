@@ -405,9 +405,9 @@ window.SPLMS_CONTEXT = {
                     <?php if ($hasTakenQuiz && $quizPassed) : ?>
                         <i class="fa fa-check-circle" style="font-size: 48px; color: #22c55e; display: block; margin-bottom: 15px;"></i>
                         <h3 style="font-size: 22px; font-weight: 700; color: #22c55e; margin-bottom: 10px;">Quiz Concluído!</h3>
-                        <div style="background: rgba(59, 130, 246, 0.1); padding: 20px; border: 2px solid rgba(59, 130, 246, 0.5); border-radius: 12px; margin-top: 20px;">
-                            <h4 style="color: inherit; font-weight: 700;">🎓 Parabéns! Certificado Liberado.</h4>
-                            <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id ?? 14; ?>" class="btn-gw-cert" target="_blank" style="margin-top: 15px; display: inline-block;">
+                        <div class="quiz-result-card success">
+                            <h4>🎓 Parabéns! Certificado Liberado.</h4>
+                            <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id ?? 14; ?>" class="btn-gw-cert" target="_blank">
                                 <i class="fa fa-certificate"></i> GERAR CERTIFICADO DE TESTE
                             </a>
                         </div>
@@ -416,11 +416,11 @@ window.SPLMS_CONTEXT = {
                         </div>
                         <p style="color: #64748b;">Acertos: <strong><?php echo $quizScore; ?></strong> de <strong><?php echo $quizTotal; ?></strong></p>
                         <?php if ($myQuizAttempts < $quizMaxAttempts) : ?>
-                            <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 12px 30px; border-radius: 8px; font-weight: 600;">
+                            <a href="<?php echo $quizUrl; ?>" class="btn btn-primary btn-quiz-retry">
                                 <i class="fa fa-refresh"></i> Refazer Quiz
                             </a>
                         <?php else : ?>
-                            <div style="margin-top: 15px; padding: 12px 30px; border-radius: 8px; font-weight: 600; background: rgba(100, 116, 139, 0.2); color: inherit; display: inline-block;">
+                            <div class="quiz-limit-warning">
                                 <i class="fa fa-ban" style="margin-right: 5px;"></i> Limite de <?php echo $quizMaxAttempts; ?> tentativas alcançado
                             </div>
                         <?php endif; ?>
@@ -436,11 +436,11 @@ window.SPLMS_CONTEXT = {
                             <p style="color: #f59e0b; font-weight: 600;">Nota mínima: <?php echo $passingScore; ?>%</p>
                         <?php endif; ?>
                         <?php if ($myQuizAttempts < $quizMaxAttempts) : ?>
-                            <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: 700; background: #f59e0b; border: none; display: inline-flex; align-items: center; gap: 10px;">
+                            <a href="<?php echo $quizUrl; ?>" class="btn btn-primary btn-quiz-retry failed">
                                 <i class="fa fa-refresh"></i> Tentar Novamente
                             </a>
                         <?php else : ?>
-                            <div style="margin-top: 15px; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: 700; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <div class="quiz-limit-warning failed">
                                 <i class="fa fa-ban"></i> Limite de <?php echo $quizMaxAttempts; ?> tentativas esgotado
                             </div>
                         <?php endif; ?>
@@ -517,11 +517,11 @@ window.SPLMS_CONTEXT = {
                     $topicTitle = isset($topicMap[$current_topic_id]) ? $topicMap[$current_topic_id] : (empty($current_topic_id) ? '' : 'Módulo ' . $current_topic_id);
                     
                     if (!empty($topicTitle)): ?>
-                        <li class="topic-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); margin: 25px 0 10px 0; color: #94a3b8; font-size: 13px; text-transform: uppercase; font-weight: 700; padding-bottom: 5px; opacity: 0.8;">
+                        <li class="topic-header guideway-topic-header">
                            <?php echo $topicTitle; ?>
                         </li>
                     <?php else: ?>
-                        <li class="topic-separator" style="border-bottom: 1px solid rgba(255,255,255,0.1); margin: 25px 0 10px 0;"></li>
+                        <li class="topic-separator guideway-topic-separator"></li>
                     <?php endif; 
                 }
                 
