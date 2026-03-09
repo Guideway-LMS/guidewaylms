@@ -65,9 +65,8 @@ class SplmsControllerLesson extends FormController {
             }
 
         } catch (\Throwable $e) {
-            echo '<pre>';
-            echo $e;
-            exit;
+            $response['status'] = false;
+            $response['content'] = 'Erro PHP: ' . $e->getMessage() . ' em ' . basename($e->getFile()) . ':' . $e->getLine();
         }
 
         echo json_encode($response);

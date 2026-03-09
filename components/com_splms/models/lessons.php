@@ -79,7 +79,7 @@ class SplmsModelLessons extends ListModel {
 		$query->from($db->quoteName('#__splms_lessons', 'a'));
 		$query->where($db->quoteName('a.published')." = 1");
 		$query->where($db->quoteName('a.course_id')." = ".$db->quote($course_id));
-		$query->order('a.ordering DESC');
+		$query->order(array('a.topic_id ASC', 'a.ordering ASC'));
 		$db->setQuery($query);
 		$lessons = $db->loadObjectList();
 
@@ -140,8 +140,8 @@ class SplmsModelLessons extends ListModel {
         return true; // Já existe → evita duplicação
     }
 		$query = $db->getQuery(true);
-		$columns = array('user_id', 'item_id', 'item_type', 'published');
-		$values  = array($db->quote($user_id), $db->quote($item_id), $db->quote($item_type), $db->quote(1) );
+		$columns = array('user_id', 'item_id', 'item_type', 'published', 'created', 'modified');
+		$values  = array($db->quote($user_id), $db->quote($item_id), $db->quote($item_type), $db->quote(1), $db->quote(Factory::getDate()->toSql()), $db->quote(Factory::getDate()->toSql()));
 		$query
 		    ->insert($db->quoteName('#__splms_useritems'))
 		    ->columns($db->quoteName($columns))
@@ -181,7 +181,12 @@ class SplmsModelLessons extends ListModel {
  		}
 
     // Instancia o CourseModel
+    \Joomla\CMS\MVC\Model\BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models');
     $courseModel = \Joomla\CMS\MVC\Model\BaseDatabaseModel::getInstance('Course', 'SplmsModel');
+
+    if (!$courseModel) {
+        return; // Prevents calling method on boolean error
+    }
 
     $progress = $courseModel->getCourseProgress($courseId, $user_id);
 

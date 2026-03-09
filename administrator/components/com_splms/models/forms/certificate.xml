@@ -37,7 +37,7 @@
 		 	type="calendar"
 		 	label="COM_SPLMS_CERTIFICATE_ISSUE_DATE"
 		 	description="COM_SPLMS_CERTIFICATE_ISSUE_DATE_DESC"
-			translateformat="true"
+			
 		/>
 
     	<field 
@@ -80,7 +80,7 @@
 			name="created" 
 			type="calendar"
 			label="COM_SPLMS_TITLE_CREATED_DATE"
-			translateformat="true"
+			
 		/>
  	</fieldset>
 </form>

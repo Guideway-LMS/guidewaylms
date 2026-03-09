@@ -63,7 +63,7 @@ class SplmsTableSpeaker extends Table{
 		}
 		$this->alias = ApplicationHelper::stringURLSafe($this->alias, $this->language);
 		if (trim(str_replace('-', '', $this->alias)) == '') {
-			$this->alias = Factory::getDate()->format('Y-m-d-H-i-s');
+			$this->alias = date('Y-m-d-H-i-s');
 		}
 		return true;
 	}

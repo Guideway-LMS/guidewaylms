@@ -14,17 +14,20 @@
 }
 
 /* Base Styles Override */
-body, .body-innerwrapper {
+body,
+.body-innerwrapper {
     background-color: var(--body-bg) !important;
     color: var(--body-text) !important;
 }
 
-#sp-header, .sp-megamenu-parent .sp-dropdown .sp-dropdown-inner {
+#sp-header,
+.sp-megamenu-parent .sp-dropdown .sp-dropdown-inner {
     background: var(--header-bg) !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-#sp-footer, #sp-bottom {
+#sp-footer,
+#sp-bottom {
     background: var(--footer-bg) !important;
     color: var(--footer-text) !important;
 }
@@ -33,12 +36,15 @@ body, .body-innerwrapper {
 a {
     color: var(--link-color);
 }
+
 a:hover {
     color: var(--body-text);
 }
 
 /* Cards & Content Areas */
-.card, .sp-module, .article-details {
+.card,
+.sp-module,
+.article-details {
     background-color: var(--card-bg);
     color: var(--card-text);
     border-color: var(--border-color);
@@ -53,13 +59,16 @@ a:hover {
     box-shadow: none !important;
 }
 
-#sp-footer .sp-module .latestnews > div > a,
-#sp-bottom .sp-module .latestnews > div > a {
-     color: inherit !important;
+#sp-footer .sp-module .latestnews>div>a,
+#sp-bottom .sp-module .latestnews>div>a {
+    color: inherit !important;
 }
 
 /* Inputs & Forms */
-input, textarea, select, .form-control {
+input,
+textarea,
+select,
+.form-control {
     background-color: var(--input-bg) !important;
     color: var(--input-text) !important;
     border-color: var(--border-color) !important;
@@ -74,44 +83,51 @@ input, textarea, select, .form-control {
 /* Dark Mode Toggle Switch (Pill Style) */
 #theme-toggle {
     position: fixed;
-    top: 25px; /* Vertical alignment in header */
-    right: 20px; /* Desktop Right */
+    top: 25px;
+    /* Vertical alignment in header */
+    right: 20px;
+    /* Desktop Right */
     z-index: 99999;
-    
+
     width: 60px;
     height: 30px;
-    background-color: #2D3437; /* Dark bg for the track */
+    background-color: #2D3437;
+    /* Dark bg for the track */
     border-radius: 50px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 5px;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Track background changes in Light Mode if desired, or keep constant */
 [data-theme="light"] #theme-toggle {
-    background-color: #EEEDE3; /* Match header or slightly darker */
+    background-color: #EEEDE3;
+    /* Match header or slightly darker */
     border-color: #ccc;
 }
 
 /* Icons inside the toggle */
 #theme-toggle .fas {
     font-size: 14px;
-    z-index: 1; /* Below the ball if we want ball to cover, or side-by-side */
+    z-index: 1;
+    /* Below the ball if we want ball to cover, or side-by-side */
     transition: color 0.3s ease;
 }
 
 #theme-toggle .toggle-icon-light {
-    color: #f1c40f; /* Sun color */
+    color: #f1c40f;
+    /* Sun color */
     margin-left: 2px;
 }
 
 #theme-toggle .toggle-icon-dark {
-    color: #f39c12; /* Moon color, initially dimmed or just distinctive */
+    color: #f39c12;
+    /* Moon color, initially dimmed or just distinctive */
     margin-right: 2px;
 }
 
@@ -125,14 +141,16 @@ input, textarea, select, .form-control {
     background-color: #FFF;
     border-radius: 50%;
     transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    z-index: 2; /* On top of icons if overlapping, or icons are decoration */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    /* On top of icons if overlapping, or icons are decoration */
 }
 
 /* Mobile Position Adjustment */
 @media (max-width: 991.98px) {
     #theme-toggle {
-        right: 70px; /* Left of message icon */
+        right: 70px;
+        /* Left of message icon */
     }
 }
 
@@ -151,7 +169,8 @@ input, textarea, select, .form-control {
 #sppb-addon-1656582577278 p,
 #sppb-addon-1656582577278 div,
 #sppb-addon-1656582577278 span {
-    color: #000000; /* Default to black in light mode */
+    color: #000000;
+    /* Default to black in light mode */
 }
 
 /* --- Explicit Light Mode Restoration (Safety) --- */
@@ -161,7 +180,8 @@ input, textarea, select, .form-control {
 [data-theme="light"] h4,
 [data-theme="light"] h5,
 [data-theme="light"] h6 {
-    color: #2D3437 !important; /* Default dark grey */
+    color: #2D3437 !important;
+    /* Default dark grey */
 }
 
 /* Fix Footer Visibility in Light Mode */
@@ -177,11 +197,21 @@ input, textarea, select, .form-control {
 [data-theme="light"] #sp-footer li,
 [data-theme="light"] #sp-footer i {
     color: #FFFFFF !important;
-    background: transparent !important; /* Remove background from fonts */
+    background: transparent !important;
+    /* Remove background from fonts */
 }
 
 /* Remove unwanted backgrounds from text generally */
-h1, h2, h3, h4, h5, h6, p, span, a, li {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
+li {
     background-color: transparent;
 }
 
@@ -199,7 +229,7 @@ h1, h2, h3, h4, h5, h6, p, span, a, li {
     background: #fff;
     padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     border-left: 5px solid #1a73e8;
 }
 
@@ -227,27 +257,105 @@ h1, h2, h3, h4, h5, h6, p, span, a, li {
 
 /* --- Badge Styles (Base/Light Mode) --- */
 .guideway-badge-optional {
-    background: #e0f2fe; 
-    color: #0369a1; 
+    background: #e0f2fe;
+    color: #0369a1;
     border: 1px solid #7dd3fc;
-    margin-left: 10px; 
-    font-size: 12px; 
-    font-weight: 700; 
-    padding: 4px 12px; 
-    border-radius: 20px; 
-    letter-spacing: 0.3px; 
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
     white-space: nowrap;
 }
 
 .guideway-badge-required {
-    background: #fef2f2; 
-    color: #dc2626; 
+    background: #fef2f2;
+    color: #dc2626;
     border: 1px solid #fca5a5;
-    margin-left: 10px; 
-    font-size: 12px; 
-    font-weight: 700; 
-    padding: 4px 12px; 
-    border-radius: 20px; 
-    letter-spacing: 0.3px; 
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
     white-space: nowrap;
+}
+
+/* --- Guideway Quiz & Lesson Refactoring --- */
+
+.guideway-topic-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 25px 0 10px 0;
+    color: #94a3b8;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding-bottom: 5px;
+    opacity: 0.8;
+}
+
+.guideway-topic-separator {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 25px 0 10px 0;
+}
+
+.quiz-result-card {
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.quiz-result-card.success {
+    background: rgba(59, 130, 246, 0.1);
+    border: 2px solid rgba(59, 130, 246, 0.5);
+}
+
+.quiz-result-card.failed {
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid rgba(239, 68, 68, 0.5);
+}
+
+.quiz-result-card .btn-gw-cert {
+    margin-top: 15px;
+    display: inline-block;
+}
+
+.quiz-limit-warning {
+    margin-top: 15px;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    background: rgba(100, 116, 139, 0.2);
+    color: inherit;
+    display: inline-block;
+}
+
+.quiz-limit-warning.failed {
+    padding: 15px 40px;
+    font-size: 18px;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-quiz-retry {
+    margin-top: 15px;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-quiz-retry.failed {
+    padding: 15px 40px;
+    font-size: 18px;
+    font-weight: 700;
+    background: #f59e0b;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
 }

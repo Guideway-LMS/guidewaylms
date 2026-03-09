@@ -249,7 +249,7 @@ class SplmsModelCourse extends ItemModel {
 	*/
 	public function getCourseProgress($courseId, $userId)
 {
-    $db = JFactory::getDbo();
+    $db = Factory::getDbo();
     $query = $db->getQuery(true);
 
     // Total de aulas

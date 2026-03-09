@@ -24,7 +24,9 @@ $maxAttempts = 3; // Limite Total
 
 $doc = Factory::getDocument();
 $doc->addScriptOptions('splmsConfig', [
-    'percentualMinimoConclusao' => $percentualMinimoConclusao
+    'percentualMinimoConclusao' => $percentualMinimoConclusao,
+    'text_complete' => Text::_('COM_SPLMS_LESSON_COMPLETE'),
+    'text_completed' => Text::_('COM_SPLMS_LESSON_COMPLETED')
 ]);
 
 $user   = $this->user ?? Factory::getUser();
@@ -114,6 +116,8 @@ $doc->addStyleDeclaration('
     .badge-attempts { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; text-transform: uppercase; }
     .badge-warning-custom { background: #f59e0b; }
     .badge-danger-custom { background: #ef4444; }
+    .gw-quiz-gabarito { color: inherit; }
+    .gw-quiz-gabarito div { background: transparent !important; }
 ');
 
 // CSS GERAL E BOTÃO DE CERTIFICADO
@@ -351,6 +355,7 @@ window.SPLMS_CONTEXT = {
                 
                 // GUIDEWAY CUSTOM: Buscar resultado real do quiz no BD
                 $quizResult = null;
+                $myQuizAttempts = 0;
                 if ($userId > 0) {
                     $qrQuery = $db->getQuery(true)
                         ->select('point, total_marks')
@@ -361,6 +366,25 @@ window.SPLMS_CONTEXT = {
                         ->order('id DESC');
                     $db->setQuery($qrQuery, 0, 1);
                     $quizResult = $db->loadObject();
+                    
+                    $qAttempts = $db->getQuery(true)
+                        ->select('COUNT(*)')
+                        ->from('#__splms_quizresults')
+                        ->where('user_id = ' . (int)$userId)
+                        ->where('quizquestion_id = ' . (int)$this->item->quiz_id)
+                        ->where('published = 1');
+                    $db->setQuery($qAttempts);
+                    $myQuizAttempts = (int) $db->loadResult();
+                }
+
+                $queryMax = $db->getQuery(true)
+                    ->select('max_attempts')
+                    ->from('#__splms_quizquestions')
+                    ->where('id = ' . (int)$this->item->quiz_id);
+                $db->setQuery($queryMax);
+                $quizMaxAttempts = (int) $db->loadResult();
+                if ($quizMaxAttempts <= 0) {
+                    $quizMaxAttempts = 1; //fallback
                 }
                 
                 $hasTakenQuiz = !empty($quizResult);
@@ -381,8 +405,8 @@ window.SPLMS_CONTEXT = {
                     <?php if ($hasTakenQuiz && $quizPassed) : ?>
                         <i class="fa fa-check-circle" style="font-size: 48px; color: #22c55e; display: block; margin-bottom: 15px;"></i>
                         <h3 style="font-size: 22px; font-weight: 700; color: #22c55e; margin-bottom: 10px;">Quiz Concluído!</h3>
-                        <div style="background: #eff6ff; padding: 20px; border: 2px solid #3b82f6; border-radius: 12px; margin-top: 20px;">
-                            <h4 style="color: #1e40af;">🎓 Parabéns! Certificado Liberado.</h4>
+                        <div class="quiz-result-card success">
+                            <h4>🎓 Parabéns! Certificado Liberado.</h4>
                             <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id ?? 14; ?>" class="btn-gw-cert" target="_blank">
                                 <i class="fa fa-certificate"></i> GERAR CERTIFICADO DE TESTE
                             </a>
@@ -391,9 +415,15 @@ window.SPLMS_CONTEXT = {
                             <?php echo $quizPercent; ?>%
                         </div>
                         <p style="color: #64748b;">Acertos: <strong><?php echo $quizScore; ?></strong> de <strong><?php echo $quizTotal; ?></strong></p>
-                        <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 12px 30px; border-radius: 8px; font-weight: 600;">
-                            <i class="fa fa-refresh"></i> Refazer Quiz
-                        </a>
+                        <?php if ($myQuizAttempts < $quizMaxAttempts) : ?>
+                            <a href="<?php echo $quizUrl; ?>" class="btn btn-primary btn-quiz-retry">
+                                <i class="fa fa-refresh"></i> Refazer Quiz
+                            </a>
+                        <?php else : ?>
+                            <div class="quiz-limit-warning">
+                                <i class="fa fa-ban" style="margin-right: 5px;"></i> Limite de <?php echo $quizMaxAttempts; ?> tentativas alcançado
+                            </div>
+                        <?php endif; ?>
 
                     <?php elseif ($hasTakenQuiz && !$quizPassed) : ?>
                         <i class="fa fa-times-circle" style="font-size: 48px; color: #ef4444; display: block; margin-bottom: 15px;"></i>
@@ -405,9 +435,15 @@ window.SPLMS_CONTEXT = {
                         <?php if ($passingScore > 0) : ?>
                             <p style="color: #f59e0b; font-weight: 600;">Nota mínima: <?php echo $passingScore; ?>%</p>
                         <?php endif; ?>
-                        <a href="<?php echo $quizUrl; ?>" class="btn btn-primary" style="margin-top: 15px; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: 700; background: #f59e0b; border: none; display: inline-flex; align-items: center; gap: 10px;">
-                            <i class="fa fa-refresh"></i> Tentar Novamente
-                        </a>
+                        <?php if ($myQuizAttempts < $quizMaxAttempts) : ?>
+                            <a href="<?php echo $quizUrl; ?>" class="btn btn-primary btn-quiz-retry failed">
+                                <i class="fa fa-refresh"></i> Tentar Novamente
+                            </a>
+                        <?php else : ?>
+                            <div class="quiz-limit-warning failed">
+                                <i class="fa fa-ban"></i> Limite de <?php echo $quizMaxAttempts; ?> tentativas esgotado
+                            </div>
+                        <?php endif; ?>
 
                     <?php else : ?>
                         <i class="fa fa-pencil-square-o" style="font-size: 48px; color: #3b82f6; display: block; margin-bottom: 15px;"></i>
@@ -451,11 +487,44 @@ window.SPLMS_CONTEXT = {
     </div>
     
     <div class="col-md-5">
-      <?php if (!empty($this->lessons) && count($this->lessons) && $this->lessons) { ?>
+      <?php if (!empty($this->lessons) && count($this->lessons) && $this->lessons) { 
+          // --- GUIDEWAY CUSTOM: MAPEAMENTO DE TÓPICOS PARA A SIDEBAR ---
+          $db = Factory::getDbo();
+          $queryTopics = $db->getQuery(true)
+               ->select($db->quoteName(array('id', 'title')))
+               ->from($db->quoteName('#__splms_lessiontopics'))
+               ->where($db->quoteName('course_id') . ' = ' . (int)$this->item->course_id)
+               ->where($db->quoteName('published') . ' = 1');
+          
+          $topicsList = $db->setQuery($queryTopics)->loadObjectList();
+          $topicMap = [];
+          if ($topicsList) {
+              foreach($topicsList as $t) {
+                   $topicMap[$t->id] = $t->title;
+              }
+          }
+          $current_topic_id = null;
+          // ----------------------------------------------------------------
+      ?>
         <div class="course-lessons">
           <h3><?php echo Text::_('COM_SPLMS_LESOSNS_LIST'); ?></h3>
           <ul class="lessons list-unstyled">
             <?php foreach ($this->lessons as $lesson) { 
+                
+                // GUIDEWAY CUSTOM: Renderizar Cabeçalho Separador de Tópico
+                if ($lesson->topic_id != $current_topic_id) {
+                    $current_topic_id = $lesson->topic_id;
+                    $topicTitle = isset($topicMap[$current_topic_id]) ? $topicMap[$current_topic_id] : (empty($current_topic_id) ? '' : 'Módulo ' . $current_topic_id);
+                    
+                    if (!empty($topicTitle)): ?>
+                        <li class="topic-header guideway-topic-header">
+                           <?php echo $topicTitle; ?>
+                        </li>
+                    <?php else: ?>
+                        <li class="topic-separator guideway-topic-separator"></li>
+                    <?php endif; 
+                }
+                
                 $active_lesson = ($this->item->id == $lesson->id) ? ' active' : '';
                 $state = $this->lessonStates[$lesson->id] ?? 0;
                 $isCompleted = ($state === 1);

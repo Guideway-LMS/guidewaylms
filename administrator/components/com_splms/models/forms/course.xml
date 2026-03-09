@@ -117,7 +117,7 @@
 		 	label="COM_SPLMS_TITLE_ADMISSION_DEADLINE"
 		 	description="COM_SPLMS_TITLE_ADMISSION_DEADLINE_DESC"
 			format="%Y-%m-%d"
-			translateformat="true"
+			
 		/>
 		<!-- ERICK 08/03 NOVOS CAMPOS  -->
 		<field name="start_date"
@@ -183,7 +183,7 @@
 
 		<field name="created" type="calendar"
 			label="COM_SPLMS_TITLE_CREATED_DATE"
-			translateformat="true"
+			
 		/>
 
 	 	<field name="language" type="language" label="JFIELD_LANGUAGE_LABEL">
