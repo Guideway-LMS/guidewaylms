@@ -101,10 +101,13 @@ class SplmsViewCertificate extends HtmlView
 		// Verifica se há um comando na URL para gerar o PDF (ex: &format=pdf)
 $input = Factory::getApplication()->input;
 if ($input->get('layout') == 'pdf') {
+    // GUIDEWAY CUSTOM - Joshua - Suprime avisos para não corromper o PDF
+    error_reporting(0);
+    ob_clean();
     JLoader::register('CertificateHelper', JPATH_COMPONENT . '/helpers/CertificateHelper.php');
     CertificateHelper::gerarPdf($this->item);
     return;
-}			
+}
 		parent::display($tpl);
 	}
 }

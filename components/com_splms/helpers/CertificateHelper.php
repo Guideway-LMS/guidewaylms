@@ -2,74 +2,94 @@
 /**
  * @package     Guideway LMS
  * @subpackage  com_splms
- * @author      Michael
+ * GUIDEWAY CUSTOM -  Injeção de dados dinâmicos no certificado PDF
  */
 
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Factory;
 
 class CertificateHelper
 {
-    public static function gerarPdf($item) 
+    public static function gerarPdf($item)
     {
-        // 1. Caminho correto da biblioteca conforme seu print do VS Code
         $libPath = JPATH_SITE . '/components/com_splms/libraries/tcpdf/TCPDF-main/tcpdf.php';
 
         if (!file_exists($libPath)) {
-            die("Erro: Biblioteca não encontrada em: " . $libPath);
+            die("Erro: Biblioteca TCPDF não encontrada.");
         }
 
         require_once $libPath;
 
         try {
-            // 2. Criar e configurar o objeto $pdf (Isso resolve o erro de sintaxe)
+            // ── Dados dinâmicos vindos do banco ──────────────────────────
+            $aluno      = (isset($item->student_info->name) && $item->student_info->name)
+                            ? htmlspecialchars($item->student_info->name)
+                            : 'Aluno';
+
+            $curso      = isset($item->course)
+                            ? htmlspecialchars($item->course)
+                            : 'Curso';
+
+            $data       = (!empty($item->issue_date) && $item->issue_date !== '0000-00-00')
+                            ? date('d/m/Y', strtotime($item->issue_date))
+                            : date('d/m/Y');
+
+            $codigo     = isset($item->certificate_no)
+                            ? htmlspecialchars($item->certificate_no)
+                            : '';
+
+            $organizacao = isset($item->organization)
+                            ? htmlspecialchars($item->organization)
+                            : 'Guideway LMS';
+
+            $instrutor  = isset($item->instructor)
+                            ? htmlspecialchars($item->instructor)
+                            : '';
+            // ─────────────────────────────────────────────────────────────
+
             $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
-            
             $pdf->SetCreator('Guideway LMS');
-            $pdf->SetAuthor('Michael');
-            $pdf->SetTitle('Certificado de Conclusão');
+            $pdf->SetAuthor($organizacao);
+            $pdf->SetTitle('Certificado - ' . $aluno);
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
-            $pdf->SetMargins(10, 10, 10);
+            $pdf->SetMargins(15, 15, 15);
             $pdf->AddPage();
 
-            // 3. Montar o HTML com os dados que o Joomla recuperou
-            // Note que usamos caminhos absolutos para imagens no TCPDF
-            $logoPath = JPATH_SITE . '/' . $item->logo;
-            
+            // Logo (se existir)
+            if (!empty($item->logo)) {
+                $logoPath = JPATH_SITE . '/' . $item->logo;
+                if (file_exists($logoPath)) {
+                    $pdf->Image($logoPath, 120, 15, 50, '', '', '', 'T', false, 300, 'C');
+                }
+            }
+
+            // HTML com placeholders substituídos pelos dados reais
             $html = '
-                <div style="text-align:center; border: 10px solid #2c3e50; padding: 50px;">
+                <div style="text-align:center; border: 8px double #2c3e50; padding: 40px;">
+                    <h1 style="color:#2c3e50; font-size:28pt; margin-bottom:5px;">CERTIFICADO DE CONCLUSÃO</h1>
+                    <p style="font-size:12pt; color:#555;">Emitido por <strong>' . $organizacao . '</strong></p>
+                    <br>
+                    <p style="font-size:13pt;">Certificamos que</p>
+                    <h2 style="font-size:22pt; color:#e74c3c; margin:10px 0;">' . $aluno . '</h2>
+                    <p style="font-size:13pt;">concluiu com êxito o curso:</p>
+                    <h3 style="font-size:17pt; color:#2c3e50; margin:10px 0;">' . $curso . '</h3>
+                    <br>
+                    <p style="font-size:11pt;">Data de emissão: <strong>' . $data . '</strong></p>
+                    ' . ($instrutor ? '<p style="font-size:11pt;">Instrutor: <strong>' . $instrutor . '</strong></p>' : '') . '
                     <br><br>
-                    <h1 style="color: #2c3e50; font-size: 30pt;">CERTIFICADO</h1>
-                    <p style="font-size: 14pt;">Certificamos que</p>
-                    <h2 style="font-size: 24pt; color: #e74c3c;">' . $item->student_info->name . '</h2>
-                    <p style="font-size: 14pt;">concluiu com êxito o treinamento em:</p>
-                    <h3 style="font-size: 18pt;">' . $item->course . '</h3>
-                    <p style="font-size: 12pt;">Emitido por: ' . $item->organization . '</p>
-                    <p style="font-size: 10pt;">Código do Certificado: ' . $item->certificate_no . '</p>
+                    <p style="font-size:9pt; color:#888;">Código de verificação: ' . $codigo . '</p>
                 </div>
             ';
 
-            // 4. Se existir logo, insere antes do texto
-            if (file_exists($logoPath) && !empty($item->logo)) {
-                $pdf->Image($logoPath, 125, 20, 40, '', '', '', 'T', false, 300, 'C', false, false, 0, false, false, false);
-            }
-
             $pdf->writeHTML($html, true, false, true, false, '');
-            
-            // 5. Saída do arquivo
-            $pdf->Output('Certificado_' . $item->student_info->name . '.pdf', 'I');
+            $pdf->Output('Certificado_' . $aluno . '.pdf', 'I');
             exit;
 
         } catch (Exception $e) {
             die("Erro ao gerar PDF: " . $e->getMessage());
         }
-    }
-
-    // Mantendo sua função generate antiga caso precise dela para outros hooks
-    public static function generate($studentName, $courseTitle, $hash)
-    {
-        // ... (seu código da função generate permanece aqui se desejar)
     }
 }
