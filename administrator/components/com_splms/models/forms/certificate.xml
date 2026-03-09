@@ -1,86 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form>
-	<fieldset name="basic">
-		<field name="id" type="hidden" />
+  <fieldset name="basic" label="Configuração do Template">
+    <field name="id" type="hidden" />
+    <field name="teacher_id" type="hidden" />
 
-		<field 
-			name="userid"
-		 	label="COM_SPLMS_FIELD_STUDENT_NAME"
-		 	description="COM_SPLMS_FIELD_STUDENT_NAME_DESC"
-    		type="user"
-    	/>
+    <field 
+      name="title" 
+      type="text"
+      class="inputbox"
+      label="Nome do Template"
+      description="Ex: Certificado Padrão, Certificado Premium"
+      required="true"
+      size="50"
+    />
 
-		<field 
-			name="coursescategory_id"
-		 	label="COM_SPLMS_FIELD_COURSE_CATEGORYNAME"
-			type="sql"
-			translate="false"
-			query="SELECT id, title FROM #__splms_coursescategories WHERE published = 1"
-			key_field="id"
-			value_field="title"
-			layout="joomla.form.field.list-fancy-select"
-    	/>
+    <field 
+      name="bg_image"
+      type="media"
+      directory="lms/certificates"
+      class="inputbox"
+      label="Imagem de Fundo do Certificado"
+      description="Faça o upload da imagem de fundo base (sem os textos) para este certificado."    
+    />
 
-		<field 
-			name="course_id"
-			label="COM_SPLMS_FIELD_COURSE_NAME"
-			type="sql"
-			translate="false"
-			query="SELECT id, title FROM #__splms_courses WHERE published = 1"
-			key_field="id"
-			value_field="title"
-			layout="joomla.form.field.list-fancy-select"
-		/>
+    <field 
+      name="associated_courses"
+      label="Cursos Associados"
+      description="Selecione os cursos que usarão este template. Segure CTRL (ou CMD) para selecionar mais de um."
+      type="sql"
+      multiple="true"
+      translate="false"
+      query="SELECT id, title FROM #__splms_courses WHERE published = 1"
+      key_field="id"
+      value_field="title"
+      layout="joomla.form.field.list-fancy-select"
+    />
 
-    	<field 
-			name="issue_date"
-		 	type="calendar"
-		 	label="COM_SPLMS_CERTIFICATE_ISSUE_DATE"
-		 	description="COM_SPLMS_CERTIFICATE_ISSUE_DATE_DESC"
-			
-		/>
+  </fieldset>
 
-    	<field 
-			name="certificate_no" 
-			type="text"
-			class="inputbox"
-			label="COM_SPLMS_CERTIFICATE_NO"
-		 	description="COM_SPLMS_CERTIFICATE_NO_DESC"
-			size="50"
-		/>
+  <fieldset name="sidebar">
+    <field name="published" type="list" label="JSTATUS" class="inputbox" filter="intval" default="1">
+       <option value="1">JPUBLISHED</option>
+       <option value="0">JUNPUBLISHED</option>
+    </field>
 
-		<field 
-			name="student_image"
-		 	type="media"
-		 	directory="lms/lessions"
-			class="inputbox"
-			label="COM_SPLMS_STUDENT_IMAGE"
-			description="COM_SPLMS_STUDENT_IMAGE_DESC"		
-		/>
-
-		<field 
-			name="instructor" 
-		 	type="text"
-			class="inputbox"
-			label="COM_SPLMS_COURSE_INSTRUCTOR"
-			size="50"
-		/>
-
-	</fieldset>
-
-	<fieldset name="sidebar">
-		<field name="published" type="list" label="JSTATUS" class="inputbox" filter="intval" default="1">
- 			 <option value="1">JPUBLISHED</option>
- 			 <option value="0">JUNPUBLISHED</option>
- 	 	</field>
-
-	 	<field name="created_by" type="user" label="JGLOBAL_FIELD_CREATED_BY_LABEL" />
-
-		<field 
-			name="created" 
-			type="calendar"
-			label="COM_SPLMS_TITLE_CREATED_DATE"
-			
-		/>
- 	</fieldset>
+    <field 
+      name="created_at" 
+      type="calendar"
+      label="Data de Criação"
+    />
+  </fieldset>
 </form>
