@@ -79,7 +79,7 @@ class SplmsModelLessons extends ListModel {
 		$query->from($db->quoteName('#__splms_lessons', 'a'));
 		$query->where($db->quoteName('a.published')." = 1");
 		$query->where($db->quoteName('a.course_id')." = ".$db->quote($course_id));
-		$query->order('a.ordering DESC');
+		$query->order(array('a.topic_id ASC', 'a.ordering ASC'));
 		$db->setQuery($query);
 		$lessons = $db->loadObjectList();
 

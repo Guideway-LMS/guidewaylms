@@ -487,11 +487,44 @@ window.SPLMS_CONTEXT = {
     </div>
     
     <div class="col-md-5">
-      <?php if (!empty($this->lessons) && count($this->lessons) && $this->lessons) { ?>
+      <?php if (!empty($this->lessons) && count($this->lessons) && $this->lessons) { 
+          // --- GUIDEWAY CUSTOM: MAPEAMENTO DE TÓPICOS PARA A SIDEBAR ---
+          $db = Factory::getDbo();
+          $queryTopics = $db->getQuery(true)
+               ->select($db->quoteName(array('id', 'title')))
+               ->from($db->quoteName('#__splms_lessiontopics'))
+               ->where($db->quoteName('course_id') . ' = ' . (int)$this->item->course_id)
+               ->where($db->quoteName('published') . ' = 1');
+          
+          $topicsList = $db->setQuery($queryTopics)->loadObjectList();
+          $topicMap = [];
+          if ($topicsList) {
+              foreach($topicsList as $t) {
+                   $topicMap[$t->id] = $t->title;
+              }
+          }
+          $current_topic_id = null;
+          // ----------------------------------------------------------------
+      ?>
         <div class="course-lessons">
           <h3><?php echo Text::_('COM_SPLMS_LESOSNS_LIST'); ?></h3>
           <ul class="lessons list-unstyled">
             <?php foreach ($this->lessons as $lesson) { 
+                
+                // GUIDEWAY CUSTOM: Renderizar Cabeçalho Separador de Tópico
+                if ($lesson->topic_id != $current_topic_id) {
+                    $current_topic_id = $lesson->topic_id;
+                    $topicTitle = isset($topicMap[$current_topic_id]) ? $topicMap[$current_topic_id] : (empty($current_topic_id) ? '' : 'Módulo ' . $current_topic_id);
+                    
+                    if (!empty($topicTitle)): ?>
+                        <li class="topic-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); margin: 25px 0 10px 0; color: #94a3b8; font-size: 13px; text-transform: uppercase; font-weight: 700; padding-bottom: 5px; opacity: 0.8;">
+                           <?php echo $topicTitle; ?>
+                        </li>
+                    <?php else: ?>
+                        <li class="topic-separator" style="border-bottom: 1px solid rgba(255,255,255,0.1); margin: 25px 0 10px 0;"></li>
+                    <?php endif; 
+                }
+                
                 $active_lesson = ($this->item->id == $lesson->id) ? ' active' : '';
                 $state = $this->lessonStates[$lesson->id] ?? 0;
                 $isCompleted = ($state === 1);
