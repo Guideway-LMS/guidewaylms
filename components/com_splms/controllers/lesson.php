@@ -15,7 +15,6 @@ use Joomla\CMS\Language\Text;
 
 class SplmsControllerLesson extends FormController {
     
-    // READICIONADO
     public function completeditem()
     {
         error_reporting(E_ALL);
@@ -27,14 +26,12 @@ class SplmsControllerLesson extends FormController {
 
         $response = ['status' => false, 'content' => ''];
 
-        // 1️⃣ Verifica login
         if ($user->guest) {
             $response['content'] = Text::_('COM_SPLMS_LOGIN_TO_COMPLETE');
             echo json_encode($response);
             $app->close();
         }
 
-        // 2️⃣ Valida input
         $itemId   = $input->getInt('item_id');
         $itemType = $input->getString('item_type', 'lesson');
 
@@ -45,8 +42,6 @@ class SplmsControllerLesson extends FormController {
         }
 
         try {
-
-            // 3️⃣ Carrega model
             BaseDatabaseModel::addIncludePath(JPATH_COMPONENT . '/models');
             $model = $this->getModel('Lessons', 'SplmsModel');
 
@@ -54,7 +49,6 @@ class SplmsControllerLesson extends FormController {
                 throw new \Exception('Model Lessons não encontrado.');
             }
 
-            // 4️⃣ Executa lógica do model
             $result = $model->completedItem($itemId, $itemType, $user->id);
 
             if ($result) {
@@ -73,27 +67,25 @@ class SplmsControllerLesson extends FormController {
         $app->close();
     }
 
-    // Redirecionamento de compatibilidade
     public function submit() {
         return $this->uploadAssignment();
     }
 
     public function uploadAssignment() {
-        $app   = Factory::getApplication();
-        $input = $app->input;
-        $user  = Factory::getUser();
-        $db    = Factory::getDbo();
+        $app    = Factory::getApplication();
+        $input  = $app->input;
+        $user   = Factory::getUser();
+        $db     = Factory::getDbo();
+        
+        // Deteta se a chamada veio do JavaScript (AJAX) da View do Aluno
+        $isAjax = ($input->server->getString('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest');
 
-        // 1. DADOS CRÍTICOS - Captura os dados que vieram do formulário de forma segura
-        $lesson_id = $input->getInt('lesson_id', 0);
-        $course_id = $input->getInt('course_id', 0);
-        $itemId    = $input->getInt('Itemid', 0);
-
-        // === INJEÇÃO GUIDEWAY: CAPTURA O ID DO PROFESSOR ===
+        // 1. DADOS CRÍTICOS
+        $lesson_id  = $input->getInt('lesson_id', 0);
+        $course_id  = $input->getInt('course_id', 0);
+        $itemId     = $input->getInt('Itemid', 0);
         $teacher_id = $input->getInt('teacher_id', 0);
-        // ===================================================
 
-        // 2. MONTAGEM DA URL DE RETORNO (Blindada)
         if ($lesson_id) {
             $url = 'index.php?option=com_splms&view=lesson&id=' . $lesson_id;
             if ($itemId) {
@@ -104,119 +96,89 @@ class SplmsControllerLesson extends FormController {
             $redirectUrl = $input->server->getString('HTTP_REFERER', 'index.php');
         }
 
-        // 3. SEGURANÇA
         if ($user->guest) {
+            if ($isAjax) { echo json_encode(['success' => false, 'message' => 'Faça login.']); $app->close(); }
             $this->setRedirect(Route::_('index.php?option=com_users&view=login', false), 'Faça login.', 'warning');
             return false;
         }
 
-        // 4. UPLOAD COM MELHORIAS DE SEGURANÇA - GUIDEWAY CUSTOM
+        // 2. UPLOAD COM SEGURANÇA
         $file = $input->files->get('uploaded_file');
         if (!$file || $file['error'] != 0) {
+            if ($isAjax) { echo json_encode(['success' => false, 'message' => 'Selecione um arquivo válido.']); $app->close(); }
             $this->setRedirect($redirectUrl, 'Selecione um arquivo válido.', 'warning');
             return false;
         }
 
-        // GUIDEWAY CUSTOM - Armazenamento fora do public_html
-        $uploadDir = '/var/www/uploads_privados/trabalhos/';
+        $uploadDir = JPATH_ROOT . '/uploads_privados/trabalhos/';
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0755, true);
-            file_put_contents($uploadDir . 'index.html', '');
+            file_put_contents($uploadDir . 'index.html', '<!DOCTYPE html><title></title>');
         }
 
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($file['name'], PATHINFO_FILENAME));
+        $hash = bin2hex(random_bytes(4)); 
         
-        // GUIDEWAY CUSTOM - Anonimização com random_bytes
-        $hash = bin2hex(random_bytes(8)); // 16 caracteres
-        $newFileName = $hash . '.' . $ext;
-        
+        $newFileName = $hash . '_' . $safeName . '.' . $ext;
         $targetPath = $uploadDir . $newFileName;
         $dbPath = 'uploads_privados/trabalhos/' . $newFileName;
-        
-        // GUIDEWAY CUSTOM - Guardar nome original
-        $originalFileName = $file['name'];
 
         if (!File::upload($file['tmp_name'], $targetPath)) {
+            if ($isAjax) { echo json_encode(['success' => false, 'message' => 'Erro ao salvar arquivo no servidor.']); $app->close(); }
             $this->setRedirect($redirectUrl, 'Erro ao salvar arquivo.', 'error');
             return false;
         }
 
-        // 5. BANCO DE DADOS
-        // 5. BANCO DE DADOS - Usa Model ao invés de código direto
-try {
-    // Carrega o Model
-    BaseDatabaseModel::addIncludePath(JPATH_COMPONENT . '/models');
-    $model = BaseDatabaseModel::getInstance('Trabalho', 'SplmsModel');
-    
-    if (!$model) {
-        throw new Exception('Model Trabalho não encontrado.');
-    }
-    
-    // Busca teacher_id da lição
-    $teacher_id = $model->getTeacherId($lesson_id);
-    
-    // Prepara dados
-    $dados = [
-        'user_id' => $user->id,
-        'teacher_id' => $teacher_id,
-        'lesson_id' => $lesson_id,
-        'course_id' => $course_id,
-        'file_path' => $dbPath,
-        'original_filename' => $originalFileName
-    ];
-    
-    // Salva no banco via Model
-    if (!$model->salvarTrabalho($dados)) {
-        throw new Exception('Erro ao salvar trabalho no banco.');
-    }
-    
-    // Marca lição como completa
-    $lessonModel = $this->getModel('Lessons', 'SplmsModel');
-    if ($lessonModel) {
-        $lessonModel->completedItem($lesson_id, 'lesson', $user->id);
-    }
-    
-    $this->setRedirect($redirectUrl, 'Trabalho enviado com sucesso!', 'success');
-    return true;
-    
-} catch (Exception $e) {
-    // Limpa arquivo se der erro no banco
-    if (file_exists($targetPath)) {
-        File::delete($targetPath);
-    }
-    $this->setRedirect($redirectUrl, 'Erro: ' . $e->getMessage(), 'error');
-    return false;
-	}
-        // 5. BANCO DE DADOS (Blindado contra Erro 500)
+        // 3. BANCO DE DADOS (Blindado via Query Direta)
         try {
             $data = new \stdClass();
             $data->user_id = $user->id;
             $data->lesson_id = $lesson_id;
             $data->course_id = $course_id;
-            $data->teacher_id = $teacher_id; // Injetado do formulário!
+            
+            // Garantia dupla: Busca o teacher_id caso o formulário falhe ao enviar
+            if (empty($teacher_id) && $course_id > 0) {
+                $queryT = $db->getQuery(true)->select('created_by')->from('#__splms_courses')->where('id = ' . (int)$course_id);
+                $db->setQuery($queryT);
+                $teacher_id = (int) $db->loadResult();
+            }
+            
+            $data->teacher_id = $teacher_id;
             $data->file_path = $dbPath;
-            $data->original_filename = $originalFileName;
-            $data->status = 0; // 0 = Aguardando Correção
+            $data->status = 0; // 0 = Aguardando Correção (Aciona a mudança de ecrã do Aluno)
             $data->submitted_at = Factory::getDate()->toSql();
             
+            // Gravação direta contornando a ausência de Models/Tables da equipa
             if (!$db->insertObject('#__splms_submissions', $data)) {
-                throw new Exception("Falha ao gravar envio no banco de dados.");
+                throw new Exception("Falha ao gravar na base de dados.");
             }
 
-            // Marca lição como completa
+            // Marca lição como completa nativamente
             $model = $this->getModel('Lessons', 'SplmsModel');
             if ($model) {
                 $model->completedItem($lesson_id, 'lesson', $user->id);
             }
 
+            // Retorno de Sucesso para o AJAX atualizar o ecrã
+            if ($isAjax) {
+                echo json_encode(['success' => true]);
+                $app->close();
+            }
+            
             $this->setRedirect($redirectUrl, 'Trabalho enviado com sucesso!', 'success');
             return true;
             
         } catch (Exception $e) {
-            // Limpa arquivo se der erro no banco
             if (file_exists($targetPath)) {
                 File::delete($targetPath);
             }
+            
+            if ($isAjax) {
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+                $app->close();
+            }
+            
             $this->setRedirect($redirectUrl, 'Erro: ' . $e->getMessage(), 'error');
             return false;
         }
