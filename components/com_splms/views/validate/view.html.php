@@ -1,12 +1,11 @@
 <?php
 /**
- * GUIDEWAY CUSTOM -  * View de validação pública de certificados
+ * GUIDEWAY CUSTOM - 09/03/2026 - Joshua - View de validacao publica de certificados
  */
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView;
-use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 class SplmsViewValidate extends HtmlView
 {
@@ -16,15 +15,24 @@ class SplmsViewValidate extends HtmlView
 
     public function display($tpl = null)
     {
-        $input = Factory::getApplication()->input;
+        $input      = Factory::getApplication()->input;
         $this->hash = $input->getString('hash', '');
 
         if (!empty($this->hash)) {
-            // Carrega o model e busca o certificado
-            BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models');
-            $model = BaseDatabaseModel::getInstance('Validate', 'SplmsModel');
+            $db    = Factory::getDbo();
+            $query = $db->getQuery(true);
 
-            $this->certificado = $model->getCertificadoPorHash($this->hash);
+            $query->select('c.id, c.certificate_no, c.issue_date, c.instructor')
+                  ->select('u.name AS aluno')
+                  ->select('co.title AS curso')
+                  ->from($db->quoteName('#__splms_certificates', 'c'))
+                  ->join('LEFT', $db->quoteName('#__users', 'u') . ' ON u.id = c.userid')
+                  ->join('LEFT', $db->quoteName('#__splms_courses', 'co') . ' ON co.id = c.course_id')
+                  ->where($db->quoteName('c.certificate_no') . ' = ' . $db->quote($this->hash))
+                  ->where($db->quoteName('c.published') . ' = 1');
+
+            $db->setQuery($query);
+            $this->certificado = $db->loadObject();
             $this->valido      = !empty($this->certificado);
         } else {
             $this->valido      = false;
