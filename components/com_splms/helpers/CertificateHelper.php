@@ -85,6 +85,12 @@ class CertificateHelper
             ';
 
             $pdf->writeHTML($html, true, false, true, false, '');
+	// GUIDEWAY CUSTOM - 09/03/2026 - Joshua - QR Code apontando para validacao publica
+	    $urlValidacao = 'https://www.guidewaylms.com/index.php?option=com_splms&view=validate&hash=' . $codigo;
+	    $pdf->write2DBarcode($urlValidacao, 'QRCODE,H', 230, 130, 28, 28, array('border' => false), 'N');
+	    $pdf->SetXY(230, 159);
+	    $pdf->SetFontSize(7);
+	    $pdf->Cell(28, 5, 'Validar certificado', 0, 0, 'C');
             $pdf->Output('Certificado_' . $aluno . '.pdf', 'I');
             exit;
 
