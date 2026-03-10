@@ -20,20 +20,24 @@ class SplmsModelCertificates extends ListModel {
 
 		$app = Factory::getApplication();
 		$user = Factory::getUser();
-
+		
 		// Create a new query object.
 		$db = $this->getDbo();
 		$query = $db->getQuery(true);
 
 		// Select the required fields from the table.
-		$query->select('a.*');
+		$query->select('a.*, c.title AS course_title');
 		$query->from($db->quoteName('#__splms_certificates', 'a'));
+		$query->join('LEFT', $db->quoteName('#__splms_courses', 'c') . ' ON c.id = a.course_id');
+
+		// 🔥 FILTRA PELO USUÁRIO LOGADO
+		$query->where('a.userid = ' . (int) $user->id);
 
 		// Filter category
-		if ( $categoryId = $this->getState('category.id')) {
-			$query->where('a.catid = ' . $categoryId);
+		if ($categoryId = $this->getState('category.id')) {
+    		$query->where('a.catid = ' . (int) $categoryId);
 		}
-		
+
 		$query->where('a.published = 1');
 		$query->order('a.ordering ASC');
 

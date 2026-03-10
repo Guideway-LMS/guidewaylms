@@ -229,19 +229,37 @@ class SplmsRouter extends RouterView
 	 */
 	private function getViewSegment(string $id, string $table) : array
 	{
-		if (strpos($id, ':') === false)
-		{
-			$id .= ':' . $this->getAlias($id, $table);
-		}
+        // Certificates table does NOT have an "alias" column.
+        // So we must not try to append / resolve alias for SEF segments.
+        if ($table === '#__splms_certificates')
+        {
+                // If it comes as "123:anything", keep only the numeric id
+                $numericId = (int) explode(':', $id, 2)[0];
 
-		if ($this->noIDs)
-		{
-			list ($key, $alias) = explode(':', $id, 2);
+                if ($this->noIDs)
+                {
+                        // When noIDs is enabled, router expects [id => segment]
+                        // Use the numeric id as both key and value (safe fallback)
+                        return [(string) $numericId => (string) $numericId];
+                }
 
-			return [$key => $alias];
-		}
+                return [$numericId => (string) $numericId];
+        }
 
-		return [(int) $id => $id];
+        // Default behavior for tables that support alias
+        if (strpos($id, ':') === false)
+        {
+                $id .= ':' . $this->getAlias($id, $table);
+        }
+
+        if ($this->noIDs)
+        {
+                list ($key, $alias) = explode(':', $id, 2);
+
+                return [$key => $alias];
+        }
+
+        return [(int) $id => $id];
 	}
 
 	/**
@@ -255,9 +273,16 @@ class SplmsRouter extends RouterView
 	 */
 	private function getViewId(string $segment, string $table) : int
 	{
-		return $this->noIDs
-			? $this->getId($segment, $table)
-			: (int) $segment;
+        // Certificates table does NOT have an "alias" column.
+        // Accept both "123" and "123:anything" and return the numeric id.
+        if ($table === '#__splms_certificates')
+        {
+                return (int) explode(':', $segment, 2)[0];
+        }
+
+        return $this->noIDs
+                ? $this->getId($segment, $table)
+                : (int) $segment;
 	}
 
 	/**
