@@ -120,19 +120,6 @@ $doc->addStyleDeclaration('
     .gw-quiz-gabarito div { background: transparent !important; }
 ');
 
-// CSS GERAL E BOTÃO DE CERTIFICADO
-
-$doc->addStyleDeclaration('
-
-    .upload-card { background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 40px; text-align: center; transition: transform 0.2s ease; border: 1px solid #f0f0f0; }
-    .upload-zone { border: 2px dashed #e0e7ff; border-radius: 12px; padding: 30px; background: #fafbff; transition: all 0.3s ease; margin-bottom: 15px; position: relative; }
-    .status-icon { font-size: 48px; margin-bottom: 15px; display: block; }
-    .status-graded { color: #22c55e; }
-    .grade-display { font-size: 3rem; font-weight: 800; color: #333; margin: 15px 0; }
-    .btn-gw-cert { background: #1a73e8; color: white !important; padding: 15px 30px; border-radius: 8px; font-weight: bold; text-transform: uppercase; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; margin-top: 20px; box-shadow: 0 4px 15px rgba(26,115,232,0.3); transition: 0.3s; border:none; }
-    .btn-gw-cert:hover { background: #1557b0; transform: translateY(-2px); }
-');
-
 // --- JAVASCRIPT: A POLÍCIA DO ARQUIVO ---
 $doc->addScriptDeclaration('
 document.addEventListener("DOMContentLoaded", function() {
@@ -255,14 +242,7 @@ window.SPLMS_CONTEXT = {
                 <?php if ($submission && $submission->status == 1) : ?>
                     <i class="fa fa-check-circle status-icon status-graded"></i>
                     <h3 class="status-title status-graded">Trabalho Aprovado!</h3>
-
-                    <div class="gw-certificate-box">
-                        <h4>📜 Certificado Disponível</h4>
-                        <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id; ?>" class="btn-gw-cert" target="_blank">
-                            <i class="fa fa-graduation-cap"></i> BAIXAR MEU CERTIFICADO
-                        </a>
-                    </div>
-
+                    
                     <div class="grade-display"><?php echo number_format($submission->grade, 1); ?> <span style="font-size: 1rem; color: #999;">/ 100</span></div>
                     <?php if (!empty($submission->feedback)) : ?>
                         <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; text-align: left; border: 1px solid #c8e6c9; margin-top: 15px;">
@@ -405,12 +385,6 @@ window.SPLMS_CONTEXT = {
                     <?php if ($hasTakenQuiz && $quizPassed) : ?>
                         <i class="fa fa-check-circle" style="font-size: 48px; color: #22c55e; display: block; margin-bottom: 15px;"></i>
                         <h3 style="font-size: 22px; font-weight: 700; color: #22c55e; margin-bottom: 10px;">Quiz Concluído!</h3>
-                        <div class="quiz-result-card success">
-                            <h4>🎓 Parabéns! Certificado Liberado.</h4>
-                            <a href="index.php?option=com_splms&task=certificate.generate&submission_id=<?php echo $submission->id ?? 14; ?>" class="btn-gw-cert" target="_blank">
-                                <i class="fa fa-certificate"></i> GERAR CERTIFICADO DE TESTE
-                            </a>
-                        </div>
                         <div style="font-size: 3rem; font-weight: 800; color: #22c55e; margin: 15px 0;">
                             <?php echo $quizPercent; ?>%
                         </div>
@@ -579,36 +553,31 @@ jQuery(function($) {
         $.get(url, function(html) {
             var doc = $(html);
             
-            // 1. Substitui APENAS a Lista Lateral (Ela trará o ✅ do banco de dados)
+            // 1. Substitui APENAS a Lista Lateral
             var novaLista = doc.find('.course-lessons');
             if (novaLista.length > 0) {
                 $('.course-lessons').replaceWith(novaLista);
             }
 
             // 2. Substitui EXCLUSIVAMENTE o card de upload.
-            // Se for um vídeo, o vídeo não tem a classe .upload-card, então ele fica intocado na tela!
             var novoUploadCard = doc.find('.upload-card');
             if (novoUploadCard.length > 0 && $('.upload-card').length > 0) {
                 $('.upload-card').replaceWith(novoUploadCard);
             }
 
-            // 3. MATEMÁTICA PURA (Corrigida com decimais e preservando o subtexto)
+            // 3. MATEMÁTICA PURA
             var total = $('.course-lessons .lesson').length;
             var concluidas = $('.course-lessons .lesson-completed').length;
             
             if (total > 0) {
                 var percentReal = (concluidas / total) * 100;
                 
-                // Formata os decimais corretamente com vírgula (Ex: 33,33)
                 var percentFormatado = (percentReal % 1 === 0) 
                     ? percentReal 
                     : percentReal.toFixed(2).replace('.', ',');
                 
-                // Injeta APENAS a porcentagem na barra mantendo a DIV original para o CSS agir
                 $('#course-progress-bar').css('width', percentReal + '%');
                 $('#course-progress-text').text(percentFormatado + '%');
-                
-                // Nota: O $('#progress-message') que troca a frase foi removido.
                 
                 if (percentReal === 100) {
                     $('#progress-emoji').text('🏆');
@@ -617,14 +586,12 @@ jQuery(function($) {
         });
     };
 
-    // Escuta a notificação global do vídeo ou do botão manual (quando termina a aula)
     $(document).ajaxSuccess(function(event, xhr, settings) {
         if (settings.url && settings.url.indexOf('task=lesson.completeditem') !== -1) {
             window.atualizarInterfaceCurso();
         }
     });
 
-    // Escuta específica para o formulário de envio de trabalho
     $('body').on('submit', '#upload-form-trabalho', function(e) {
         e.preventDefault(); 
         
@@ -634,8 +601,6 @@ jQuery(function($) {
         
         btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enviando Trabalho...');
         
-        var formData = new FormData(this);
-        // CORREÇÃO: 'this' é o formulário puro! Impede erro invisível e quebra de tela.
         var formData = new FormData(this);
         
         $.ajax({
