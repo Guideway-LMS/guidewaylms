@@ -121,7 +121,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 				<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
 					<div class="splms-course-announcements splms-section guideway-announcements">
 						<h3 class="splms-title guideway-section-title">
-							<i class="fa fa-bullhorn" aria-hidden="true"></i> Mural de Avisos
+							<i class="fa fa-bullhorn guideway-icon" aria-hidden="true"></i> Mural de Avisos
 						</h3>
 
 						<?php
@@ -134,7 +134,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 				<?php endif; ?>
 
 				<?php if ($this->item->description && !$isEnrolled) { ?>
-					<div id="course-about" class="splms-course-description">
+					<div id="course-about" class="splms-course-description splms-section guideway-course-section">
 						<?php //echo HTMLHelper::_('content.prepare', $this->item->description);
 						echo $this->item->description;
 						?>
@@ -142,7 +142,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 				<?php } ?>
 
 				<?php if ((!empty($this->item->topics) && count($this->item->topics)) || (!empty($this->item->lessons) && count($this->item->lessons))) { ?>
-					<div id="course-lessons" class="course-lessons guideway-course-section">
+					<div id="course-lessons" class="course-lessons splms-section guideway-course-section">
 						<h3><i class="fa fa-book guideway-icon" aria-hidden="true"></i><?php echo Text::_('COM_SPLMS_LESSONS'); ?></h3>
 						<?php if (!empty($this->item->topics) && count($this->item->topics)) { ?>
 							<div id="topicAccordion">
@@ -206,8 +206,13 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
 					<?php if (!Factory::getUser()->guest && $this->isAuthorised) : ?>
 						
-						<div class="splms-course-forum splms-section guideway-course-section">
-							<h3 class="splms-title"><i class="fa fa-comments guideway-icon" aria-hidden="true"></i>Fórum de Dúvidas</h3>
+						<!-- GUIDEWAY CUSTOM - 2026-03-04 - Accordion Fórum de Dúvidas -->
+						<div class="splms-course-forum splms-section guideway-course-section mt-4" style="margin-top: 70px !important;">
+							<h3 data-bs-toggle="collapse" data-bs-target="#forumAccordionBody" aria-expanded="false" aria-controls="forumAccordionBody" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+								<span><i class="fa fa-comments guideway-icon" aria-hidden="true"></i>Fórum de Dúvidas</span>
+								<i class="fa fa-chevron-down"></i>
+							</h3>
+							<div id="forumAccordionBody" class="collapse mt-3">
 							
 							<?php
 							try {
@@ -230,7 +235,9 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 								echo '<div class="alert alert-danger">Erro ao carregar o fórum: ' . $e->getMessage() . '</div>';
 							}
 							?>
-						</div>
+							</div><!-- /#forumAccordionBody -->
+						</div><!-- /.splms-course-forum -->
+
 					<?php endif; ?>
 
 
@@ -238,7 +245,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
 				<!-- Has teacher -->
 				<?php if (!empty($this->teachers)) { ?>
-					<div id="course-instructor" class="splms-course-teachers guideway-course-section">
+					<div id="course-instructor" class="splms-course-teachers splms-section guideway-course-section">
 						<h3><i class="fa fa-users guideway-icon" aria-hidden="true"></i><?php echo Text::_('COM_SPLMS_MEET_OUR_COURSE_TEACHER'); ?></h3>
 						<div class="splms-row">
 							<?php foreach ($this->teachers as $teacher) { ?>
@@ -261,7 +268,7 @@ $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 				<!-- END::  teacher -->
 
 				<?php if ($this->review) { ?>
-					<div id="course-reviews" class="user-reviews">
+					<div id="course-reviews" class="user-reviews splms-section guideway-course-section">
 						<?php 
 							if (isset($this->ratings) && $this->ratings->count) {
 								$rating = $this->ratings->total / $this->ratings->count;

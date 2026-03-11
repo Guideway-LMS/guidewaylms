@@ -37,7 +37,7 @@ use Joomla\CMS\Uri\Uri;
             
             <div class="input-group input-group-sm">
                 <input type="text" name="q" class="form-control" placeholder="Buscar..." value="<?php echo $this->escape($this->searchTerm); ?>">
-                <button class="btn btn-outline-secondary" type="submit"><i class="fa fa-search"></i></button>
+                <button class="btn btn-outline-secondary border-0" type="submit"><i class="fa fa-search"></i></button>
             </div>
         </form>
 	</div>

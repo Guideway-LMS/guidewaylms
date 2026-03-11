@@ -89,6 +89,7 @@ html[data-theme="dark"] .course-lessons .card,
 html[data-theme="dark"] .course-lessons .card-header,
 html[data-theme="dark"] .course-lessons .card-body,
 html[data-theme="dark"] .splms-course-quizzes,
+html[data-theme="dark"] .splms-course-forum,
 /* User Request: Remove background from Course Intro Text */
 html[data-theme="dark"] .splms-course-introtext,
 html[data-theme="dark"] .splms-course-intro,
@@ -112,6 +113,14 @@ html[data-theme="dark"] .reviews-wrapper {
     /* Add padding for content */
     box-shadow: none !important;
     color: var(--body-text) !important;
+}
+
+/* User Request: Remove avatar border in reviews */
+html[data-theme="dark"] .user-reviews .review-wrap.review-item .profile-img,
+html[data-theme="dark"] .user-reviews .review-wrap.review-item .profile-img img {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 
 /* User Request: Yellow Stars in Dark Mode (High Specificity) */

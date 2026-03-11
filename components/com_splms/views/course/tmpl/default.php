@@ -274,22 +274,53 @@ $user = Factory::getUser();
         
         <?php if ($this->isAuthorised != '') : ?>
             <div class="splms-course-forum splms-section">
-                <h3 class="splms-title">Fórum de Dúvidas</h3>
-                
-                <?php
-                // Carrega a view 'forum' desenvovlida (Scenario A)
-                try {
-                    echo LayoutHelper::render('joomla.content.load_view', [
-                        'component' => 'com_splms',
-                        'view'      => 'forum',
-                        'layout'    => 'default',
-                        'format'    => 'raw'
-                    ]);
-                } catch (Exception $e) {
-                    Factory::getApplication()->enqueueMessage('Erro ao carregar o fórum: ' . $e->getMessage(), 'error');
-                }
-                ?>
+                <!-- GUIDEWAY CUSTOM - 2026-03-04 - Accordion no Fórum de Dúvidas -->
+                <div class="splms-forum-accordion-header d-flex align-items-center justify-content-between"
+                     style="cursor: pointer; user-select: none;"
+                     data-bs-toggle="collapse"
+                     data-bs-target="#forumAccordionBody"
+                     aria-expanded="false"
+                     aria-controls="forumAccordionBody">
+                    <h3 class="splms-title mb-0">Fórum de Dúvidas</h3>
+                    <span class="splms-forum-toggle-icon"
+                          style="font-size: 1.5rem; font-weight: 300; line-height: 1; transition: transform 0.3s ease; display: inline-block;">
+                        +
+                    </span>
+                </div>
+
+                <div id="forumAccordionBody" class="collapse mt-3">
+                    <?php
+                    try {
+                        echo LayoutHelper::render('joomla.content.load_view', [
+                            'component' => 'com_splms',
+                            'view'      => 'forum',
+                            'layout'    => 'default',
+                            'format'    => 'raw'
+                        ]);
+                    } catch (Exception $e) {
+                        Factory::getApplication()->enqueueMessage('Erro ao carregar o fórum: ' . $e->getMessage(), 'error');
+                    }
+                    ?>
+                </div>
             </div>
+
+            <script>
+            (function() {
+                var forumBody = document.getElementById('forumAccordionBody');
+                if (!forumBody) return;
+                var header = forumBody.previousElementSibling;
+                var icon = header ? header.querySelector('.splms-forum-toggle-icon') : null;
+
+                forumBody.addEventListener('show.bs.collapse', function() {
+                    if (icon) icon.style.transform = 'rotate(45deg)';
+                    if (header) header.setAttribute('aria-expanded', 'true');
+                });
+                forumBody.addEventListener('hide.bs.collapse', function() {
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                    if (header) header.setAttribute('aria-expanded', 'false');
+                });
+            })();
+            </script>
         <?php endif; ?>
         <?php if (isset($this->item->course_schedules) && $this->item->course_schedules && count($this->item->course_schedules) && $this->item->course_schedules) { ?>
             <div class="splms-course-class-rotuines">
