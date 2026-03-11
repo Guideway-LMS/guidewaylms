@@ -87,6 +87,25 @@ Este script envia um texto padrão (com erros propositais e propositalmente long
 
 ---
 
+### 5. `groq_rotation_test.php`
+**Propósito:** Testa a lógica de virtualização de múltiplas chaves e balanceamento de carga (`Load Balancer / Rotation` do `GuidewayAIHelper`).
+
+**O que ele testa:**
+- ✅ Bypass temporário da chave salva no banco injetando um array de chaves no Helper.
+- ✅ Resiliência à falha: Executa a solicitação com duas primeiras chaves marcadas como falsas (para simularem Rate Limit/Quota Exceeded ou Unauthorized 401/429).
+- ✅ Funcionalidade de fallback: Salta para a próxima chave sem quebrar o laço de execução.
+- ✅ Obtenção de resultado com a chave real (a terceira do arranjo injetado).
+
+**Como usar:**
+```
+http://seu-dominio.com/guidewaylms/teste/groq_rotation_test.php
+```
+
+**Como funciona este teste (Virtualização das chaves):**
+Este script acessará seu banco de dados e obterá a chave funcional real. Ele virtualiza o arranjo de chaves de testes (injetando via `GuidewayAIHelper::setOverrideKey`), criando um array onde: `['chave_falsa_1', 'chave_falsa_2', chave_verdadeira]`. As duas primeiras farão a chamada do `cURL` explodir, ativando silenciosamente o tratamento de Exceção contínuo. Ao chegar na chave verdadeira o retorno ocorrerá normalmente.
+
+---
+
 ### 5. `test_callai_endpoint.php`
 **Propósito:** Testa o endpoint AJAX `lesson.callAI` e a proteção CSRF.
 
