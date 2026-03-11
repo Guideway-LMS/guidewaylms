@@ -179,6 +179,20 @@ $doc->addStyleSheet(Uri::root(true) . '/administrator/components/com_splms/asset
                     <div class="col-md-4 border-end">
                         <h6 class="text-uppercase text-muted mb-3">Configuração</h6>
                         <div class="mb-3">
+                            <label class="form-label">Link do YouTube (Opcional)</label>
+                            <div class="input-group">
+                                <input type="url" id="ai_youtube_link" class="form-control" placeholder="https://youtube.com/watch?v=...">
+                                <button class="btn btn-secondary" type="button" id="splms-ai-youtube-btn">
+                                    <span class="icon-link"></span> Inserir Link
+                                </button>
+                            </div>
+                            <small class="text-muted d-block mt-1">Extrai o texto do vídeo para basear o conteúdo.</small>
+                            <div id="ai_youtube_status" class="mt-2 text-success" style="display: none;">
+                                <i class="icon-checkmark"></i> Contexto do vídeo carregado!
+                            </div>
+                            <textarea id="ai_youtube_context" style="display:none;"></textarea>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Tópico do Curso</label>
                             <input type="text" id="ai_topic" class="form-control" placeholder="Ex: Marketing Digital Avançado">
                         </div>

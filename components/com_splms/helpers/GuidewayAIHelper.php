@@ -120,9 +120,9 @@ class GuidewayAIHelper
                 return ['success' => false, 'message' => 'Ação desconhecida: ' . htmlspecialchars($acao)];
         }
 
-        $apiKey = self::getGroqApiKey();
-        if (!$apiKey) {
-            return ['success' => false, 'message' => 'Chave da API Groq não configurada.'];
+        $apiKeys = self::getGroqApiKeys();
+        if (empty($apiKeys)) {
+            return ['success' => false, 'message' => 'Nenhuma Chave da API Groq configurada no sistema.'];
         }
 
         // Montagem do Payload
@@ -142,9 +142,14 @@ class GuidewayAIHelper
             'max_tokens' => 4096  // Permitir respostas mais longas para textos longos
         ];
 
-        try {
-            $response = self::makeApiRequest($apiKey, $payload);
+        // LOAD BALANCER / ROTATOR SYSTEM
+        $lastErrorMsg = 'Erro desconhecido';
+        
+        foreach ($apiKeys as $apiKey) {
+            try {
+                $response = self::makeApiRequest($apiKey, $payload);
 
+<<<<<<< Updated upstream
             // Parsing da resposta (Extração do conteúdo)
             if (isset($response['choices'][0]['message']['content'])) {
                 $content = $response['choices'][0]['message']['content'];
@@ -188,23 +193,44 @@ class GuidewayAIHelper
             } else {
                 Log::add('Resposta malformada da API: ' . json_encode($response), Log::ERROR, 'com_splms');
                 return ['success' => false, 'message' => 'Falha ao processar a resposta da IA.'];
-            }
+=======
+                // Parsing da resposta (Extração do conteúdo)
+                if (isset($response['choices'][0]['message']['content'])) {
+                    $content = $response['choices'][0]['message']['content'];
+                    return [
+                        'success' => true,
+                        'data' => $content
+                    ];
+                } else {
+                    Log::add('Resposta malformada da API: ' . json_encode($response), Log::ERROR, 'com_splms');
+                    $lastErrorMsg = 'Falha ao processar a resposta da IA.';
+                    continue; // Pula para a proxima chave se os dados vieram corrompidos (raro)
+                }
 
-        } catch (Exception $e) {
-            Log::add('Exceção no processarTexto: ' . $e->getMessage(), Log::ERROR, 'com_splms');
-            return ['success' => false, 'message' => 'Erro interno ao comunicar com o serviço de IA.'];
+            } catch (Exception $e) {
+                // Se a chave lançou uma exceção RateLimit ou Unauthorized dentro do cURL, Log and Rotate.
+                $lastErrorMsg = $e->getMessage();
+                Log::add('Groq API Key Failed (Rotating to next if available): ' . $lastErrorMsg, Log::WARNING, 'com_splms');
+                continue; // Next Key
+>>>>>>> Stashed changes
+            }
         }
+        
+        // Se todas as chaves falharam / esgotaram tokens
+        Log::add('Todas as chaves Groq falharam. Último Erro: ' . $lastErrorMsg, Log::ERROR, 'com_splms');
+        return ['success' => false, 'message' => 'Falha de IA em TODAS as chaves configuradas. Último erro logado: ' . $lastErrorMsg];
     }
 
     /**
-     * @var string|null Chave de API de substituição para fins de teste
+     * @var string|array|null Chave(s) de API de substituição para fins de teste
      */
     private static $_overrideKey = null;
 
     /**
      * Define uma chave de API de substituição (útil para testes)
+     * Pode ser uma string (chave única) ou um array de chaves simulando limite/erro.
      * 
-     * @param string $key A chave de API a ser usada
+     * @param string|array $key A chave de API a ser usada
      */
     public static function setOverrideKey($key)
     {
@@ -212,60 +238,59 @@ class GuidewayAIHelper
     }
 
     /**
-     * Obtém a chave da API com segurança dos parâmetros do componente
+     * Obtém as chaves da API com segurança dos parâmetros do componente
+     * Realiza um Loop buscando das posições 1 até a 5 nomeadas no arquivo Form.
      * 
-     * @return string|null A chave da API ou null se não estiver configurada
+     * @return array As chaves da API validadas pelo Painel
      * @since  1.0.0
      */
-    public static function getGroqApiKey()
+    public static function getGroqApiKeys()
     {
-        // Verifica primeiro a chave de substituição (override)
+        // Verifica primeiro a chave de substituição (override single ou array)
         if (self::$_overrideKey !== null) {
-            return self::$_overrideKey;
+            if (is_array(self::$_overrideKey)) {
+                return self::$_overrideKey;
+            }
+            return [self::$_overrideKey];
         }
 
         // Obtém parâmetros do componente
         $params = ComponentHelper::getParams('com_splms');
         
-        // Obtém a chave da API
-        $apiKey = $params->get('groq_api_key', '');
+        $cleanKeys = [];
         
-        // Valida se a chave existe e não está vazia
-        if (empty($apiKey)) {
-            Log::add(
-                'Chave da API não configurada nas configurações do SP LMS',
-                Log::WARNING,
-                'com_splms'
-            );
-            return null;
+        // Loop Extraindo Chave 1 até a 5 do Painel Config, mantendo a Ordem de Prioridade Pura
+        for ($i = 1; $i <= 5; $i++) {
+            $key = $params->get('groq_api_key_' . $i, '');
+            $trimmed = trim((string)$key);
+            
+            if (!empty($trimmed)) {
+                 $cleanKeys[] = $trimmed;
+            }
         }
         
-        // Retorna a chave sanitizada
-        return trim($apiKey);
+        if (empty($cleanKeys)) {
+            Log::add('Nenhuma Chave da API Groq configurada nas opções do SP LMS (1 a 5)', Log::WARNING, 'com_splms');
+        }
+        
+        return $cleanKeys;
     }
 
     /**
-     * Executa um Smoke Test (Teste de Fumaça) para verificar a conectividade da API
-     * 
-     * Envia uma mensagem simples "Olá" para a API Groq para validar:
-     * 1. Conectividade de rede
-     * 2. Handshake SSL
-     * 3. Autenticação (Chave da API)
-     * 4. Formato de resposta da API
+     * Executa um Smoke Test (Teste de Fumaça) para verificar a conectividade da API com Load Balancer suport
      * 
      * @return array Dados da resposta incluindo status e saída bruta
-     * @throws Exception Se a conexão falhar ou a API retornar erro
+     * @throws Exception Se a conexão falhar ou todas as chaves falharem
      * @since  1.0.0
      */
     public static function smokeTest()
     {
-        $apiKey = self::getGroqApiKey();
+        $apiKeys = self::getGroqApiKeys();
         
-        if (!$apiKey) {
-            throw new Exception('A chave da API está faltando. Por favor, configure-a nas Opções do SP LMS.');
+        if (empty($apiKeys)) {
+            throw new Exception('Nenhuma chave da API configurada. Por favor, adicione-a(s) nas Opções do SP LMS.');
         }
 
-        // Prepara payload simples para o smoke test
         $payload = [
             'model' => 'llama-3.3-70b-versatile',
             'messages' => [
@@ -282,24 +307,32 @@ class GuidewayAIHelper
             'max_tokens' => 50
         ];
 
-        Log::add('Iniciando Smoke Test da API Groq...', Log::INFO, 'com_splms');
+        Log::add('Iniciando Smoke Test da API Groq com Array de ' . count($apiKeys) . ' chaves configuradas...', Log::INFO, 'com_splms');
 
-        try {
-            // Faz a requisição
-            $response = self::makeApiRequest($apiKey, $payload);
-            
-            Log::add('Smoke Test concluído com sucesso.', Log::INFO, 'com_splms');
-            
-            return [
-                'success' => true,
-                'message' => 'Conexão estabelecida com sucesso',
-                'data' => $response
-            ];
+        $lastError = 'Desconhecido';
 
-        } catch (Exception $e) {
-            Log::add('Falha no Smoke Test: ' . $e->getMessage(), Log::ERROR, 'com_splms');
-            throw $e;
+        foreach ($apiKeys as $index => $apiKey) {
+            try {
+                // Faz a requisição
+                $response = self::makeApiRequest($apiKey, $payload);
+                
+                Log::add("Smoke Test concluído com sucesso usando a chave da posição [$index].", Log::INFO, 'com_splms');
+                
+                return [
+                    'success' => true,
+                    'message' => "Conexão estabelecida com sucesso usando a chave da Posição " . ($index+1),
+                    'data' => $response
+                ];
+
+            } catch (Exception $e) {
+                $lastError = $e->getMessage();
+                Log::add("Falha no Smoke Test na chave posição [$index]: " . $lastError, Log::WARNING, 'com_splms');
+                continue;
+            }
         }
+        
+        // Se bateu aqui, furou todas as chaves do Load balancer
+        throw new Exception('Todas as chaves informadas falharam na tentativa primária. Último Erro: ' . $lastError);
     }
 
     /**
