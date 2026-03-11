@@ -149,54 +149,42 @@ class GuidewayAIHelper
             try {
                 $response = self::makeApiRequest($apiKey, $payload);
 
-<<<<<<< Updated upstream
-            // Parsing da resposta (Extração do conteúdo)
-            if (isset($response['choices'][0]['message']['content'])) {
-                $content = $response['choices'][0]['message']['content'];
-                
-                // Conversão de Markdown para HTML básico (pois o componente devolve para um campo TinyMCE WYSIWYG)
-                // Se a IA não soltou um JSON cru (CRIAR_QUESTOES)
-                if ($acao !== self::ACTION_CRIAR_QUESTOES && $acao !== self::ACTION_CUSTOM) {
-                    
-                    // 1. Converter títulos Markdown (###)
-                    $content = preg_replace('/### (.*?)\n/', '<h3>$1</h3>', $content);
-                    $content = preg_replace('/## (.*?)\n/', '<h2>$1</h2>', $content);
-                    
-                    // 2. Converter negritos (**)
-                    $content = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $content);
-                    
-                    // 3. Converter itálicos (*)
-                    $content = preg_replace('/\*([^\*]+)\*/', '<em>$1</em>', $content);
-                    
-                    // 4. Parágrafos e quebras de linha (\n\n)
-                    $paragraphs = explode("\n\n", $content);
-                    $htmlContent = '';
-                    foreach ($paragraphs as $p) {
-                        $p = trim($p);
-                        if (!empty($p)) {
-                            // Se já não começar com uma tag de block level
-                            if (!preg_match('/^<(h[1-6]|ul|ol|li|div|p)>/i', $p)) {
-                                // Troca quebras de linha isoladas por <br>
-                                $p = nl2br($p);
-                                $p = '<p>' . $p . '</p>';
-                            }
-                            $htmlContent .= $p . "\n";
-                        }
-                    }
-                    $content = $htmlContent;
-                }
-                
-                return [
-                    'success' => true,
-                    'data' => $content
-                ];
-            } else {
-                Log::add('Resposta malformada da API: ' . json_encode($response), Log::ERROR, 'com_splms');
-                return ['success' => false, 'message' => 'Falha ao processar a resposta da IA.'];
-=======
                 // Parsing da resposta (Extração do conteúdo)
                 if (isset($response['choices'][0]['message']['content'])) {
                     $content = $response['choices'][0]['message']['content'];
+                    
+                    // Conversão de Markdown para HTML básico (pois o componente devolve para um campo TinyMCE WYSIWYG)
+                    // Se a IA não soltou um JSON cru (CRIAR_QUESTOES)
+                    if ($acao !== self::ACTION_CRIAR_QUESTOES && $acao !== self::ACTION_CUSTOM) {
+                        
+                        // 1. Converter títulos Markdown (###)
+                        $content = preg_replace('/### (.*?)\n/', '<h3>$1</h3>', $content);
+                        $content = preg_replace('/## (.*?)\n/', '<h2>$1</h2>', $content);
+                        
+                        // 2. Converter negritos (**)
+                        $content = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $content);
+                        
+                        // 3. Converter itálicos (*)
+                        $content = preg_replace('/\*([^\*]+)\*/', '<em>$1</em>', $content);
+                        
+                        // 4. Parágrafos e quebras de linha (\n\n)
+                        $paragraphs = explode("\n\n", $content);
+                        $htmlContent = '';
+                        foreach ($paragraphs as $p) {
+                            $p = trim($p);
+                            if (!empty($p)) {
+                                // Se já não começar com uma tag de block level
+                                if (!preg_match('/^<(h[1-6]|ul|ol|li|div|p)>/i', $p)) {
+                                    // Troca quebras de linha isoladas por <br>
+                                    $p = nl2br($p);
+                                    $p = '<p>' . $p . '</p>';
+                                }
+                                $htmlContent .= $p . "\n";
+                            }
+                        }
+                        $content = $htmlContent;
+                    }
+
                     return [
                         'success' => true,
                         'data' => $content
@@ -212,7 +200,6 @@ class GuidewayAIHelper
                 $lastErrorMsg = $e->getMessage();
                 Log::add('Groq API Key Failed (Rotating to next if available): ' . $lastErrorMsg, Log::WARNING, 'com_splms');
                 continue; // Next Key
->>>>>>> Stashed changes
             }
         }
         
@@ -266,6 +253,15 @@ class GuidewayAIHelper
             
             if (!empty($trimmed)) {
                  $cleanKeys[] = $trimmed;
+            }
+        }
+
+        // BACKWARD COMPATIBILITY: Se nenhuma chave numerada for encontrada, tenta a chave única antiga 'groq_api_key'
+        if (empty($cleanKeys)) {
+            $legacyKey = $params->get('groq_api_key', '');
+            $trimmedLegacy = trim((string)$legacyKey);
+            if (!empty($trimmedLegacy)) {
+                $cleanKeys[] = $trimmedLegacy;
             }
         }
         
