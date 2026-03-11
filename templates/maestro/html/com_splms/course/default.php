@@ -531,4 +531,3 @@ window.SPLMS_CONTEXT = {
         </div> <?php } ?>
     <?php } ?>
   </div>
-</div>
