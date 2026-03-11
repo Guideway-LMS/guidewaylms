@@ -7,6 +7,7 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\MVC\Model\ListModel;
+use Joomla\CMS\Factory;
 
 class SplmsModelSubmissions extends ListModel
 {
@@ -51,7 +52,7 @@ class SplmsModelSubmissions extends ListModel
         $db = $this->getDbo();
         $query = $db->getQuery(true);
 
-        // 1. Seleciona os dados da submissão
+        // 1. Seleciona os dados da submissão (tabela 'a')
         $query->select(array('a.*', 'a.id AS submission_id'));
         $query->from($db->quoteName('#__splms_submissions', 'a'));
 
@@ -64,27 +65,37 @@ class SplmsModelSubmissions extends ListModel
         $query->select('l.title AS lesson_title, l.course_id');
         $query->join('LEFT', $db->quoteName('#__splms_lessons', 'l') . ' ON l.id = a.lesson_id');
 
-        // 4. NOVO: Junta com a tabela de Cursos (para pegar o Nome do Curso e permitir filtro)
+        // 4. Junta com a tabela de Cursos (para pegar o Nome do Curso e permitir filtro)
         $query->select('c.title AS course_title');
         $query->join('LEFT', $db->quoteName('#__splms_courses', 'c') . ' ON c.id = l.course_id');
 
-        // --- APLICAÇÃO DO FILTRO ---
+        // --- APLICAÇÃO DO FILTRO DO DROPDOWN ---
         $courseId = $this->getState('filter.course_id');
-        
+
         if (is_numeric($courseId)) {
             // Filtra onde o ID do curso na tabela de lições é igual ao selecionado
             $query->where('l.course_id = ' . (int) $courseId);
         }
 
-        // Ordenação
+        // === INJEÇÃO GUIDEWAY: FILTRO RESTRITO PARA PROFESSORES ===
+        $user = Factory::getUser();
+
+        // Se o usuário logado NÃO for Super User/Gerente (core.admin)...
+        if (!$user->authorise('core.admin')) {
+            // ...Ele só poderá ver as linhas onde o 'teacher_id' da tabela de submissions for igual ao ID dele.
+            $query->where($db->quoteName('a.teacher_id') . ' = ' . (int) $user->id);
+        }
+        // ============================================================
+
+        // --- ORDENAÇÃO ---
         $orderCol = $this->state->get('list.ordering', 'a.submitted_at');
         $orderDirn = $this->state->get('list.direction', 'DESC');
-        
+
         // Proteção extra na ordenação
         if ($orderCol == 'a.ordering' || empty($orderCol)) {
             $orderCol = 'a.submitted_at';
         }
-        
+
         $query->order($db->escape($orderCol . ' ' . $orderDirn));
 
         return $query;

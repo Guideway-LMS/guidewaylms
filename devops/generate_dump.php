@@ -7,6 +7,9 @@
 define('_JEXEC', 1);
 define('JPATH_BASE', dirname(__DIR__));
 
+// Define o fuso horário padrão para garantir que o timestamp do dump e nome do arquivo estejam corretos
+date_default_timezone_set('America/Sao_Paulo');
+
 // Configurações do Banco (usar 'mariadb' que é o nome do serviço Docker na rede interna)
 $dbHost = 'mariadb';
 $dbPort = '3306';

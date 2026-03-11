@@ -1457,3 +1457,18 @@ html[data-theme="dark"] .alert-message {
 #system-message-container {
     z-index: 9999 !important;
 }
+
+/* --- Guideway Quiz & Lesson Refactoring (Dark Mode overrides) --- */
+
+html[data-theme="dark"] .guideway-topic-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme="dark"] .guideway-topic-separator {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme="dark"] .quiz-result-card h4,
+html[data-theme="dark"] .quiz-limit-warning {
+    color: #FFFFFF !important;
+}

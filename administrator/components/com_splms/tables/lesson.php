@@ -81,7 +81,7 @@ class SplmsTableLesson extends Table{
 		$this->alias = ApplicationHelper::stringURLSafe($this->alias, $this->language);
 
 		if (trim(str_replace('-', '', $this->alias)) == '') {
-			$this->alias = Factory::getDate()->format('Y-m-d-H-i-s');
+			$this->alias = date('Y-m-d-H-i-s');
 		}
 
 		// Check for valid course id.

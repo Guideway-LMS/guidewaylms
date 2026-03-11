@@ -8,6 +8,7 @@
 // No Direct Access
 defined ('_JEXEC') or die('Resticted Aceess');
 
+
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
@@ -115,6 +116,24 @@ window.SPLMS_CONTEXT = {
                   <p class="text-muted"><small>O professor ainda não comentou seu trabalho.</small></p>
               <?php endif; ?>
           </div>
+          
+          // Exibir o link para o certificado apenas se o trabalho foi aprovado
+          <?php // MUDANÇA AQUI: Removida a trava de status apenas para validar o surgimento do botão ?>
+          <?php if (true || ($submission && $submission->status == 1)) : ?>
+              <div class="item-content certificate-test-wrapper" style="margin-top: 15px; text-align: center;">
+                  <div class="alert alert-success" style="border: 2px solid #28a745; background: #f0fff0;">
+                      <h4>🎓 Parabéns! Seu certificado está disponível.</h4>
+                      <?php 
+                          // Se não houver submissionId (quiz), enviamos 0 para o controller tratar
+                          $sid = isset($submission->id) ? $submission->id : 0;
+                          $certUrl = Route::_('index.php?option=com_splms&task=certificate.generate&submission_id=' . $sid);
+                      ?>
+                      <a href="<?php echo $certUrl; ?>" class="btn btn-primary btn-lg" target="_blank" style="margin-top: 10px; font-weight: bold;">
+                          <span class="icon-certificate"></span> BAIXAR MEU CERTIFICADO (TESTE QR CODE)
+                      </a>
+                  </div>
+              </div>
+          <?php endif; ?>
 
       <?php else : ?>
           <h3 style="margin-top:0;">📤 Enviar Trabalho / Atividade</h3>

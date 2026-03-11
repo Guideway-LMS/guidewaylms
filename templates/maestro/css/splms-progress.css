@@ -61,3 +61,14 @@
     margin-top: 15px;
     font-size: 16px;
 }
+
+/* BOTAO DO CERTIFICADO ERICK 03/03 */
+.certificate-btn.locked {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.certificate-btn.enabled {
+    cursor: pointer;
+}

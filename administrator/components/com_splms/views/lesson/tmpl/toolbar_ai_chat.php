@@ -19,17 +19,20 @@
                 <!-- Drag and Drop Dropzone -->
                 <div class="gw-ai-upload-wrapper">
                     <div id="gw-ai-drop-zone" class="gw-ai-drop-zone">
-                        <input type="file" id="gw-ai-file" name="gw_ai_file" accept=".pdf" class="gw-ai-input-hidden">
+                        <input type="file" id="gw-ai-file" name="gw_ai_file[]" accept=".pdf" class="gw-ai-input-hidden" multiple>
                         <div class="gw-ai-drop-content">
                             <span class="icon-upload" style="font-size: 24px; margin-bottom: 5px; color: #666;"></span>
-                            <span class="gw-ai-drop-text">Arraste e solte o PDF aqui ou clique para selecionar</span>
+                            <span class="gw-ai-drop-text">Arraste e solte os PDFs aqui ou clique para selecionar</span>
+                            <span class="gw-ai-drop-text" style="font-size: 11px; margin-top: 2px;">(Máx: 5MB por arquivo | Múltiplos Arquivos)</span>
                             <span id="gw-ai-file-name" class="gw-ai-file-name-centered"></span>
                         </div>
                     </div>
 
+                    <?php if (empty($hideGenerateQuestions)): ?>
+
                     <!-- Botão de Configurações da Questão -->
-                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-small gw-ai-btn-quiz" title="Gerar Questão a partir do PDF">
-                        <span class="icon-list-view"></span> Gerar Questão
+                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-primary" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;" title="Gerar Questão a partir do PDF">
+                        <span class="icon-list-view"></span> Gerar Questões
                     </button>
 
                     <!-- Overlay do Modal (Bloqueio de tela e desfoque) -->
@@ -45,6 +48,7 @@
 
                             <!-- Dificuldade Segmentada -->
                             <div class="control-group gw-mb-15">
+                                <label class="gw-ai-label-small">Dificuldade</label>
                                 <div class="gw-ai-segmented-control" role="group">
                                     <input type="radio" class="btn-check" name="gw_ai_difficulty_radio" id="gw-ai-diff-facil" value="facil" autocomplete="off">
                                     <label class="btn btn-outline-primary" for="gw-ai-diff-facil">Fácil</label>
@@ -66,6 +70,19 @@
                                     <input type="number" id="gw-ai-qcount" class="gw-ai-number-input" value="5" min="1" max="50">
                                 </div>
                             </div>
+                            
+                            <!-- Gerar Descrição Antes das Questões -->
+                            <div class="control-group gw-mb-15">
+                                <label class="gw-ai-label-small" style="margin-bottom: 8px;">Incluir resumo do conteúdo antes das questões?</label>
+                                <div class="gw-ai-segmented-control" role="group">
+                                    <input type="radio" class="btn-check" name="gw_ai_include_desc_radio" id="gw-ai-desc-sim" value="1" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="gw-ai-desc-sim">Sim</label>
+
+                                    <input type="radio" class="btn-check" name="gw_ai_include_desc_radio" id="gw-ai-desc-nao" value="0" autocomplete="off" checked>
+                                    <label class="btn btn-outline-primary" for="gw-ai-desc-nao">Não</label>
+                                </div>
+                                <input type="hidden" id="gw-ai-include-desc" value="0">
+                            </div>
                         </div>
 
                         <!-- Botão de Ação dentro do Menu -->
@@ -73,14 +90,14 @@
                             <span class="icon-magic"></span> Gerar Agora
                         </button>
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Generate Button -->
-                <button type="button" class="btn btn-primary" id="gw-ai-generate-btn">
+                <button type="button" class="btn btn-primary" id="gw-ai-generate-btn" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;">
                     <span class="icon-magic"></span> Gerar Descrição
                 </button>
             </div>
-
 
         </div>
     </div>

@@ -23,7 +23,17 @@ images/demo/thumbs/course-cover-15555796_400x300.jpg
 images/demo/thumbs/course-cover-15555796_840x490.jpg
 images/demo/thumbs/course-cover-33937115_400x300.jpg
 images/demo/thumbs/course-cover-33937115_840x490.jpg
+# Ambientes Virtuais e Binários
+**/venv/
+**/bin/
+get-pip.py
 
+# Dependências do PHP
+vendor/
+composer.phar
+
+# Arquivos de Teste Pessoais
+teste/groq_rotation_test*
 
 # ================================
 # PLAYWRIGHT TESTS - ARQUIVOS LOCAIS
@@ -40,6 +50,10 @@ tests-playwright/auth/*.json
 *.jpg
 *.jpeg
 
+
+node_modules/
+package-lock.json
+*.log
 # Playwright artifacts na raiz (por segurança)
 playwright-report/
 test-results/

@@ -10,59 +10,36 @@
 defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Table\Table;
 
-class SplmsTableCertificate extends Table{
+class SplmsTableCertificate extends Table {
 
-	public function __construct(&$db) {
-		parent::__construct('#__splms_certificates', 'id', $db);
-	}
+  public function __construct(&$db) {
+    // Aponta para a nossa nova tabela de templates de certificados
+    parent::__construct('#__splms_certificate_templates', 'id', $db);
+  }
 
-	public function store($updateNulls = false) {
+  public function store($updateNulls = false) {
+    $date = Factory::getDate()->toSql();
 
-		$date = Factory::getDate()->toSql();
-		$user = Factory::getUser();
+    // Se for um novo template e a data estiver vazia, preenche com a data atual
+    if (!$this->id) {
+      if (empty($this->created_at)) {
+        $this->created_at = $date;
+      }
+    }
 
-		if ($this->id) {
-			$this->modified		= $date;
-			$this->modified_by		= $user->get('id');
-		} else {
-			if (!(int) $this->created) {
-				$this->created = $date;
-			}
-			if (empty($this->created_by)) {
-				$this->created_by = $user->get('id');
-			}
-			if (!(int) $this->modified) {
-				$this->modified = $date;
-			}
-			if (empty($this->modified_by)) {
-				$this->modified_by = $user->get('id');
-			}
-		}
-		if (empty($this->issue_date)) {
-			$this->issue_date = null;
-		}
-		return parent::store($updateNulls);
-	}
+    return parent::store($updateNulls);
+  }
 
-	public function check() {
+  public function check() {
+    // Garante que o template tenha um título antes de salvar no banco
+    if (empty($this->title)) {
+      $this->setError('O nome do template é obrigatório.');
+      return false;
+    }
 
-		$today = Factory::getDate();
-		$today = HTMLHelper::_('date', $today, 'Ymd');
-		$rand = strtoupper(substr(uniqid(sha1(time())),0,4));
-		$uniqueno = $rand .$today;
-
-		if(empty($this->certificate_no)) {
-			// Auto-fetch a alias
-			$this->certificate_no = $uniqueno;
-		} else {
-			// if has certificate no
-			$this->certificate_no = $this->certificate_no;
-		}
-		return true;
-		//return parent::onAfterLoad($result);
-	}
+    return true;
+  }
 
 }
