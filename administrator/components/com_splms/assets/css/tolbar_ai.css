@@ -60,11 +60,475 @@ body.theme-dark #gw-ai-loading {
         flex-direction: column;
     }
 
-    #div-gw-ai-loading{
+    #div-gw-ai-loading {
         flex-direction: column;
     }
 
     .container_vazio2 {
+        text-align: center;
+    }
+}
+
+/* --- New UI Refactor Styles --- */
+
+.gw-ai-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gw-ai-upload-wrapper {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Espaço entre a zona de Drop e o botão de Configurações */
+    margin-right: 20px;
+    /* Espaço extra para separar dos botões de ação à direita */
+}
+
+.gw-ai-drop-zone {
+    flex-grow: 1;
+    /* Ocupa a largura disponível */
+    border: 2px dashed #555;
+    border-radius: 6px;
+    padding: 8px;
+    /* Reduzido de 15px para ficar menor */
+    /* EDITE AQUI: Ajuste o padding ou max-width para mudar o tamanho */
+    text-align: center;
+    cursor: pointer;
+    background-color: #2a2d3a;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.gw-ai-drop-zone:hover,
+.gw-ai-drop-zone.dragover {
+    border-color: #007bff;
+    background-color: #323644;
+}
+
+.gw-ai-drop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    /* Let clicks pass to parent/input */
+}
+
+.gw-ai-drop-text {
+    color: #afafaf;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.gw-ai-file-name-centered {
+    color: #27ae60;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: bold;
+    min-height: 18px;
+    /* Maintain height even if empty */
+}
+
+.gw-ai-input-hidden {
+    display: none;
+}
+
+.gw-ai-btn-quiz {
+    margin-left: 0;
+    /* Reset margin since we use gap now */
+    border: 1px solid #555;
+    background-color: #353946;
+    padding: 6px 12px;
+    border-radius: 50px;
+    /* Match standard */
+    color: #fff;
+    height: fit-content;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+    flex-shrink: 0;
+    /* Prevent button from shrinking */
+}
+
+.gw-ai-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: #3b3f4d;
+    /* Dark Dark Grey */
+    padding: 15px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    border-top: 3px solid #007bff;
+    width: 300px;
+    margin-top: 5px;
+}
+
+.gw-ai-dropdown-title {
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #ffffff;
+}
+
+.gw-ai-label-small {
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #ffffff;
+    /* Ensuring label is white on dark bg */
+}
+
+.gw-ai-select {
+    width: 100%;
+    color: #333 !important;
+    /* Force dark text */
+    background-color: #fff !important;
+    /* Force white background */
+    border: 1px solid #ccc;
+}
+
+/* Fix for Select Option visibility on some browsers */
+.gw-ai-select option {
+    background: #fff;
+    color: #333;
+}
+
+.gw-ai-btn-block {
+    width: 100%;
+}
+
+.gw-text-white {
+    color: #ffffff;
+}
+
+.gw-mb-10 {
+    margin-bottom: 10px;
+}
+
+.gw-mb-15 {
+    margin-bottom: 15px;
+}
+
+.gw-mt-10 {
+    margin-top: 10px;
+}
+
+.gw-hr-margin {
+    margin: 10px 0;
+    border-color: #555;
+}
+
+/* Quiz Generation AI Controls */
+.ai-controls-container {
+    border: 1px solid #fff;
+    background: #1b1c2b;
+    padding: 15px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.ai-status-section {
+    text-align: center;
+    padding-right: 20px;
+    border-right: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+.ai-status-icon {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 5px;
+    color: #fff;
+    /* Dark theme default */
+}
+
+/* Dynamic states for icon */
+.ai-status-icon.has-pdf {
+    color: #27ae60 !important;
+}
+
+.ai-status-icon.no-pdf {
+    color: #e74c3c !important;
+}
+
+.ai-font-status {
+    font-weight: bold;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.ai-status-label {
+    font-weight: bold;
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.ai-config-section {
+    display: flex;
+    gap: 20px;
+    flex-grow: 1;
+    padding-left: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-control-label {
+    color: #afafaf;
+    font-weight: 600;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.ai-action-section {
+    text-align: right;
+}
+
+.ai-action-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-loading-spinner {
+    display: none;
+    color: #777;
+}
+
+.ai-message {
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+/* Round 2 Refinements */
+.ai-status-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.ai-status-item {
+    text-align: center;
+    min-width: 60px;
+}
+
+.ai-select-rounded {
+    border-radius: 50px !important;
+    padding: 4px 15px !important;
+    width: 140px !important;
+    border: 1px solid #ccc;
+    height: 30px !important;
     text-align: center;
 }
-} 
+
+.ai-input-rounded {
+    border-radius: 50px !important;
+    padding: 4px 10px !important;
+    width: 60px !important;
+    border: 1px solid #ccc;
+    height: 30px !important;
+    text-align: center;
+}
+
+.ai-center-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Override existing control-item to center content */
+.control-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- Estilos do Dropdown Glassmorphism --- */
+
+.gw-ai-glass-dropdown {
+    background: rgba(43, 48, 62, 0.85) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    border-radius: 12px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 20px !important;
+    width: 320px !important;
+}
+
+.gw-ai-glass-dropdown .gw-ai-dropdown-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.gw-ai-glass-dropdown .gw-ai-label-small {
+    color: #a0aec0;
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: block;
+    text-align: center;
+}
+
+/* --- Controle Segmentado para Dificuldade --- */
+.gw-ai-segmented-control {
+    display: flex;
+    justify-content: space-around;
+    gap: 5px;
+    background: rgba(30, 33, 43, 0.6);
+    border-radius: 8px;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    width: 100%;
+}
+
+.gw-ai-segmented-control .btn-check {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+.gw-ai-segmented-control .btn {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 6px 4px;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: #718096;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.gw-ai-segmented-control .btn:hover {
+    color: #cbd5e0;
+}
+
+.gw-ai-segmented-control .btn-check:checked+.btn {
+    background: rgba(59, 130, 246, 0.15) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* --- Estilo do Input Numérico --- */
+.gw-ai-number-input-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.gw-ai-number-input {
+    width: 120px;
+    background: rgba(30, 33, 43, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 8px 15px !important;
+    font-size: 14px !important;
+    outline: none;
+    box-shadow: none !important;
+    text-align: center;
+}
+
+.gw-ai-number-input:focus {
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    background: rgba(30, 33, 43, 0.8) !important;
+}
+
+/* Estilos Customizados para Controles Giratórios Webkit */
+.gw-ai-number-input::-webkit-inner-spin-button,
+.gw-ai-number-input::-webkit-outer-spin-button {
+    opacity: 1;
+    height: 30px;
+    cursor: pointer;
+}
+
+/* --- Botão de Ação com Brilho --- */
+.gw-ai-btn-glow {
+    width: 100%;
+    margin-top: 15px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 10px 15px !important;
+    border-radius: 20px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4) !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.gw-ai-btn-glow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6) !important;
+}
+
+.gw-ai-btn-glow:active {
+    transform: translateY(1px);
+}
+
+/* --- Overlay do Modal e Comportamento --- */
+
+/* Quando o modal estiver ativo, aplica desfoque no fundo */
+body.gw-ai-modal-active>*:not(.gw-ai-dropdown-overlay):not(.gw-ai-dropdown) {
+    filter: blur(5px);
+    transition: filter 0.3s ease;
+    pointer-events: none;
+}
+
+/* Elemento base do overlay para clique externo */
+.gw-ai-dropdown-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    /* Overlay escuro semi-transparente */
+    z-index: 9998;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* Sobrescrita específica do Modal para centralizá-lo */
+.gw-ai-glass-dropdown.gw-ai-modal-mode {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 0;
+    z-index: 9999;
+}

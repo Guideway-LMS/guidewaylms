@@ -8,125 +8,196 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Uri\Uri;
 
+// Carrega comportamentos padrões do Joomla
 HTMLHelper::_('behavior.core');
 HTMLHelper::_('bootstrap.tooltip');
+HTMLHelper::_('formbehavior.chosen', 'select'); // Adicionado para o dropdown ficar bonito
 ?>
 
-<div class="row-fluid">
-    <div id="j-main-container" class="span12">
-        
-        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-            <h1 style="margin: 0;">🎓 Gerenciamento de Trabalhos</h1>
-        </div>
-
-        <form action="<?php echo Route::_('index.php?option=com_splms&view=submissions'); ?>" method="post" name="adminForm" id="adminForm">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th width="1%" class="text-center">#</th>
-                        <th>Data</th>
-                        <th>Aluno</th>
-                        <th>Curso</th>
-                        <th>Lição</th>
-                        <th class="text-center">Arquivo</th>
-                        <th class="text-center">Nota</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center">Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php if (!empty($this->items)) : ?>
-                    <?php foreach ($this->items as $item) : ?>
-                        <tr>
-                            <td class="text-center"><?php echo $item->submission_id; ?></td>
-                            <td><?php echo date('d/m/Y H:i', strtotime($item->submitted_at)); ?></td>
-                            <td><?php echo $item->student_name; ?></td>
-                            <td><small><?php echo $item->course_title; ?></small></td>
-                            <td><?php echo $item->lesson_title; ?></td>
-                            <td class="text-center">
-                                <a href="<?php echo Uri::root() . $item->file_path; ?>" target="_blank" class="btn btn-mini btn-info"><span class="icon-download"></span></a>
-                            </td>
-                            <td class="text-center">
-                                <?php echo ($item->grade > 0) ? number_format($item->grade, 1) : '-'; ?>
-                            </td>
-                            <td class="text-center">
-                                <?php echo ($item->status == 1) ? '<span class="label label-success">Corrigido</span>' : '<span class="label label-warning">Pendente</span>'; ?>
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-mini btn-primary btn-evaluate" 
-                                        data-id="<?php echo $item->submission_id; ?>" 
-                                        data-grade="<?php echo $item->grade; ?>" 
-                                        data-feedback="<?php echo htmlspecialchars($item->feedback ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                                    Avaliar
-                                </button>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-                </tbody>
-            </table>
-            <input type="hidden" name="task" value="" />
-            <?php echo HTMLHelper::_('form.token'); ?>
-        </form>
+<div id="j-main-container" class="span12">
+    
+    <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+        <h1 style="margin: 0;">🎓 Gerenciamento de Trabalhos</h1>
+        <small class="text-muted">Visualize os envios, baixe arquivos e atribua notas.</small>
     </div>
+    
+    <?php if (!empty($this->sidebar)) : ?>
+        <div id="j-sidebar-container" class="span2">
+            <?php echo $this->sidebar; ?>
+        </div>
+    <?php endif; ?>
+
+    <form action="<?php echo Route::_('index.php?option=com_splms&view=submissions'); ?>" method="post" name="adminForm" id="adminForm">
+        
+        <?php if ($this->filterForm) : ?>
+            <?php echo LayoutHelper::render('joomla.searchtools.default', ['view' => $this]); ?>
+        <?php endif; ?>
+
+        <table class="table table-striped table-hover" id="articleList">
+            <thead>
+                <tr>
+                    <th width="1%" class="text-center">#</th>
+                    <th width="15%">Data de Envio</th>
+                    <th width="20%">Aluno</th>
+                    <th width="25%">Lição / Aula</th>
+                    <th width="15%">Curso</th> 
+                    <th width="10%" class="text-center">Arquivo</th>
+                    <th width="10%" class="text-center">Nota</th>
+                    <th width="10%" class="text-center">Status</th>
+                    <th width="10%" class="text-center">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php if (!empty($this->items)) : ?>
+                <?php foreach ($this->items as $i => $item) : ?>
+                    <tr class="row<?php echo $i % 2; ?>">
+                        <td class="text-center"><?php echo $item->submission_id; ?></td>
+                        <td>
+                            <?php echo date('d/m/Y', strtotime($item->submitted_at)); ?> <br>
+                            <small class="text-muted"><?php echo date('H:i', strtotime($item->submitted_at)); ?></small>
+                        </td>
+                        <td>
+                            <div style="font-weight:bold;"><?php echo $item->student_name; ?></div>
+                            <div class="small text-muted">User: <?php echo $item->username; ?></div>
+                        </td>
+                        <td><?php echo $item->lesson_title; ?></td>
+                        
+                        <td><?php echo isset($item->course_title) ? $item->course_title : '-'; ?></td>
+
+                        <td class="text-center">
+                            <a href="<?php echo Uri::root() . $item->file_path; ?>" target="_blank" class="btn btn-sm btn-outline-secondary has-tooltip" title="Baixar Arquivo">
+                                <span class="icon-download" aria-hidden="true"></span> Baixar
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <?php if($item->grade > 0): ?>
+                                <span class="badge bg-success" style="font-size:1rem;"><?php echo number_format($item->grade, 1); ?></span>
+                            <?php else: ?>
+                                <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-center">
+                            <?php if($item->status == 1): ?>
+                                <span class="badge bg-success">Aprovado</span>
+                            
+                            <?php elseif($item->status == 2): ?>
+                                <span class="badge bg-danger">Reprovado</span>
+                            
+                            <?php else: ?>
+                                <span class="badge bg-warning text-dark">Pendente</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-primary btn-evaluate" 
+                                    data-id="<?php echo $item->submission_id; ?>" 
+                                    data-grade="<?php echo $item->grade; ?>" 
+                                    data-feedback="<?php echo htmlspecialchars($item->feedback ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                <span class="icon-pencil" aria-hidden="true"></span> Avaliar
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="9" class="text-center alert alert-info">Nenhum trabalho encontrado.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+        
+        <div class="pagination">
+            <?php echo $this->pagination->getListFooter(); ?>
+        </div>
+        
+        <input type="hidden" name="task" value="" />
+        <input type="hidden" name="boxchecked" value="0" />
+        <?php echo HTMLHelper::_('form.token'); ?>
+    </form>
 </div>
 
-<div id="gradeModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000;">
-    
-    <div id="gradeModalContent" style="background: #fff; width: 500px; margin: 100px auto; padding: 20px; border-radius: 5px; box-shadow: 0 0 15px rgba(0,0,0,0.5); position: relative;" onmousedown="event.stopPropagation()">
-        
-        <div style="border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 10px;">
-            <button type="button" class="close btn-close-modal" style="float: right;">&times;</button>
-            <h3 style="margin:0;">📝 Avaliar Trabalho</h3>
-        </div>
-        
-        <form action="<?php echo Route::_('index.php?option=com_splms&task=submissions.saveGrade'); ?>" method="post">
-            <input type="hidden" name="submission_id" id="modal_submission_id">
+<div class="modal" id="gradeModal" tabindex="-1" role="dialog" aria-hidden="true" style="display:none; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="margin-top: 5%;">
+        <div class="modal-content shadow-lg">
             
-            <div style="margin-bottom: 15px;">
-                <label>Nota (0-100):</label>
-                <input type="number" name="grade" id="modal_grade" class="input-small" step="0.1" required style="font-weight:bold;">
+            <div class="modal-header bg-light">
+                <h3 class="modal-title h5" style="margin:0;">📝 Avaliar Trabalho</h3>
+                <button type="button" class="close btn-close-modal" aria-label="Close" style="border:none; background:none; font-size:1.5rem;">&times;</button>
             </div>
+            
+            <form action="<?php echo Route::_('index.php?option=com_splms'); ?>" method="post" name="adminForm" id="item-form" class="form-validate">
+                <div class="modal-body p-4">
+                    
+                    <input type="hidden" name="jform[id]" id="modal_submission_id" value="">
+                    
+                    <div class="mb-3 control-group">
+                        <label class="form-label control-label"><strong>Nota Final (0 a 100):</strong></label>
+                        <div class="controls">
+                            <input type="number" name="jform[grade]" id="modal_grade" class="form-control input-small" min="0" max="100" step="0.1" required style="width: 100px; font-weight: bold; color: #198754;">
+                        </div>
+                    </div>
 
-            <div style="margin-bottom: 15px;">
-                <label>Feedback:</label>
-                <textarea name="feedback" id="modal_feedback" rows="5" style="width: 95%;"></textarea>
-            </div>
-            
-            <div style="text-align: right; border-top: 1px solid #eee; padding-top: 10px;">
-                <button type="button" class="btn btn-close-modal">Cancelar</button>
-                <button type="submit" class="btn btn-success">Salvar</button>
-            </div>
-            <?php echo HTMLHelper::_('form.token'); ?>
-        </form>
+                    <div class="mb-3 control-group">
+                        <label class="form-label control-label"><strong>Parecer / Feedback:</strong></label>
+                        <div class="controls">
+                            <textarea name="jform[feedback]" id="modal_feedback" rows="5" class="form-control" style="width: 100%;" placeholder="Escreva aqui o feedback para o aluno..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-close-modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success"><span class="icon-save"></span> Salvar Avaliação</button>
+                </div>
+                
+                <input type="hidden" name="task" value="submission.save" />
+                
+                <input type="hidden" name="return" value="<?php echo base64_encode('index.php?option=com_splms&view=submissions'); ?>" />
+                
+                <?php echo HTMLHelper::_('form.token'); ?>
+            </form>
+        </div>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var modal = document.getElementById('gradeModal');
+    var inputId = document.getElementById('modal_submission_id');
+    var inputGrade = document.getElementById('modal_grade');
+    var inputFeedback = document.getElementById('modal_feedback');
 
-    // 1. ABRIR
-    document.querySelectorAll('.btn-evaluate').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('modal_submission_id').value = this.dataset.id;
-            document.getElementById('modal_grade').value = this.dataset.grade > 0 ? this.dataset.grade : '';
-            document.getElementById('modal_feedback').value = this.dataset.feedback;
+    var buttons = document.querySelectorAll('.btn-evaluate');
+    buttons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.getAttribute('data-id');
+            var grade = this.getAttribute('data-grade');
+            var feedback = this.getAttribute('data-feedback');
+            
+            // Atribui os valores aos inputs do modal
+            inputId.value = id;
+            inputGrade.value = (grade > 0) ? grade : '';
+            inputFeedback.value = feedback;
+            
+            // Abre o modal
             modal.style.display = 'block';
+            modal.classList.add('show');
         });
     });
 
-    // 2. FECHAR (Botões)
-    document.querySelectorAll('.btn-close-modal').forEach(function(btn) {
-        btn.addEventListener('click', function() { modal.style.display = 'none'; });
+    var closeButtons = document.querySelectorAll('.btn-close-modal');
+    closeButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+        });
     });
 
-    // 3. FECHAR AO CLICAR NO FUNDO
-    modal.addEventListener('mousedown', function() {
-        modal.style.display = 'none';
+    window.addEventListener('click', function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+        }
     });
 });
 </script>

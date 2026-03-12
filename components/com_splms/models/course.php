@@ -156,7 +156,13 @@ class SplmsModelCourse extends ItemModel {
 		if(!empty($lessons) && count($lessons)) {
 			foreach ($lessons as &$lesson) {
 				$lesson->teacher_url  = Route::_('index.php?option=com_splms&view=teacher&id='. $lesson->teacher_id . ':' . $lesson->teacheralias . SplmsHelper::getItemid('courses'));
-				$lesson->lesson_url = Route::_('index.php?option=com_splms&view=lesson&id='.$lesson->id.':'.$lesson->alias . SplmsHelper::getItemid('courses'));
+				
+				// GUIDEWAY CUSTOM: Direct Link for Quiz
+				if ($lesson->lesson_format === 'quiz' && !empty($lesson->quiz_id)) {
+					$lesson->lesson_url = Route::_('index.php?option=com_splms&view=quizquestion&id=' . $lesson->quiz_id . '&lesson_id=' . $lesson->id . SplmsHelper::getItemid('courses'));
+				} else {
+					$lesson->lesson_url = Route::_('index.php?option=com_splms&view=lesson&id='.$lesson->id.':'.$lesson->alias . SplmsHelper::getItemid('courses'));
+				}
 			}
 		}
 
@@ -243,7 +249,7 @@ class SplmsModelCourse extends ItemModel {
 	*/
 	public function getCourseProgress($courseId, $userId)
 {
-    $db = JFactory::getDbo();
+    $db = Factory::getDbo();
     $query = $db->getQuery(true);
 
     // Total de aulas
@@ -251,7 +257,8 @@ class SplmsModelCourse extends ItemModel {
         ->select('COUNT(id)')
         ->from('#__splms_lessons')
         ->where('course_id = ' . (int)$courseId)
-        ->where('published = 1');
+        ->where('published = 1')
+        ->where('is_optional = 0'); // Ignora opcionais
     $db->setQuery($query);
     $totalLessons = (int) $db->loadResult();
 
@@ -265,7 +272,8 @@ class SplmsModelCourse extends ItemModel {
         ->where('u.item_type = ' . $db->quote('lesson'))
         ->where('u.published = 1')
         ->where('l.course_id = ' . (int)$courseId)
-        ->where('l.published = 1');
+        ->where('l.published = 1')
+        ->where('l.is_optional = 0'); // Ignora opcionais Completed
 
     $db->setQuery($query);
     $completedLessons = (int) $db->loadResult();
@@ -307,5 +315,74 @@ class SplmsModelCourse extends ItemModel {
 
     return array_fill_keys($db->loadColumn(), true);
 }
+// BUSCADOR DE LICOES CONCLUIDAS ANTIGO
+// public function getPendingLessonsByCourse(int $courseId, int $userId): array
+// {
+//     if (!$courseId || !$userId) {
+//         return [];
+//     }
 
+//     $db = Factory::getDbo();
+//     $query = $db->getQuery(true);
+
+//     $query
+//         ->select('DISTINCT u.item_id')
+//         ->from($db->quoteName('#__splms_useritems', 'u'))
+//         ->where('u.user_id = ' . (int) $userId)
+//         ->where('u.item_type = ' . $db->quote('lesson'))
+//         ->where('u.published = 2') // ⏳ pendente
+//         ->where(
+//             'u.item_id IN (
+//                 SELECT l.id
+//                 FROM #__splms_lessons l
+//                 WHERE l.course_id = ' . (int) $courseId . '
+//             )'
+//         );
+
+//     $db->setQuery($query);
+
+//     return array_fill_keys($db->loadColumn(), true);
+// }
+//BUSCADOR DE ESTADO DA LICAO ERICK 31-01
+public function getLessonStatesByCourse(int $courseId, int $userId): array
+{
+    if (!$courseId || !$userId) {
+        return [];
+    }
+
+    $db = Factory::getDbo();
+    $query = $db->getQuery(true);
+
+    $query
+        ->select('u.item_id, u.published')
+        ->from($db->quoteName('#__splms_useritems', 'u'))
+        ->where('u.user_id = ' . (int) $userId)
+        ->where('u.item_type = ' . $db->quote('lesson'))
+        ->where(
+            'u.item_id IN (
+                SELECT l.id
+                FROM #__splms_lessons l
+                WHERE l.course_id = ' . (int) $courseId . '
+            )'
+        );
+
+    $db->setQuery($query);
+
+    $rows = $db->loadAssocList();
+
+    /*
+      Retorno:
+      [
+        lessonId => state
+      ]
+    */
+
+    $states = [];
+
+    foreach ($rows as $row) {
+        $states[(int) $row['item_id']] = (int) $row['published'];
+    }
+
+    return $states;
+}
 }

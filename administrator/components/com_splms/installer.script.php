@@ -7,7 +7,7 @@
  */
 
 // No Direct Access
-defined ('_JEXEC') or die('Resticted Aceess');
+defined ('_JEXEC') or die('Restricted Access');
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\Installer;
@@ -65,7 +65,6 @@ class com_splmsInstallerScript
 
         $db = Factory::getDbo();
 		$query = $db->getQuery(true)
-		->select('e.manifest_cache')
 		->select($db->quoteName('e.manifest_cache'))
 		->from($db->quoteName('#__extensions', 'e'))
 		->where($db->quoteName('e.element') . ' = ' . $db->quote('com_splms'));

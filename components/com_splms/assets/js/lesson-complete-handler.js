@@ -40,15 +40,15 @@ jQuery(function ($) {
             const userId = userIdEl ? userIdEl.value : null;
             const courseId = courseIdEl ? courseIdEl.value : null;
 
-            return { itemId, itemType, userId , courseId};
+            return { itemId, itemType, userId, courseId };
         } catch (e) {
             console.warn("SPLMS-LOG: erro ao ler valores do form:", e);
             return { itemId: null, itemType: null, userId: null, courseId: null };
         }
     }
-    
 
-window.readValuesFromForm = readValuesFromForm;
+
+    window.readValuesFromForm = readValuesFromForm;
 
     function findHiddenInputsAnywhere() {
         const itemIdEl = document.querySelector("input[name='item_id']");
@@ -77,17 +77,17 @@ window.readValuesFromForm = readValuesFromForm;
     // ----------------------------
     // ERICK 21-12
     function bootstrapLessonContext() {
-  if (window.SPLMS_CONTEXT?.itemId) {
-    SPLMS_ITEM_ID   = window.SPLMS_CONTEXT.itemId;
-    SPLMS_ITEM_TYPE = window.SPLMS_CONTEXT.itemType;
-    SPLMS_USER_ID   = window.SPLMS_CONTEXT.userId;
-    SPLMS_COURSE_ID = window.SPLMS_CONTEXT.courseId;
+        if (window.SPLMS_CONTEXT?.itemId) {
+            SPLMS_ITEM_ID = window.SPLMS_CONTEXT.itemId;
+            SPLMS_ITEM_TYPE = window.SPLMS_CONTEXT.itemType;
+            SPLMS_USER_ID = window.SPLMS_CONTEXT.userId;
+            SPLMS_COURSE_ID = window.SPLMS_CONTEXT.courseId;
 
-    console.log("SPLMS-LOG: Contexto carregado via PHP", window.SPLMS_CONTEXT);
-    return true;
-  }
-  return false;
-}
+            console.log("SPLMS-LOG: Contexto carregado via PHP", window.SPLMS_CONTEXT);
+            return true;
+        }
+        return false;
+    }
 
     function locateFormAndValues(callback) {
         let attempts = 0;
@@ -99,9 +99,9 @@ window.readValuesFromForm = readValuesFromForm;
                 formFound = true;
                 console.log("SPLMS-LOG: Formulário #splms-completed-item-form encontrado (tentativa: " + attempts + ").");
                 const vals = readValuesFromForm(form);
-                SPLMS_ITEM_ID   = SPLMS_ITEM_ID   || vals.itemId;
+                SPLMS_ITEM_ID = SPLMS_ITEM_ID || vals.itemId;
                 SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || vals.itemType;
-                SPLMS_USER_ID   = SPLMS_USER_ID   || vals.userId;
+                SPLMS_USER_ID = SPLMS_USER_ID || vals.userId;
                 SPLMS_COURSE_ID = SPLMS_COURSE_ID || vals.courseId;
                 console.log("SPLMS-LOG: Valores do form:", { SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, SPLMS_USER_ID, SPLMS_COURSE_ID });
                 callback(true);
@@ -158,7 +158,7 @@ window.readValuesFromForm = readValuesFromForm;
             return;
         }
 
-        console.log("SPLMS-LOG: Enviando AJAX para completar item:", { itemId, itemType, courseId: SPLMS_COURSE_ID  });
+        console.log("SPLMS-LOG: Enviando AJAX para completar item:", { itemId, itemType, courseId: SPLMS_COURSE_ID });
 
         $.ajax({
             type: "POST",
@@ -201,7 +201,7 @@ window.readValuesFromForm = readValuesFromForm;
     function markButtonCompleted(text) {
         const btn = $("#splms-completed-item");
         if (!btn || btn.length === 0) return;
-        const contentText = text || (typeof Joomla !== "undefined" && Joomla.Text ? Joomla.Text._('COM_SPLMS_LESSON_COMPLETED') : 'Concluído');
+        const contentText = text || (cfg.text_completed || 'Concluído');
         btn.text(contentText).removeClass("btn-primary").addClass("btn-success").prop("disabled", true).show();
         // remove form to avoid re-submissions (keeping inputs elsewhere unchanged)
         const form = document.getElementById("splms-completed-item-form");
@@ -262,9 +262,9 @@ window.readValuesFromForm = readValuesFromForm;
             // }, function (err) {
             //     console.error("SPLMS-LOG: Falha ao marcar aula manualmente:", err);
             //     const btn2 = $("#splms-completed-item");
-            //     if (btn2 && btn2.length) btn2.prop("disabled", false).text((typeof Joomla !== "undefined" && Joomla.Text) ? Joomla.Text._('COM_SPLMS_LESSON_COMPLETE') : 'Marcar Concluída');
+            //     if (btn2 && btn2.length) btn2.prop("disabled", false).text(cfg.text_complete || 'Marcar Concluída');
             // });
-             doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+            doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
                 markButtonCompleted(res && res.content ? res.content : undefined);
                 // optional: mostrar notificação custom
                 if (typeof mostrarAlertaConclusao === "function") {
@@ -282,10 +282,16 @@ window.readValuesFromForm = readValuesFromForm;
                 }
             }, function (err) {
                 console.error("SPLMS-LOG: Falha ao marcar aula manualmente:", err);
+
+                let errorMsg = "Erro ao concluir aula. Verifique o console.";
+                if (err && err.content) { errorMsg = err.content; }
+                else if (typeof err === "string") { errorMsg = err; }
+                alert("Falha no Servidor:\\n" + errorMsg);
+
                 const btn2 = $("#splms-completed-item");
-                if (btn2 && btn2.length) btn2.prop("disabled", false).text((typeof Joomla !== "undefined" && Joomla.Text) ? Joomla.Text._('COM_SPLMS_LESSON_COMPLETE') : 'Marcar Concluída');
+                if (btn2 && btn2.length) btn2.prop("disabled", false).text(cfg.text_complete || 'Marcar Concluída');
             });
-            
+
         }).addClass("splms-attached");
     }
 
@@ -411,71 +417,108 @@ window.readValuesFromForm = readValuesFromForm;
             }
         }, 300);
     }
-    //Erick 21-12 funcao visual de positivo quando aula esta concluida
+    //Erick 21-12 funcao visual de positivo quando aula esta concluida -- EDIT 31-01 ERICK OBSOLETO 
     function markLessonAsCompletedInList(lessonId) {
-    console.log('[SPLMS-LOG] Tentando marcar aula concluída na lista:', lessonId);
+        console.log('[SPLMS-LOG] Tentando marcar aula concluída na lista:', lessonId);
 
-    const lessonItem = document.querySelector(
-        '.lesson[data-lesson-id="' + lessonId + '"]'
-    );
+        const lessonItem = document.querySelector(
+            '.lesson[data-lesson-id="' + lessonId + '"]'
+        );
 
-    if (!lessonItem) {
-        console.warn('[SPLMS-LOG] Aula não encontrada na lista:', lessonId);
-        return;
+        if (!lessonItem) {
+            console.warn('[SPLMS-LOG] Aula não encontrada na lista:', lessonId);
+            return;
+        }
+
+        lessonItem.classList.add('lesson-completed');
+
+        const titleEl = lessonItem.querySelector('.lesson-title');
+
+        if (!titleEl) {
+            console.warn('[SPLMS-LOG] .lesson-title não encontrado para:', lessonId);
+            return;
+        }
+
+        if (titleEl.querySelector('.lesson-completed-icon')) {
+            console.log('[SPLMS-LOG] Aula já estava marcada como concluída.');
+            return;
+        }
+
+        const icon = document.createElement('span');
+        icon.className = 'lesson-completed-icon';
+        icon.textContent = ' ✅';
+
+        titleEl.appendChild(icon);
+
+        console.log('[SPLMS-LOG] Aula marcada como concluída com sucesso:', lessonId);
     }
+    // ERICK 31-01 NOVA FUNCAO MARCADORA DE AULAS CONLUIDAS OU PENDENTE
+    function applyLessonState(lessonId, state) {
+        const lessonItem = document.querySelector(
+            '.lesson[data-lesson-id="' + lessonId + '"]'
+        );
 
-    lessonItem.classList.add('lesson-completed');
+        if (!lessonItem) return;
 
-    const titleEl = lessonItem.querySelector('.lesson-title');
+        // limpa estados anteriores
+        lessonItem.classList.remove(
+            'lesson-completed',
+            'lesson-pending'
+        );
 
-    if (!titleEl) {
-        console.warn('[SPLMS-LOG] .lesson-title não encontrado para:', lessonId);
-        return;
+        const titleEl = lessonItem.querySelector('.lesson-title');
+        if (!titleEl) return;
+
+        titleEl.querySelectorAll(
+            '.lesson-completed-icon, .lesson-pending-icon'
+        ).forEach(el => el.remove());
+
+        if (state === 1) {
+            lessonItem.classList.add('lesson-completed');
+            titleEl.insertAdjacentHTML(
+                'beforeend',
+                '<span class="lesson-completed-icon"> ✅</span>'
+            );
+        }
+
+        if (state === 2) {
+            lessonItem.classList.add('lesson-pending');
+            titleEl.insertAdjacentHTML(
+                'beforeend',
+                '<span class="lesson-pending-icon"> ⏳</span>'
+            );
+        }
     }
-
-    if (titleEl.querySelector('.lesson-completed-icon')) {
-        console.log('[SPLMS-LOG] Aula já estava marcada como concluída.');
-        return;
-    }
-
-    const icon = document.createElement('span');
-    icon.className = 'lesson-completed-icon';
-    icon.textContent = ' ✅';
-
-    titleEl.appendChild(icon);
-
-    console.log('[SPLMS-LOG] Aula marcada como concluída com sucesso:', lessonId);
-}
     //fim
     // ----------------------------
     // Inicialização geral
     // ----------------------------
     $(document).ready(function () {
-    console.log("SPLMS: Inicialização (document ready).");
+        console.log("SPLMS: Inicialização (document ready).");
 
-    // 1️⃣ tenta carregar contexto via PHP
-    const contextLoaded = bootstrapLessonContext();
+        // 1️⃣ tenta carregar contexto via PHP
+        const contextLoaded = bootstrapLessonContext();
 
-    // 🔴 EARLY EXIT CORRETO
-    if (window.SPLMS_CONTEXT?.isCompleted === true) {
-        console.log("SPLMS: Aula já concluída — fluxo de conclusão ignorado.");
-        return;
-    }
-
-    if (!contextLoaded) {
-        console.warn("SPLMS-LOG: Contexto PHP não encontrado, tentando via DOM/form.");
-    }
-
-    // 2️⃣ fallback antigo (form / inputs / botão)
-    locateFormAndValues(function (ok) {
-        if (!ok && !contextLoaded) {
-            console.error("❌ SPLMS-ERRO CRÍTICO: Nenhuma fonte de contexto disponível.");
+        // 🔴 EARLY EXIT CORRETO
+        if (window.SPLMS_CONTEXT?.isCompleted === true) {
+            console.log("SPLMS: Aula já concluída — fluxo de conclusão ignorado.");
+            return;
         }
 
-        attachManualClickHandler();
-        hideButtonWhenVideo();
-        bindFWDEVPlayer();
-    });
-});''
+        if (!contextLoaded) {
+            console.warn("SPLMS-LOG: Contexto PHP não encontrado, tentando via DOM/form.");
+        }
+
+        // 2️⃣ fallback antigo (form / inputs / botão)
+        locateFormAndValues(function (ok) {
+            if (!ok && !contextLoaded) {
+                console.error("❌ SPLMS-ERRO CRÍTICO: Nenhuma fonte de contexto disponível.");
+            }
+
+            attachManualClickHandler();
+            hideButtonWhenVideo();
+            bindFWDEVPlayer();
+        });
+    }); ''
 
 });

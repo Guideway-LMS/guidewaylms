@@ -131,6 +131,7 @@ if ($custom_js = $this->params->get('custom_js', null))
 
 		$theme->add_scss('custom', $scssVars, 'custom-compiled');
 		$theme->add_css('custom.css');
+		$theme->add_css('dark-mode.css');
 
 		//Before Head
 		if ($before_head = $this->params->get('before_head'))
@@ -138,6 +139,24 @@ if ($custom_js = $this->params->get('custom_js', null))
 			echo $before_head . "\n";
 		}
 		?>
+	<script>
+		(function() {
+			try {
+				var localTheme = localStorage.getItem('theme');
+				var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+				if (!localTheme && supportDarkMode) localTheme = 'dark';
+				if (localTheme) {
+					document.documentElement.setAttribute('data-theme', localTheme);
+					if (localTheme === 'dark') {
+						var style = document.createElement('style');
+						style.id = 'critical-dark-style';
+						style.innerHTML = 'html, body, .sp-pre-loader, .body-wrapper, .body-innerwrapper, #sp-page-builder, #sp-main-body, .sppb-section { background-color: #121212 !important; color: #E0E0E0 !important; }';
+						document.head.appendChild(style);
+					}
+				}
+			} catch (e) {}
+		})();
+	</script>
 	</head>
 	<body class="<?php echo $theme->bodyClass(); ?>">
 

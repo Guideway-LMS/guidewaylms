@@ -111,17 +111,39 @@
 		</field>
 
 		<field type="spacer" hr="true" />
-    <field
-        name="percentual_minimo_conclusao"
-        type="number"
-        default="90"
-        label="Percentual mínimo para conclusão (%)"
-        description="Defina a porcentagem do vídeo que o aluno deve assistir para marcar a aula como concluída automaticamente."
-        min="0"
-        max="100"
-        step="1"
-        filter="integer"
-    />		
+    	<field
+			name="percentual_minimo_conclusao"
+			type="number"
+			default="90"
+			label="Percentual mínimo para conclusão (%)"
+			description="Defina a porcentagem do vídeo que o aluno deve assistir para marcar a aula como concluída automaticamente."
+			min="0"
+			max="100"
+			step="1"
+			filter="integer"
+    	/>		
+		<field
+            name="assignment_passing_score"
+            type="number"
+            default="60"
+            label="Nota mínima para aprovação (Trabalhos)"
+            description="Defina a nota mínima (0-100) para o trabalho ser considerado aprovado."
+            min="0"
+            max="100"
+            step="1"
+            filter="integer"
+    	/>
+		<field
+            name="quiz_passing_score"
+            type="number"
+            default="70"
+            label="Nota mínima para aprovação (Quiz)"
+            description="Defina a nota mínima (0-100) para o quiz ser considerado aprovado. (Padrão Global)"
+            min="0"
+            max="100"
+            step="1"
+            filter="integer"
+    	/>
 	</fieldset>
 
 	<fieldset name="media" label="COM_SPLMS_FIELDSET_IMAGE_LABEL">
@@ -187,8 +209,17 @@
 	</fieldset>
 
 	<fieldset name="api_config" label="COM_SPLMS_FIELDSET_API_LABEL">
-		<field name="groq_api_key" type="password" label="COM_SPLMS_GROQ_API_KEY" description="COM_SPLMS_GROQ_API_KEY_DESC" filter="string" />
-		<field name="groq_api_note" type="note" description="COM_SPLMS_GROQ_API_NOTE" />
+		<field name="groq_api_key_1" type="password" label="1. Chave da API Groq (Favorita e Principal)" description="A chave primária que será usada sempre." filter="string" />
+		<field name="groq_api_key_2" type="password" label="2. Chave da API Groq (Reserva 1)" description="Usada automaticamente e de forma invisível se a 1ª chave der limite excedido/erro." filter="string" />
+		<field name="groq_api_key_3" type="password" label="3. Chave da API Groq (Reserva 2)" description="Usada se a Chave 2 também estourar seus tokens." filter="string" />
+		<field name="groq_api_key_4" type="password" label="4. Chave da API Groq (Reserva 3)" description="Usada se a Chave 3 falhar." filter="string" />
+		<field name="groq_api_key_5" type="password" label="5. Chave da API Groq (Reserva 4)" description="Última chave de esperança (Fallback final)." filter="string" />
+		<field name="groq_api_note" type="note" description="O Load Balancer inteligente (Rotação) do Arquiteto IA saltará da Chave 1 em direção a 5 quando encontrar vídeos extremamente longos batendo a cota do Groq." />
+		<field name="ai_model" type="list" default="llama3-70b-8192" label="AI Model" description="Select the AI model to use for quiz generation.">
+			<option value="llama3-70b-8192">Meta Llama 3 70B</option>
+			<option value="llama3-8b-8192">Meta Llama 3 8B</option>
+			<option value="mixtral-8x7b-32768">Mixtral 8x7b</option>
+		</field>
 	</fieldset>
 
 	<fieldset name="social_share" label="COM_SPLMS_FIELDSET_SOCIAL_SHARE">

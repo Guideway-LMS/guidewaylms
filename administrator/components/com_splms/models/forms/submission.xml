@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="details">
+        <field name="id" type="hidden" />
+        
+        <field name="grade" type="text" label="Nota" required="true" default="0" />
+        <field name="feedback" type="textarea" label="Feedback" />
+        
+        <field name="status" type="text" />
+        <field name="user_id" type="hidden" />
+    </fieldset>
+</form>

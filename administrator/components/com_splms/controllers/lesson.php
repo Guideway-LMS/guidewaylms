@@ -199,68 +199,105 @@ class SplmsControllerLesson extends FormController {
 				throw new Exception(Text::_('JERROR_ALERTNOAUTHOR') . ' (ai.generate)');
 			}
 
-			// 2. Validação do Arquivo
-			if (!isset($_FILES['gw_ai_file']) || $_FILES['gw_ai_file']['error'] != UPLOAD_ERR_OK) {
-				throw new Exception('Nenhum arquivo enviado ou erro no upload. Código: ' . ($_FILES['gw_ai_file']['error'] ?? 'N/A'));
+			// 2. Validação do Arquivo e Obtenção do Prompt
+			$input = Factory::getApplication()->input;
+			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
+
+			$files = [];
+			if (isset($_FILES['gw_ai_file']) && !empty($_FILES['gw_ai_file']['name']) && (!is_array($_FILES['gw_ai_file']['name']) || $_FILES['gw_ai_file']['name'][0] !== '')) {
+				// Reformatar a array $_FILES se for múltiplo (comportamento padrão do PHP)
+				if (is_array($_FILES['gw_ai_file']['name'])) {
+					$fileCount = count($_FILES['gw_ai_file']['name']);
+					for ($i = 0; $i < $fileCount; $i++) {
+						if ($_FILES['gw_ai_file']['error'][$i] == UPLOAD_ERR_OK) {
+							$files[] = [
+								'name' => $_FILES['gw_ai_file']['name'][$i],
+								'type' => $_FILES['gw_ai_file']['type'][$i],
+								'tmp_name' => $_FILES['gw_ai_file']['tmp_name'][$i],
+								'error' => $_FILES['gw_ai_file']['error'][$i],
+								'size' => $_FILES['gw_ai_file']['size'][$i]
+							];
+						}
+					}
+				} else {
+					// Fallback para arquivo único enviado sem array
+					if ($_FILES['gw_ai_file']['error'] == UPLOAD_ERR_OK) {
+						$files[] = $_FILES['gw_ai_file'];
+					}
+				}
 			}
 
-			$file = $_FILES['gw_ai_file'];
-			$maxSize = 5 * 1024 * 1024; // 5MB
-
-			// Validação Tamanho
-			if ($file['size'] > $maxSize) {
-				throw new Exception('O arquivo excede o tamanho máximo de 5MB.');
+			if (empty($files) && empty(trim($prompt))) {
+				throw new Exception('Envie um documento PDF legível ou digite um comando em texto para a IA.');
 			}
 
-			// Validação Extensão
-			$ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-			if ($ext !== 'pdf') {
-				throw new Exception('Apenas arquivos .pdf são permitidos.');
-			}
-
-			// Validação MIME Type (mais confiável)
-			$finfo = finfo_open(FILEINFO_MIME_TYPE);
-			$mime = finfo_file($finfo, $file['tmp_name']);
-			finfo_close($finfo);
-
-			if ($mime !== 'application/pdf') {
-				throw new Exception('O arquivo enviado não parece ser um PDF válido.');
-			}
-
-			// 3. Processamento e Extração com Smalot\PdfParser
+			$maxSize = 5 * 1024 * 1024; // 5MB por arquivo
+			$text = ''; // Texto consolidado
 			
 			// Tenta carregar o autoloader local do componente, caso não esteja no global
 			$autoloadPath = JPATH_ROOT . '/components/com_splms/assets/vendor/autoload.php';
 			if (file_exists($autoloadPath)) {
 				require_once $autoloadPath;
 			} 
-			// Se não achar local, assume que o global já carregou ou vai falhar class not found
 			
 			if (!class_exists('Smalot\PdfParser\Parser')) {
 				throw new Exception('Biblioteca de PDF Parser não encontrada. Instale "smalot/pdfparser".');
 			}
 
 			$parser = new \Smalot\PdfParser\Parser();
-			
-			try {
-				$pdf = $parser->parseFile($file['tmp_name']);
-				$text = $pdf->getText();
-			} catch (\Exception $e) {
-				throw new Exception('Não foi possível ler o conteúdo do PDF. O arquivo pode estar corrompido ou protegido.');
+
+			// 3. Processamento e Extração em Loop
+			$ignoredFiles = [];
+			foreach ($files as $file) {
+				// Validação Tamanho
+				if ($file['size'] > $maxSize) {
+					throw new Exception('O arquivo "' . $file['name'] . '" excede o tamanho máximo de 5MB.');
+				}
+
+				// Validação Extensão
+				$ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+				if ($ext !== 'pdf') {
+					throw new Exception('Apenas arquivos .pdf são permitidos ("' . $file['name'] . '").');
+				}
+
+				// Validação MIME Type
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$mime = finfo_file($finfo, $file['tmp_name']);
+				finfo_close($finfo);
+
+				if ($mime !== 'application/pdf') {
+					throw new Exception('O arquivo "' . $file['name'] . '" não parece ser um PDF válido.');
+				}
+
+				try {
+					$pdf = $parser->parseFile($file['tmp_name']);
+					$pdfText = $pdf->getText();
+					
+					// Tratamento individual
+					$pdfText = preg_replace('/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/', '', $pdfText);
+					if (!mb_check_encoding($pdfText, 'UTF-8')) {
+						$pdfText = mb_convert_encoding($pdfText, 'UTF-8', 'auto');
+					}
+
+					// Concatena no texto global apenas se houver texto válido
+					if (trim($pdfText) !== '') {
+						$text .= $pdfText . "\n\n--- TEXTO DO ARQUIVO: " . $file['name'] . " ---\n\n";
+					} else {
+						$ignoredFiles[] = $file['name'];
+					}
+
+				} catch (\Exception $e) {
+					throw new Exception('Não foi possível ler o conteúdo do PDF "' . $file['name'] . '". O arquivo pode estar corrompido ou protegido.');
+				}
 			}
 
-			// 4. Tratamento de Encoding (UTF-8) e Limpeza
-			// Remover caracteres nulos e de controle que podem quebrar o JSON
-			$text = preg_replace('/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
-			
-			// Converter para UTF-8 se não estiver
-			if (!mb_check_encoding($text, 'UTF-8')) {
-				$text = mb_convert_encoding($text, 'UTF-8', 'auto');
+			// Valida se houve extração quando arquivos foram enviados
+			if (!empty($files) && trim($text) === '') {
+				throw new Exception('Nenhum texto pôde ser extraído. O PDF selecionado possui apenas imagens ou está protegido/escaneado.');
 			}
-
-			// 5. Processamento com IA (Prompt do Usuário ou Formatação Padrão)
-			$input = Factory::getApplication()->input;
-			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
+			$difficulty = $input->post->get('gw_ai_difficulty', '', 'STRING');
+			$qcount = $input->post->get('gw_ai_qcount', 5, 'INT');
+			$qtype = $input->post->get('gw_ai_qtype', 'optativa', 'STRING');
 			
 			// Carrega helper se necessário
 			if (!class_exists('GuidewayAIHelper')) {
@@ -269,17 +306,84 @@ class SplmsControllerLesson extends FormController {
 			}
 			
 			if (class_exists('GuidewayAIHelper')) {
-				if (!empty($prompt)) {
-					// Se usuário mandou prompt, usa ação customizada
+				
+				if (!empty($difficulty)) {
+					// --- Fluxo de Geração de Questões ---
+					
+					// Validação Allowlist de Dificuldade
+					$allowedDifficulties = ['facil', 'medio', 'dificil'];
+					if (!in_array($difficulty, $allowedDifficulties)) {
+						throw new Exception('Dificuldade inválida. Permitido: facil, medio, dificil.');
+					}
+
+					// Validação Quantidade (1 a 20)
+					if ($qcount < 1 || $qcount > 20) {
+						throw new Exception('Quantidade de questões deve ser entre 1 e 20.');
+					}
+
+					// Validação Tipo
+					$allowedTypes = ['optativa', 'dissertativa'];
+					if (!in_array($qtype, $allowedTypes)) {
+						$qtype = 'optativa'; // Fallback seguro
+					}
+					
+					// Verifica se o usuário pediu resumo
+					$includeDesc = $input->post->get('gw_ai_include_desc', '0', 'STRING');
+
+					// Prepara params para o Helper
+					$params = json_encode([
+						'difficulty' => $difficulty,
+						'count' => $qcount,
+						'type' => $qtype
+					]);
+
+					// Passo 1: Gera a Descrição, se solicitado
+					$descHtml = '';
+					if ($includeDesc === '1') {
+						$descResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_FORMATAR);
+						if ($descResult['success']) {
+							$descHtml = $descResult['data'] . "<br><hr><br>";
+						}
+					}
+
+					// Passo 2: Gera as Questões
+					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CRIAR_QUESTOES, $params);
+					
+					// Se deu certo, concatena
+					if ($aiResult['success'] && $includeDesc === '1') {
+						// Como a IA de questões retorna um JSON stringificado,
+						// ou nós alteramos o JSON (impraticável pois o frontend espera um array puro pro parser)
+						// OUUU mandamos de volta um JSON diferente e avisamos o frontend.
+						// A melhor abordagem mantendo o parser: o próprio frontend monta, mas precisamos
+						// indicar ao frontend. 
+						// Modificação recomendada: O backend continua devolvendo o JSON de questões, 
+						// mas podemos enviar a descrição num novo campo do payload 'data_desc'.
+						
+						$result['data_desc'] = $descHtml;
+					}
+
+					$msgPrefix = 'Questões geradas com sucesso!';
+
+				} elseif (!empty($prompt)) {
+					// --- Fluxo Customizado (Prompt do Usuário) ---
 					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $prompt);
+					$msgPrefix = 'Texto processado com sua instrução!';
 				} else {
-					// Se não mandou prompt, apenas formata o texto que veio "quebrado" do PDF
+					// --- Fluxo Padrão (Formatação) ---
 					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_FORMATAR);
+					$msgPrefix = 'Texto formatado com sucesso!';
 				}
 				
 				if ($aiResult['success']) {
 					$text = $aiResult['data'];
-					$msg = !empty($prompt) ? 'Texto extraído e processado com sua instrução!' : 'Texto extraído e formatado com sucesso!';
+					
+					// Se houve arquivos ignorados, anexa um aviso amigável ao final do html (apenas no description, no JS de quiz seria quebrado)
+					// Para resolver isso em ambos os modos, a melhor forma é adicionar na message
+					$msg = $msgPrefix;
+					if (!empty($ignoredFiles)) {
+						$msg .= ' Aviso: Alguns arquivos foram ignorados por não conterem texto legível (ex: imagens escaneadas): ' . implode(', ', $ignoredFiles) . '.';
+					}
+					
 				} else {
 					// Se falhar a IA, mantém o texto bruto mas avisa
 					$msg = 'Texto extraído (bruto), mas houve erro na IA: ' . $aiResult['message'];

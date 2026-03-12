@@ -27,6 +27,7 @@ class GuidewayAIHelper
      */
     const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
+
     /**
      * Ação para revisar o texto (correção gramatical e ortográfica)
      */
@@ -53,11 +54,16 @@ class GuidewayAIHelper
     const ACTION_FORMATAR = 'formatar';
 
     /**
+     * Ação para criar questões de quiz baseadas no texto
+     */
+    const ACTION_CRIAR_QUESTOES = 'criar_questoes';
+
+    /**
      * Processa o texto com base na ação solicitada usando a API Groq.
      *
      * @param string $texto O texto de entrada a ser processado.
-     * @param string $acao  A ação a ser realizada (revisar, resumir, reescrever, formatar, custom).
-     * @param string|null $customInstruction Instrução personalizada (obrigatória para ACTION_CUSTOM).
+     * @param string $acao  A ação a ser realizada (revisar, resumir, reescrever, formatar, custom, criar_questoes).
+     * @param string|null $customInstruction Instrução personalizada (obrigatória para ACTION_CUSTOM e ACTION_CRIAR_QUESTOES).
      *
      * @return array Array associativo com resultado ['success' => bool, 'data' => string] ou erro ['success' => false, 'message' => string].
      * @since  1.0.0
@@ -65,8 +71,8 @@ class GuidewayAIHelper
     public static function processarTexto($texto, $acao, $customInstruction = null)
     {
         // Validação básica
-        if (empty($texto)) {
-            return ['success' => false, 'message' => 'O texto de entrada não pode ser vazio.'];
+        if (empty(trim($texto)) && empty(trim($customInstruction))) {
+            return ['success' => false, 'message' => 'O texto de entrada não pode ser vazio. Forneça texto base ou comando.'];
         }
 
         // Seleção do System Prompt baseada na ação
@@ -78,7 +84,7 @@ class GuidewayAIHelper
                 $systemPrompt = 'Atue como um revisor de texto experiente em Português. Corrija erros gramaticais, de pontuação e ortografia. Retorne apenas o texto corrigido, mantendo a formatação original tanto quanto possível. Não adicione comentários conversacionais.';
                 break;
             case self::ACTION_RESUMIR:
-                $systemPrompt = 'Atue como um especialista em síntese. Crie um resumo conciso do texto fornecido, capturando os pontos principais. Retorne apenas o resumo em Português.';
+                $systemPrompt = "Atue como um Especialista em LMS. Sua tarefa é extrair um resumo brilhante, claro e persuasivo do texto de entrada.\n\nRegras OBRIGATÓRIAS de formatação:\n1. Não retorne um parágrafo enorme. Quebre o texto.\n2. Inicie com um pequeno parágrafo introdutório convidativo (ex: 'Neste material/aviso abordaremos...').\n3. Crie pelo menos uma lista no formato HTML (`<ul><li>...</li></ul>`) destacando os **Pontos Chave/Objetivos**.\n4. Use negrito HTML (`<strong>`) para destacar termos vitais.\nRetorne apenas o resumo formatado em tags HTML de texto (<p>, <ul>, <li>, <strong>), sem marcações Markdown de json ou bloco de código (```html).";
                 break;
             case self::ACTION_REESCREVER:
                 $systemPrompt = 'Atue como um editor profissional. Reescreva o texto para melhorar a fluidez, clareza e vocabulário, mantendo o sentido original. O tom deve ser profissional. Retorne apenas o texto reescrito em Português.';
@@ -86,21 +92,40 @@ class GuidewayAIHelper
             case self::ACTION_FORMATAR:
                 $systemPrompt = 'Atue como um formatador de texto. O texto a seguir foi extraído de um PDF e pode ter quebras de linha incorretas, parágrafos unidos ou cabeçalhos desformatados. Sua tarefa é restaurar a estrutura correta (parágrafos, listas, títulos) e melhorar a legibilidade sem alterar o conteúdo. Retorne o texto formatado em HTML simples (p, ul, li, h2, h3, strong) se apropriado para um editor web.';
                 break;
+            case self::ACTION_CRIAR_QUESTOES:
+                // Decodifica parâmetros do $customInstruction
+                $params = json_decode($customInstruction, true);
+                $dificuldade = $params['difficulty'] ?? 'medio';
+                $quantidade = $params['count'] ?? 5;
+                $tipo = $params['type'] ?? 'optativa'; // optativa | dissertativa
+
+                if ($tipo === 'dissertativa') {
+                    $systemPrompt = 'Atue como um professor especialista criando questões dissertativas de avaliação. Sua tarefa é criar questões abertas (sem alternativas) baseadas EXCLUSIVAMENTE no texto fornecido. Retorne APENAS um array JSON válido contendo as questões. Estrutura do JSON: [{"question": "Enunciado da questão", "answer": "Gabarito esperado ou tópicos principais da resposta"}]. Não adicione markdown de código.';
+                    $userContent = "Gere $quantidade questões dissertativas de dificuldade '$dificuldade' baseadas no seguinte texto:\n\n" . $texto;
+                } else {
+                    // Padrão: Múltipla Escolha (Optativa)
+                    $systemPrompt = 'Atue como um professor especialista criando questões de avaliação. Sua tarefa é criar questões de múltipla escolha baseadas EXCLUSIVAMENTE no texto fornecido. Retorne APENAS um array JSON válido contendo as questões. Estrutura do JSON: [{"question": "Enunciado", "options": ["A", "B", "C", "D"], "correct_answer": 0}]. O índice correct_answer deve ser 0 para a primeira opção, 1 para a segunda, etc. Não adicione markdown de código (```json) ou texto antes/depois.';
+                    $userContent = "Gere $quantidade questões de múltipla escolha de dificuldade '$dificuldade' baseadas no seguinte texto:\n\n" . $texto;
+                }
+                break;
             case self::ACTION_CUSTOM:
                 $systemPrompt = 'Você é um assistente de IA extremamente direto. Sua única tarefa é executar a instrução do usuário. IMPORTANTE: Retorne APENAS o resultado solicitado. NÃO inicie a resposta com frases como "Aqui está", "Claro", "Com certeza" ou qualquer texto conversacional. Se o usuário pedir perguntas, retorne apenas as perguntas. Se pedir código, apenas o código. Se a resposta for um texto, comece imediatamente o texto.';
                 if (empty($customInstruction)) {
                     return ['success' => false, 'message' => 'Instrução personalizada não fornecida para ação Custom.'];
                 }
                 // Combina instrução com o texto
-                $userContent = "Instrução: " . $customInstruction . "\n\n---\n\nConteúdo:\n" . $texto;
+                $userContent = "Instrução: " . $customInstruction;
+                if (!empty(trim($texto))) {
+                    $userContent .= "\n\n---\n\nConteúdo:\n" . $texto;
+                }
                 break;
             default:
                 return ['success' => false, 'message' => 'Ação desconhecida: ' . htmlspecialchars($acao)];
         }
 
-        $apiKey = self::getGroqApiKey();
-        if (!$apiKey) {
-            return ['success' => false, 'message' => 'Chave da API Groq não configurada.'];
+        $apiKeys = self::getGroqApiKeys();
+        if (empty($apiKeys)) {
+            return ['success' => false, 'message' => 'Nenhuma Chave da API Groq configurada no sistema.'];
         }
 
         // Montagem do Payload
@@ -120,36 +145,82 @@ class GuidewayAIHelper
             'max_tokens' => 4096  // Permitir respostas mais longas para textos longos
         ];
 
-        try {
-            $response = self::makeApiRequest($apiKey, $payload);
+        // LOAD BALANCER / ROTATOR SYSTEM
+        $lastErrorMsg = 'Erro desconhecido';
+        
+        foreach ($apiKeys as $apiKey) {
+            try {
+                $response = self::makeApiRequest($apiKey, $payload);
 
-            // Parsing da resposta (Extração do conteúdo)
-            if (isset($response['choices'][0]['message']['content'])) {
-                $content = $response['choices'][0]['message']['content'];
-                return [
-                    'success' => true,
-                    'data' => $content
-                ];
-            } else {
-                Log::add('Resposta malformada da API Groq: ' . json_encode($response), Log::ERROR, 'com_splms');
-                return ['success' => false, 'message' => 'Falha ao processar a resposta da IA.'];
+                // Parsing da resposta (Extração do conteúdo)
+                if (isset($response['choices'][0]['message']['content'])) {
+                    $content = $response['choices'][0]['message']['content'];
+                    
+                    // Conversão de Markdown para HTML básico (pois o componente devolve para um campo TinyMCE WYSIWYG)
+                    // Se a IA não soltou um JSON cru (CRIAR_QUESTOES)
+                    if ($acao !== self::ACTION_CRIAR_QUESTOES) {
+                        
+                        // 1. Converter títulos Markdown (###)
+                        $content = preg_replace('/### (.*?)\n/', '<h3>$1</h3>', $content);
+                        $content = preg_replace('/## (.*?)\n/', '<h2>$1</h2>', $content);
+                        
+                        // 2. Converter negritos (**)
+                        $content = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $content);
+                        
+                        // 3. Converter itálicos (*)
+                        $content = preg_replace('/\*([^\*]+)\*/', '<em>$1</em>', $content);
+                        
+                        // 4. Parágrafos e quebras de linha (\n\n)
+                        $paragraphs = explode("\n\n", $content);
+                        $htmlContent = '';
+                        foreach ($paragraphs as $p) {
+                            $p = trim($p);
+                            if (!empty($p)) {
+                                // Se já não começar com uma tag de block level
+                                if (!preg_match('/^<(h[1-6]|ul|ol|li|div|p)>/i', $p)) {
+                                    // Troca quebras de linha isoladas por <br>
+                                    $p = nl2br($p);
+                                    $p = '<p>' . $p . '</p>';
+                                }
+                                $htmlContent .= $p . "\n";
+                            }
+                        }
+                        $content = $htmlContent;
+                    }
+
+                    return [
+                        'success' => true,
+                        'data' => $content
+                    ];
+                } else {
+                    Log::add('Resposta malformada da API: ' . json_encode($response), Log::ERROR, 'com_splms');
+                    $lastErrorMsg = 'Falha ao processar a resposta da IA.';
+                    continue; // Pula para a proxima chave se os dados vieram corrompidos (raro)
+                }
+
+            } catch (Exception $e) {
+                // Se a chave lançou uma exceção RateLimit ou Unauthorized dentro do cURL, Log and Rotate.
+                $lastErrorMsg = $e->getMessage();
+                Log::add('Groq API Key Failed (Rotating to next if available): ' . $lastErrorMsg, Log::WARNING, 'com_splms');
+                continue; // Next Key
             }
-
-        } catch (Exception $e) {
-            Log::add('Exceção no processarTexto: ' . $e->getMessage(), Log::ERROR, 'com_splms');
-            return ['success' => false, 'message' => 'Erro interno ao comunicar com o serviço de IA.'];
         }
+        
+        // Se todas as chaves falharam / esgotaram tokens
+        Log::add('Todas as chaves Groq falharam. Último Erro: ' . $lastErrorMsg, Log::ERROR, 'com_splms');
+        return ['success' => false, 'message' => 'Falha de IA em TODAS as chaves configuradas. Último erro logado: ' . $lastErrorMsg];
     }
 
     /**
-     * @var string|null Chave de API de substituição para fins de teste
+     * @var string|array|null Chave(s) de API de substituição para fins de teste
      */
     private static $_overrideKey = null;
 
     /**
      * Define uma chave de API de substituição (útil para testes)
+     * Pode ser uma string (chave única) ou um array de chaves simulando limite/erro.
      * 
-     * @param string $key A chave de API a ser usada
+     * @param string|array $key A chave de API a ser usada
      */
     public static function setOverrideKey($key)
     {
@@ -157,60 +228,68 @@ class GuidewayAIHelper
     }
 
     /**
-     * Obtém a chave da API Groq com segurança dos parâmetros do componente
+     * Obtém as chaves da API com segurança dos parâmetros do componente
+     * Realiza um Loop buscando das posições 1 até a 5 nomeadas no arquivo Form.
      * 
-     * @return string|null A chave da API ou null se não estiver configurada
+     * @return array As chaves da API validadas pelo Painel
      * @since  1.0.0
      */
-    public static function getGroqApiKey()
+    public static function getGroqApiKeys()
     {
-        // Verifica primeiro a chave de substituição (override)
+        // Verifica primeiro a chave de substituição (override single ou array)
         if (self::$_overrideKey !== null) {
-            return self::$_overrideKey;
+            if (is_array(self::$_overrideKey)) {
+                return self::$_overrideKey;
+            }
+            return [self::$_overrideKey];
         }
 
         // Obtém parâmetros do componente
         $params = ComponentHelper::getParams('com_splms');
         
-        // Obtém a chave da API
-        $apiKey = $params->get('groq_api_key', '');
+        $cleanKeys = [];
         
-        // Valida se a chave existe e não está vazia
-        if (empty($apiKey)) {
-            Log::add(
-                'Chave da API Groq não configurada nas configurações do SP LMS',
-                Log::WARNING,
-                'com_splms'
-            );
-            return null;
+        // Loop Extraindo Chave 1 até a 5 do Painel Config, mantendo a Ordem de Prioridade Pura
+        for ($i = 1; $i <= 5; $i++) {
+            $key = $params->get('groq_api_key_' . $i, '');
+            $trimmed = trim((string)$key);
+            
+            if (!empty($trimmed)) {
+                 $cleanKeys[] = $trimmed;
+            }
+        }
+
+        // BACKWARD COMPATIBILITY: Se nenhuma chave numerada for encontrada, tenta a chave única antiga 'groq_api_key'
+        if (empty($cleanKeys)) {
+            $legacyKey = $params->get('groq_api_key', '');
+            $trimmedLegacy = trim((string)$legacyKey);
+            if (!empty($trimmedLegacy)) {
+                $cleanKeys[] = $trimmedLegacy;
+            }
         }
         
-        // Retorna a chave sanitizada
-        return trim($apiKey);
+        if (empty($cleanKeys)) {
+            Log::add('Nenhuma Chave da API Groq configurada nas opções do SP LMS (1 a 5)', Log::WARNING, 'com_splms');
+        }
+        
+        return $cleanKeys;
     }
 
     /**
-     * Executa um Smoke Test (Teste de Fumaça) para verificar a conectividade da API
-     * 
-     * Envia uma mensagem simples "Olá" para a API Groq para validar:
-     * 1. Conectividade de rede
-     * 2. Handshake SSL
-     * 3. Autenticação (Chave da API)
-     * 4. Formato de resposta da API
+     * Executa um Smoke Test (Teste de Fumaça) para verificar a conectividade da API com Load Balancer suport
      * 
      * @return array Dados da resposta incluindo status e saída bruta
-     * @throws Exception Se a conexão falhar ou a API retornar erro
+     * @throws Exception Se a conexão falhar ou todas as chaves falharem
      * @since  1.0.0
      */
     public static function smokeTest()
     {
-        $apiKey = self::getGroqApiKey();
+        $apiKeys = self::getGroqApiKeys();
         
-        if (!$apiKey) {
-            throw new Exception('A chave da API está faltando. Por favor, configure-a nas Opções do SP LMS.');
+        if (empty($apiKeys)) {
+            throw new Exception('Nenhuma chave da API configurada. Por favor, adicione-a(s) nas Opções do SP LMS.');
         }
 
-        // Prepara payload simples para o smoke test
         $payload = [
             'model' => 'llama-3.3-70b-versatile',
             'messages' => [
@@ -227,24 +306,32 @@ class GuidewayAIHelper
             'max_tokens' => 50
         ];
 
-        Log::add('Iniciando Smoke Test da API Groq...', Log::INFO, 'com_splms');
+        Log::add('Iniciando Smoke Test da API Groq com Array de ' . count($apiKeys) . ' chaves configuradas...', Log::INFO, 'com_splms');
 
-        try {
-            // Faz a requisição
-            $response = self::makeApiRequest($apiKey, $payload);
-            
-            Log::add('Smoke Test concluído com sucesso.', Log::INFO, 'com_splms');
-            
-            return [
-                'success' => true,
-                'message' => 'Conexão estabelecida com sucesso',
-                'data' => $response
-            ];
+        $lastError = 'Desconhecido';
 
-        } catch (Exception $e) {
-            Log::add('Falha no Smoke Test: ' . $e->getMessage(), Log::ERROR, 'com_splms');
-            throw $e;
+        foreach ($apiKeys as $index => $apiKey) {
+            try {
+                // Faz a requisição
+                $response = self::makeApiRequest($apiKey, $payload);
+                
+                Log::add("Smoke Test concluído com sucesso usando a chave da posição [$index].", Log::INFO, 'com_splms');
+                
+                return [
+                    'success' => true,
+                    'message' => "Conexão estabelecida com sucesso usando a chave da Posição " . ($index+1),
+                    'data' => $response
+                ];
+
+            } catch (Exception $e) {
+                $lastError = $e->getMessage();
+                Log::add("Falha no Smoke Test na chave posição [$index]: " . $lastError, Log::WARNING, 'com_splms');
+                continue;
+            }
         }
+        
+        // Se bateu aqui, furou todas as chaves do Load balancer
+        throw new Exception('Todas as chaves informadas falharam na tentativa primária. Último Erro: ' . $lastError);
     }
 
     /**
@@ -273,9 +360,9 @@ class GuidewayAIHelper
             CURLOPT_POSTFIELDS => json_encode($payload),
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_TIMEOUT => 30,
+            // CURLOPT_SSL_VERIFYPEER => false, // Disable SSL Verify for dev env
+            // CURLOPT_SSL_VERIFYHOST => 0,     // Disable Host Verify for dev env
+            CURLOPT_TIMEOUT => 60,           // Increase timeout
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_USERAGENT => 'GuidewayLMS/1.0'
         ]);

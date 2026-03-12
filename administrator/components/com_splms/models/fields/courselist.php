@@ -83,11 +83,14 @@ class JFormFieldCourselist extends JFormFieldList
 		
 		$courses = $this->getCourses();
 
+		$options = [];
+		$options[] = HTMLHelper::_('select.option', '', '- Selecione um Curso -');
+
 		foreach ($courses as $course) {
 			$options[] = HTMLHelper::_('select.option', $course->id, $course->title);
 		}
 
-		return array_merge(parent::getOptions(), $options ?? []);
+		return array_merge(parent::getOptions(), $options);
 
 	}
 

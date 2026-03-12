@@ -7,7 +7,7 @@
 	<authorUrl>http://www.joomshaper.com</authorUrl>
 	<copyright>Copyright (c) 2010- 2024 JoomShaper. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later</license>
-	<version>4.2.2</version>
+	<version>4.2.3</version>
 	<description>SP Learning Management System Component for Joomla</description>
 	<scriptfile>installer.script.php</scriptfile>
 

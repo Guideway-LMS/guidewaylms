@@ -105,6 +105,38 @@ class SplmsModelQuizquestions extends ListModel {
 		return $result;
 	}
 
+	// Get number of attempts for a quiz by user id
+	public static function getQuizAttempts($user_id, $quiz_id) {
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true);
+		
+		$query->select('COUNT(id)');
+		$query->from($db->quoteName('#__splms_quizresults'));
+		$query->where($db->quoteName('published')." = 1");
+		$query->where($db->quoteName('user_id')." = ".$db->quote($user_id));
+		$query->where($db->quoteName('quizquestion_id')." = ".$db->quote($quiz_id));
+		
+		$db->setQuery($query);
+		return (int)$db->loadResult();
+	}
+
+	// Get best score for a quiz by user id
+	public static function getBestQuizResult($user_id, $quiz_id) {
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true);
+		
+		$query->select($db->quoteName(array('id', 'point', 'total_marks', 'quizquestion_id', 'course_id')));
+		$query->from($db->quoteName('#__splms_quizresults'));
+		$query->where($db->quoteName('published')." = 1");
+		$query->where($db->quoteName('user_id')." = ".$db->quote($user_id));
+		$query->where($db->quoteName('quizquestion_id')." = ".$db->quote($quiz_id));
+		$query->order($db->quoteName('point') . ' DESC');
+		$query->setLimit(1);
+		
+		$db->setQuery($query);
+		return $db->loadObject();
+	}
+
 	// Insert Quiz Result
 	public function insertQuizResult($user_id, $quiz_id, $course_id, $total_marks, $point) {
 		$date = Factory::getDate()->toSql();

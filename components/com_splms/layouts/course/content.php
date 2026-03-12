@@ -35,6 +35,24 @@ list($content, $price, $isAuthorised, $active) = $contents;
                 <i class="splms-icon-book"></i>
                 <?php echo '['.Text::_('COM_SPLMS_LESSON') .'] ' . $content->title; ?>
             </a>
+            
+             <?php 
+            // GUIDEWAY CUSTOM: Etiquetas
+            $badgeText = '';
+            $badgeStyle = '';
+            
+            if (isset($content->is_optional) && $content->is_optional == 1) {
+                $badgeText = '● Opcional';
+                $badgeClass = 'guideway-badge-optional';
+            } elseif (isset($content->lesson_format) && ($content->lesson_format == 'quiz' || $content->lesson_format == 'assignment')) {
+                 $badgeText = '★ Obrigatório';
+                 $badgeClass = 'guideway-badge-required';
+            }
+            
+            if ($badgeText) {
+                echo '<span class="pull-right ' . $badgeClass . '">' . $badgeText . '</span>';
+            }
+            ?>
         <?php endif;?>
     </li>
 <?php } else { ?>

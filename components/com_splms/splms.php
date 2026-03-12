@@ -13,6 +13,44 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Controller\BaseController;
+use Joomla\CMS\Router\Route; 
+
+// DEBUG LOGGING
+file_put_contents(JPATH_COMPONENT . '/debug_log.txt', date('Y-m-d H:i:s') . " - SPLMS Entry - Request: " . print_r($_REQUEST, true) . "\n", FILE_APPEND);
+
+// ============================================================================
+// 🔒 BLOQUEIO DE SEGURANÇA INTELIGENTE (GUIDEWAY LMS)
+// ============================================================================
+$app_guard   = Factory::getApplication();
+$user_guard  = Factory::getUser();
+$input_guard = $app_guard->input;
+$view_guard  = $input_guard->getCmd('view');
+
+// Se quiser testar se está no arquivo certo, descomente a linha abaixo:
+// die('<h1>ESTOU NO ARQUIVO CERTO DO FRONTEND!</h1>');
+
+// Lista de telas restritas
+$views_restritas = array('lesson', 'submission', 'quiz', 'order');
+
+// Verifica se é visitante tentando ver conteúdo restrito
+if ($user_guard->guest && in_array($view_guard, $views_restritas)) {
+    
+    // 1. Captura URL para retorno
+    $uri_atual = Uri::getInstance()->toString();
+    $retorno   = base64_encode($uri_atual);
+    
+    // 2. Monta link de login
+    $link_login = Route::_('index.php?option=com_users&view=login&return=' . $retorno, false);
+    
+    // 3. Avisa e Redireciona
+    $app_guard->enqueueMessage('🔒 Para continuar, por favor faça login.', 'warning');
+    $app_guard->redirect($link_login);
+    
+    // 4. MATA O PROCESSO (Impede o erro "topics on null")
+    exit(); 
+}
+// ============================================================================
+
 
 require_once JPATH_COMPONENT . '/helpers/helper.php';
 HTMLHelper::_('jquery.framework');
@@ -39,7 +77,43 @@ if (file_exists($languageFilePath))
     require_once $languageFilePath;
 }
 
-$controller = BaseController::getInstance('Splms');
+// Load Main Controller (Parent Class) first
+require_once JPATH_COMPONENT . '/controller.php';
+
+// ROUTING FIX FOR SUB-CONTROLLERS (e.g. Forum AJAX)
+// ----------------------------------------------------------------------------
 $input = Factory::getApplication()->input;
-$controller->execute($input->getCmd('task'));
+$task = $input->getCmd('task');
+$controllerName = 'Splms';
+
+if (!empty($task) && strpos($task, '.') !== false) {
+    list($controllerName, $taskMethod) = explode('.', $task, 2);
+}
+
+// Convert to Class Name format (e.g., forum -> Forum)
+$controllerName = ucfirst($controllerName);
+
+if ($controllerName != 'Splms') {
+    $path = JPATH_COMPONENT . '/controllers/' . strtolower($controllerName) . '.php';
+    if (file_exists($path)) {
+        require_once $path;
+        $className = 'SplmsController' . $controllerName;
+        
+        if (class_exists($className)) {
+            $controller = new $className();
+        } else {
+             $controller = BaseController::getInstance('Splms');
+        }
+    } else {
+        $controller = BaseController::getInstance('Splms');
+    }
+} else {
+    $controller = BaseController::getInstance('Splms');
+}
+
+if (isset($taskMethod) && !empty($taskMethod)) {
+    $controller->execute($taskMethod);
+} else {
+    $controller->execute($task);
+}
 $controller->redirect();

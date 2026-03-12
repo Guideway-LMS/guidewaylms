@@ -21,8 +21,16 @@ use Joomla\CMS\Uri\Uri;
 
 			<div class="before-start-quiz">
 				<div class="quiz-content">
+					<div class="quiz-icon-wrapper" style="font-size: 4rem; color: #3b82f6; margin-bottom: 20px;">
+						<i class="fa fa-file-text-o"></i>
+					</div>
 					<h3><?php echo $this->item->title; ?></h3>
 					<p><?php echo $this->item->description; ?></p>
+					<?php if (isset($this->attempts_info) && $this->attempts_info['max'] > 0): ?>
+						<p class="alert alert-info">
+							<strong>Tentativas:</strong> Você tem <?php echo $this->attempts_info['left']; ?> tentativa(s) restante(s) de um máximo de <?php echo $this->attempts_info['max']; ?>.
+						</p>
+					<?php endif; ?>
 				</div>
 				<button class="btn btn-primary startQuiz"><?php echo Text::_('COM_SPMS_START_QUIZ'); ?></button>
 				<a href="<?php echo Uri::root(); ?>" class="btn btn-default cancelQuiz">
@@ -33,7 +41,6 @@ use Joomla\CMS\Uri\Uri;
 			<div class="quizContainer">
 				<div class="countdown-wrapper">
 					<span id="timer"><i class="fa fa-clock-o"></i></span><span id="countdown"></span> 
-					<?php echo Text::_('COM_SPMS_QUIZ_SECONDS'); ?>
 				</div>
 				<div class="quizMessage"></div>
 				<div class="ques-ans-wrapper">

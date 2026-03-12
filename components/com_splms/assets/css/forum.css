@@ -1,3 +1,29 @@
+/* Accordion Header - Fórum de Dúvidas (Course Page) */
+.splms-forum-accordion-header {
+    padding: 10px 0;
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 0;
+    transition: opacity 0.2s ease;
+}
+
+.splms-forum-accordion-header:hover {
+    opacity: 0.8;
+}
+
+.splms-forum-accordion-header h3 {
+    margin: 0;
+}
+
+.splms-forum-toggle-icon {
+    color: #007bff;
+    font-size: 1.6rem !important;
+    font-weight: 300;
+    transition: transform 0.3s ease;
+    display: inline-block;
+    min-width: 28px;
+    text-align: center;
+}
+
 /* Forum Container */
 .splms-forum-container {
     padding: 20px 0;

@@ -133,7 +133,7 @@ jQuery(function ($) {
         });
     });
 
-    // CountDown
+    // Contagem Regressiva
     jQuery.fn.countDown = function (settings, to) {
         settings = jQuery.extend({
             FontSize: "inherit",
@@ -142,18 +142,25 @@ jQuery(function ($) {
             endNumber: 0,
             callBack: function () { }
         }, settings);
+
+        function formatTime(seconds) {
+            var m = Math.floor(seconds / 60);
+            var s = seconds % 60;
+            return (m < 10 ? '0' + m : m) + ":" + (s < 10 ? '0' + s : s);
+        }
+
         return this.each(function () {
 
             //where do we start?
             if (!to && to != settings.endNumber) { to = settings.startNumber; }
             //set the countdown to the starting number
-            jQuery(this).text(to);
+            jQuery(this).text(formatTime(to));
             //loopage
             jQuery(this).animate({
                 fontSize: settings.FontSize
             }, settings.duration, "", function () {
                 if (to > settings.endNumber + 1) {
-                    jQuery(this).text(to - 1).countDown(settings, to - 1);
+                    jQuery(this).text(formatTime(to - 1)).countDown(settings, to - 1);
                 }
                 else {
                     settings.callBack(this);
@@ -528,8 +535,8 @@ jQuery(function ($) {
         let course_list = document.querySelector('.splms-courses-list');
         let shuffle_class = $(course_list).find('.splms-shuffle');
         let splms_row = document.querySelector('.splms-row');
-       
-        if (course_list) {          
+
+        if (course_list) {
             if (shuffle_class.length == 0) {
                 $(splms_row).addClass('splms-shuffle');
             }
@@ -555,7 +562,7 @@ jQuery(function ($) {
     // Countdown and redirection of payment
     if ($('#countdown-number').is(':visible')) {
         var countdownNumber = document.getElementById('countdown-number');
-        var countdown       = 25;
+        var countdown = 25;
 
         countdownNumber.textContent = countdown + ' s';
 
@@ -565,9 +572,9 @@ jQuery(function ($) {
             if (countdown <= 0) {
                 window.location = splms_url + "index.php?option=com_splms&view=courses";
             }
-            else{
+            else {
                 countdownNumber.textContent = countdown + ' s';
-            }    
+            }
         }, 1000);
     }
 
@@ -586,10 +593,10 @@ jQuery(function ($) {
         }
 
         if (!found) {
-            let link  = document.createElement("link");
-            link.rel  = rel;
+            let link = document.createElement("link");
+            link.rel = rel;
             link.href = window.location.href;
-            
+
             document.head.appendChild(link);
         }
     })

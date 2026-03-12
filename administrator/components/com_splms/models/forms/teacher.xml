@@ -49,7 +49,7 @@
 
 		<field name="created_by" type="user" label="JGLOBAL_FIELD_CREATED_BY_LABEL" />
 
-		<field name="created" type="calendar" label="COM_SPLMS_TITLE_CREATED_DATE" translateformat="true" />
+		<field name="created" type="calendar" label="COM_SPLMS_TITLE_CREATED_DATE"  />
 
 		<field name="language" type="language" label="JFIELD_LANGUAGE_LABEL">
 			<option value="*">JALL_LANGUAGE</option>

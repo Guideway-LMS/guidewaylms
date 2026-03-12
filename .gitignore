@@ -9,3 +9,67 @@
 /README.txt
 /web.config.txt
 .DS_Store
+administrator/components/com_splms/access.xml
+images/demo/course-cover-34140.jpg
+images/demo/course-cover-7171387.jpg
+images/demo/course-cover-8474478.jpg
+images/demo/course-cover-15555796.jpg
+images/demo/course-cover-33937115.jpg
+images/demo/thumbs/course-cover-7171387_840x490.jpg
+images/demo/thumbs/course-cover-8474478_400x300.jpg
+images/demo/thumbs/course-cover-7171387_400x300.jpg
+images/demo/thumbs/course-cover-8474478_840x490.jpg
+images/demo/thumbs/course-cover-15555796_400x300.jpg
+images/demo/thumbs/course-cover-15555796_840x490.jpg
+images/demo/thumbs/course-cover-33937115_400x300.jpg
+images/demo/thumbs/course-cover-33937115_840x490.jpg
+# Ambientes Virtuais e Binários
+**/venv/
+**/bin/
+get-pip.py
+
+# Dependências do PHP
+vendor/
+composer.phar
+
+# Arquivos de Teste Pessoais
+teste/groq_rotation_test*
+
+# ================================
+# PLAYWRIGHT TESTS - ARQUIVOS LOCAIS
+# ================================
+tests-playwright/node_modules/
+tests-playwright/playwright-report/
+tests-playwright/test-results/
+tests-playwright/.env
+tests-playwright/auth/*.json
+*.webm
+*.zip
+*.trace
+*.png
+*.jpg
+*.jpeg
+
+
+node_modules/
+package-lock.json
+*.log
+# Playwright artifacts na raiz (por segurança)
+playwright-report/
+test-results/
+# PLAYWRIGHT
+tests-playwright/node_modules/
+tests-playwright/playwright-report/
+tests-playwright/test-results/
+tests-playwright/.env
+*.webm
+
+# Playwright - arquivos gerados
+tests-playwright/package-lock.json
+
+# Debug logs
+components/com_splms/debug_log.txt
+devops/database/_dumps/
+components/com_splms/debug_log.txt
+devops/database/*.sql
+*.sql

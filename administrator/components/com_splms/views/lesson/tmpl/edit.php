@@ -61,6 +61,7 @@ $colClass = SplmsHelper::getJoomlaVersion() < 4 ? 'span' : 'col-lg-';
           echo $this->form->renderField('video_duration');
           echo $this->form->renderField('attachment');
           echo $this->form->renderField('lesson_type');
+          echo $this->form->renderField('lesson_format');
         ?>
       </div>
 
