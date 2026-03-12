@@ -69,3 +69,7 @@ tests-playwright/package-lock.json
 
 # Debug logs
 components/com_splms/debug_log.txt
+devops/database/_dumps/
+components/com_splms/debug_log.txt
+devops/database/*.sql
+*.sql

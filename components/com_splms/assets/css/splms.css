@@ -3126,11 +3126,24 @@
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.user-reviews .review-wrap.review-item {
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .user-reviews .review-wrap.review-item .profile-img {
   margin-right: 15px;
   flex: 1;
+}
+
+#reviews,
+.review-wrap.reviewers-form {
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .user-reviews .review-wrap.review-item .review-box {
