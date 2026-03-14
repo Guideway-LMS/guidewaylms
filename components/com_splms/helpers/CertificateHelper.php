@@ -24,13 +24,44 @@ class CertificateHelper
 
         try {
             // ── Dados dinâmicos ──────────────────────────────────────────
-            $aluno      = (isset($item->student_info->name) && $item->student_info->name) ? htmlspecialchars($item->student_info->name) : '[Nome do Aluno]';
-            $curso      = isset($item->course) ? htmlspecialchars($item->course) : '[Nome do Curso]';
+            $db = Factory::getDbo();
+	    $queryAluno = $db->getQuery(true)
+   	      ->select($db->quoteName('name'))
+   	      ->from($db->quoteName('#__users'))
+  	      ->where($db->quoteName('id') . ' = ' . (int) $item->userid);
+	    $db->setQuery($queryAluno);
+	    $aluno = htmlspecialchars($db->loadResult() ?: '[Nome do Aluno]');
+
+	    $queryCurso = $db->getQuery(true)
+	         ->select($db->quoteName('title'))
+		 ->from($db->quoteName('#__splms_courses'))
+		 ->where($db->quoteName('id') . ' = ' . (int) $item->course_id);
+	   $db->setQuery($queryCurso);
+	   $curso = htmlspecialchars($db->loadResult() ?: '[Nome do Curso]');
+            
             $data       = (!empty($item->issue_date) && $item->issue_date !== '0000-00-00') ? date('d/m/Y', strtotime($item->issue_date)) : date('d/m/Y');
             $codigo     = isset($item->certificate_no) ? htmlspecialchars($item->certificate_no) : 'GW-DEFAULT-000';
             $organizacao = isset($item->organization) ? htmlspecialchars($item->organization) : 'Guideway LMS';
             $instrutor  = isset($item->instructor) && !empty($item->instructor) ? htmlspecialchars($item->instructor) : 'Instrutor Guideway';
-            $cargaHoraria = isset($item->duration) && !empty($item->duration) ? htmlspecialchars($item->duration) : '40';
+            // GUIDEWAY CUSTOM -  Busca carga horaria e data de conclusao reais do banco
+	    $db = Factory::getDbo();
+
+	    $queryCarga = $db->getQuery(true)
+   	      ->select($db->quoteName('workload_hours'))
+   	      ->from($db->quoteName('#__splms_courses'))
+   	      ->where($db->quoteName('id') . ' = ' . (int) $item->course_id);
+	   $db->setQuery($queryCarga);
+	   $cargaHoraria = $db->loadResult() ?: '40';
+
+	   $queryConc = $db->getQuery(true)
+   	     ->select($db->quoteName('created'))
+   	     ->from($db->quoteName('#__splms_useritems'))
+   	     ->where($db->quoteName('user_id') . ' = ' . (int) $item->userid)
+   	     ->where($db->quoteName('item_id') . ' = ' . (int) $item->course_id)
+   	     ->where($db->quoteName('item_type') . ' = ' . $db->quote('course'));
+	  $db->setQuery($queryConc);
+	  $dataConclusao = $db->loadResult();
+	  $data = $dataConclusao ? date('d/m/Y', strtotime($dataConclusao)) : $data;
             // ─────────────────────────────────────────────────────────────
 
             $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
