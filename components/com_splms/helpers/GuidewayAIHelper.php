@@ -71,8 +71,8 @@ class GuidewayAIHelper
     public static function processarTexto($texto, $acao, $customInstruction = null)
     {
         // Validação básica
-        if (empty($texto)) {
-            return ['success' => false, 'message' => 'O texto de entrada não pode ser vazio.'];
+        if (empty(trim($texto)) && empty(trim($customInstruction))) {
+            return ['success' => false, 'message' => 'O texto de entrada não pode ser vazio. Forneça texto base ou comando.'];
         }
 
         // Seleção do System Prompt baseada na ação
@@ -84,7 +84,7 @@ class GuidewayAIHelper
                 $systemPrompt = 'Atue como um revisor de texto experiente em Português. Corrija erros gramaticais, de pontuação e ortografia. Retorne apenas o texto corrigido, mantendo a formatação original tanto quanto possível. Não adicione comentários conversacionais.';
                 break;
             case self::ACTION_RESUMIR:
-                $systemPrompt = "Atue como um Especialista em Currículo LMS. Sua tarefa é extrair um resumo brilhante, claro e persuasivo do texto de entrada.\n\nRegras OBRIGATÓRIAS de formatação:\n1. Não retorne um parágrafo enorme. Quebre o texto.\n2. Inicie com um pequeno parágrafo introdutório convidativo (ex: 'Neste curso você aprenderá...').\n3. Crie pelo menos uma lista no formato HTML (`<ul><li>...</li></ul>`) destacando os **Pontos Chave/Objetivos**.\n4. Use negrito HTML (`<strong>`) para destacar termos vitais.\nRetorne apenas o resumo formatado em tags HTML de texto (<p>, <ul>, <li>, <strong>), sem marcações Markdown de json ou bloco de código (```html).";
+                $systemPrompt = "Atue como um Especialista em LMS. Sua tarefa é extrair um resumo brilhante, claro e persuasivo do texto de entrada.\n\nRegras OBRIGATÓRIAS de formatação:\n1. Não retorne um parágrafo enorme. Quebre o texto.\n2. Inicie com um pequeno parágrafo introdutório convidativo (ex: 'Neste material/aviso abordaremos...').\n3. Crie pelo menos uma lista no formato HTML (`<ul><li>...</li></ul>`) destacando os **Pontos Chave/Objetivos**.\n4. Use negrito HTML (`<strong>`) para destacar termos vitais.\nRetorne apenas o resumo formatado em tags HTML de texto (<p>, <ul>, <li>, <strong>), sem marcações Markdown de json ou bloco de código (```html).";
                 break;
             case self::ACTION_REESCREVER:
                 $systemPrompt = 'Atue como um editor profissional. Reescreva o texto para melhorar a fluidez, clareza e vocabulário, mantendo o sentido original. O tom deve ser profissional. Retorne apenas o texto reescrito em Português.';
@@ -114,7 +114,10 @@ class GuidewayAIHelper
                     return ['success' => false, 'message' => 'Instrução personalizada não fornecida para ação Custom.'];
                 }
                 // Combina instrução com o texto
-                $userContent = "Instrução: " . $customInstruction . "\n\n---\n\nConteúdo:\n" . $texto;
+                $userContent = "Instrução: " . $customInstruction;
+                if (!empty(trim($texto))) {
+                    $userContent .= "\n\n---\n\nConteúdo:\n" . $texto;
+                }
                 break;
             default:
                 return ['success' => false, 'message' => 'Ação desconhecida: ' . htmlspecialchars($acao)];

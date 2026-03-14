@@ -199,35 +199,36 @@ class SplmsControllerLesson extends FormController {
 				throw new Exception(Text::_('JERROR_ALERTNOAUTHOR') . ' (ai.generate)');
 			}
 
-			// 2. Validação do Arquivo
-			if (!isset($_FILES['gw_ai_file'])) {
-				throw new Exception('Nenhum arquivo enviado.');
-			}
+			// 2. Validação do Arquivo e Obtenção do Prompt
+			$input = Factory::getApplication()->input;
+			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
 
-			// Reformatar a array $_FILES se for múltiplo (comportamento padrão do PHP)
 			$files = [];
-			if (is_array($_FILES['gw_ai_file']['name'])) {
-				$fileCount = count($_FILES['gw_ai_file']['name']);
-				for ($i = 0; $i < $fileCount; $i++) {
-					if ($_FILES['gw_ai_file']['error'][$i] == UPLOAD_ERR_OK) {
-						$files[] = [
-							'name' => $_FILES['gw_ai_file']['name'][$i],
-							'type' => $_FILES['gw_ai_file']['type'][$i],
-							'tmp_name' => $_FILES['gw_ai_file']['tmp_name'][$i],
-							'error' => $_FILES['gw_ai_file']['error'][$i],
-							'size' => $_FILES['gw_ai_file']['size'][$i]
-						];
+			if (isset($_FILES['gw_ai_file']) && !empty($_FILES['gw_ai_file']['name']) && (!is_array($_FILES['gw_ai_file']['name']) || $_FILES['gw_ai_file']['name'][0] !== '')) {
+				// Reformatar a array $_FILES se for múltiplo (comportamento padrão do PHP)
+				if (is_array($_FILES['gw_ai_file']['name'])) {
+					$fileCount = count($_FILES['gw_ai_file']['name']);
+					for ($i = 0; $i < $fileCount; $i++) {
+						if ($_FILES['gw_ai_file']['error'][$i] == UPLOAD_ERR_OK) {
+							$files[] = [
+								'name' => $_FILES['gw_ai_file']['name'][$i],
+								'type' => $_FILES['gw_ai_file']['type'][$i],
+								'tmp_name' => $_FILES['gw_ai_file']['tmp_name'][$i],
+								'error' => $_FILES['gw_ai_file']['error'][$i],
+								'size' => $_FILES['gw_ai_file']['size'][$i]
+							];
+						}
+					}
+				} else {
+					// Fallback para arquivo único enviado sem array
+					if ($_FILES['gw_ai_file']['error'] == UPLOAD_ERR_OK) {
+						$files[] = $_FILES['gw_ai_file'];
 					}
 				}
-			} else {
-				// Fallback para arquivo único enviado sem array
-				if ($_FILES['gw_ai_file']['error'] == UPLOAD_ERR_OK) {
-					$files[] = $_FILES['gw_ai_file'];
-				}
 			}
 
-			if (empty($files)) {
-				throw new Exception('Nenhum arquivo válido enviado ou erro no upload.');
+			if (empty($files) && empty(trim($prompt))) {
+				throw new Exception('Envie um documento PDF legível ou digite um comando em texto para a IA.');
 			}
 
 			$maxSize = 5 * 1024 * 1024; // 5MB por arquivo
@@ -290,13 +291,10 @@ class SplmsControllerLesson extends FormController {
 				}
 			}
 
-			// Valida se os PDFs submetidos retornaram algum texto útil (evita PDFs escaneados como imagens)
-			if (trim($text) === '') {
+			// Valida se houve extração quando arquivos foram enviados
+			if (!empty($files) && trim($text) === '') {
 				throw new Exception('Nenhum texto pôde ser extraído. O PDF selecionado possui apenas imagens ou está protegido/escaneado.');
 			}
-
-			$input = Factory::getApplication()->input;
-			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
 			$difficulty = $input->post->get('gw_ai_difficulty', '', 'STRING');
 			$qcount = $input->post->get('gw_ai_qcount', 5, 'INT');
 			$qtype = $input->post->get('gw_ai_qtype', 'optativa', 'STRING');

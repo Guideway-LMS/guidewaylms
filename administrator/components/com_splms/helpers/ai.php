@@ -133,6 +133,10 @@ class SplmsHelperAi
 
         $contentToProcess = "Gerar estrutura de curso sobre: " . $topic;
         if (!empty($context)) {
+            // Truncate context to ~25,000 chars to avoid Groq model limits
+            if (mb_strlen($context, 'UTF-8') > 25000) {
+                $context = mb_substr($context, 0, 25000, 'UTF-8') . " ... [Transcrição truncada devido ao tamanho máximo da IA]";
+            }
             $contentToProcess .= "\n\nBaseado na seguinte transcrição de vídeo (Use como contexto primário para o conteúdo das aulas):\n" . $context;
         }
 
@@ -145,8 +149,11 @@ class SplmsHelperAi
 
         $content = $result['data'];
         
+        // Anti-Bug: Strip any rogue HTML that might have been wrapped by the response or the helper nl2br parser
+        $content = html_entity_decode(strip_tags($content), ENT_QUOTES, 'UTF-8');
+
         // Clean up markdown code blocks if present
-        $content = preg_replace('/^```json\s*/', '', $content);
+        $content = preg_replace('/^```json\s*/i', '', $content);
         $content = preg_replace('/^```\s*/', '', $content);
         $content = preg_replace('/\s*```$/', '', $content);
 
