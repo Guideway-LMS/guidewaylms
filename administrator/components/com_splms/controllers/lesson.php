@@ -291,10 +291,19 @@ class SplmsControllerLesson extends FormController {
 				}
 			}
 
-			// Valida se houve extração quando arquivos foram enviados
-			if (!empty($files) && trim($text) === '') {
+			// Valida se houve extração quando arquivos foram enviados.
+			// Porém se o professor não mandou arquivos mas mandou um prompt, permitimos prosseguir usando o prompt como base.
+			if (empty($files) && trim($text) === '') {
+				if (trim($prompt) === '') {
+					throw new Exception('Nenhum texto pôde ser extraído e nenhum comando foi digitado.');
+				} else {
+					$text = $prompt; // O Prompt assume o papel de corpo de texto principal se não houver PDF
+				}
+			} elseif (!empty($files) && trim($text) === '') {
 				throw new Exception('Nenhum texto pôde ser extraído. O PDF selecionado possui apenas imagens ou está protegido/escaneado.');
 			}
+			
+			// Se o texto vier misto (PDF + Prompt), o Prompt será injetado depois ou já será usado na ação CUSTOM
 			$difficulty = $input->post->get('gw_ai_difficulty', '', 'STRING');
 			$qcount = $input->post->get('gw_ai_qcount', 5, 'INT');
 			$qtype = $input->post->get('gw_ai_qtype', 'optativa', 'STRING');
@@ -347,7 +356,18 @@ class SplmsControllerLesson extends FormController {
 					}
 
 					// Passo 2: Gera as Questões
-					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CRIAR_QUESTOES, $params);
+					// Se o texto principal já for o prompt (quando não há PDF), usamos ele normalmente.
+					// Se houver PDF E um prompt adicional, poderíamos concatenar, mas a interface atual 
+					// manda o prompt separado. Para instrução customizada em questões, o helper precisaria de suporte.
+					// Atualmente o criar_questoes recebe string jsonificada nas params.
+					
+					// Adiciona o prompt extra como contexto adicional se existir E for diferente do $text (evitar duplicação quando não tem PDF)
+					$textToSend = $text;
+					if (trim($prompt) !== '' && trim($text) !== trim($prompt)) {
+						$textToSend = "INSTRUÇÕES EXTRAS DO PROFESSOR:\n" . $prompt . "\n\nCONTEÚDO BASE:\n" . $text;
+					}
+
+					$aiResult = GuidewayAIHelper::processarTexto($textToSend, GuidewayAIHelper::ACTION_CRIAR_QUESTOES, $params);
 					
 					// Se deu certo, concatena
 					if ($aiResult['success'] && $includeDesc === '1') {
@@ -386,7 +406,7 @@ class SplmsControllerLesson extends FormController {
 					
 				} else {
 					// Se falhar a IA, mantém o texto bruto mas avisa
-					$msg = 'Texto extraído (bruto), mas houve erro na IA: ' . $aiResult['message'];
+					$msg = 'Aviso: Texto extraído (bruto), mas houve erro na IA: ' . $aiResult['message'];
 				}
 			} else {
 				$msg = 'Texto extraído (bruto). Helper de IA não disponível.';
