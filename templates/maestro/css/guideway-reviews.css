@@ -1,0 +1,343 @@
+/**
+ * GUIDEWAY LMS - Reviews Section Custom Styles
+ * Feature: layout-avaliacoes
+ * Author: Guideway Team
+ * Creation: 2026-03-16
+ *
+ * This file handles all styles for the course reviews section.
+ * It overrides the default SP LMS styles to create a modern, clean review layout.
+ */
+
+/* =============================================
+   1. REVIEW SUMMARY PANEL (top area: score + bars)
+   ============================================= */
+
+.gw-reviews-summary {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 28px 0 28px 0;
+    border-bottom: 1px solid #e8e8e8;
+    margin-bottom: 28px;
+}
+
+/* Left column: big score number + label + stars */
+.gw-reviews-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 130px;
+    flex-shrink: 0;
+    border-right: 1px solid #e8e8e8;
+    padding-right: 40px;
+}
+
+.gw-reviews-score .gw-score-number {
+    font-size: 58px;
+    font-weight: 700;
+    line-height: 1;
+    color: #1a1a1a;
+    letter-spacing: -2px;
+}
+
+.gw-reviews-score .gw-score-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #888;
+    text-transform: uppercase;
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+
+.gw-reviews-score .gw-stars-avg {
+    display: flex;
+    gap: 3px;
+}
+
+.gw-reviews-score .gw-stars-avg i {
+    color: #f5a623;
+    font-size: 18px;
+}
+
+/* Right column: bars per star level */
+.gw-reviews-bars {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.gw-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #555;
+}
+
+.gw-bar-row .gw-bar-label {
+    min-width: 46px;
+    text-align: right;
+    white-space: nowrap;
+    color: #444;
+    font-size: 13px;
+}
+
+.gw-bar-row .gw-bar-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f5a623;
+    flex-shrink: 0;
+}
+
+.gw-bar-row .gw-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #e8e8e8;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.gw-bar-row .gw-bar-fill {
+    height: 100%;
+    background: #f5a623;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+.gw-bar-row .gw-bar-pct {
+    min-width: 36px;
+    text-align: right;
+    color: #666;
+    font-size: 13px;
+}
+
+.gw-reviews-bars .gw-reviews-count-note {
+    font-size: 11px;
+    color: #999;
+    font-style: italic;
+    text-align: right;
+    margin-top: 4px;
+}
+
+/* =============================================
+   2. REVIEW ITEM LIST
+   ============================================= */
+
+.gw-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.gw-review-item {
+    display: flex;
+    gap: 16px;
+    padding: 22px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.gw-review-item:last-child {
+    border-bottom: none;
+}
+
+/* Avatar */
+.gw-review-avatar {
+    flex-shrink: 0;
+}
+
+.gw-review-avatar img,
+.gw-review-avatar .gw-avatar-placeholder {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: none;
+    background: #dde1e7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    font-size: 20px;
+}
+
+/* Content */
+.gw-review-content {
+    flex: 1;
+}
+
+.gw-review-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.gw-review-author {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.gw-review-date {
+    font-size: 12px;
+    color: #aaa;
+    white-space: nowrap;
+}
+
+.gw-review-stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.gw-review-stars i {
+    font-size: 14px;
+    color: #f5a623;
+}
+
+.gw-review-stars i.empty {
+    color: #ddd;
+}
+
+.gw-review-text {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.65;
+    margin-bottom: 12px;
+}
+
+.gw-review-actions {
+    display: flex;
+    gap: 20px;
+}
+
+.gw-review-actions a {
+    font-size: 12px;
+    color: #888;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+}
+
+.gw-review-actions a:hover {
+    color: #444;
+}
+
+/* =============================================
+   3. LOAD MORE BUTTON
+   ============================================= */
+
+.gw-reviews-loadmore-wrap {
+    text-align: center;
+    padding: 24px 0 8px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 8px;
+}
+
+.gw-reviews-loadmore-wrap a {
+    font-size: 14px;
+    font-weight: 600;
+    color: #3a7bd5;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+}
+
+.gw-reviews-loadmore-wrap a:hover {
+    color: #2159a8;
+}
+
+/* =============================================
+   4. HEADER AREA (edit button row)
+   ============================================= */
+
+.gw-reviews-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+/* =============================================
+   5. DARK MODE overrides
+   ============================================= */
+
+.darkmode .gw-reviews-summary,
+.dark-mode .gw-reviews-summary {
+    border-bottom-color: #333;
+}
+
+.darkmode .gw-reviews-score,
+.dark-mode .gw-reviews-score {
+    border-right-color: #333;
+}
+
+.darkmode .gw-reviews-score .gw-score-number,
+.dark-mode .gw-reviews-score .gw-score-number {
+    color: #f0f0f0;
+}
+
+.darkmode .gw-reviews-score .gw-score-label,
+.dark-mode .gw-reviews-score .gw-score-label {
+    color: #999;
+}
+
+.darkmode .gw-bar-row .gw-bar-track,
+.dark-mode .gw-bar-row .gw-bar-track {
+    background: #333;
+}
+
+.darkmode .gw-review-item,
+.dark-mode .gw-review-item {
+    border-bottom-color: #2a2a2a;
+}
+
+.darkmode .gw-review-author,
+.dark-mode .gw-review-author {
+    color: #f0f0f0;
+}
+
+.darkmode .gw-review-text,
+.dark-mode .gw-review-text {
+    color: #bbb;
+}
+
+.darkmode .gw-review-date,
+.dark-mode .gw-review-date {
+    color: #666;
+}
+
+/* =============================================
+   6. RESPONSIVE
+   ============================================= */
+
+@media (max-width: 640px) {
+    .gw-reviews-summary {
+        flex-direction: column;
+        gap: 24px;
+        align-items: flex-start;
+    }
+
+    .gw-reviews-score {
+        border-right: none;
+        border-bottom: 1px solid #e8e8e8;
+        padding-right: 0;
+        padding-bottom: 24px;
+        width: 100%;
+        align-items: flex-start;
+        flex-direction: row;
+        gap: 20px;
+    }
+
+    .gw-reviews-bars {
+        width: 100%;
+    }
+}
