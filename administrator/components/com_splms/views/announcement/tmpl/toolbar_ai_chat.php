@@ -31,8 +31,8 @@
                     <?php if (empty($hideGenerateQuestions)): ?>
 
                     <!-- Botão Principal de IA -->
-                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-primary" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;" title="Configurar e Gerar com IA">
-                        <span class="icon-magic"></span> Configurar e Gerar com IA
+                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-primary" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;" title="Gerar com IA">
+                        <span class="icon-magic"></span>Gerar com IA
                     </button>
 
                     <!-- Overlay do Modal (Bloqueio de tela e desfoque) -->
@@ -40,7 +40,7 @@
 
                     <!-- Conteúdo do Dropdown (Transformado em Modal via JS/CSS) -->
                     <div id="gw-ai-quiz-dropdown" class="gw-ai-dropdown gw-ai-glass-dropdown">
-                        <div class="gw-ai-dropdown-title">Configurar e Gerar com IA</div>
+                        <div class="gw-ai-dropdown-title">Gerar com IA</div>
 
                         <div id="gw-ai-dropdown-params">
                             <!-- O que gerar? -->
