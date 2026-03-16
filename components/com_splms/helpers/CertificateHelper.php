@@ -2,7 +2,7 @@
 /**
  * @package    Guideway LMS
  * @subpackage com_splms
- * GUIDEWAY CUSTOM - Certificado Frente e Verso V21 (Ajuste Final do Tamanho da Fonte do Curso)
+ * GUIDEWAY CUSTOM - Certificado Frente e Verso V24 (Centralização Exata do Texto do Curso)
  */
 
 defined('_JEXEC') or die;
@@ -25,43 +25,44 @@ class CertificateHelper
         try {
             // ── Dados dinâmicos ──────────────────────────────────────────
             $db = Factory::getDbo();
-	    $queryAluno = $db->getQuery(true)
-   	      ->select($db->quoteName('name'))
-   	      ->from($db->quoteName('#__users'))
-  	      ->where($db->quoteName('id') . ' = ' . (int) $item->userid);
-	    $db->setQuery($queryAluno);
-	    $aluno = htmlspecialchars($db->loadResult() ?: '[Nome do Aluno]');
+            $queryAluno = $db->getQuery(true)
+                ->select($db->quoteName('name'))
+                ->from($db->quoteName('#__users'))
+                ->where($db->quoteName('id') . ' = ' . (int) $item->userid);
+            $db->setQuery($queryAluno);
+            $aluno = htmlspecialchars($db->loadResult() ?: '[Nome do Aluno]');
 
-	    $queryCurso = $db->getQuery(true)
-	         ->select($db->quoteName('title'))
-		 ->from($db->quoteName('#__splms_courses'))
-		 ->where($db->quoteName('id') . ' = ' . (int) $item->course_id);
-	   $db->setQuery($queryCurso);
-	   $curso = htmlspecialchars($db->loadResult() ?: '[Nome do Curso]');
+            $queryCurso = $db->getQuery(true)
+                ->select($db->quoteName('title'))
+                ->from($db->quoteName('#__splms_courses'))
+                ->where($db->quoteName('id') . ' = ' . (int) $item->course_id);
+            $db->setQuery($queryCurso);
+            $curso = htmlspecialchars($db->loadResult() ?: '[Nome do Curso]');
             
             $data       = (!empty($item->issue_date) && $item->issue_date !== '0000-00-00') ? date('d/m/Y', strtotime($item->issue_date)) : date('d/m/Y');
             $codigo     = isset($item->certificate_no) ? htmlspecialchars($item->certificate_no) : 'GW-DEFAULT-000';
             $organizacao = isset($item->organization) ? htmlspecialchars($item->organization) : 'Guideway LMS';
             $instrutor  = isset($item->instructor) && !empty($item->instructor) ? htmlspecialchars($item->instructor) : 'Instrutor Guideway';
+            
             // GUIDEWAY CUSTOM -  Busca carga horaria e data de conclusao reais do banco
-	    $db = Factory::getDbo();
+            $db = Factory::getDbo();
 
-	    $queryCarga = $db->getQuery(true)
-   	      ->select($db->quoteName('workload_hours'))
-   	      ->from($db->quoteName('#__splms_courses'))
-   	      ->where($db->quoteName('id') . ' = ' . (int) $item->course_id);
-	   $db->setQuery($queryCarga);
-	   $cargaHoraria = $db->loadResult() ?: '40';
+            $queryCarga = $db->getQuery(true)
+                ->select($db->quoteName('workload_hours'))
+                ->from($db->quoteName('#__splms_courses'))
+                ->where($db->quoteName('id') . ' = ' . (int) $item->course_id);
+            $db->setQuery($queryCarga);
+            $cargaHoraria = $db->loadResult() ?: '40';
 
-	   $queryConc = $db->getQuery(true)
-   	     ->select($db->quoteName('created'))
-   	     ->from($db->quoteName('#__splms_useritems'))
-   	     ->where($db->quoteName('user_id') . ' = ' . (int) $item->userid)
-   	     ->where($db->quoteName('item_id') . ' = ' . (int) $item->course_id)
-   	     ->where($db->quoteName('item_type') . ' = ' . $db->quote('course'));
-	  $db->setQuery($queryConc);
-	  $dataConclusao = $db->loadResult();
-	  $data = $dataConclusao ? date('d/m/Y', strtotime($dataConclusao)) : $data;
+            $queryConc = $db->getQuery(true)
+                ->select($db->quoteName('created'))
+                ->from($db->quoteName('#__splms_useritems'))
+                ->where($db->quoteName('user_id') . ' = ' . (int) $item->userid)
+                ->where($db->quoteName('item_id') . ' = ' . (int) $item->course_id)
+                ->where($db->quoteName('item_type') . ' = ' . $db->quote('course'));
+            $db->setQuery($queryConc);
+            $dataConclusao = $db->loadResult();
+            $data = $dataConclusao ? date('d/m/Y', strtotime($dataConclusao)) : $data;
             // ─────────────────────────────────────────────────────────────
 
             $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
@@ -78,8 +79,9 @@ class CertificateHelper
             // ==========================================
             $pdf->AddPage();
 
+            // Alterado bgcolor para #FDFBF7 (Tom Marfim/Bege)
             $htmlFrente = '
-            <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="font-family: helvetica, arial, sans-serif;">
+            <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7" style="font-family: helvetica, arial, sans-serif;">
                 <tr><td height="25" bgcolor="#111827"></td></tr>
                 <tr>
                     <td style="padding: 30px 40px;">
@@ -100,28 +102,31 @@ class CertificateHelper
                         </table>
                         <br/><br/>
                         
-                        <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #D1D5DB; background-color: rgba(240, 239, 235, 0.7);">
+                        <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #D1D5DB; background-color: rgba(255, 255, 255, 0.6);">
                             <tr>
                                 <td style="padding: 35px; text-align: center;">
                                     <p style="font-size: 16px; color: #333333; font-style: italic; margin-top: 0; margin-bottom: 15px;">Certificamos com orgulho que</p>
                                     
-                                    <h2 style="font-size: 24px; color: #111827; margin: 0;"><strong>' . $aluno . '</strong></h2>
-                                    <br/>
+                                    <h2 style="font-family: \'Times New Roman\', Georgia, serif; font-size: 32px; color: #111827; margin: 0;"><strong>' . $aluno . '</strong></h2>
                                     
-                                    <p style="font-size: 16px; line-height: 1.8; color: #333333; font-style: italic; margin-top: 0; margin-bottom: 0;">
+                                    <div style="height: 10px;"></div>
+                                    
+                                    <p style="font-size: 16px; line-height: 1.5; color: #333333; font-style: italic; margin-top: 0; margin-bottom: 0;">
                                         concluiu com êxito todos os requisitos acadêmicos do curso <br />
                                         
                                         <strong style="font-size: 16px; color: #111827; font-style: normal;">' . $curso . '</strong><br />
                                         
                                         cumprindo a carga horária de <strong style="font-style: normal; color: #111827;">' . $cargaHoraria . ' horas</strong>, na modalidade online.
                                     </p>
+                                    
+                                    <div style="height: 15px;"></div>
                                 </td>
                             </tr>
                         </table>
                         
                         <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
-                                <td height="45"></td> 
+                                <td height="35"></td> 
                             </tr>
                             <tr>
                                 <td width="33%"></td>
@@ -132,6 +137,23 @@ class CertificateHelper
                                     </div>
                                 </td>
                                 <td width="33%"></td>
+                            </tr>
+                        </table>
+
+                        <br/><br/>
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td width="100%" style="text-align: center;">
+                                    <table width="100%" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td width="35%"></td>
+                                            <td width="12%" style="border: 1px dashed #A3A3A3; background-color: rgba(240, 240, 240, 0.5); height: 45px; text-align: center; line-height: 45px; color: #888888; font-size: 10px;">LOGO PARCEIRO</td>
+                                            <td width="6%"></td>
+                                            <td width="12%" style="border: 1px dashed #A3A3A3; background-color: rgba(240, 240, 240, 0.5); height: 45px; text-align: center; line-height: 45px; color: #888888; font-size: 10px;">LOGO PARCEIRO</td>
+                                            <td width="35%"></td>
+                                        </tr>
+                                    </table>
+                                </td>
                             </tr>
                         </table>
 
@@ -147,8 +169,9 @@ class CertificateHelper
             // ==========================================
             $pdf->AddPage();
 
+            // Alterado bgcolor para #FDFBF7 (Tom Marfim/Bege) para acompanhar a frente
             $htmlVerso = '
-            <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="font-family: helvetica, arial, sans-serif;">
+            <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7" style="font-family: helvetica, arial, sans-serif;">
                 <tr><td height="25" bgcolor="#111827"></td></tr>
                 <tr>
                     <td style="padding: 30px 40px;">
@@ -168,7 +191,7 @@ class CertificateHelper
                         </table>
                         <br/><br/>
                         
-                        <table width="100%" cellpadding="8" cellspacing="0" style="border: 1px solid #D1D5DB; font-size: 16px; color: #333333; background-color: rgba(240, 239, 235, 0.7);">
+                        <table width="100%" cellpadding="8" cellspacing="0" style="border: 1px solid #D1D5DB; font-size: 16px; color: #333333; background-color: rgba(255, 255, 255, 0.6);">
                             <tr>
                                 <td width="10%" style="border-bottom: 1px solid #D1D5DB;"><strong>Módulo</strong></td>
                                 <td width="70%" style="border-bottom: 1px solid #D1D5DB;"><strong>Descrição do Conteúdo Acadêmico</strong></td>
