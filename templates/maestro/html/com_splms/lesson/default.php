@@ -363,8 +363,8 @@ window.SPLMS_CONTEXT = {
                     ->where('id = ' . (int)$this->item->quiz_id);
                 $db->setQuery($queryMax);
                 $quizMaxAttempts = (int) $db->loadResult();
-                if ($quizMaxAttempts <= 0) {
-                    $quizMaxAttempts = 1; //fallback
+                if ($quizMaxAttempts < 0) {
+                    $quizMaxAttempts = 1; //fallback para números negativos
                 }
                 
                 $hasTakenQuiz = !empty($quizResult);
@@ -389,7 +389,7 @@ window.SPLMS_CONTEXT = {
                             <?php echo $quizPercent; ?>%
                         </div>
                         <p style="color: #64748b;">Acertos: <strong><?php echo $quizScore; ?></strong> de <strong><?php echo $quizTotal; ?></strong></p>
-                        <?php if ($myQuizAttempts < $quizMaxAttempts) : ?>
+                        <?php if ($quizMaxAttempts == 0 || $myQuizAttempts < $quizMaxAttempts) : ?>
                             <a href="<?php echo $quizUrl; ?>" class="btn btn-primary btn-quiz-retry">
                                 <i class="fa fa-refresh"></i> Refazer Quiz
                             </a>
@@ -409,7 +409,7 @@ window.SPLMS_CONTEXT = {
                         <?php if ($passingScore > 0) : ?>
                             <p style="color: #f59e0b; font-weight: 600;">Nota mínima: <?php echo $passingScore; ?>%</p>
                         <?php endif; ?>
-                        <?php if ($myQuizAttempts < $quizMaxAttempts) : ?>
+                        <?php if ($quizMaxAttempts == 0 || $myQuizAttempts < $quizMaxAttempts) : ?>
                             <a href="<?php echo $quizUrl; ?>" class="btn btn-primary btn-quiz-retry failed">
                                 <i class="fa fa-refresh"></i> Tentar Novamente
                             </a>
