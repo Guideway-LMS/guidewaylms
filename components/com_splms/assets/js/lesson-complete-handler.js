@@ -310,113 +310,195 @@ jQuery(function ($) {
             $("#splms-completed-item").show();
         }
     }
-
     // ----------------------------
-    // Integração com FWDEVPlayer
+    // Integração com FWDEVPlayer - ERICK - 16/03
     // ----------------------------
     function bindFWDEVPlayer() {
-        console.log("SPLMS-LOG: Aguardando FWDEVPlayer para bind (se houver)...");
-        let attempts = 0;
-        const maxAttempts = 50;
 
-        const t = setInterval(function () {
-            attempts++;
-            if (attempts >= maxAttempts) {
-                clearInterval(t);
-                console.warn("SPLMS-LOG: FWDEVPlayer não encontrado dentro do tempo limite.");
-                return;
-            }
-
-            if (window.splmsVideoPlayer1 && typeof window.splmsVideoPlayer1.addListener === "function") {
-                clearInterval(t);
-                console.log("SPLMS-LOG: FWDEVPlayer detectado — vinculando listeners.");
-
-                let alreadyCompleted = false;
-
-                try {
-                    window.splmsVideoPlayer1.addListener("update", function (e) {
-                        if (!e || typeof e.percent === "undefined") return;
-                        const percent = Number(e.percent) * 100;
-                        // debug leve
-                        // console.log("SPLMS-LOG: progresso vídeo:", percent.toFixed(1) + "%");
-                        if (!alreadyCompleted && percent >= SPLMS_PERCENTUAL_MINIMO) {
-                            alreadyCompleted = true;
-                            console.log("SPLMS-LOG: Percentual atingido (" + percent.toFixed(1) + "%) — executando conclusão automática.");
-                            // tenta garantir valores antes de enviar
-                            if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
-                                const formNow = document.getElementById("splms-completed-item-form");
-                                if (formNow) {
-                                    const vals = readValuesFromForm(formNow);
-                                    SPLMS_ITEM_ID = SPLMS_ITEM_ID || vals.itemId;
-                                    SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || vals.itemType;
-                                    SPLMS_USER_ID = SPLMS_USER_ID || vals.userId;
-                                } else {
-                                    // tentar inputs fora do form
-                                    const found = findHiddenInputsAnywhere();
-                                    SPLMS_ITEM_ID = SPLMS_ITEM_ID || found.itemId;
-                                    SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || found.itemType;
-                                    SPLMS_USER_ID = SPLMS_USER_ID || found.userId;
-                                }
-                            }
-
-                            if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
-                                console.error("SPLMS-LOG: Impossível concluir automaticamente — item_id/item_type ausentes.");
-                                return;
-                            }
-
-                            doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
-                                markButtonCompleted(res && res.content ? res.content : undefined);
-                                //nova linha Erick 21-12 para aula concluida visual na lista
-                                markLessonAsCompletedInList(SPLMS_ITEM_ID);
-                                //fim
-                                if (typeof mostrarAlertaConclusao === "function") {
-                                    try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
-                                }
-                            }, function (err) {
-                                console.warn("SPLMS-LOG: Falha na conclusão automática:", err);
-                            });
-                        }
-                    });
-                } catch (e) {
-                    console.warn("SPLMS-LOG: Erro ao adicionar listener 'update':", e);
-                }
-                /* completa quando acaba o video
-                try {
-                    window.splmsVideoPlayer1.addListener("playComplete", function () {
-                        console.log("SPLMS-LOG: Evento playComplete recebido.");
-                        if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
-                            const f = document.getElementById("splms-completed-item-form");
-                            if (f) {
-                                const v = readValuesFromForm(f);
-                                SPLMS_ITEM_ID = SPLMS_ITEM_ID || v.itemId;
-                                SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || v.itemType;
-                            } else {
-                                const found = findHiddenInputsAnywhere();
-                                SPLMS_ITEM_ID = SPLMS_ITEM_ID || found.itemId;
-                                SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || found.itemType;
-                            }
-                        }
-
-                        if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
-                            console.error("SPLMS-LOG: playComplete: item_id/item_type ausentes — não marcou.");
-                            return;
-                        }
-
-                        doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
-                            markButtonCompleted(res && res.content ? res.content : undefined);
-                            if (typeof mostrarAlertaConclusao === "function") {
-                                try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
-                            }
-                        }, function (err) {
-                            console.warn("SPLMS-LOG: Falha no playComplete AJAX:", err);
-                        });
-                    });
-                } catch (e) {
-                    console.warn("SPLMS-LOG: Erro ao adicionar listener 'playComplete':", e);
-                }*/
-            }
-        }, 300);
+    // 🔥 espera player existir
+    if (!window.splmsVideoPlayer1 || !window.splmsVideoPlayer1.addListener) {
+        console.warn("SPLMS-DEBUG: player ainda não pronto...");
+        setTimeout(bindFWDEVPlayer, 300);
+        return;
     }
+
+    console.log("SPLMS-DEBUG: player OK");
+
+    let alreadyCompleted = false;
+
+    let lastPercent = 0;
+    let accumulatedPercent = 0;
+
+    window.splmsVideoPlayer1.addListener("update", function (e) {
+
+        if (!e || typeof e.percent === "undefined") return;
+
+        const currentPercent = Number(e.percent) * 100;
+        const delta = currentPercent - lastPercent;
+
+        console.log("SPLMS-DEBUG:", {
+            currentPercent: currentPercent.toFixed(2),
+            lastPercent: lastPercent.toFixed(2),
+            delta: delta.toFixed(2)
+        });
+
+        // 🚨 DETECTAR SEEK (pulo grande)
+        if (delta > 5 || delta < 0) {
+
+            console.warn("SPLMS-DEBUG: SEEK DETECTADO 🚫");
+
+            // não acumula progresso
+        } else {
+
+            // 🎯 acumula só progresso real
+            accumulatedPercent += delta;
+        }
+
+        lastPercent = currentPercent;
+
+        // evita passar de 100
+        if (accumulatedPercent > 100) {
+            accumulatedPercent = 100;
+        }
+
+        console.log("SPLMS-DEBUG: progresso real:", accumulatedPercent.toFixed(2) + "%");
+
+        // ✅ conclusão real
+        if (!alreadyCompleted && accumulatedPercent >= SPLMS_PERCENTUAL_MINIMO) {
+
+            alreadyCompleted = true;
+
+            console.log("SPLMS-DEBUG: CONCLUINDO AULA ✅");
+
+            doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+
+                console.log("SPLMS-DEBUG: resposta AJAX", res);
+
+                markButtonCompleted(res && res.content ? res.content : undefined);
+                markLessonAsCompletedInList(SPLMS_ITEM_ID);
+
+                if (typeof mostrarAlertaConclusao === "function") {
+                    mostrarAlertaConclusao();
+                }
+
+            });
+        }
+
+    });
+
+    // ⏸ reset ao pausar (evita bug de delta gigante)
+    window.splmsVideoPlayer1.addListener("pause", function () {
+        console.log("SPLMS-DEBUG: pause");
+        lastPercent = 0;
+    });
+
+}
+    // // ----------------------------
+    // // Integração com FWDEVPlayer OLD FUNCIONANDO
+    // // ----------------------------
+    // function bindFWDEVPlayer() {
+    //     console.log("SPLMS-LOG: Aguardando FWDEVPlayer para bind (se houver)...");
+    //     let attempts = 0;
+    //     const maxAttempts = 50;
+
+    //     const t = setInterval(function () {
+    //         attempts++;
+    //         if (attempts >= maxAttempts) {
+    //             clearInterval(t);
+    //             console.warn("SPLMS-LOG: FWDEVPlayer não encontrado dentro do tempo limite.");
+    //             return;
+    //         }
+
+    //         if (window.splmsVideoPlayer1 && typeof window.splmsVideoPlayer1.addListener === "function") {
+    //             clearInterval(t);
+    //             console.log("SPLMS-LOG: FWDEVPlayer detectado — vinculando listeners.");
+
+    //             let alreadyCompleted = false;
+
+    //             try {
+    //                 window.splmsVideoPlayer1.addListener("update", function (e) {
+    //                     if (!e || typeof e.percent === "undefined") return;
+    //                     const percent = Number(e.percent) * 100;
+    //                     // debug leve
+    //                     // console.log("SPLMS-LOG: progresso vídeo:", percent.toFixed(1) + "%");
+    //                     if (!alreadyCompleted && percent >= SPLMS_PERCENTUAL_MINIMO) {
+    //                         alreadyCompleted = true;
+    //                         console.log("SPLMS-LOG: Percentual atingido (" + percent.toFixed(1) + "%) — executando conclusão automática.");
+    //                         // tenta garantir valores antes de enviar
+    //                         if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+    //                             const formNow = document.getElementById("splms-completed-item-form");
+    //                             if (formNow) {
+    //                                 const vals = readValuesFromForm(formNow);
+    //                                 SPLMS_ITEM_ID = SPLMS_ITEM_ID || vals.itemId;
+    //                                 SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || vals.itemType;
+    //                                 SPLMS_USER_ID = SPLMS_USER_ID || vals.userId;
+    //                             } else {
+    //                                 // tentar inputs fora do form
+    //                                 const found = findHiddenInputsAnywhere();
+    //                                 SPLMS_ITEM_ID = SPLMS_ITEM_ID || found.itemId;
+    //                                 SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || found.itemType;
+    //                                 SPLMS_USER_ID = SPLMS_USER_ID || found.userId;
+    //                             }
+    //                         }
+
+    //                         if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+    //                             console.error("SPLMS-LOG: Impossível concluir automaticamente — item_id/item_type ausentes.");
+    //                             return;
+    //                         }
+
+    //                         doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+    //                             markButtonCompleted(res && res.content ? res.content : undefined);
+    //                             //nova linha Erick 21-12 para aula concluida visual na lista
+    //                             markLessonAsCompletedInList(SPLMS_ITEM_ID);
+    //                             //fim
+    //                             if (typeof mostrarAlertaConclusao === "function") {
+    //                                 try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
+    //                             }
+    //                         }, function (err) {
+    //                             console.warn("SPLMS-LOG: Falha na conclusão automática:", err);
+    //                         });
+    //                     }
+    //                 });
+    //             } catch (e) {
+    //                 console.warn("SPLMS-LOG: Erro ao adicionar listener 'update':", e);
+    //             }
+    //             /* completa quando acaba o video
+    //             try {
+    //                 window.splmsVideoPlayer1.addListener("playComplete", function () {
+    //                     console.log("SPLMS-LOG: Evento playComplete recebido.");
+    //                     if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+    //                         const f = document.getElementById("splms-completed-item-form");
+    //                         if (f) {
+    //                             const v = readValuesFromForm(f);
+    //                             SPLMS_ITEM_ID = SPLMS_ITEM_ID || v.itemId;
+    //                             SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || v.itemType;
+    //                         } else {
+    //                             const found = findHiddenInputsAnywhere();
+    //                             SPLMS_ITEM_ID = SPLMS_ITEM_ID || found.itemId;
+    //                             SPLMS_ITEM_TYPE = SPLMS_ITEM_TYPE || found.itemType;
+    //                         }
+    //                     }
+
+    //                     if (!SPLMS_ITEM_ID || !SPLMS_ITEM_TYPE) {
+    //                         console.error("SPLMS-LOG: playComplete: item_id/item_type ausentes — não marcou.");
+    //                         return;
+    //                     }
+
+    //                     doCompleteAjax(SPLMS_ITEM_ID, SPLMS_ITEM_TYPE, function (res) {
+    //                         markButtonCompleted(res && res.content ? res.content : undefined);
+    //                         if (typeof mostrarAlertaConclusao === "function") {
+    //                             try { mostrarAlertaConclusao(); } catch (e) { console.warn(e); }
+    //                         }
+    //                     }, function (err) {
+    //                         console.warn("SPLMS-LOG: Falha no playComplete AJAX:", err);
+    //                     });
+    //                 });
+    //             } catch (e) {
+    //                 console.warn("SPLMS-LOG: Erro ao adicionar listener 'playComplete':", e);
+    //             }*/
+    //         }
+    //     }, 300);
+    // }
     //Erick 21-12 funcao visual de positivo quando aula esta concluida -- EDIT 31-01 ERICK OBSOLETO 
     function markLessonAsCompletedInList(lessonId) {
         console.log('[SPLMS-LOG] Tentando marcar aula concluída na lista:', lessonId);
@@ -516,7 +598,7 @@ jQuery(function ($) {
             }
 
             attachManualClickHandler();
-            hideButtonWhenVideo();
+           // hideButtonWhenVideo();
             bindFWDEVPlayer();
         });
     }); ''
