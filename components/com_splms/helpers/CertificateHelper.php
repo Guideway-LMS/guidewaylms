@@ -167,10 +167,43 @@ class CertificateHelper
             // ==========================================
             // PÁGINA 2: VERSO (CONTEÚDO PROGRAMÁTICO E QR CODE CENTRALIZADO)
             // ==========================================
-            $pdf->AddPage();
+            
+$pdf->AddPage();
+// Alterado bgcolor para #FDFBF7 (Tom Marfim/Bege) para acompanhar a frente
+// GUIDEWAY CUSTOM - 17/03/2026 - Joshua - Busca topicos reais do curso para o verso
+$queryTopicos = $db->getQuery(true)
+    ->select('t.id, t.title, t.ordering')
+    ->from($db->quoteName('#__splms_lessiontopics', 't'))
+    ->where($db->quoteName('t.course_id') . ' = ' . (int) $item->course_id)
+    ->where($db->quoteName('t.published') . ' = 1')
+    ->order($db->quoteName('t.ordering') . ' ASC');
+$db->setQuery($queryTopicos);
+$topicos = $db->loadObjectList();
+$linhasTopicos = '';
+$contador = 1;
+foreach ($topicos as $topico) {
+    $queryStatus = $db->getQuery(true)
+        ->select('COUNT(*) as total')
+        ->from($db->quoteName('#__splms_lessons', 'l'))
+        ->join('LEFT', $db->quoteName('#__splms_useritems', 'u') . ' ON u.item_id = l.id AND u.user_id = ' . (int) $item->userid . ' AND u.item_type = ' . $db->quote('lesson'))
+        ->where($db->quoteName('l.topic_id') . ' = ' . (int) $topico->id)
+        ->where($db->quoteName('l.published') . ' = 1')
+        ->where('u.id IS NOT NULL');
+    $db->setQuery($queryStatus);
+    $concluidas = $db->loadResult();
+    $status = $concluidas > 0 ? 'Concluído' : 'Pendente';
+    $cor = $concluidas > 0 ? '#059669' : '#DC2626';
+    $numero = str_pad($contador, 2, '0', STR_PAD_LEFT);
+    $linhasTopicos .= '
+    <tr>
+        <td style="border-bottom: 1px solid #D1D5DB;">' . $numero . '</td>
+        <td style="border-bottom: 1px solid #D1D5DB;">' . htmlspecialchars($topico->title) . '</td>
+        <td style="border-bottom: 1px solid #D1D5DB; text-align: center; color: ' . $cor . ';">' . $status . '</td>
+    </tr>';
+    $contador++;
+}
 
-            // Alterado bgcolor para #FDFBF7 (Tom Marfim/Bege) para acompanhar a frente
-            $htmlVerso = '
+	    $htmlVerso = '
             <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7" style="font-family: helvetica, arial, sans-serif;">
                 <tr><td height="25" bgcolor="#111827"></td></tr>
                 <tr>
@@ -197,31 +230,7 @@ class CertificateHelper
                                 <td width="70%" style="border-bottom: 1px solid #D1D5DB;"><strong>Descrição do Conteúdo Acadêmico</strong></td>
                                 <td width="20%" style="border-bottom: 1px solid #D1D5DB; text-align: center;"><strong>Status</strong></td>
                             </tr>
-                            <tr>
-                                <td style="border-bottom: 1px solid #D1D5DB;">01</td>
-                                <td style="border-bottom: 1px solid #D1D5DB;">Introdução e Conceitos Fundamentais do Framework</td>
-                                <td style="border-bottom: 1px solid #D1D5DB; text-align: center; color: #059669;">Concluído</td>
-                            </tr>
-                            <tr>
-                                <td style="border-bottom: 1px solid #D1D5DB;">02</td>
-                                <td style="border-bottom: 1px solid #D1D5DB;">Desenvolvimento de Lógica de Negócio e Persistência de Dados</td>
-                                <td style="border-bottom: 1px solid #D1D5DB; text-align: center; color: #059669;">Concluído</td>
-                            </tr>
-                            <tr>
-                                <td style="border-bottom: 1px solid #D1D5DB;">03</td>
-                                <td style="border-bottom: 1px solid #D1D5DB;">Integração de APIs e Serviços Externos</td>
-                                <td style="border-bottom: 1px solid #D1D5DB; text-align: center; color: #059669;">Concluído</td>
-                            </tr>
-                            <tr>
-                                <td style="border-bottom: 1px solid #D1D5DB;">04</td>
-                                <td style="border-bottom: 1px solid #D1D5DB;">Segurança, Otimização e Deploy de Aplicações</td>
-                                <td style="border-bottom: 1px solid #D1D5DB; text-align: center; color: #059669;">Concluído</td>
-                            </tr>
-                             <tr>
-                                <td style="border-bottom: 1px solid #D1D5DB;">05</td>
-                                <td style="border-bottom: 1px solid #D1D5DB;">Trabalho Final de Conclusão de Curso (TCC)</td>
-                                <td style="border-bottom: 1px solid #D1D5DB; text-align: center; color: #059669;">Aprovado</td>
-                            </tr>
+                            ' . $linhasTopicos . '
                         </table>
                         
                         <div style="height: 60px;"></div>
@@ -257,4 +266,4 @@ class CertificateHelper
             die("Erro ao gerar PDF: " . $e->getMessage());
         }
     }
-}
+ }
