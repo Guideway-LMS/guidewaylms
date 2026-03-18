@@ -121,6 +121,20 @@ class SplmsControllerCertificate extends BaseController
             $app->redirect('index.php');
             return;
         }
+// GUIDEWAY CUSTOM - 17/03/2026 - Bloqueia acesso ao certificado se nao pertencer ao aluno logado
+$query = $db->getQuery(true)
+    ->select('id')
+    ->from($db->quoteName('#__splms_certificates'))
+    ->where($db->quoteName('id') . ' = ' . (int) $id)
+    ->where($db->quoteName('userid') . ' = ' . (int) $user->id)
+    ->where($db->quoteName('published') . ' = 1');
+$db->setQuery($query);
+$certificadoValido = $db->loadResult();
+
+if (!$certificadoValido && !$user->authorise('core.admin')) {
+    $app->redirect('index.php?option=com_splms&view=validate&erro=acesso_negado');
+    return;
+}
 
         $model = $this->getModel('certificate');
         $input->set('id', $id); 
