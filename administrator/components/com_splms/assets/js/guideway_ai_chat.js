@@ -12,7 +12,6 @@ var GuidewayAI = (function ($) {
 
     // === Configurações e Seletores ===
     var selectors = {
-        generateBtn: '#gw-ai-generate-btn',
         fileInput: '#gw-ai-file',
         promptInput: '#gw-ai-prompt',
         loadingContainer: '#div-gw-ai-loading',
@@ -21,11 +20,11 @@ var GuidewayAI = (function ($) {
         quizSubmitBtn: '#gw-ai-quiz-submit-btn',
         difficulty: '#gw-ai-difficulty',
         qcount: '#gw-ai-qcount',
-        qcount: '#gw-ai-qcount',
-        qcount: '#gw-ai-qcount',
         qtype: '#gw-ai-qtype',
         fileName: '#gw-ai-file-name',
-        dropZone: '#gw-ai-drop-zone'
+        dropZone: '#gw-ai-drop-zone',
+        actionTypeRadio: 'input[name="gw_ai_action_type"]',
+        quizParamsContainer: '#gw-ai-quiz-params-container'
     };
 
     var config = {
@@ -170,13 +169,13 @@ var GuidewayAI = (function ($) {
         return html;
     }
     /**
-     * Lida com o clique no botão "Gerar Descrição" ou "Gerar Questão".
+     * Lida com o clique no botão "Gerar Agora" do modal.
      * Centraliza a validação e fluxo de envio.
-     * @param {boolean} forceQuiz - Se true, força o modo questão ignorando outros estados.
      */
-    function handleGenerate(forceQuiz) {
-        // Garantir booleano
-        var isQuizMode = (forceQuiz === true);
+    function handleGenerate() {
+        var actionType = $(selectors.actionTypeRadio + ':checked').val(); // desc, quest, ou ambos
+        var isAbstractOnly = (actionType === 'desc');
+        var isQuizMode = !isAbstractOnly;
 
         // 1. Valida o arquivo primeiro
         if (!validateFile()) return;
@@ -184,15 +183,11 @@ var GuidewayAI = (function ($) {
         var prompt = $(selectors.promptInput).val();
         var hasFile = $(selectors.fileInput)[0].files.length > 0;
 
-        // Se for Questão, ao menos um arquivo é obrigatório
-        if (isQuizMode && !hasFile) {
-            showAlert('Para gerar uma Questão, é obrigatório anexar pelo menos um arquivo PDF.', 'error');
-            return;
-        }
-
+        // Se for Questão, ao menos um arquivo ou texto é obrigatório
+        // Removida trava antiga que exigia PDF obrigatório
         // 2. Valida se há pelo menos um input (Texto OU Arquivos)
         if (prompt.trim() === '' && !hasFile) {
-            showAlert('Por favor, descreva a atividade no campo de texto ou anexe Pdfs para continuar.', 'error');
+            showAlert('Por favor, descreva a atividade no campo de texto ou anexe PDFs para continuar.', 'error');
             return;
         }
 
@@ -212,23 +207,25 @@ var GuidewayAI = (function ($) {
             }
         }
 
-        // Adiciona parâmetros de Questão ou Prompt
+            // Adiciona parâmetros de Questão ou Prompt
         if (isQuizMode) {
             formData.append('gw_ai_difficulty', $(selectors.difficulty).val());
             formData.append('gw_ai_qcount', $(selectors.qcount).val());
             formData.append('gw_ai_qtype', $(selectors.qtype).val());
 
-            // Verifica o toggle de inclusão de descrição
-            var includeDesc = $('input[name="gw_ai_include_desc_radio"]:checked').val() || "0";
+            // Verifica inclusão de descrição a partir da seleção principal
+            var includeDesc = (actionType === 'ambos') ? "1" : "0";
             formData.append('gw_ai_include_desc', includeDesc);
-
+            
+            if (prompt.trim() !== '') {
+                formData.append('gw_ai_prompt', prompt);
+            }
         } else if (prompt.trim() !== '') {
             formData.append('gw_ai_prompt', prompt);
         }
 
         // UI Loading
-        // Decidir qual botão mostrar loading
-        var $btn = isQuizMode ? $(selectors.quizSubmitBtn) : $(selectors.generateBtn);
+        var $btn = $(selectors.quizSubmitBtn);
         var originalBtnText = $btn.html();
         $btn.prop('disabled', true).html('<span class="icon-loop spinner"></span> ...');
         if ($(selectors.loadingContainer).length) $(selectors.loadingContainer).show();
@@ -372,9 +369,14 @@ var GuidewayAI = (function ($) {
             }
         });
 
-        // --- Botão Principal ---
-        $(document).on('click', selectors.generateBtn, function () {
-            handleGenerate(false);
+        // Alternar visibilidade das opções de quiz (dificuldade e quantidade) basenado na seleção de tipo de ação
+        $(document).on('change', selectors.actionTypeRadio, function () {
+            var val = $(this).val();
+            if (val === 'desc') {
+                $(selectors.quizParamsContainer).slideUp('fast');
+            } else {
+                $(selectors.quizParamsContainer).slideDown('fast');
+            }
         });
 
         // Funções auxiliares para o modal
@@ -396,9 +398,9 @@ var GuidewayAI = (function ($) {
             $('body').removeClass('gw-ai-modal-active');
         }
 
-        // Botão Interno do Quiz (Geração de Quiz)
+        // Botão Interno do Modal (Geração unificada)
         $(document).on('click', selectors.quizSubmitBtn, function () {
-            handleGenerate(true); // Força modo quiz
+            handleGenerate(); // Lê configurações a partir do form unificado
             hideAIModal();
         });
 
