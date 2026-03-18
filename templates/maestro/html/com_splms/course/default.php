@@ -445,6 +445,3 @@ if (!$user->guest) {
     <?php } ?>
   </div>
 </div>
-  </div>
->>>>>>> dev
-</div>
