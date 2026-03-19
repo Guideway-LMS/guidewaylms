@@ -2,7 +2,7 @@
 /**
  * @package    Guideway LMS
  * @subpackage com_splms
- * GUIDEWAY CUSTOM - Certificado Frente e Verso V24 (Centralização Exata do Texto do Curso)
+ * GUIDEWAY CUSTOM - Certificado Frente e Verso V30 (Barra Topo, Itálico nos Tópicos, Cores Unificadas)
  */
 
 defined('_JEXEC') or die;
@@ -79,24 +79,26 @@ class CertificateHelper
             // ==========================================
             $pdf->AddPage();
 
-            // Alterado bgcolor para #FDFBF7 (Tom Marfim/Bege)
+            // Tabela com a barra azul apenas na primeira linha (<tr>)
             $htmlFrente = '
             <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7" style="font-family: helvetica, arial, sans-serif;">
-                <tr><td height="25" bgcolor="#111827"></td></tr>
                 <tr>
-                    <td style="padding: 30px 40px;">
+                    <td height="20" bgcolor="#111827"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 30px 40px; height: 185mm;">
                         
                         <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
-                                <td width="70%">
+                                <td style="text-align: center;">
                                     <h1 style="font-size: 24px; color: #111827; margin: 0; text-transform: uppercase; letter-spacing: 2px;">Certificado de Conclusão</h1>
-                                    <p style="font-size: 11px; color: #666666;">
+                                    <p style="font-size: 11px; color: #666666; margin-top: 5px;">
                                         Código de Autenticidade: <strong style="color: #111827;">' . $codigo . '</strong> &nbsp;&nbsp;|&nbsp;&nbsp; 
                                         Data de Conclusão: <strong style="color: #111827;">' . $data . '</strong>
                                     </p>
-                                </td>
-                                <td width="30%" style="text-align: right; vertical-align: top; padding-right: 15px;">
-                                    <span style="font-size: 18px; font-weight: bold; color: #111827;">GUIDEWAY <span style="font-weight: normal; color: #666666;">LMS</span></span>
+                                    <div style="margin-top: 10px;">
+                                        <span style="font-size: 14px; font-weight: bold; color: #111827;">GUIDEWAY <span style="font-weight: normal; color: #666666;">LMS</span></span>
+                                    </div>
                                 </td>
                             </tr>
                         </table>
@@ -105,9 +107,9 @@ class CertificateHelper
                         <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #D1D5DB; background-color: rgba(255, 255, 255, 0.6);">
                             <tr>
                                 <td style="padding: 35px; text-align: center;">
-                                    <p style="font-size: 16px; color: #333333; font-style: italic; margin-top: 0; margin-bottom: 15px;">Certificamos com orgulho que</p>
+                                    <p style="font-size: 16px; line-height: 1.5; color: #333333; font-style: italic; margin-top: 0; margin-bottom: 15px;">Certificamos com orgulho que</p>
                                     
-                                    <h2 style="font-family: \'Times New Roman\', Georgia, serif; font-size: 32px; color: #111827; margin: 0;"><strong>' . $aluno . '</strong></h2>
+                                    <h2 style="font-size: 32px; color: #111827; margin: 0;"><strong>' . $aluno . '</strong></h2>
                                     
                                     <div style="height: 10px;"></div>
                                     
@@ -126,7 +128,7 @@ class CertificateHelper
                         
                         <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
-                                <td height="35"></td> 
+                                <td height="20"></td> 
                             </tr>
                             <tr>
                                 <td width="33%"></td>
@@ -140,7 +142,8 @@ class CertificateHelper
                             </tr>
                         </table>
 
-                        <br/><br/>
+                        <div style="height: 15px;"></div>
+                        
                         <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
                                 <td width="100%" style="text-align: center;">
@@ -156,6 +159,8 @@ class CertificateHelper
                                 </td>
                             </tr>
                         </table>
+                        
+                        <div style="height: 25px;"></div>
 
                     </td>
                 </tr>
@@ -168,57 +173,48 @@ class CertificateHelper
             // PÁGINA 2: VERSO (CONTEÚDO PROGRAMÁTICO E QR CODE CENTRALIZADO)
             // ==========================================
             
-$pdf->AddPage();
-// Alterado bgcolor para #FDFBF7 (Tom Marfim/Bege) para acompanhar a frente
-// GUIDEWAY CUSTOM - 17/03/2026 - Joshua - Busca topicos reais do curso para o verso
-$queryTopicos = $db->getQuery(true)
-    ->select('t.id, t.title, t.ordering')
-    ->from($db->quoteName('#__splms_lessiontopics', 't'))
-    ->where($db->quoteName('t.course_id') . ' = ' . (int) $item->course_id)
-    ->where($db->quoteName('t.published') . ' = 1')
-    ->order($db->quoteName('t.ordering') . ' ASC');
-$db->setQuery($queryTopicos);
-$topicos = $db->loadObjectList();
-$linhasTopicos = '';
-$contador = 1;
-foreach ($topicos as $topico) {
-    $queryStatus = $db->getQuery(true)
-        ->select('COUNT(*) as total')
-        ->from($db->quoteName('#__splms_lessons', 'l'))
-        ->join('LEFT', $db->quoteName('#__splms_useritems', 'u') . ' ON u.item_id = l.id AND u.user_id = ' . (int) $item->userid . ' AND u.item_type = ' . $db->quote('lesson'))
-        ->where($db->quoteName('l.topic_id') . ' = ' . (int) $topico->id)
-        ->where($db->quoteName('l.published') . ' = 1')
-        ->where('u.id IS NOT NULL');
-    $db->setQuery($queryStatus);
-    $concluidas = $db->loadResult();
-    $status = $concluidas > 0 ? 'Concluído' : 'Pendente';
-    $cor = $concluidas > 0 ? '#059669' : '#DC2626';
-    $numero = str_pad($contador, 2, '0', STR_PAD_LEFT);
-    $linhasTopicos .= '
-    <tr>
-        <td style="border-bottom: 1px solid #D1D5DB;">' . $numero . '</td>
-        <td style="border-bottom: 1px solid #D1D5DB;">' . htmlspecialchars($topico->title) . '</td>
-        <td style="border-bottom: 1px solid #D1D5DB; text-align: center; color: ' . $cor . ';">' . $status . '</td>
-    </tr>';
-    $contador++;
-}
-
-	    $htmlVerso = '
-            <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7" style="font-family: helvetica, arial, sans-serif;">
-                <tr><td height="25" bgcolor="#111827"></td></tr>
+            $pdf->AddPage();
+            
+            // GUIDEWAY CUSTOM - 17/03/2026 - Joshua - Busca topicos reais do curso para o verso
+            $queryTopicos = $db->getQuery(true)
+                ->select('t.id, t.title, t.ordering')
+                ->from($db->quoteName('#__splms_lessiontopics', 't'))
+                ->where($db->quoteName('t.course_id') . ' = ' . (int) $item->course_id)
+                ->where($db->quoteName('t.published') . ' = 1')
+                ->order($db->quoteName('t.ordering') . ' ASC');
+            $db->setQuery($queryTopicos);
+            $topicos = $db->loadObjectList();
+            
+            $linhasTopicos = '';
+            $contador = 1;
+            foreach ($topicos as $topico) {
+                $numero = str_pad($contador, 2, '0', STR_PAD_LEFT);
+                $linhasTopicos .= '
                 <tr>
-                    <td style="padding: 30px 40px;">
+                    <td width="20%" style="border-bottom: 1px solid #D1D5DB; text-align: center; padding: 8px;">' . $numero . '</td>
+                    <td width="80%" style="border-bottom: 1px solid #D1D5DB; text-align: center; font-style: italic; padding: 8px;">' . htmlspecialchars($topico->title) . '</td>
+                </tr>';
+                $contador++;
+            }
+
+            $htmlVerso = '
+            <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7" style="font-family: helvetica, arial, sans-serif;">
+                <tr>
+                    <td height="20" bgcolor="#111827"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 30px 40px; height: 185mm;">
                         
                         <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
-                                <td width="70%">
+                                <td style="text-align: center;">
                                     <h1 style="font-size: 24px; color: #111827; margin: 0; text-transform: uppercase; letter-spacing: 2px;">Conteúdo Programático</h1>
-                                    <p style="font-size: 11px; color: #666666;">
+                                    <p style="font-size: 11px; color: #666666; margin-top: 5px;">
                                         ' . $curso . ': <strong style="color: #111827;">' . $cargaHoraria . ' horas</strong>
                                     </p>
-                                </td>
-                                <td width="30%" style="text-align: right; vertical-align: top; padding-right: 15px;">
-                                    <span style="font-size: 18px; font-weight: bold; color: #111827;">GUIDEWAY <span style="font-weight: normal; color: #666666;">LMS</span></span>
+                                    <div style="margin-top: 10px;">
+                                        <span style="font-size: 14px; font-weight: bold; color: #111827;">GUIDEWAY <span style="font-weight: normal; color: #666666;">LMS</span></span>
+                                    </div>
                                 </td>
                             </tr>
                         </table>
@@ -226,9 +222,8 @@ foreach ($topicos as $topico) {
                         
                         <table width="100%" cellpadding="8" cellspacing="0" style="border: 1px solid #D1D5DB; font-size: 16px; color: #333333; background-color: rgba(255, 255, 255, 0.6);">
                             <tr>
-                                <td width="10%" style="border-bottom: 1px solid #D1D5DB;"><strong>Módulo</strong></td>
-                                <td width="70%" style="border-bottom: 1px solid #D1D5DB;"><strong>Descrição do Conteúdo Acadêmico</strong></td>
-                                <td width="20%" style="border-bottom: 1px solid #D1D5DB; text-align: center;"><strong>Status</strong></td>
+                                <td width="20%" style="border-bottom: 1px solid #D1D5DB; text-align: center;"><strong>Módulo</strong></td>
+                                <td width="80%" style="border-bottom: 1px solid #D1D5DB; text-align: center;"><strong>Descrição do Conteúdo Acadêmico</strong></td>
                             </tr>
                             ' . $linhasTopicos . '
                         </table>
@@ -266,4 +261,4 @@ foreach ($topicos as $topico) {
             die("Erro ao gerar PDF: " . $e->getMessage());
         }
     }
- }
+}
