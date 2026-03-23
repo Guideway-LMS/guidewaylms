@@ -24,7 +24,7 @@ HTMLHelper::_('formbehavior.chosen', 'select'); // Adicionado para o dropdown fi
         <small class="text-muted">Visualize os envios, baixe arquivos e atribua notas.</small>
     </div>
     
-    <?php if (!empty($this->sidebar)) : ?>
+    <?php if (SplmsHelper::getJoomlaVersion() < 4 && !empty($this->sidebar)) : ?>
         <div id="j-sidebar-container" class="span2">
             <?php echo $this->sidebar; ?>
         </div>

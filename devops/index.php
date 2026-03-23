@@ -250,6 +250,15 @@ foreach ($migrationColumns as $colName => $colInfo) {
                     <p>Schema Checker, correções automáticas, scripts manuais e dumps do banco.</p>
                     <div class="card-stripe stripe-green"></div>
                 </a>
+                <a href="sync_admin_menus.php" class="card">
+                    <div class="card-top">
+                        <div class="card-emoji">📋</div>
+                        <span class="card-tag tag-devops">DevOps</span>
+                    </div>
+                    <h3>Sincronizar Menus (Admin)</h3>
+                    <p>Alinha e injeta submenus do SP LMS faltantes na lateral do Joomla 5.</p>
+                    <div class="card-stripe stripe-green"></div>
+                </a>
             </div>
 
             <!-- BANCO DE DADOS -->
