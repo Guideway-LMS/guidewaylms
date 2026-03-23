@@ -400,11 +400,21 @@ class CalendarField extends FormField
         if ((int) $value <= 0) {
             return '';
         }
+// ERICK 23/03 - CODIGO DATA OBSOLETO
+//         if ($this->filterFormat) {
+//             var_dump($this->name, $value);
+// echo "<br>";
+//             $value = \DateTime::createFromFormat($this->filterFormat, $value)->format('Y-m-d H:i:s');
+//         }
+        if ($this->filterFormat && !empty($value)) {
+    $date = \DateTime::createFromFormat($this->filterFormat, $value);
 
-        if ($this->filterFormat) {
-            $value = \DateTime::createFromFormat($this->filterFormat, $value)->format('Y-m-d H:i:s');
-        }
-
+    if ($date !== false) {
+        $value = $date->format('Y-m-d H:i:s');
+    } else {
+        $value = null; // ou mantém vazio
+    }
+}        
         $app = Factory::getApplication();
 
         // Get the field filter type.
