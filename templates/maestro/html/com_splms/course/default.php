@@ -176,9 +176,7 @@ if (!$user->guest) {
                 <?php endif; ?>
             </div>
           </div>
-        <?php } ?>
-
-        <?php if ($isEnrolled) : ?>
+        <?php } ?>        <?php if ($isEnrolled) : ?>
             <div class="splms-course-forum splms-section guideway-course-section mt-4" style="margin-top: 70px !important;">
               <h3 data-bs-toggle="collapse" data-bs-target="#forumAccordionBody" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                 <span><i class="fa fa-comments guideway-icon" aria-hidden="true"></i>Fórum de Dúvidas</span>
@@ -199,7 +197,251 @@ if (!$user->guest) {
             </div>
         <?php endif; ?>
 
+        <!-- Has teacher -->
+        <?php if (!empty($this->teachers)) { ?>
+            <div id="course-instructor" class="splms-course-teachers splms-section guideway-course-section">
+                <h3><i class="fa fa-users guideway-icon" aria-hidden="true"></i><?php echo Text::_('COM_SPLMS_MEET_OUR_COURSE_TEACHER'); ?></h3>
+                <div class="splms-row">
+                    <?php foreach ($this->teachers as $teacher) { ?>
+                        <div class="splms-course-teacher">
+                            <a href="<?php echo $teacher->url; ?>"><img src="<?php echo $teacher->image; ?>" alt="<?php echo $teacher->title; ?>"></a>
+                            <h4><a href="<?php echo $teacher->url; ?>"><?php echo $teacher->title; ?></a></h4>
+                            <small><?php echo $teacher->specialist_in; ?></small>
+                            <div class="splms-teacher-bio">
+                                <?php echo $teacher->description; ?>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($this->review) { ?>
+            <div id="course-reviews" class="user-reviews splms-section guideway-course-section">
+                <?php
+                    // GUIDEWAY CUSTOM: layout-avaliacoes - calcular rating e distribuição de estrelas
+                    if (isset($this->ratings) && $this->ratings->count) {
+                        $rating = $this->ratings->total / $this->ratings->count;
+                        $rating = number_format($rating, 1);
+                    } else {
+                        $rating = 0;
+                    }
+
+                    // Distribuição de estrelas
+                    $starCounts    = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+                    $totalReviews  = count($this->reviews);
+                    foreach ($this->reviews as $_revItem) {
+                        $_s = (int) $_revItem->rating;
+                        if (isset($starCounts[$_s])) { $starCounts[$_s]++; }
+                    }
+
+                    // Stars HTML para média
+                    $_ratingInt  = (int) round((float) $rating);
+                    $_avgStars   = '';
+                    for ($_si = 1; $_si <= 5; $_si++) {
+                        $_cls       = $_si <= $_ratingInt ? 'fa fa-star' : 'fa fa-star-o';
+                        $_avgStars .= '<i class="' . $_cls . '"></i>';
+                    }
+
+                    // Carregar CSS isolado de avaliações
+                    Factory::getDocument()->addStyleSheet(\Joomla\CMS\Uri\Uri::root() . 'templates/maestro/css/guideway-reviews.css');
+                ?>
+                <div id="reviewsAccordion">
+                    <h3 data-toggle="collapse" data-target="#collapseReviews" data-bs-toggle="collapse" data-bs-target="#collapseReviews" aria-expanded="false" aria-controls="collapseReviews" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span>
+                            <i class="fa fa-star guideway-icon" aria-hidden="true"></i>
+                            <?php echo Text::_('COM_SPLMS_REVIEWS'); ?>
+                            <?php if ($rating > 0) { ?>
+                                <span style="font-size: 0.85em; font-weight: normal; margin-left: 5px;"> - ⭐ <?php echo $rating; ?> (<?php echo $this->ratings->count; ?>)</span>
+                            <?php } ?>
+                        </span>
+                        <i class="fa fa-chevron-down"></i>
+                    </h3>
+
+                    <div id="collapseReviews" class="collapse" aria-labelledby="headingReviews" data-parent="#reviewsAccordion">
+                        <div class="card card-body" style="border: none; padding-left: 0; padding-right: 0;">
+                            <!-- GUIDEWAY CUSTOM: Topbar com botao editar/login -->
+                            <div class="gw-reviews-topbar">
+                                <?php if ($this->myReview) { ?>
+                                    <a id="splms-my-review" class="btn btn-primary btn-sm" href="#">
+                                        <i class="splms-icon-write"></i> <?php echo Text::_('COM_SPLMS_EDIT_REVIEW'); ?>
+                                    </a>
+                                <?php } ?>
+                                <?php if ($user->guest) { ?>
+                                    <a href="<?php echo Route::_('index.php?option=com_users&view=login&return=' . base64_encode('index.php?option=com_splms&view=course&id=' . $this->item->id . ':' . $this->item->alias . SplmsHelper::getItemid('courses'))); ?>" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-pencil-square-o"></i> <?php echo Text::_('COM_SPLMS_LOGIN_TO_REVIEW'); ?>
+                                    </a>
+                                <?php } ?>
+                            </div>
+
+                            <!-- GUIDEWAY CUSTOM: Painel resumo: nota media + barras de progresso -->
+                            <div class="gw-reviews-summary">
+                                <div class="gw-reviews-score">
+                                    <span class="gw-score-number"><?php echo $rating; ?></span>
+                                    <span class="gw-score-label">Avaliação Média</span>
+                                    <div class="gw-stars-avg"><?php echo $_avgStars; ?></div>
+                                </div>
+                                <div class="gw-reviews-bars">
+                                    <?php foreach ([5, 4, 3, 2, 1] as $_sv): ?>
+                                        <?php
+                                            $_cnt = $starCounts[$_sv];
+                                            $_pct = $totalReviews > 0 ? round(($_cnt / $totalReviews) * 100) : 0;
+                                        ?>
+                                        <div class="gw-bar-row">
+                                            <span class="gw-bar-label"><?php echo $_sv; ?> <?php echo $_sv == 1 ? 'star' : 'stars'; ?></span>
+                                            <span class="gw-bar-dot"></span>
+                                            <div class="gw-bar-track">
+                                                <div class="gw-bar-fill" style="width: <?php echo $_pct; ?>%;"></div>
+                                            </div>
+                                            <span class="gw-bar-pct"><?php echo $_pct; ?>%</span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                    <p class="gw-reviews-count-note">Baseado em <?php echo $totalReviews; ?> Avaliação<?php echo $totalReviews != 1 ? 'ões' : ''; ?></p>
+                                </div>
+                            </div><!-- /.gw-reviews-summary -->
+
+                            <!-- Formulario de avaliacao (nativo) -->
+                            <?php echo LayoutHelper::render('review.form', array('review' => $this->myReview, 'item_id' => $this->item->id, 'url' => 'index.php?option=com_splms&view=course&id=' . $this->item->id . ':' . $this->item->alias . SplmsHelper::getItemid('courses'))); ?>
+
+                            <!-- Lista de avaliacoes com novo layout -->
+                            <div id="reviews" class="gw-reviews-list">
+                                <?php foreach ($this->reviews as $key => $this->review) {
+                                    echo LayoutHelper::render('review.review', array('review' => $this->review));
+                                } ?>
+                            </div>
+
+                            <?php if ($this->showLoadMore) { ?>
+                                <div class="gw-reviews-loadmore-wrap">
+                                    <a id="splms-load-review" data-item_id="<?php echo $this->item->id; ?>" href="#">
+                                        <i class="fa fa-chevron-down"></i> Ver todas as avaliações
+                                    </a>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+      </div> <!-- Close splms-col-md-8/12 -->
+
+      <?php if (!$isEnrolled) { ?>
+      <div class="splms-col-md-4">
+        <div class="course-header clearfix">
+          <div class="course-short-info">
+            <div class="apply-now">
+              <div class="price_info"><?php echo $this->coursePrice; ?></div>
+              <?php if (($this->item->price != 0) && ($this->isAuthorised == '')) { ?>
+                <a class="btn btn-primary" id="addtocart" data-course="<?php echo $this->item->id; ?>" data-user="<?php echo $this->user->id; ?>" data-price="<?php echo $this->item->price; ?>" href="#">
+                  <i class="splms-icon"></i><?php echo Text::_('COM_SPLMS_BUY_NOW'); ?>
+                </a>
+              <?php } elseif ($this->isAuthorised != '') { ?>
+                <a class="btn btn-primary" href="javascript:void(0);">
+                  <i class="splms-icon"></i><?php echo Text::_('COM_SPLMS_PURCHASED'); ?>
+                </a>
+              <?php } ?>
+            </div>
+
+            <ul class="course-info">
+              <?php if (!empty($this->teachers)) { ?>
+                <li class="splms-course-teacher">
+                  <?php if ($this->total_teachers == 1) { ?>
+                    <i class="splms-icon-teacher"></i>
+                    <?php foreach ($this->teachers as $teacher) { ?>
+                      <a href="<?php echo $teacher->url; ?>"><?php echo $teacher->title; ?></a>
+                    <?php } ?>
+                  <?php } elseif ($this->total_teachers  > 1) { ?>
+                    <i class="splms-icon-users"></i>
+                    <a href="javascipt:void(0);" id="splms-multiteacher-toogle"><?php echo Text::_('COM_SPLMS_COMMON_MULTIPLE_TEACHERS'); ?></a>
+                    <ul class="splms-course-multi-teachers">
+                      <?php foreach ($this->teachers as $teacher) { ?>
+                        <li><a href="<?php echo $teacher->url; ?>"><?php echo $teacher->title; ?></a></li>
+                      <?php } ?>
+                    </ul>
+                  <?php } ?>
+                </li>
+              <?php } ?>
+              <li class="total-hours"><i class="splms-icon-video-cam"></i><?php echo $this->item->duration; ?></li>
+              <li class="total-duration"><i class="splms-icon-video-cam"></i><?php echo $this->item->courseDuration; ?></li>
+              <?php if ($this->total_enrolled) { ?><li class="total-studnets"><i class="splms-icon-graduate"></i> <?php echo $this->total_enrolled; ?></li><?php } ?>
+              <?php if ($this->item->lessonsCount) { ?><li class="total-lessons"><i class="splms-icon-book"></i> <?php echo $this->item->lessonsCount; ?> <?php echo Text::_('COM_SPLMS_COMMON_LESSONS'); ?></li><?php } ?>
+              <?php if (isset($this->item->admission_deadline) && $this->item->admission_deadline != '0000-00-00 00:00:00') { ?>
+                <li class="admission-deadline" title="<?php echo Text::_('COM_SPLMS_ADMISSION_DEADLINE'); ?>"><i class="splms-icon-calendar"></i> <?php echo HTMLHelper::_('date', $this->item->admission_deadline, 'DATE_FORMAT_LC3'); ?></li>
+              <?php } ?>
+              <li class="course-details-total-review">
+                <div class="reviews-status">
+                  <i class="fa fa-star"></i>
+                  <?php if (isset($this->ratings) && $this->ratings->count) { $rating = $this->ratings->total / $this->ratings->count; $rating = number_format($rating, 1); } else { $rating = 0; } ?>
+                  <span class="total"><?php echo $rating; ?></span>
+                  <span class="title">(<?php echo $this->ratings->count; ?> <?php echo Text::_('COM_SPLMS_RATINGS'); ?>)</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="splms-course-introduction">
+          <?php if ($this->params->get('course_social_share', 1) && $this->isAuthorised == '') { ?>
+            <div class="splms-section splms-course-social-share">
+              <h3 class="splms-section-title"><?php echo Text::_('COM_SPLMS_SOCIAL_SHARE'); ?></h3>
+              <?php echo LayoutHelper::render('social_share', array('url' => $this->item->link, 'title' => $this->item->title)); ?>
+            </div>
+          <?php } ?>
+        </div>
       </div>
+      <?php } ?>
     </div>
+
+    <?php if (isset($this->item->course_schedules) && $this->item->course_schedules && count($this->item->course_schedules)) { ?>
+      <div class="splms-course-class-rotuines">
+        <div class="splms-class-routines">
+          <h3 class="splms-title"><?php echo Text::_('COM_SPLMS_CLASS_TIMES'); ?></h3>
+          <table class="table table-bordered">
+            <thead>
+              <tr><?php foreach ($this->schedule_days_lang as $schedule_day) { ?><th><?php echo $schedule_day; ?></th><?php } ?></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <?php foreach ($this->schedule_days as $schedule_day) { ?>
+                  <td class="splms-class-routines-day-<?php echo $schedule_day; ?>">
+                    <?php foreach ($this->item->course_schedules as $course_schedule) { ?>
+                      <?php if ($schedule_day == $course_schedule['day']) { ?>
+                        <div class="splms-class-routines-text has-schedule"><?php echo $course_schedule['text']; ?></div>
+                      <?php } ?>
+                    <?php } ?>
+                  </td>
+                <?php } ?>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <?php } ?>
+
+    <?php if ($this->show_related_courses && !$isEnrolled) {
+      if (isset($this->related_courses) && is_array($this->related_courses)) { ?>
+        <div class="splms-similar-courses">
+          <h3 class="splms-title"><?php echo Text::_('COM_SPLMS_SIMILAR_CLASSES'); ?></h3>
+          <?php if (count($this->related_courses) > 0) { ?>
+            <div class="splms-courses-list splms">
+              <div class="splms-row">
+                <?php foreach ($this->related_courses as $related_course) { ?>
+                  <div class="splms-col-sm-6 splms-col-md-4">
+                    <div class="splms-course">
+                      <a href="<?php echo $related_course->url; ?>"><img src="<?php echo $related_course->thumb; ?>" class="splms-course-img splms-img-responsive" /></a>
+                      <div class="splms-content-wrap">
+                        <h4 class="splms-course-title"><a href="<?php echo $related_course->url; ?>"><?php echo $related_course->title; ?></a></h4>
+                        <div class="splms-course-cat"><?php echo $related_course->category_name; ?></div>
+                        <div class="splms-course-time"><?php echo $related_course->course_time; ?></div>
+                        <div class="splms-course-details-btn"><a href="<?php echo $related_course->url; ?>" class="btn btn-primary"><?php echo Text::_('COM_SPLMS_DETAILS'); ?></a></div>
+                      </div>
+                    </div>
+                  </div>
+                <?php } ?>
+              </div>
+            </div>
+          <?php } ?>
+        </div>
+      <?php } ?>
+    <?php } ?>
   </div>
 </div>
