@@ -1472,3 +1472,28 @@ html[data-theme="dark"] .quiz-result-card h4,
 html[data-theme="dark"] .quiz-limit-warning {
     color: #FFFFFF !important;
 }
+
+
+html[data-theme="dark"] .splms .btn-default.cancelQuiz,
+html[data-theme="dark"] .view-splms-quiz .cancelQuiz {
+    background-color: #ee1a13da !important;
+    border-color: #ee1a13da !important;
+    color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(247, 204, 198, 0.308);
+    border-radius: 50px !important;
+    padding: 16px 48px !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Hover: fundo transparente + letras vermelhas */
+html[data-theme="dark"] .splms .btn-default.cancelQuiz:hover,
+html[data-theme="dark"] .splms .btn-default.cancelQuiz:focus,
+html[data-theme="dark"] .view-splms-quiz .cancelQuiz:hover {
+    background-color: transparent !important;
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+    box-shadow: 0 4px 10px 5px rgba(247, 204, 198, 0.308);
+    transform: translateY(-2px) !important;
+}
