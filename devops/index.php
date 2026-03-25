@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . '/auth.php';
+
 /**
  * DevOps Dashboard - Guideway LMS
  * Centro de Comando: Ferramentas de Dev, Testes, DB e Documentação
  */
-define('_JEXEC', 1);
-define('JPATH_BASE', dirname(__DIR__));
+// define('_JEXEC', 1);
+// define('JPATH_BASE', dirname(__DIR__));
 require_once JPATH_BASE . '/includes/defines.php';
 require_once JPATH_BASE . '/includes/framework.php';
 

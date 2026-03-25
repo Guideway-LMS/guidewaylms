@@ -1,6 +1,8 @@
 <?php
-define('_JEXEC', 1);
-define('JPATH_BASE', dirname(__DIR__));
+require_once __DIR__ . '/auth.php';
+
+// define('_JEXEC', 1);
+// define('JPATH_BASE', dirname(__DIR__));
 
 // Carregar o framework do Joomla
 require_once JPATH_BASE . '/includes/defines.php';

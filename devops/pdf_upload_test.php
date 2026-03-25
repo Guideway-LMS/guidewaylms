@@ -1,5 +1,7 @@
 <?php
-define('_JEXEC', 1);
+require_once __DIR__ . '/auth.php';
+
+// define('_JEXEC', 1);
 
 if (file_exists(__DIR__ . '/defines.php')) {
 	include_once __DIR__ . '/defines.php';
