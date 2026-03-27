@@ -191,6 +191,60 @@ var GuidewayAI = (function ($) {
             return;
         }
 
+        // 2.5 Intercepta configurações avançadas do Tamanho de Resumo para Views Auxiliares ou quando exigido na Lição Mestra
+        if (isAbstractOnly || actionType === 'ambos') {
+            var summaryLengthEl = $('input[name="gw_ai_summary_length"]:checked');
+            if (summaryLengthEl.length > 0) {
+                var lengthVal = summaryLengthEl.val();
+                var lengthInstruction = "";
+                
+                if (lengthVal === "sucinto") {
+                    lengthInstruction = `
+[DIRETRIZ PEDAGÓGICA - NÍVEL SUCINTO]
+Você é um assistente pedagógico de IA. Sua tarefa é criar uma descrição do conteúdo em anexo.
+
+Regras de Formatação:
+- Retorne APENAS HTML semântico limpo. (ex: <p>, <ul>, <li>).
+- Escreva no máximo 3 sentenças curtas ou use uma lista breve (<ul><li>).
+- Vá direto ao ponto central: O que o aluno vai aprender aqui?
+- Proibido usar introduções como 'Este texto fala sobre...'. Comece direto no assunto.
+- NÃO utilize marcações markdown ou blocos de código na saída (como \`\`\`html).`;
+
+                } else if (lengthVal === "explicativo") {
+                    lengthInstruction = `
+[DIRETRIZ PEDAGÓGICA - NÍVEL EXPLICATIVO]
+Você é um professor especialista no assunto tratado no texto. Sua tarefa é produzir uma descrição detalhada e explicativa para uma lição no LMS.
+
+Regras de Formatação:
+- Retorne APENAS HTML semântico limpo. (ex: <p>, <h3>, <ul>, <li>, <strong>).
+- Introdução: Explique a relevância deste tema no contexto da disciplina em um parágrafo.
+- Desenvolvimento: Divida em seções (mínimo 2) usando subtítulos HTML (<h3>). Explore as nuances, causas ou consequências.
+- Conceitos-Chave: Defina brevemente os termos mais complexos encontrados no material destacando-os com <strong>.
+- Conclusão: Uma frase (<p>) que conecte esse conteúdo ao que o aluno pode esperar na prática.
+- Restrição: O texto deve ter uma densidade alta, focando no 'porquê' e não apenas no 'o quê'.
+- NÃO utilize marcações markdown ou blocos de código na saída (como \`\`\`html).`;
+
+                } else if (lengthVal === "medio") {
+                    lengthInstruction = `
+[DIRETRIZ PEDAGÓGICA - NÍVEL MÉDIO]
+Você é um tutor de aprendizagem. Crie uma descrição moderada que sirva como um guia de estudo para o aluno.
+
+Regras de Formatação:
+- Retorne APENAS HTML semântico limpo. (ex: <p>, <ul>, <li>, <strong>).
+- Um parágrafo inicial (<p>) de contextualização (2 a 3 linhas).
+- Uma lista HTML (<ul><li>) de 4 a 6 "Key Takeaways" (pontos principais) em tópicos.
+- Use negrito (<strong>) para destacar termos técnicos ou conceitos importantes.
+- Tom de voz: Informativo e direto. O objetivo é que o aluno entenda a estrutura do material antes de ler o conteúdo completo.
+- NÃO utilize marcações markdown ou blocos de código na saída (como \`\`\`html).`;
+                }
+                
+                if (lengthInstruction !== "") {
+                    // Fixa os limites de tamanho ao enviarmos o prompt via FormData
+                    prompt = prompt + "\n\n" + lengthInstruction;
+                }
+            }
+        }
+
         // 3. Preparação do Payload
         var formData = new FormData();
         var csrfToken = Joomla.getOptions('csrf.token');
@@ -224,7 +278,7 @@ var GuidewayAI = (function ($) {
             formData.append('gw_ai_prompt', prompt);
         }
 
-        // UI Loading
+        // UI: Estado de Carregamento
         var $btn = $(selectors.quizSubmitBtn);
         var originalBtnText = $btn.html();
         $btn.prop('disabled', true).html('<span class="icon-loop spinner"></span> ...');
@@ -372,10 +426,16 @@ var GuidewayAI = (function ($) {
         // Alternar visibilidade das opções de quiz (dificuldade e quantidade) basenado na seleção de tipo de ação
         $(document).on('change', selectors.actionTypeRadio, function () {
             var val = $(this).val();
+            var $summaryContainer = $('#gw-ai-summary-params-container');
             if (val === 'desc') {
                 $(selectors.quizParamsContainer).slideUp('fast');
-            } else {
+                if ($summaryContainer.length) $summaryContainer.slideDown('fast');
+            } else if (val === 'quest') {
                 $(selectors.quizParamsContainer).slideDown('fast');
+                if ($summaryContainer.length) $summaryContainer.slideUp('fast');
+            } else { // Ambos
+                $(selectors.quizParamsContainer).slideDown('fast');
+                if ($summaryContainer.length) $summaryContainer.slideDown('fast');
             }
         });
 

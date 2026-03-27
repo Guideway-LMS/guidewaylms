@@ -553,3 +553,26 @@
   background-color: rgba(0,0,0,.03);
   border-bottom: 1px solid #E1E7EC;
 }
+
+.splms .btn-default.cancelQuiz,
+.splms .view-splms-quiz .cancelQuiz {
+  background-color: #ee1a13da !important;
+  border-color: #ee1a13da !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(248, 22, 5, 0.589);
+  border-radius: 50px;
+  padding: 16px 48px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.splms .btn-default.cancelQuiz:hover,
+.splms .btn-default.cancelQuiz:focus,
+.splms .view-splms-quiz .cancelQuiz:hover {
+  background-color: #ffffff !important;
+  border-color: #ee1a13da !important;
+  color: #ee1a13da !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(248, 22, 5, 0.589);
+}

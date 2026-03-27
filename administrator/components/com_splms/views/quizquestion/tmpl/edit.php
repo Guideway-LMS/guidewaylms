@@ -96,11 +96,12 @@ $canRefine   = $user->authorise('ai.refine',   'com_splms');
         <?php 
         $fields = $this->form->getFieldset('basic');
         foreach ($fields as $field) :
-            // Inject AI Toolbars before Description
+            // Injetar toolbars de IA antes do campo de Descrição
             if ($field->fieldname === 'description') :
                 
-                // 1. "Create Description with AI" (Chat/PDF) - Requires ai.generate
+                // 1. "Criar Descrição com IA" (Chat/PDF) - Requer permissão ai.generate
                 if ($canGenerate) :
+                    $hideGenerateQuestions = true; // Oculta a UI de quiz na toolbar porque o QuizQuestion já tem criador próprio nativo
                     $toolbarChatPath = JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai_chat.php';
                     if (file_exists($toolbarChatPath)) {
                         include $toolbarChatPath;
@@ -108,12 +109,12 @@ $canRefine   = $user->authorise('ai.refine',   'com_splms');
                     ?>
                     <!-- Hide the "Generate Quiz" button inside the toolbar since we have one below -->
                     <style>
-                        #gw-ai-quiz-settings-btn, #gw-ai-quiz-dropdown { display: none !important; }
+                        .gw-ai-upload-wrapper { margin-bottom: -15px !important; }
                     </style>
                     <?php
                 endif;
 
-                // 2. "Organize Description with AI" (Grammar/Summary) - Requires ai.refine
+                // 2. "Organizar Descrição com IA" (Gramática/Resumo) - Requer permissão ai.refine
                 if ($canRefine) :
                     $toolbarRefinePath = JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai.php';
                     if (file_exists($toolbarRefinePath)) {
@@ -125,13 +126,13 @@ $canRefine   = $user->authorise('ai.refine',   'com_splms');
             
             if ($field->fieldname === 'quiz_type') :
         ?>
-            <!-- AI Generation Button & Start Controls -->
+            <!-- Botão de Geração de IA e Controles Iniciais -->
             <div class="control-group ai-controls-container">
                 
-                <!-- Left: Status Indication (PDF & Description) -->
+                <!-- Esquerda: Indicadores de Status (PDF & Descrição) -->
                 <div class="ai-status-section">
                      <div class="ai-status-row">
-                        <!-- PDF Status -->
+                        <!-- Status do PDF -->
                          <div class="ai-status-item">
                             <span class="ai-font-status">FONTE DE<br>INFORMAÇÕES:</span>
                         </div>
@@ -139,7 +140,7 @@ $canRefine   = $user->authorise('ai.refine',   'com_splms');
                             <span id="ai-pdf-status-icon" class="ai-status-icon no-pdf icon-remove"></span>
                             <span class="ai-status-label">PDF</span>
                         </div>
-                        <!-- Description Status -->
+                        <!-- Status da Descrição -->
                         <div class="ai-status-item">
                             <span id="ai-desc-status-icon" class="ai-status-icon no-pdf icon-remove"></span>
                             <span class="ai-status-label">DESCRIÇÃO</span>
@@ -147,10 +148,10 @@ $canRefine   = $user->authorise('ai.refine',   'com_splms');
                     </div>
                 </div>
 
-                <!-- Center: Configs -->
+                <!-- Centro: Configurações -->
                 <div class="ai-config-section">
                     
-                    <!-- Difficulty -->
+                    <!-- Dificuldade -->
                     <div class="control-item">
                         <label for="ai-difficulty" class="ai-control-label">
                             <?php echo \Joomla\CMS\Language\Text::_('Dificuldade'); ?>
@@ -162,7 +163,7 @@ $canRefine   = $user->authorise('ai.refine',   'com_splms');
                         </select>
                     </div>
 
-                    <!-- Question Count -->
+                    <!-- Quantidade de Questões -->
                     <div class="control-item">
                          <label for="ai-qcount" class="ai-control-label">
                             <?php echo \Joomla\CMS\Language\Text::_('Quantidade'); ?>
@@ -178,7 +179,7 @@ $canRefine   = $user->authorise('ai.refine',   'com_splms');
 
                 </div>
 
-                <!-- Right: Action -->
+                <!-- Direita: Ações -->
                 <div class="ai-action-section">
                     <div class="ai-action-wrapper">
                         <span id="ai-loading" class="ai-loading-spinner">

@@ -6,17 +6,17 @@
         </label>
     </div>
     <div class="controls">
-        <!-- Main Container -->
+        <!-- Contêiner Principal -->
         <div class="gw-ai-chat-container">
             
-            <!-- Prompt Textarea - Matches standard inputs -->
+            <!-- Área de Texto do Prompt - Corresponde aos inputs padrões -->
             <textarea id="gw-ai-prompt" name="gw_ai_prompt" class="form-control" rows="3" placeholder="Digite seu comando para a IA..." style="resize: vertical;"></textarea>
             <div id="gw-ai-prompt-desc" class="form-text">Descreva o aviso ou anexe um PDF para a IA gerar o conteúdo.</div>
 
             <!-- Linha de Ações -->
             <div class="gw-ai-actions">
                 
-                <!-- Drag and Drop Dropzone -->
+                <!-- Zona de Upload de Arquivos -->
                 <div class="gw-ai-upload-wrapper">
                     <div id="gw-ai-drop-zone" class="gw-ai-drop-zone">
                         <input type="file" id="gw-ai-file" name="gw_ai_file[]" accept=".pdf" class="gw-ai-input-hidden" multiple>
@@ -27,8 +27,6 @@
                             <span id="gw-ai-file-name" class="gw-ai-file-name-centered"></span>
                         </div>
                     </div>
-
-                    <?php if (empty($hideGenerateQuestions)): ?>
 
                     <!-- Botão Principal de IA -->
                     <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-primary" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;" title="Gerar com IA">
@@ -43,6 +41,7 @@
                         <div class="gw-ai-dropdown-title">Gerar com IA</div>
 
                         <div id="gw-ai-dropdown-params">
+                            <?php if (empty($hideGenerateQuestions)): ?>
                             <!-- O que gerar? -->
                             <div class="control-group gw-mb-15">
                                 <label class="gw-ai-label-small">Qual conteúdo você deseja gerar?</label>
@@ -92,6 +91,24 @@
                             </div>
                             
                             </div>
+                            <?php else: ?>
+                            <!-- MODO TEXTO: Configuração de Tamanho do Resumo -->
+                            <input type="radio" name="gw_ai_action_type" value="desc" checked style="display:none;">
+                            
+                            <div class="control-group gw-mb-15">
+                                <label class="gw-ai-label-small">Tamanho do Resumo / Texto</label>
+                                <div class="gw-ai-segmented-control" role="group">
+                                    <input type="radio" class="btn-check" name="gw_ai_summary_length" id="gw-ai-sum-curto-ann" value="sucinto" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="gw-ai-sum-curto-ann" title="Curto e direto">Sucinto</label>
+
+                                    <input type="radio" class="btn-check" name="gw_ai_summary_length" id="gw-ai-sum-medio-ann" value="medio" autocomplete="off" checked>
+                                    <label class="btn btn-outline-primary" for="gw-ai-sum-medio-ann" title="Tamanho padrão">Médio</label>
+
+                                    <input type="radio" class="btn-check" name="gw_ai_summary_length" id="gw-ai-sum-longo-ann" value="explicativo" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="gw-ai-sum-longo-ann" title="Muito detalhado">Explicativo</label>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Botão de Ação dentro do Menu -->
@@ -99,7 +116,6 @@
                             <span class="icon-magic"></span> Gerar Agora
                         </button>
                     </div>
-                    <?php endif; ?>
                 </div>
             </div>
 
