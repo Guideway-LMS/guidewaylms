@@ -227,6 +227,32 @@ use Joomla\CMS\Factory;
                     <div class="card-stripe stripe-orange"></div>
                 </a>
             </div>
+
+            <!-- DOCUMENTAÇÃO -->
+            <div class="section-header" style="margin-top: 40px;">
+                <div class="icon" style="background: rgba(168,85,247,0.15);">📚</div>
+                <h2>Documentação & Manuais</h2>
+            </div>
+            <div class="cards" style="margin-bottom: 0;">
+                <a href="doc_announcements.php" class="card">
+                    <div class="card-top">
+                        <div class="card-emoji">📢</div>
+                        <span class="card-tag tag-doc">Docs</span>
+                    </div>
+                    <h3>Avisos (Announcements)</h3>
+                    <p>Como funciona a arquitetura, tabelas e Injeção de Inteligência Artificial no módulo.</p>
+                    <div class="card-stripe stripe-purple"></div>
+                </a>
+                <a href="doc_forum.php" class="card">
+                    <div class="card-top">
+                        <div class="card-emoji">💬</div>
+                        <span class="card-tag tag-doc">Docs</span>
+                    </div>
+                    <h3>Fórum de Dúvidas</h3>
+                    <p>Documentação arquitetônica das tabelas de dúvidas, respostas e sistema de votos.</p>
+                    <div class="card-stripe stripe-blue"></div>
+                </a>
+            </div>
         </div>
 
 

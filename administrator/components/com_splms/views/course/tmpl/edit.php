@@ -84,6 +84,7 @@ $doc->addStyleSheet(Uri::root(true) . '/administrator/components/com_splms/asset
           
           // === Barras de Ferramentas IA Adicionadas do Módulo Lesson ===
           if (Factory::getUser()->authorise('ai.generate', 'com_splms')) {
+              $aiContext = 'course';
               $hideGenerateQuestions = true;
               include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai_chat.php';
           }
