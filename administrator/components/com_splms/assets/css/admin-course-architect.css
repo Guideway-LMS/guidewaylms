@@ -193,6 +193,18 @@
     background-color: #2563eb !important;
 }
 
+/* Botão Download PDF / Danger */
+#splmsAiArchitectModal .modal-footer .btn-danger {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+#splmsAiArchitectModal .modal-footer .btn-danger:hover {
+    background-color: rgba(239, 68, 68, 0.25) !important;
+    color: #fca5a5 !important;
+}
+
 /* 7. Loading states */
 #splms-ai-loading {
     color: #64748b !important;

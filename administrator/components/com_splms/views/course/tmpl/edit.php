@@ -237,6 +237,9 @@ $doc->addStyleSheet(Uri::root(true) . '/administrator/components/com_splms/asset
                 <button type="button" id="splms-ai-download-doc" class="btn btn-primary">
                     <i class="icon-download"></i> Baixar DOCX
                 </button>
+                <button type="button" id="splms-ai-download-pdf" class="btn btn-danger">
+                    <i class="icon-download"></i> Baixar PDF
+                </button>
             </div>
         </div>
     </div>

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
         const generateBtn = document.getElementById('splms-ai-generate-btn');
         const downloadDocBtn = document.getElementById('splms-ai-download-doc');
+        const downloadPdfBtn = document.getElementById('splms-ai-download-pdf');
         const applyBtn = document.getElementById('splms-ai-apply-btn');
 
         const loadingDiv = document.getElementById('splms-ai-loading');
@@ -269,6 +270,58 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+            });
+        }
+
+        if (downloadPdfBtn) {
+            downloadPdfBtn.addEventListener('click', function () {
+                if (!currentStructure) return;
+
+                const topic = document.getElementById('ai_topic').value;
+                const audience = document.getElementById('ai_audience').value;
+                const objectives = document.getElementById('ai_objectives').value;
+
+                const originalText = downloadPdfBtn.innerHTML;
+                downloadPdfBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Gerando...';
+                downloadPdfBtn.disabled = true;
+
+                const data = new FormData();
+                data.append('option', 'com_splms');
+                data.append('task', 'course.downloadPdf');
+                data.append('structure', JSON.stringify(currentStructure));
+                data.append('topic', topic);
+                data.append('audience', audience);
+                data.append('objectives', objectives);
+
+                fetch('index.php', {
+                    method: 'POST',
+                    body: data
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao gerar PDF (HTTP ' + response.status + ')');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const filename = `Proposta_Curso_${topic.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Erro ao gerar PDF: ' + err.message);
+                })
+                .finally(() => {
+                    downloadPdfBtn.innerHTML = originalText;
+                    downloadPdfBtn.disabled = false;
+                });
             });
         }
         

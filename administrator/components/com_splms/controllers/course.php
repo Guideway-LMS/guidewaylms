@@ -194,5 +194,131 @@ class SplmsControllerCourse extends FormController {
 
 		$app->close();
 	}
+
+	public function downloadPdf()
+	{
+		$app = Factory::getApplication();
+		$input = $app->input;
+		$user = Factory::getUser();
+
+		if (!$user->authorise('ai.architect', 'com_splms')) {
+			http_response_code(403);
+			echo 'Permissão negada.';
+			$app->close();
+		}
+
+		$structureJson = $input->get('structure', '', 'raw');
+		$topic = $input->getString('topic', 'Curso');
+		$audience = $input->getString('audience', '');
+		$objectives = $input->getString('objectives', '');
+
+		$structure = json_decode($structureJson, true);
+
+		if (!$structure || !isset($structure['sections'])) {
+			http_response_code(400);
+			echo 'Dados da estrutura inválidos.';
+			$app->close();
+		}
+
+		// Load TCPDF
+		$tcpdfPath = JPATH_SITE . '/components/com_splms/libraries/tcpdf/TCPDF-main/tcpdf.php';
+		if (!file_exists($tcpdfPath)) {
+			http_response_code(500);
+			echo 'Biblioteca TCPDF não encontrada.';
+			$app->close();
+		}
+		require_once $tcpdfPath;
+
+		// Create PDF
+		$pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+		$pdf->SetCreator('Guideway LMS');
+		$pdf->SetAuthor($user->name);
+		$pdf->SetTitle('Proposta de Curso: ' . $topic);
+		$pdf->SetSubject('Estrutura Curricular');
+
+		$pdf->setPrintHeader(false);
+		$pdf->setPrintFooter(true);
+		$pdf->setFooterData(array(0, 0, 0), array(200, 200, 200));
+
+		$pdf->SetDefaultMonospacedFont('courier');
+		$pdf->SetMargins(15, 15, 15);
+		$pdf->SetAutoPageBreak(true, 20);
+		$pdf->SetFont('helvetica', '', 11);
+
+		$pdf->AddPage();
+
+		// Build HTML content
+		$html = '<style>
+			h1 { color: #1e293b; font-size: 22pt; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-bottom: 15px; }
+			h2 { color: #3b82f6; font-size: 14pt; margin-top: 20px; margin-bottom: 8px; }
+			h3 { color: #334155; font-size: 12pt; margin-top: 10px; }
+			.meta { color: #64748b; font-size: 10pt; margin-bottom: 15px; }
+			.meta-label { font-weight: bold; color: #334155; }
+			.section-desc { color: #475569; font-size: 10pt; margin-bottom: 10px; padding: 5px 0; border-bottom: 1px solid #e2e8f0; }
+			.lesson-block { margin-left: 15px; margin-bottom: 10px; padding-left: 10px; border-left: 3px solid #3b82f6; }
+			.lesson-title { font-weight: bold; color: #1e293b; font-size: 11pt; }
+			.lesson-duration { color: #64748b; font-size: 9pt; }
+			.lesson-desc { color: #475569; font-size: 10pt; }
+			.divider { border-bottom: 1px solid #e2e8f0; margin: 15px 0; }
+			.footer-note { color: #94a3b8; font-size: 8pt; text-align: center; margin-top: 30px; }
+		</style>';
+
+		$html .= '<h1>Proposta de Curso: ' . htmlspecialchars($topic) . '</h1>';
+
+		if (!empty($audience) || !empty($objectives)) {
+			$html .= '<div class="meta">';
+			if (!empty($audience)) {
+				$html .= '<p><span class="meta-label">Público-Alvo:</span> ' . htmlspecialchars($audience) . '</p>';
+			}
+			if (!empty($objectives)) {
+				$html .= '<p><span class="meta-label">Objetivos de Aprendizado:</span> ' . htmlspecialchars($objectives) . '</p>';
+			}
+			$html .= '</div>';
+		}
+
+		$html .= '<div class="divider"></div>';
+
+		foreach ($structure['sections'] as $i => $section) {
+			$html .= '<h2>Módulo ' . ($i + 1) . ': ' . htmlspecialchars($section['title']) . '</h2>';
+
+			if (!empty($section['description'])) {
+				$html .= '<div class="section-desc">' . htmlspecialchars($section['description']) . '</div>';
+			}
+
+			if (isset($section['lessons']) && is_array($section['lessons'])) {
+				foreach ($section['lessons'] as $j => $lesson) {
+					$html .= '<div class="lesson-block">';
+					$html .= '<div class="lesson-title">Aula ' . ($j + 1) . ': ' . htmlspecialchars($lesson['title']) . '</div>';
+					if (!empty($lesson['duration'])) {
+						$html .= '<div class="lesson-duration">Duração: ' . htmlspecialchars($lesson['duration']) . '</div>';
+					}
+					if (!empty($lesson['description'])) {
+						$html .= '<div class="lesson-desc">' . htmlspecialchars($lesson['description']) . '</div>';
+					}
+					$html .= '</div>';
+				}
+			}
+
+			if ($i < count($structure['sections']) - 1) {
+				$html .= '<div class="divider"></div>';
+			}
+		}
+
+		$html .= '<div class="footer-note">Documento gerado automaticamente pelo Arquiteto de Cursos IA — Guideway LMS</div>';
+
+		$pdf->writeHTML($html, true, false, true, false, '');
+
+		$filename = 'Proposta_Curso_' . preg_replace('/[^a-z0-9]/i', '_', $topic) . '.pdf';
+
+		// Limpa todos os output buffers do Joomla antes de enviar o PDF
+		// TCPDF::Output('D') verifica ob_get_contents() e falha se existir conteúdo bufferizado
+		while (ob_get_level()) {
+			ob_end_clean();
+		}
+
+		$pdf->Output($filename, 'D');
+		$app->close();
+	}
 }
 
