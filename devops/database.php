@@ -1,6 +1,8 @@
 <?php
-define('_JEXEC', 1);
-define('JPATH_BASE', dirname(__DIR__));
+require_once __DIR__ . '/auth.php';
+
+// define('_JEXEC', 1);
+// define('JPATH_BASE', dirname(__DIR__));
 
 // Lista de Dumps
 $dumpDir = JPATH_BASE . '/devops/database/_dumps';

@@ -14,10 +14,23 @@
         var $lessonId = $target.attr('data-id');
 
         if (confirm('Are you sure want to delete this attachtment file?') == true) {
+          var formToken = '';
+          if (typeof Joomla !== 'undefined' && Joomla.getOptions) {
+              var jopt = Joomla.getOptions('csrf.token');
+              if (jopt) formToken = jopt;
+          }
+          if(!formToken) {
+              var tokenInput = $('form#adminForm input[type="hidden"]').filter(function() { return this.name.length === 32 && this.value === '1'; });
+              if(tokenInput.length) formToken = tokenInput.attr('name');
+          }
+          
+          var postData = {filePath: $attachment_file, itemId: $lessonId};
+          if (formToken) postData[formToken] = '1';
+
           $.ajax({
             type: "POST",
             url: 'index.php?option=com_splms&task=lesson.delete_media',
-            data: {filePath: $attachment_file, itemId: $lessonId},
+            data: postData,
             beforeSend: function() {
                 $('<p id="attachment-before-delete" class="text-center" style="max-width: 100%; width: 260px;">Please wait ...<strong>').insertBefore($('#splms-attachment-file'));
             },

@@ -44,6 +44,7 @@ $colClass = SplmsHelper::getJoomlaVersion() < 4 ? 'span' : 'col-lg-';
           
           // AI: Generate (Crie a descrição / Custom / PDF)
           if (Factory::getUser()->authorise('ai.generate', 'com_splms')) {
+              $aiContext = 'lesson';
               include JPATH_COMPONENT_ADMINISTRATOR . '/views/lesson/tmpl/toolbar_ai_chat.php';
           }
 

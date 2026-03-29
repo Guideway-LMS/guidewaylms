@@ -8,6 +8,7 @@
     <div class="controls">
         <!-- Contêiner Principal -->
         <div class="gw-ai-chat-container">
+            <input type="hidden" id="gw_ai_context" value="announcement">
             
             <!-- Área de Texto do Prompt - Corresponde aos inputs padrões -->
             <textarea id="gw-ai-prompt" name="gw_ai_prompt" class="form-control" rows="3" placeholder="Digite seu comando para a IA..." style="resize: vertical;"></textarea>

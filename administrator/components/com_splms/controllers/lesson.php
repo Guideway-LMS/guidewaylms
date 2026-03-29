@@ -54,6 +54,18 @@ class SplmsControllerLesson extends FormController {
 
 	 // Delete File
     public function delete_media() {
+		// 1. Verificação de segurança CSRF
+		if (!Session::checkToken('post')) {
+			echo json_encode(['status' => false, 'message' => Text::_('JINVALID_TOKEN')]);
+			die;
+		}
+
+		// 2. Verificação de usuário logado e com permissão de edição
+		$user = Factory::getUser();
+		if (!$user->authorise('core.edit', 'com_splms') && !$user->authorise('core.edit.own', 'com_splms')) {
+			echo json_encode(['status' => false, 'message' => Text::_('JERROR_ALERTNOAUTHOR')]);
+			die;
+		}
 
         $model      = $this->getModel();
         $input      = Factory::getApplication()->input;
@@ -66,18 +78,26 @@ class SplmsControllerLesson extends FormController {
         $report['itemID'] = $itemID;
 
         if(isset($filePath) && $filePath) {
-            $report['delete'] = $model->removeAttachmentByID($itemID);
-            if(File::exists($filePath)) {
-                // Delete thumb
-                if (File::delete($filePath)) {
-                    $report['status']   = true;
-                    $report['message']  = Text::_('SPLMS_ATTACHMENT_SUCCESSFULLY_REMOVED');
-                }
+			// 3. Prevenção de Path Traversal
+			$requestedPath = realpath($filePath);
+			$basePath = realpath(JPATH_ROOT); // Restringir a arquivos do painel Joomla
 
-            } else {
-                $report['status'] = false;
-                $report['message']  = Text::_('SPLMS_ATTACHMENT_ISNOT_EXIST');
-            }
+			// Garante que é um path válido e que está dentro do diretório raiz da instalação
+			if ($requestedPath && strpos($requestedPath, $basePath) === 0 && !empty($requestedPath)) {
+				$report['delete'] = $model->removeAttachmentByID($itemID);
+				if(File::exists($requestedPath)) {
+					if (File::delete($requestedPath)) {
+						$report['status']   = true;
+						$report['message']  = Text::_('SPLMS_ATTACHMENT_SUCCESSFULLY_REMOVED');
+					}
+				} else {
+					$report['status'] = false;
+					$report['message']  = Text::_('SPLMS_ATTACHMENT_ISNOT_EXIST');
+				}
+			} else {
+				$report['status'] = false;
+				$report['message']  = 'Caminho inválido ou sem permissão de exclusão (Path Traversal protegido).';
+			}
         } else {
             $report['status'] = false;
             $report['message']  = Text::_('SPLMS_NO_ATTACHMENT_FOUND');

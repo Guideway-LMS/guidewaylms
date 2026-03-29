@@ -1,6 +1,8 @@
 <?php
-define('_JEXEC', 1);
-define('JPATH_BASE', dirname(__DIR__));
+require_once __DIR__ . '/auth.php';
+
+// define('_JEXEC', 1);
+// define('JPATH_BASE', dirname(__DIR__));
 
 // Listar arquivos existentes
 $dumpDir = JPATH_BASE . '/_dumps';

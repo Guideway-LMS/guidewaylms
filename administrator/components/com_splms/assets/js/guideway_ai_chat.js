@@ -194,53 +194,82 @@ var GuidewayAI = (function ($) {
         // 2.5 Intercepta configurações avançadas do Tamanho de Resumo para Views Auxiliares ou quando exigido na Lição Mestra
         if (isAbstractOnly || actionType === 'ambos') {
             var summaryLengthEl = $('input[name="gw_ai_summary_length"]:checked');
+            var context = $('#gw_ai_context').val() || 'lesson'; // Pode ser lesson, course, announcement
+
             if (summaryLengthEl.length > 0) {
                 var lengthVal = summaryLengthEl.val();
                 var lengthInstruction = "";
                 
-                if (lengthVal === "sucinto") {
-                    lengthInstruction = `
-[DIRETRIZ PEDAGÓGICA - NÍVEL SUCINTO]
+                //=========================================================
+                // 1. CONTEXTO: AVISOS (MURAL)
+                //=========================================================
+                if (context === "announcement") {
+                    if (lengthVal === "sucinto") {
+                        lengthInstruction = `[DIRETRIZ DE COMUNICAÇÃO - SUCINTO]
+Você atua como um prestativo assistente de comunicação interna. Resuma o recado a seguir.
+Regras de Tamanho e Conteúdo: No máximo 3 sentenças curtas. Vá direto ao aviso central, de forma clara, amigável e informativa, sem usar jargões educacionais de aulas.`;
+                    } else if (lengthVal === "explicativo") {
+                        lengthInstruction = `[DIRETRIZ DE COMUNICAÇÃO - EXPLICATIVO]
+Você é um excelente redator e gestor de comunidade em uma instrução. Sua tarefa é produzir uma mensagem ou comunicado elaborado, humano, rico em detalhes relevantes e motivador (ex: avisos extensos, mensagens sazonais ou de boas-vindas).
+Regras de Tamanho e Conteúdo: Produzir texto detalhado. Explore os pontos-chave da mensagem original em seções usando tags HTML (<h3>), traga informações vitais como prazos ou procedimentos, elaborando o comunicado de forma envolvente e apropriada.`;
+                    } else if (lengthVal === "medio") {
+                        lengthInstruction = `[DIRETRIZ DE COMUNICAÇÃO - MÉDIO]
+Você é um auxiliar da comunicação interna. Formate o aviso para um formato de leitura rápida para o público da plataforma.
+Regras de Tamanho e Conteúdo: Comece com um parágrafo claro sobre o teor do aviso e apresente os detalhes mais importantes (pontos de ação, datas ou lembretes cruciais) em formato de lista (<ul><li>).`;
+                    }
+                
+                //=========================================================
+                // 2. CONTEXTO: CURSOS (Ementa/Vendas)
+                //=========================================================
+                } else if (context === "course") {
+                    if (lengthVal === "sucinto") {
+                        lengthInstruction = `[DIRETRIZ DE APRESENTAÇÃO E VENDAS - SUCINTO]
+Você redige textos persuasivos e engajadores para atrair novos alunos (Pitch do Curso). Resuma e apresente a proposta.
+Regras de Tamanho e Conteúdo: Máximo de 3 sentenças focando no diferencial competitivo, no resultado desejado ou no maior benefício que o aluno ganhará matriculando-se. O tom deve ser atraente.`;
+                    } else if (lengthVal === "explicativo") {
+                        lengthInstruction = `[DIRETRIZ DE APRESENTAÇÃO E VENDAS - EXPLICATIVO]
+Você é um especialista em marketing do conhecimento criando a apresentação principal, ementa e proposta de valor deste curso.
+Regras de Tamanho e Conteúdo: Texto extenso (página de vendas). Contextualize a importância deste tema no mercado/vida, descreva quem é o público-alvo ou perfil ideal esperado para a ementa base e detalhe claramente as competências práticas que serão desenvolvidas utilizando subtítulos (<h3>).`;
+                    } else if (lengthVal === "medio") {
+                        lengthInstruction = `[DIRETRIZ DE APRESENTAÇÃO E VENDAS - MÉDIO]
+Você é um estrategista engajando propects com uma visão geral deste curso (Landing Page description).
+Regras de Tamanho e Conteúdo: Comece com 1 ou 2 parágrafos introdutórios cativantes. Em seguida, destaque de 4 a 6 "Benefícios e Highlights" que o curso ensinará em bullet points (<ul><li>), destacando termos chaves em (<strong>).`;
+                    }
+                
+                //=========================================================
+                // 3. CONTEXTO: LIÇÕES (Pedagógico) - Default fallback
+                //=========================================================
+                } else {
+                    if (lengthVal === "sucinto") {
+                        lengthInstruction = `[DIRETRIZ PEDAGÓGICA - NÍVEL SUCINTO]
 Você é um assistente pedagógico de IA. Sua tarefa é criar uma descrição do conteúdo em anexo.
-
-Regras de Formatação:
-- Retorne APENAS HTML semântico limpo. (ex: <p>, <ul>, <li>).
-- Escreva no máximo 3 sentenças curtas ou use uma lista breve (<ul><li>).
-- Vá direto ao ponto central: O que o aluno vai aprender aqui?
-- Proibido usar introduções como 'Este texto fala sobre...'. Comece direto no assunto.
-- NÃO utilize marcações markdown ou blocos de código na saída (como \`\`\`html).`;
-
-                } else if (lengthVal === "explicativo") {
-                    lengthInstruction = `
-[DIRETRIZ PEDAGÓGICA - NÍVEL EXPLICATIVO]
-Você é um professor especialista no assunto tratado no texto. Sua tarefa é produzir uma descrição detalhada e explicativa para uma lição no LMS.
-
-Regras de Formatação:
-- Retorne APENAS HTML semântico limpo. (ex: <p>, <h3>, <ul>, <li>, <strong>).
-- Introdução: Explique a relevância deste tema no contexto da disciplina em um parágrafo.
-- Desenvolvimento: Divida em seções (mínimo 2) usando subtítulos HTML (<h3>). Explore as nuances, causas ou consequências.
-- Conceitos-Chave: Defina brevemente os termos mais complexos encontrados no material destacando-os com <strong>.
-- Conclusão: Uma frase (<p>) que conecte esse conteúdo ao que o aluno pode esperar na prática.
-- Restrição: O texto deve ter uma densidade alta, focando no 'porquê' e não apenas no 'o quê'.
-- NÃO utilize marcações markdown ou blocos de código na saída (como \`\`\`html).`;
-
-                } else if (lengthVal === "medio") {
-                    lengthInstruction = `
-[DIRETRIZ PEDAGÓGICA - NÍVEL MÉDIO]
-Você é um tutor de aprendizagem. Crie uma descrição moderada que sirva como um guia de estudo para o aluno.
-
-Regras de Formatação:
-- Retorne APENAS HTML semântico limpo. (ex: <p>, <ul>, <li>, <strong>).
-- Um parágrafo inicial (<p>) de contextualização (2 a 3 linhas).
-- Uma lista HTML (<ul><li>) de 4 a 6 "Key Takeaways" (pontos principais) em tópicos.
-- Use negrito (<strong>) para destacar termos técnicos ou conceitos importantes.
-- Tom de voz: Informativo e direto. O objetivo é que o aluno entenda a estrutura do material antes de ler o conteúdo completo.
-- NÃO utilize marcações markdown ou blocos de código na saída (como \`\`\`html).`;
+Regras de Tamanho e Conteúdo: Escreva no máximo 3 sentenças curtas ou use uma lista breve (<ul><li>). Vá direto ao ponto central: O que o aluno vai aprender aqui de fato?`;
+                    } else if (lengthVal === "explicativo") {
+                        lengthInstruction = `[DIRETRIZ PEDAGÓGICA - NÍVEL EXPLICATIVO]
+Você é um professor especialista no assunto tratado no texto. Sua tarefa é produzir uma descrição detalhada e explicativa base para uma lição deste LMS.
+Regras de Tamanho e Conteúdo: 
+- Introdução: Explique a relevância do tema na vida acadêmica em um parágrafo.
+- Desenvolvimento: Divida em seções (mínimo 2) usando subtítulos (<h3>), focando e explorando causas, nuances ou consequências (o 'porquê' e não apenas 'o quê').
+- Conceitos-Chave: Defina termos técnicos encontrados destacando com <strong>.
+- Conclusão conectando a prática e os próximos passos.`;
+                    } else if (lengthVal === "medio") {
+                        lengthInstruction = `[DIRETRIZ PEDAGÓGICA - NÍVEL MÉDIO]
+Você é um tutor focado em eficiência na aprendizagem. Crie um guia de estudo/introdução para o aluno.
+Regras de Tamanho e Conteúdo: Um parágrafo inicial (<p>) de contextualização (2 a 3 linhas), depois uma lista (<ul><li>) extraindo de 4 a 6 "Key Takeaways" (Aperitivos/tópicos principais abordados na aula original).`;
+                    }
                 }
                 
                 if (lengthInstruction !== "") {
+                    // Prepara as regras base intocáveis
+                    var globalRules = `
+
+Regras Globais Obrigatórias (Se não as seguir, a plataforma quebrará):
+1. Proibido usar introduções conversacionais como "Este texto fala sobre...", "Aqui está o seu texto...", "Abaixo a sua resposta". Comece SEMPRE DIRETAMENTE entregando o material solicitado no Nível desejado.
+2. Formate APENAS retornando o texto validado em HTML (tags <p>, <h3>, <ul>, <li>, <strong>, etc).
+3. Não insira "\`\`\`html" (blocos markdown) antes e nunca coloque marcação ao final, apenas o próprio HTML limpo sendo renderizado no nó.`;
+
                     // Fixa os limites de tamanho ao enviarmos o prompt via FormData
-                    prompt = prompt + "\n\n" + lengthInstruction;
+                    prompt = prompt + "\n\n" + lengthInstruction + globalRules;
                 }
             }
         }
