@@ -27,30 +27,6 @@ await botaoOpcoes.click();
 
 
 // ==============================
-// Aba Configuração de API
-// ==============================
-const abaConfiguracaoApi = page.getByRole('tab', { name: 'Configuração de API' });
-
-await expect(abaConfiguracaoApi).toBeVisible({ timeout: 15000 });
-await abaConfiguracaoApi.click();
-
-
-// ==============================
-// Campo Groq API Key
-// ==============================
-const groqApiKey = process.env.GROQ_API_KEY;
-
-if (!groqApiKey) {
-  throw new Error('GROQ_API_KEY não definida no .env');
-}
-
-const inputGroqApiKey = page.locator('#jform_groq_api_key');
-
-await expect(inputGroqApiKey).toBeVisible({ timeout: 15000 });
-await inputGroqApiKey.fill(groqApiKey);
-
-
-// ==============================
 // Botão Salvar (Apply)
 // ==============================
 const botaoSalvar = page.locator('#toolbar-apply button');
