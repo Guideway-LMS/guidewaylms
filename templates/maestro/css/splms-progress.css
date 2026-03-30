@@ -72,3 +72,38 @@
 .certificate-btn.enabled {
     cursor: pointer;
 }
+
+/* NAVEGACAO DO CURSO - DESKTOP E MOBILE */
+.gw-course-nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0;
+    margin-bottom: 0;
+    list-style: none;
+    gap: 10px; /* Espaço entre os botões no desktop */
+}
+
+/* Ajustes no Mobile */
+@media (max-width: 768px) {
+    .gw-course-nav {
+        flex-direction: column; /* Empilha os itens um abaixo do outro */
+        gap: 8px; /* Margem entre eles */
+    }
+
+    .gw-course-nav li {
+        width: 100%;
+        display: block;
+    }
+
+    .gw-course-nav li a {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px 15px;      /* Garante área de toque grande */
+        background-color: #f8f9fa; /* fundo neutro leve */
+        border: 1px solid #eee;  /* borda fina */
+        border-radius: 8px;      /* Cantos arredondados parecidos com botões */
+        box-sizing: border-box;
+    }
+}

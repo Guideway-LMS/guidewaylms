@@ -153,6 +153,26 @@ html[data-theme="dark"] .nav-area ul li a {
     color: var(--body-text) !important;
 }
 
+/* FIX: Hover state for course navigation buttons */
+html[data-theme="dark"] .nav-area ul li a:hover,
+html[data-theme="dark"] .gw-course-nav li a:hover {
+    color: var(--link-color) !important; /* Muda a fonte para a cor do link (azul) ao passar o mouse */
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Fundo suave no hover no Desktop */
+}
+
+/* FIX: Mobile buttons background for dark mode */
+@media (max-width: 768px) {
+    html[data-theme="dark"] .gw-course-nav li a {
+        background-color: var(--input-bg) !important; /* Fundo escuro em vez de #f8f9fa */
+        border-color: var(--border-color) !important;
+    }
+    
+    html[data-theme="dark"] .gw-course-nav li a:hover {
+        background-color: var(--border-color) !important;
+        color: #FFFFFF !important;
+    }
+}
+
 /* Course Level Badge */
 html[data-theme="dark"] .course-level {
     color: #FFFFFF !important;
@@ -415,7 +435,12 @@ html[data-theme="dark"] .course-lessons .card-body ul li span {
 }
 
 /* User Request: Blue Hover for Name and Duration */
-html[data-theme="dark"] .course-lessons .card-body ul li:hover,
+html[data-theme="dark"] .course-lessons .card-body ul li:hover {
+    color: var(--link-color) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Fundo suave no hover igual ao menu */
+    border-radius: 6px; /* Borda arredondada para o fundo ficar elegante */
+}
+
 html[data-theme="dark"] .course-lessons .card-body ul li:hover a,
 html[data-theme="dark"] .course-lessons .card-body ul li:hover i,
 html[data-theme="dark"] .course-lessons .card-body ul li:hover span {

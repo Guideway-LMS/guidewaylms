@@ -121,12 +121,13 @@ if (!$user->guest) {
         
         <div class="nav-area ">
           <div class="container">
-            <ul>
-              <li><a href="#course-about"><?php echo Text::_('COM_SPLMS_COURSE_ABOUT'); ?></a></li>
-              <li><a href="#course-lessons"><?php echo Text::_('COM_SPLMS_COURSE_LESSONS'); ?></a></li>
-              <li><a href="#course-instructor"><?php echo Text::_('COM_SPLMS_COURSE_INSTRUCTOR'); ?></a></li>
-              <li><a href="#course-reviews"><?php echo Text::_('COM_SPLMS_COURSE_REVIEWS'); ?></a></li>
+            <ul class="gw-course-nav">
+              <li><a href="#course-about">📌 <?php echo Text::_('COM_SPLMS_COURSE_ABOUT'); ?></a></li>
+              <li><a href="#course-lessons">📚 <?php echo Text::_('COM_SPLMS_COURSE_LESSONS'); ?></a></li>
+              <li><a href="#course-instructor">👨‍🏫 <?php echo Text::_('COM_SPLMS_COURSE_INSTRUCTOR'); ?></a></li>
+              <li><a href="#course-reviews">⭐ <?php echo Text::_('COM_SPLMS_COURSE_REVIEWS'); ?></a></li>
               
+              <?php if (!$user->guest && $isEnrolled) : ?>
               <li>
                 <?php 
                     $certDownloadUrl = Route::_('index.php?option=com_splms&task=certificate.generate&submission_id=' . $submission_id . '&course_id=' . (int)$this->item->id);
@@ -135,6 +136,7 @@ if (!$user->guest) {
                   🎓 Certificado
                 </a>
               </li>
+              <?php endif; ?>
             </ul>
           </div>
         </div>
