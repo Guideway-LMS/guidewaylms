@@ -13,10 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const resultsDiv = document.getElementById('splms-ai-results');
         const previewContainer = document.getElementById('splms-ai-preview-content');
 
-        const ytBtn = document.getElementById('splms-ai-youtube-btn');
-        const ytInput = document.getElementById('ai_youtube_link');
-        const ytStatus = document.getElementById('ai_youtube_status');
-        const ytContext = document.getElementById('ai_youtube_context');
+
 
         // Manual Trigger Logic for AI Architect Modal
         const aiTriggerBtn = document.getElementById('splms-ai-trigger-btn');
@@ -97,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const audience = document.getElementById('ai_audience').value;
                 const objectives = document.getElementById('ai_objectives').value;
                 const language = document.getElementById('ai_language').value;
-                const contextVal = ytContext ? ytContext.value : '';
 
                 if (!topic) {
                     alert('Por favor, informe pelo menos o Tópico.');
@@ -118,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 data.append('audience', audience);
                 data.append('objectives', objectives);
                 data.append('language', language);
-                data.append('context', contextVal);
+
 
                 fetch('index.php', {
                     method: 'POST',
@@ -147,54 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        if (ytBtn) {
-            ytBtn.addEventListener('click', function() {
-                const url = ytInput.value.trim();
-                if (!url) {
-                    alert('Por favor, insira um link do YouTube válido.');
-                    return;
-                }
 
-                const originalText = ytBtn.innerHTML;
-                ytBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Extraindo...';
-                ytBtn.disabled = true;
-                ytStatus.style.display = 'none';
-                if (ytContext) ytContext.value = '';
-
-                const data = new FormData();
-                data.append('option', 'com_splms');
-                data.append('task', 'course.extractYoutubeTranscript');
-                data.append('url', url);
-
-                fetch('index.php', {
-                    method: 'POST',
-                    body: data
-                })
-                .then(response => response.json())
-                .then(res => {
-                    if (res.success) {
-                         if (ytContext) ytContext.value = res.data;
-                         ytStatus.style.display = 'block';
-                         
-                         // Se vazio, autocompleta tópico com titulo provisorio
-                         const topicInput = document.getElementById('ai_topic');
-                         if (topicInput && !topicInput.value) {
-                             topicInput.value = "Curso Baseado em Vídeo do YouTube";
-                         }
-                    } else {
-                         alert('Erro ao extrair legendas: ' + (res.message || 'Desconhecido'));
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Erro de comunicação ao buscar vídeo.');
-                })
-                .finally(() => {
-                    ytBtn.innerHTML = originalText;
-                    ytBtn.disabled = false;
-                });
-            });
-        }
 
         // Helper to generate HTML for the body content (used in Editor and DOCX)
         function generateCurriculumHtml(structure) {
