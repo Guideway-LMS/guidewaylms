@@ -132,7 +132,7 @@ if (!$user->guest) {
                 <?php 
                     $certDownloadUrl = Route::_('index.php?option=com_splms&task=certificate.generate&submission_id=' . $submission_id . '&course_id=' . (int)$this->item->id);
                 ?>
-                <a href="<?php echo $certDownloadUrl; ?>" id="certificate-btn" class="certificate-btn enabled" target="_blank" style="color: #28a745; font-weight: bold;">
+                <a href="<?php echo $certDownloadUrl; ?>" id="certificate-btn" class="certificate-btn enabled" target="_blank">
                   🎓 Certificado
                 </a>
               </li>

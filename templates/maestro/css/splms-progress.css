@@ -76,12 +76,25 @@
 /* NAVEGACAO DO CURSO - DESKTOP E MOBILE */
 .gw-course-nav {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     flex-wrap: wrap;
     padding: 0;
     margin-bottom: 0;
     list-style: none;
-    gap: 10px; /* Espaço entre os botões no desktop */
+    gap: 5px; /* Reduzido o espaço entre os botões */
+}
+
+/* Quando aluno estiver logado/matriculado (coluna com tamanho total), 
+   centraliza a navegação para alinhar com os outros itens da página */
+.splms-col-md-12 .gw-course-nav {
+    justify-content: center;
+}
+
+/* Tamanhos menores de botões no desktop para caberem todos na tela */
+.gw-course-nav li a {
+    padding: 6px 12px !important;
+    font-size: 14px;
+    display: inline-block;
 }
 
 /* Ajustes no Mobile */
@@ -100,7 +113,7 @@
         display: block;
         width: 100%;
         text-align: center;
-        padding: 12px 15px;      /* Garante área de toque grande */
+        padding: 12px 15px !important;      /* Garante área de toque grande */
         background-color: #f8f9fa; /* fundo neutro leve */
         border: 1px solid #eee;  /* borda fina */
         border-radius: 8px;      /* Cantos arredondados parecidos com botões */
