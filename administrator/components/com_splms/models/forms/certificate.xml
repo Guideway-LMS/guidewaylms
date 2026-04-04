@@ -50,4 +50,28 @@
       label="Data de Criação"
     />
   </fieldset>
+
+ <fieldset name="certificado_imagens" label="Imagens do Certificado">
+    <field 
+        name="assinatura_instrutor" 
+        type="media" 
+        directory="images/certificados" 
+        label="Assinatura do Instrutor" 
+        description="Selecione a imagem da assinatura do instrutor (Recomendado: fundo transparente)." 
+    />
+    <field 
+        name="logo_parceiro_1" 
+        type="media" 
+        directory="images/certificados" 
+        label="Logo Parceiro 1" 
+        description="Selecione a logo do primeiro parceiro." 
+    />
+    <field 
+        name="logo_parceiro_2" 
+        type="media" 
+        directory="images/certificados" 
+        label="Logo Parceiro 2" 
+        description="Selecione a logo do segundo parceiro." 
+    />
+</fieldset>
 </form>

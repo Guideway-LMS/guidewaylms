@@ -1,0 +1,17 @@
+Array
+(
+    [id] => 6
+    [teacher_id] => 
+    [title] => Home
+    [bg_image] => 
+    [associated_courses] => ["1"]
+    [published] => 1
+    [created_at] => 
+    [assinatura_instrutor] => 
+    [logo_parceiro_1] => images/certificados/Pngtreemodern%20minimalist%20ai-generated%20logo_23267490.png#joomlaImage://local-images/certificados/Pngtreemodern minimalist ai-generated logo_23267490.png?width=5000&height=5000
+    [logo_parceiro_2] => 
+    [tags] => Array
+        (
+        )
+
+)

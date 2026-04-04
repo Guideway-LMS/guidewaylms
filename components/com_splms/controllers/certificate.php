@@ -15,6 +15,7 @@ class SplmsControllerCertificate extends BaseController
 {
     public function generate()
     {
+        file_put_contents(JPATH_ROOT . '/images/controller.txt', 'ENTROU CONTROLLER');
         $app   = Factory::getApplication();
         $user  = Factory::getUser();
         $db    = Factory::getDbo();
