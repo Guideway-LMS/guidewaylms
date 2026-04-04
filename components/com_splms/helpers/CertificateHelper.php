@@ -62,44 +62,99 @@ class CertificateHelper
                 ->from($db->quoteName('#__splms_useritems'))
                 ->where($db->quoteName('user_id') . ' = ' . (int) $item->userid)
                 ->where($db->quoteName('item_id') . ' = ' . (int) $item->course_id)
-                ->where($db->quoteName('item_type') . ' = ' . $db->quote('course'));
+                ->where($db->quoteName('item_type') . ' = ' . $db->quote('course'))
+                ->where($db->quoteName('published') . ' = 1')
+                ->order($db->quoteName('created') . ' DESC');
             $db->setQuery($queryConc);
             $dataConclusao = $db->loadResult();
             $data = $dataConclusao ? date('d/m/Y', strtotime($dataConclusao)) : $data;
 
             //-------------------------------------------------------------//
 
-            $queryImagens = $db->getQuery(true)
-                ->select($db->quoteName(array('assinatura_instrutor', 'logo_parceiro_1', 'logo_parceiro_2')))
+            // $queryImagens = $db->getQuery(true)
+            //     ->select($db->quoteName(array('assinatura_instrutor', 'logo_parceiro_1', 'logo_parceiro_2')))
 
-                // Mudamos aqui para a tabela correta onde você criou as colunas
-                ->from($db->quoteName('#__splms_certificates'))
+            //     // Mudamos aqui para a tabela correta onde você criou as colunas
+            //     ->from($db->quoteName('#__splms_certificates'))
 
-                // Relacionamos o certificado ao curso atual
-                ->where($db->quoteName('course_id') . ' = ' . (int) $item->course_id);
+            //     // Relacionamos o certificado ao curso atual
+            //     ->where($db->quoteName('course_id') . ' = ' . (int) $item->course_id);
 
-            $db->setQuery($queryImagens);
-            $dadosImagens = $db->loadObject();
+            // $db->setQuery($queryImagens);
+            // $dadosImagens = $db->loadObject();
 
-            // Define os caminhos das imagens vindos do banco
-            $caminhoAssinatura = isset($dadosImagens->assinatura_instrutor) ? $dadosImagens->assinatura_instrutor : '';
-            $caminhoLogo1      = isset($dadosImagens->logo_parceiro_1) ? $dadosImagens->logo_parceiro_1 : '';
-            $caminhoLogo2      = isset($dadosImagens->logo_parceiro_2) ? $dadosImagens->logo_parceiro_2 : '';
+            // // Define os caminhos das imagens vindos do banco
+            // $caminhoAssinatura = isset($dadosImagens->assinatura_instrutor) ? $dadosImagens->assinatura_instrutor : '';
+            // $caminhoLogo1      = isset($dadosImagens->logo_parceiro_1) ? $dadosImagens->logo_parceiro_1 : '';
+            // $caminhoLogo2      = isset($dadosImagens->logo_parceiro_2) ? $dadosImagens->logo_parceiro_2 : '';
 
-            // Função auxiliar (Closure) para montar a tag <img src="..."> física do servidor
-            $gerarTagImagem = function ($caminhoRelativo, $altura = 40) {
-                if (!empty($caminhoRelativo) && file_exists(JPATH_ROOT . '/' . ltrim($caminhoRelativo, '/'))) {
-                    $urlImagem = Joomla\CMS\Uri\Uri::root() . ltrim($caminhoRelativo, '/');
-                    return '<img src="' . $urlImagem . '" height="' . $altura . '" />';
-                }
-                return '';
-            };
+            // // Função auxiliar (Closure) para montar a tag <img src="..."> física do servidor
+            // $gerarTagImagem = function ($caminhoRelativo, $altura = 40) {
+            //     if (!empty($caminhoRelativo) && file_exists(JPATH_ROOT . '/' . ltrim($caminhoRelativo, '/'))) {
+            //         $urlImagem = Joomla\CMS\Uri\Uri::root() . ltrim($caminhoRelativo, '/');
+            //         return '<img src="' . $urlImagem . '" height="' . $altura . '" />';
+            //     }
+            //     return '';
+            // };
 
-            // Gera as tags prontas para serem injetadas na variável $htmlFrente
-            $tagAssinatura = $gerarTagImagem($caminhoAssinatura, 50);
-            $tagLogo1      = $gerarTagImagem($caminhoLogo1, 40);
-            $tagLogo2      = $gerarTagImagem($caminhoLogo2, 40);
+            // // Gera as tags prontas para serem injetadas na variável $htmlFrente
+            // $tagAssinatura = $gerarTagImagem($caminhoAssinatura, 50);
+            // $tagLogo1      = $gerarTagImagem($caminhoLogo1, 40);
+            // $tagLogo2      = $gerarTagImagem($caminhoLogo2, 40);
+// ─────────────────────────────────────────────
+// BUSCA DAS IMAGENS DO TEMPLATE (CORRETO)
+// ─────────────────────────────────────────────
 
+$queryImagens = $db->getQuery(true)
+    ->select([
+        $db->quoteName('assinatura_instrutor'),
+        $db->quoteName('logo_parceiro_1'),
+        $db->quoteName('logo_parceiro_2')
+    ])
+    ->from($db->quoteName('#__splms_certificate_templates'))
+    ->where($db->quoteName('published') . ' = 1')
+    ->order('id DESC');
+
+$db->setQuery($queryImagens);
+$dadosImagens = $db->loadObject();
+
+// Evita erro se não houver template
+if (!$dadosImagens) {
+    $dadosImagens = new stdClass();
+}
+
+// Caminhos vindos do banco
+$caminhoAssinatura = $dadosImagens->assinatura_instrutor ?? '';
+$caminhoLogo1      = $dadosImagens->logo_parceiro_1 ?? '';
+$caminhoLogo2      = $dadosImagens->logo_parceiro_2 ?? '';
+
+// Função para gerar imagem corretamente (TCPDF-safe)
+$gerarTagImagem = function ($caminhoRelativo, $altura = 40) {
+
+    if (!empty($caminhoRelativo)) {
+
+        // Remove o #joomlaImage
+        $caminhoLimpo = explode('#', $caminhoRelativo)[0];
+
+        // Decodifica URL
+        $caminhoLimpo = urldecode($caminhoLimpo);
+
+        // Caminho físico no servidor
+        $fullPath = JPATH_ROOT . '/' . ltrim($caminhoLimpo, '/');
+
+        // 🔥 TCPDF funciona MELHOR com caminho físico
+        if (file_exists($fullPath)) {
+            return '<img src="' . $fullPath . '" height="' . $altura . '" />';
+        }
+    }
+
+    return '';
+};
+
+// Gera as tags
+$tagAssinatura = $gerarTagImagem($caminhoAssinatura, 50);
+$tagLogo1      = $gerarTagImagem($caminhoLogo1, 40);
+$tagLogo2      = $gerarTagImagem($caminhoLogo2, 40);
 
             // ─────────────────────────────────────────────────────────────
 
@@ -121,62 +176,64 @@ class CertificateHelper
             // ─────────────────────────────────────────────
 
             // Busca direto do certificado atual
-            $queryImagens = $db->getQuery(true)
-                ->select([
-                    $db->quoteName('assinatura_instrutor'),
-                    $db->quoteName('logo_parceiro_1'),
-                    $db->quoteName('logo_parceiro_2')
-                ])
-                ->from($db->quoteName('#__splms_certificates'))
-                ->where($db->quoteName('id') . ' = ' . (int) $item->id);
+        //     $queryImagens = $db->getQuery(true)
+        //         ->select([
+        //             $db->quoteName('assinatura_instrutor'),
+        //             $db->quoteName('logo_parceiro_1'),
+        //             $db->quoteName('logo_parceiro_2')
+        //         ])
+        //         ->from($db->quoteName('#__splms_certificates'))
+        //         ->where($db->quoteName('id') . ' = ' . (int) $item->id);
 
-            $db->setQuery($queryImagens);
-            $dadosImagens = $db->loadObject();
+        //     $db->setQuery($queryImagens);
+        //     $dadosImagens = $db->loadObject();
             
 
-            // Garante que não quebre se vier vazio
-            $caminhoAssinatura = $dadosImagens->assinatura_instrutor ?? '';
-            $caminhoLogo1      = $dadosImagens->logo_parceiro_1 ?? '';
-            $caminhoLogo2      = $dadosImagens->logo_parceiro_2 ?? '';
+        //     // Garante que não quebre se vier vazio
+        //     $caminhoAssinatura = $dadosImagens->assinatura_instrutor ?? '';
+        //     $caminhoLogo1      = $dadosImagens->logo_parceiro_1 ?? '';
+        //     $caminhoLogo2      = $dadosImagens->logo_parceiro_2 ?? '';
 
-            // Função para gerar imagem corretamente
-            $gerarTagImagem = function ($caminhoRelativo, $altura = 40) {
-                if (!empty($caminhoRelativo)) {
+        //     // Função para gerar imagem corretamente
+        //     $gerarTagImagem = function ($caminhoRelativo, $altura = 40) {
+        //         if (!empty($caminhoRelativo)) {
 
-                    // Remove #joomlaImage
-                    $caminhoLimpo = explode('#', $caminhoRelativo)[0];
+        //             // Remove #joomlaImage
+        //             $caminhoLimpo = explode('#', $caminhoRelativo)[0];
 
-                    // 🔥 CORREÇÃO AQUI
-                    $caminhoLimpo = urldecode($caminhoLimpo);
+        //             // 🔥 CORREÇÃO AQUI
+        //             $caminhoLimpo = urldecode($caminhoLimpo);
 
-                    $fullPath = JPATH_ROOT . '/' . ltrim($caminhoLimpo, '/');
+        //             $fullPath = JPATH_ROOT . '/' . ltrim($caminhoLimpo, '/');
 
-                    if (file_exists($fullPath)) {
-                        $urlImagem = Uri::root() . ltrim($caminhoLimpo, '/');
-                        return '<img src="' . $urlImagem . '" height="' . $altura . '" />';
-                    }
-                }
-                return '';
-            };
+        //             if (file_exists($fullPath)) {
+        //                 $urlImagem = Uri::root() . ltrim($caminhoLimpo, '/');
+        //                 return '<img src="' . $urlImagem . '" height="' . $altura . '" />';
+        //             }
+        //         }
+        //         return '';
+        //     };
 
-            // Gera as imagens
-            $tagAssinatura = $gerarTagImagem($caminhoAssinatura, 50);
-            $tagLogo1      = $gerarTagImagem($caminhoLogo1, 40);
-            $tagLogo2      = $gerarTagImagem($caminhoLogo2, 40);           
+        //     // Gera as imagens
+        //     $tagAssinatura = $gerarTagImagem($caminhoAssinatura, 50);
+        //     $tagLogo1      = $gerarTagImagem($caminhoLogo1, 40);
+        //     $tagLogo2      = $gerarTagImagem($caminhoLogo2, 40);           
 
 
-            $pdf->AddPage();
+        //     $pdf->AddPage();
 
-           file_put_contents(JPATH_ROOT . '/images/debug2.txt', 'PASSOU AQUI');
-
+        //    file_put_contents(JPATH_ROOT . '/images/debug2.txt', 'PASSOU AQUI');
+        
             // Tabela com a barra azul apenas na primeira linha (<tr>)
+            $pdf->AddPage();
+            
             $htmlFrente = '
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FDFBF7" style="font-family: helvetica, arial, sans-serif;">
     <tr>
-        <td height="20" bgcolor="#111827"></td>
+        <td height="10" bgcolor="#111827"></td>
     </tr>
     <tr>
-        <td style="padding: 30px 40px; height: 185mm;">
+        <td style="padding: 20px 40px;">
             
             <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
@@ -187,7 +244,7 @@ class CertificateHelper
                             Data de Conclusão: <strong style="color: #111827;">' . $data . '</strong>
                         </p>
                         <div style="margin-top: 10px;">
-                            <span style="font-size: 14px; font-weight: bold; color: #111827;">GUIDEWAY <span style="font-weight: normal; color: #666666;">LMS</span></span>
+                            <span style="font-size: 10px; font-weight: bold; color: #111827;">GUIDEWAY <span style="font-weight: normal; color: #666666;">LMS</span></span>
                         </div>
                     </td>
                 </tr>
@@ -197,11 +254,11 @@ class CertificateHelper
             <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #D1D5DB; background-color: rgba(255, 255, 255, 0.6);">
                 <tr>
                     <td style="padding: 35px; text-align: center;">
-                        <p style="font-size: 16px; line-height: 1.5; color: #333333; font-style: italic; margin-top: 0; margin-bottom: 15px;">Certificamos com orgulho que</p>
+                        <p style="font-size: 12px; line-height: 1.5; color: #333333; font-style: italic; margin-top: 0; margin-bottom: 15px;">Certificamos com orgulho que</p>
                         
-                        <h2 style="font-size: 32px; color: #111827; margin: 0;"><strong>' . $aluno . '</strong></h2>
+                        <h2 style="font-size: 28px; color: #111827; margin: 0;"><strong>' . $aluno . '</strong></h2>
                         
-                        <div style="height: 10px;"></div>
+                        <div style="height: 1px;"></div>
                         
                         <p style="font-size: 16px; line-height: 1.5; color: #333333; font-style: italic; margin-top: 0; margin-bottom: 0;">
                             concluiu com êxito todos os requisitos acadêmicos do curso <br />
@@ -211,7 +268,7 @@ class CertificateHelper
                             cumprindo a carga horária de <strong style="font-style: normal; color: #111827;">' . $cargaHoraria . ' horas</strong>, na modalidade online.
                         </p>
                         
-                        <div style="height: 15px;"></div>
+                        <div style="height: 5px;"></div>
                     </td>
                 </tr>
             </table>
@@ -244,13 +301,13 @@ class CertificateHelper
                             <tr>
                                 <td width="35%"></td>
                                 
-                                <td width="12%" style="height: 45px; text-align: center; vertical-align: middle;">
+                                <td width="12%" style="height: 5px; text-align: center; vertical-align: middle;">
                                     ' . $tagLogo1 . '
                                 </td>
                                 
                                 <td width="6%"></td>
                                 
-                                <td width="12%" style="height: 45px; text-align: center; vertical-align: middle;">
+                                <td width="12%" style="height: 5px; text-align: center; vertical-align: middle;">
                                     ' . $tagLogo2 . '
                                 </td>
                                 

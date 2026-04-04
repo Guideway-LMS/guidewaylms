@@ -18,10 +18,30 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
-Factory::getDocument()->addStyleSheet(Uri::root() . 'templates/maestro/css/splms-progress.css');
+$doc = Factory::getDocument();
+
+$doc->addStyleSheet(Uri::root() . 'templates/maestro/css/splms-progress.css');
+$doc->addScript(Uri::root() . 'components/com_splms/assets/js/course-progress.js');
 
 HTMLHelper::_('jquery.framework');
 $user = Factory::getUser();
+
+// Verifica se o curso já foi concluído
+$isCourseCompleted = false;
+
+if (!$user->guest) {
+    BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_splms/models');
+    $lessonsModel = BaseDatabaseModel::getInstance('Lessons', 'SplmsModel');
+
+    if ($lessonsModel) {
+        $isCourseCompleted = $lessonsModel::hasCompleted(
+            $this->item->id,
+            $user->id,
+            'course'
+        );
+    }
+}
+
 $isEnrolled = ($this->isAuthorised != '');
 $mainColClass = $isEnrolled ? 'splms-col-md-12' : 'splms-col-md-8';
 
@@ -50,7 +70,17 @@ if (!$user->guest) {
     $submission_result = $db->loadResult();
     if ($submission_result) { $submission_id = $submission_result; }
 }
+
 ?>
+<script>
+window.SPLMS_CONTEXT = {
+  itemId: <?php echo (int) $this->item->id; ?>,
+  itemType: "course",
+  userId: <?php echo (int) $user->id; ?>,
+  courseId: <?php echo (int) $this->item->id; ?>,
+  isCompleted: false
+};
+</script>
 
 <div id="splms" class="splms view-splms-course course-details">
   <div class="splms-course">
@@ -102,6 +132,25 @@ if (!$user->guest) {
     </div>
 
     <?php if (!$isEnrolled) : ?>
+      
+			<!-- barra de progresso ERICK 03/03 -->
+				
+				
+			<?php if (!Factory::getUser()->guest) : ?>
+				<div class="course-progress-container">
+					<h3 class="course-progress-title">📚 Seu Progresso no Curso</h3>
+					<div id="progress-emoji" class="course-progress-emoji">📋</div>
+					<div class="course-progress-track">
+						<div id="course-progress-bar" 
+							class="course-progress-fill" 
+							style="width: 0%; transition: width 0.6s ease;">
+						</div>
+						<div id="course-progress-text" class="course-progress-text">0%</div>
+					</div>
+					<div id="progress-message" class="course-progress-message">Carregando...</div>
+				</div>
+			<?php endif; ?>
+
       <div class="splms-course-banner">
         <?php if (!empty($this->item->video_url)) { ?>
           <div class="splms-course-video">
@@ -127,14 +176,23 @@ if (!$user->guest) {
               <li><a href="#course-instructor">👨‍🏫 <?php echo Text::_('COM_SPLMS_COURSE_INSTRUCTOR'); ?></a></li>
               <li><a href="#course-reviews">⭐ <?php echo Text::_('COM_SPLMS_COURSE_REVIEWS'); ?></a></li>
               
-              <?php if (!$user->guest && $isEnrolled) : ?>
+              <?php if (!$user->guest ) : ?>
               <li>
-                <?php 
-                    $certDownloadUrl = Route::_('index.php?option=com_splms&task=certificate.generate&submission_id=' . $submission_id . '&course_id=' . (int)$this->item->id);
+                <?php  if ($isCourseCompleted) : 
+                    $certDownloadUrl = Route::_('index.php?option=com_splms&task=certificate.generate&course_id=' . '&course_id=' . (int)$this->item->id);
                 ?>
+
                 <a href="<?php echo $certDownloadUrl; ?>" id="certificate-btn" class="certificate-btn enabled" target="_blank">
                   🎓 Certificado
                 </a>
+                <?php else : ?>
+									<a href="javascript:void(0);"
+									id="certificate-btn"
+									class="certificate-btn locked"
+									title="Conclua o curso para liberar o certificado">
+										🎓 Certificado
+									</a>
+								<?php endif; ?>
               </li>
               <?php endif; ?>
             </ul>

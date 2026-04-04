@@ -330,39 +330,58 @@ jQuery(function ($) {
     let accumulatedPercent = 0;
 
     window.splmsVideoPlayer1.addListener("update", function (e) {
+        //ANTIGO
+        // if (!e || typeof e.percent === "undefined") return;
 
-        if (!e || typeof e.percent === "undefined") return;
+        // const currentPercent = Number(e.percent) * 100;
+        // const delta = currentPercent - lastPercent;
 
-        const currentPercent = Number(e.percent) * 100;
-        const delta = currentPercent - lastPercent;
+        // console.log("SPLMS-DEBUG:", {
+        //     currentPercent: currentPercent.toFixed(2),
+        //     lastPercent: lastPercent.toFixed(2),
+        //     delta: delta.toFixed(2)
+        // });
 
-        console.log("SPLMS-DEBUG:", {
-            currentPercent: currentPercent.toFixed(2),
-            lastPercent: lastPercent.toFixed(2),
-            delta: delta.toFixed(2)
-        });
+        // // 🚨 DETECTAR SEEK (pulo grande)
+        // if (delta > 5 || delta < 0) {
 
-        // 🚨 DETECTAR SEEK (pulo grande)
-        if (delta > 5 || delta < 0) {
+        //     console.warn("SPLMS-DEBUG: SEEK DETECTADO 🚫");
 
-            console.warn("SPLMS-DEBUG: SEEK DETECTADO 🚫");
+        //     // não acumula progresso
+        // } else {
 
-            // não acumula progresso
-        } else {
+        //     // 🎯 acumula só progresso real
+        //     accumulatedPercent += delta;
+        // }
 
-            // 🎯 acumula só progresso real
-            accumulatedPercent += delta;
-        }
+        // lastPercent = currentPercent;
 
-        lastPercent = currentPercent;
+        // // evita passar de 100
+        // if (accumulatedPercent > 100) {
+        //     accumulatedPercent = 100;
+        // }
 
-        // evita passar de 100
-        if (accumulatedPercent > 100) {
-            accumulatedPercent = 100;
-        }
+        // console.log("SPLMS-DEBUG: progresso real:", accumulatedPercent.toFixed(2) + "%");
+        //ERICK NOVO CODIGO ANTI ARRASTADA - ERICK - 04/04
+        if (!e || typeof e.currentTime === "undefined") return;
+
+        const currentTime = Number(e.currentTime); // tempo atual do vídeo em segundos
+        let deltaTime = currentTime - lastTime;
+
+        // ignora micro flutuações negativas ou lag
+        if (deltaTime < 0) deltaTime = 0;
+
+        // acumula somente tempo real assistido
+        accumulatedTime += deltaTime;
+
+        // limita ao tempo total do vídeo
+        if (accumulatedTime > videoDuration) accumulatedTime = videoDuration;
+
+        lastTime = currentTime;
+
+        const accumulatedPercent = (accumulatedTime / videoDuration) * 100;
 
         console.log("SPLMS-DEBUG: progresso real:", accumulatedPercent.toFixed(2) + "%");
-
         // ✅ conclusão real
         if (!alreadyCompleted && accumulatedPercent >= SPLMS_PERCENTUAL_MINIMO) {
 
