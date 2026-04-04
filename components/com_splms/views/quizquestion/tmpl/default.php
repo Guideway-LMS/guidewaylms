@@ -33,7 +33,7 @@ use Joomla\CMS\Uri\Uri;
 					<?php endif; ?>
 				</div>
 				<button class="btn btn-primary startQuiz"><?php echo Text::_('COM_SPMS_START_QUIZ'); ?></button>
-				<a href="<?php echo Uri::root(); ?>" class="btn btn-default cancelQuiz">
+				<a href="<?php echo !empty($this->courese->url) ? $this->courese->url : Uri::root(); ?>" class="btn btn-default cancelQuiz">
 					<?php echo Text::_('COM_SPMS_CENCEL_QUIZ'); ?>
 				</a>
 			</div>

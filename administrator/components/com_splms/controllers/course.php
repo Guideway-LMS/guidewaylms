@@ -62,8 +62,8 @@ class SplmsControllerCourse extends FormController {
 		$audience = $input->getString('audience');
 		$objectives = $input->getString('objectives');
 		$language = $input->getString('language', 'Portuguese');
-		// Add context (usar raw para evitar que o filtro string nativo corrompa o payload de legendas gigantescas)
-		$context = $input->get('context', '', 'raw');
+
+
 
 		if (empty($topic)) {
 			echo json_encode(['success' => false, 'message' => 'Tópico é obrigatório.']);
@@ -74,7 +74,7 @@ class SplmsControllerCourse extends FormController {
 		require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/ai.php';
 
 		try {
-			$structure = SplmsHelperAI::generateStructure($topic, $audience, $objectives, $language, $context);
+			$structure = SplmsHelperAI::generateStructure($topic, $audience, $objectives, $language);
 
 			if (is_array($structure)) {
 				echo json_encode(['success' => true, 'data' => $structure]);
@@ -165,35 +165,7 @@ class SplmsControllerCourse extends FormController {
 		$app->close();
 	}
 
-	public function extractYoutubeTranscript()
-	{
-		$app = Factory::getApplication();
-		$input = $app->input;
-		$user = Factory::getUser();
 
-		if (!$user->authorise('ai.architect', 'com_splms')) {
-			echo json_encode(['success' => false, 'message' => 'Permissão negada (AI Architect Not Allowed).']);
-			$app->close();
-		}
-
-		$url = $input->getString('url');
-
-		if (empty($url)) {
-			echo json_encode(['success' => false, 'message' => 'URL do YouTube é obrigatória.']);
-			$app->close();
-		}
-
-		require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/ai.php';
-
-		try {
-			$transcript = SplmsHelperAi::extractYoutubeTranscript($url);
-			echo json_encode(['success' => true, 'data' => $transcript]);
-		} catch (Exception $e) {
-			echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-		}
-
-		$app->close();
-	}
 
 	public function downloadPdf()
 	{

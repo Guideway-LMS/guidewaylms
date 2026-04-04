@@ -4126,11 +4126,9 @@ ul.course-info>li>a {
   border-radius: 50px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.2);
 }
 
 .view-splms-quiz .before-start-quiz .btn.startQuiz:hover,
 .view-splms-quiz .before-start-quiz .btn.cancelQuiz:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4), 0 10px 10px -5px rgba(59, 130, 246, 0.2);
 }
