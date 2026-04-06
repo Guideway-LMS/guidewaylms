@@ -527,10 +527,10 @@ window.SPLMS_CONTEXT = {
   <div class="splms-lesson-completed-lesson-wrapper" <?php if (isset($this->item->course_id)) : ?> data-course-id="<?php echo (int) $this->item->course_id; ?>" <?php endif; ?> >
     <?php 
     // GUIDEWAY CUSTOM: Ocultar botão de conclusão manual para lições de quiz e atividades
-    $isQuizLessonBottom = (isset($this->item->lesson_format) && $this->item->lesson_format === 'quiz' && !empty($this->item->video_url) && !empty($this->item->quiz_id));
+    $isQuizLib = (isset($this->item->lesson_format) && $this->item->lesson_format === 'quiz' && !empty($this->item->quiz_id));
     //Erick 16/03 remove tambem de tarefa de video
     $hasVideo = !empty($this->item->video_url);
-    if (!$isAssignment && !$isQuizLessonBottom && !$hasVideo) : 
+    if (!$isAssignment && !$isQuizLib && !$hasVideo) : 
     ?>
         <?php if ($this->user->guest) { $link =  base64_encode(Uri::getInstance()->toString()); $login_link = Route::_('index.php?option=com_users&view=login' . SplmsHelper::getItemid('login') . '&return=' . $link); ?>
           <a class="btn btn-primary" href="<?php echo $login_link; ?>"><?php echo Text::_('COM_SPLMS_LOGIN_TO_COMPLETE'); ?></a>

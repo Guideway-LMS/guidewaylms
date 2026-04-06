@@ -268,8 +268,8 @@ Regras Globais Obrigatórias (Se não as seguir, a plataforma quebrará):
 2. Formate APENAS retornando o texto validado em HTML (tags <p>, <h3>, <ul>, <li>, <strong>, etc).
 3. Não insira "\`\`\`html" (blocos markdown) antes e nunca coloque marcação ao final, apenas o próprio HTML limpo sendo renderizado no nó.`;
 
-                    // Fixa os limites de tamanho ao enviarmos o prompt via FormData
-                    prompt = prompt + "\n\n" + lengthInstruction + globalRules;
+                    // Cria variável isolada ao invés de acoplar no prompt global, preservando a pureza de JSON caso seja Questão
+                    var finalDescRules = lengthInstruction + globalRules;
                 }
             }
         }
@@ -305,6 +305,11 @@ Regras Globais Obrigatórias (Se não as seguir, a plataforma quebrará):
             }
         } else if (prompt.trim() !== '') {
             formData.append('gw_ai_prompt', prompt);
+        }
+
+        // Adiciona a instrução HTML/Tamanho unicamente para processamentos focados em Descrição 
+        if (typeof finalDescRules !== 'undefined') {
+            formData.append('gw_ai_desc_rules', finalDescRules);
         }
 
         // UI: Estado de Carregamento

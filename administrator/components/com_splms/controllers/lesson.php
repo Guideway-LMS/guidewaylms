@@ -222,6 +222,7 @@ class SplmsControllerLesson extends FormController {
 			// 2. Validação do Arquivo e Obtenção do Prompt
 			$input = Factory::getApplication()->input;
 			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
+			$descRules = $input->post->get('gw_ai_desc_rules', '', 'RAW');
 
 			$files = [];
 			if (isset($_FILES['gw_ai_file']) && !empty($_FILES['gw_ai_file']['name']) && (!is_array($_FILES['gw_ai_file']['name']) || $_FILES['gw_ai_file']['name'][0] !== '')) {
@@ -316,8 +317,6 @@ class SplmsControllerLesson extends FormController {
 			if (empty($files) && trim($text) === '') {
 				if (trim($prompt) === '') {
 					throw new Exception('Nenhum texto pôde ser extraído e nenhum comando foi digitado.');
-				} else {
-					$text = $prompt; // O Prompt assume o papel de corpo de texto principal se não houver PDF
 				}
 			} elseif (!empty($files) && trim($text) === '') {
 				throw new Exception('Nenhum texto pôde ser extraído. O PDF selecionado possui apenas imagens ou está protegido/escaneado.');
@@ -369,7 +368,13 @@ class SplmsControllerLesson extends FormController {
 					// Passo 1: Gera a Descrição, se solicitado
 					$descHtml = '';
 					if ($includeDesc === '1') {
-						$descResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_FORMATAR);
+						$combinedDescPrompt = trim($prompt . "\n\n" . $descRules);
+						if (!empty($combinedDescPrompt)) {
+							$descResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $combinedDescPrompt);
+						} else {
+							$descResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_FORMATAR);
+						}
+						
 						if ($descResult['success']) {
 							$descHtml = $descResult['data'] . "<br><hr><br>";
 						}
@@ -404,9 +409,10 @@ class SplmsControllerLesson extends FormController {
 
 					$msgPrefix = 'Questões geradas com sucesso!';
 
-				} elseif (!empty($prompt)) {
-					// --- Fluxo Customizado (Prompt do Usuário) ---
-					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $prompt);
+				} elseif (!empty($prompt) || !empty($descRules)) {
+					// --- Fluxo Customizado (Prompt do Usuário e/ou Regras Descritivas) ---
+					$combinedDescPrompt = trim($prompt . "\n\n" . $descRules);
+					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $combinedDescPrompt);
 					$msgPrefix = 'Texto processado com sua instrução!';
 				} else {
 					// --- Fluxo Padrão (Formatação) ---
