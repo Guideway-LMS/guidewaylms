@@ -43,7 +43,7 @@ class SplmsUploadValidator
         }
 
         // Validar tipo MIME
-        $resultadoMime = $this->validarMimeType($arquivo['type']);
+        $resultadoMime = $this->validarMimeType($arquivo['type'], $arquivo['tmp_name']);
         if ($resultadoMime !== true) {
             return $resultadoMime;
         }
@@ -75,14 +75,23 @@ class SplmsUploadValidator
     /**
      * Validar tipo MIME
      */
-    public function validarMimeType($mimeType)
-    {
-        if (!in_array($mimeType, $this->config['allowed_mime_types'])) {
+    // GUIDEWAY CUSTOM - 17/03/2026 - Valida MIME type real do arquivo no servidor
+public function validarMimeType($mimeType, $tmpPath = null)
+{
+    if ($tmpPath && file_exists($tmpPath)) {
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeReal = $finfo->file($tmpPath);
+        if (!in_array($mimeReal, $this->config['allowed_mime_types'])) {
             return 'Tipo de arquivo nao permitido';
         }
-
         return true;
     }
+    if (!in_array($mimeType, $this->config['allowed_mime_types'])) {
+        return 'Tipo de arquivo nao permitido';
+    }
+    return true;
+}
+
 
     /**
      * Validar tamanho

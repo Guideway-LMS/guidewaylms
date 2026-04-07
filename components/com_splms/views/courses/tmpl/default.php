@@ -37,7 +37,7 @@ $columns = $this->params->get('columns', 2);
 			<div style="position: absolute; width: 100%; text-align: center; line-height: 35px; font-weight: bold; color: #333; top: 0; font-size: 14px;" id="course-progress-text">Carregando...</div>
 		</div>
 		-->
-		<div style="text-align: center; color: #666; margin-top: 15px; font-size: 16px;" id="progress-message">Buscando seu progresso...</div>
+		<div style="text-align: center; color: #666; margin-top: 15px; font-size: 16px;" id="progress-message"></div>
 	</div>
 
 	<?php if ($show_filter && ($filter_position == 'left' || $filter_position == 'right')) { ?>

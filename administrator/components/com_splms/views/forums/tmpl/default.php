@@ -17,10 +17,14 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 ?>
 
 <form action="<?php echo Route::_('index.php?option=com_splms&view=forums'); ?>" method="post" name="adminForm" id="adminForm">
+	<?php if (SplmsHelper::getJoomlaVersion() < 4 && !empty( $this->sidebar)) : ?>
 	<div id="j-sidebar-container" class="span2">
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" class="span10">
+	<?php else : ?>
+	<div id="j-main-container">
+	<?php endif; ?>
 		<div class="row-fluid">
 			<div class="span12">
                 <!-- Search Tools removido temporariamente pois filterForm nao foi criado ainda -->

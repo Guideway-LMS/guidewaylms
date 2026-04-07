@@ -54,6 +54,18 @@ class SplmsControllerLesson extends FormController {
 
 	 // Delete File
     public function delete_media() {
+		// 1. Verificação de segurança CSRF
+		if (!Session::checkToken('post')) {
+			echo json_encode(['status' => false, 'message' => Text::_('JINVALID_TOKEN')]);
+			die;
+		}
+
+		// 2. Verificação de usuário logado e com permissão de edição
+		$user = Factory::getUser();
+		if (!$user->authorise('core.edit', 'com_splms') && !$user->authorise('core.edit.own', 'com_splms')) {
+			echo json_encode(['status' => false, 'message' => Text::_('JERROR_ALERTNOAUTHOR')]);
+			die;
+		}
 
         $model      = $this->getModel();
         $input      = Factory::getApplication()->input;
@@ -66,18 +78,26 @@ class SplmsControllerLesson extends FormController {
         $report['itemID'] = $itemID;
 
         if(isset($filePath) && $filePath) {
-            $report['delete'] = $model->removeAttachmentByID($itemID);
-            if(File::exists($filePath)) {
-                // Delete thumb
-                if (File::delete($filePath)) {
-                    $report['status']   = true;
-                    $report['message']  = Text::_('SPLMS_ATTACHMENT_SUCCESSFULLY_REMOVED');
-                }
+			// 3. Prevenção de Path Traversal
+			$requestedPath = realpath($filePath);
+			$basePath = realpath(JPATH_ROOT); // Restringir a arquivos do painel Joomla
 
-            } else {
-                $report['status'] = false;
-                $report['message']  = Text::_('SPLMS_ATTACHMENT_ISNOT_EXIST');
-            }
+			// Garante que é um path válido e que está dentro do diretório raiz da instalação
+			if ($requestedPath && strpos($requestedPath, $basePath) === 0 && !empty($requestedPath)) {
+				$report['delete'] = $model->removeAttachmentByID($itemID);
+				if(File::exists($requestedPath)) {
+					if (File::delete($requestedPath)) {
+						$report['status']   = true;
+						$report['message']  = Text::_('SPLMS_ATTACHMENT_SUCCESSFULLY_REMOVED');
+					}
+				} else {
+					$report['status'] = false;
+					$report['message']  = Text::_('SPLMS_ATTACHMENT_ISNOT_EXIST');
+				}
+			} else {
+				$report['status'] = false;
+				$report['message']  = 'Caminho inválido ou sem permissão de exclusão (Path Traversal protegido).';
+			}
         } else {
             $report['status'] = false;
             $report['message']  = Text::_('SPLMS_NO_ATTACHMENT_FOUND');
@@ -202,6 +222,7 @@ class SplmsControllerLesson extends FormController {
 			// 2. Validação do Arquivo e Obtenção do Prompt
 			$input = Factory::getApplication()->input;
 			$prompt = $input->post->get('gw_ai_prompt', '', 'RAW');
+			$descRules = $input->post->get('gw_ai_desc_rules', '', 'RAW');
 
 			$files = [];
 			if (isset($_FILES['gw_ai_file']) && !empty($_FILES['gw_ai_file']['name']) && (!is_array($_FILES['gw_ai_file']['name']) || $_FILES['gw_ai_file']['name'][0] !== '')) {
@@ -291,10 +312,17 @@ class SplmsControllerLesson extends FormController {
 				}
 			}
 
-			// Valida se houve extração quando arquivos foram enviados
-			if (!empty($files) && trim($text) === '') {
+			// Valida se houve extração quando arquivos foram enviados.
+			// Porém se o professor não mandou arquivos mas mandou um prompt, permitimos prosseguir usando o prompt como base.
+			if (empty($files) && trim($text) === '') {
+				if (trim($prompt) === '') {
+					throw new Exception('Nenhum texto pôde ser extraído e nenhum comando foi digitado.');
+				}
+			} elseif (!empty($files) && trim($text) === '') {
 				throw new Exception('Nenhum texto pôde ser extraído. O PDF selecionado possui apenas imagens ou está protegido/escaneado.');
 			}
+			
+			// Se o texto vier misto (PDF + Prompt), o Prompt será injetado depois ou já será usado na ação CUSTOM
 			$difficulty = $input->post->get('gw_ai_difficulty', '', 'STRING');
 			$qcount = $input->post->get('gw_ai_qcount', 5, 'INT');
 			$qtype = $input->post->get('gw_ai_qtype', 'optativa', 'STRING');
@@ -340,14 +368,31 @@ class SplmsControllerLesson extends FormController {
 					// Passo 1: Gera a Descrição, se solicitado
 					$descHtml = '';
 					if ($includeDesc === '1') {
-						$descResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_FORMATAR);
+						$combinedDescPrompt = trim($prompt . "\n\n" . $descRules);
+						if (!empty($combinedDescPrompt)) {
+							$descResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $combinedDescPrompt);
+						} else {
+							$descResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_FORMATAR);
+						}
+						
 						if ($descResult['success']) {
 							$descHtml = $descResult['data'] . "<br><hr><br>";
 						}
 					}
 
 					// Passo 2: Gera as Questões
-					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CRIAR_QUESTOES, $params);
+					// Se o texto principal já for o prompt (quando não há PDF), usamos ele normalmente.
+					// Se houver PDF E um prompt adicional, poderíamos concatenar, mas a interface atual 
+					// manda o prompt separado. Para instrução customizada em questões, o helper precisaria de suporte.
+					// Atualmente o criar_questoes recebe string jsonificada nas params.
+					
+					// Adiciona o prompt extra como contexto adicional se existir E for diferente do $text (evitar duplicação quando não tem PDF)
+					$textToSend = $text;
+					if (trim($prompt) !== '' && trim($text) !== trim($prompt)) {
+						$textToSend = "INSTRUÇÕES EXTRAS DO PROFESSOR:\n" . $prompt . "\n\nCONTEÚDO BASE:\n" . $text;
+					}
+
+					$aiResult = GuidewayAIHelper::processarTexto($textToSend, GuidewayAIHelper::ACTION_CRIAR_QUESTOES, $params);
 					
 					// Se deu certo, concatena
 					if ($aiResult['success'] && $includeDesc === '1') {
@@ -364,9 +409,10 @@ class SplmsControllerLesson extends FormController {
 
 					$msgPrefix = 'Questões geradas com sucesso!';
 
-				} elseif (!empty($prompt)) {
-					// --- Fluxo Customizado (Prompt do Usuário) ---
-					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $prompt);
+				} elseif (!empty($prompt) || !empty($descRules)) {
+					// --- Fluxo Customizado (Prompt do Usuário e/ou Regras Descritivas) ---
+					$combinedDescPrompt = trim($prompt . "\n\n" . $descRules);
+					$aiResult = GuidewayAIHelper::processarTexto($text, GuidewayAIHelper::ACTION_CUSTOM, $combinedDescPrompt);
 					$msgPrefix = 'Texto processado com sua instrução!';
 				} else {
 					// --- Fluxo Padrão (Formatação) ---
@@ -386,7 +432,7 @@ class SplmsControllerLesson extends FormController {
 					
 				} else {
 					// Se falhar a IA, mantém o texto bruto mas avisa
-					$msg = 'Texto extraído (bruto), mas houve erro na IA: ' . $aiResult['message'];
+					$msg = 'Aviso: Texto extraído (bruto), mas houve erro na IA: ' . $aiResult['message'];
 				}
 			} else {
 				$msg = 'Texto extraído (bruto). Helper de IA não disponível.';

@@ -6,17 +6,18 @@
         </label>
     </div>
     <div class="controls">
-        <!-- Main Container -->
+        <!-- Contêiner Principal -->
         <div class="gw-ai-chat-container">
+            <input type="hidden" id="gw_ai_context" value="announcement">
             
-            <!-- Prompt Textarea - Matches standard inputs -->
+            <!-- Área de Texto do Prompt - Corresponde aos inputs padrões -->
             <textarea id="gw-ai-prompt" name="gw_ai_prompt" class="form-control" rows="3" placeholder="Digite seu comando para a IA..." style="resize: vertical;"></textarea>
             <div id="gw-ai-prompt-desc" class="form-text">Descreva o aviso ou anexe um PDF para a IA gerar o conteúdo.</div>
 
             <!-- Linha de Ações -->
             <div class="gw-ai-actions">
                 
-                <!-- Drag and Drop Dropzone -->
+                <!-- Zona de Upload de Arquivos -->
                 <div class="gw-ai-upload-wrapper">
                     <div id="gw-ai-drop-zone" class="gw-ai-drop-zone">
                         <input type="file" id="gw-ai-file" name="gw_ai_file[]" accept=".pdf" class="gw-ai-input-hidden" multiple>
@@ -28,11 +29,9 @@
                         </div>
                     </div>
 
-                    <?php if (empty($hideGenerateQuestions)): ?>
-
-                    <!-- Botão de Configurações da Questão -->
-                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-primary" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;" title="Gerar Questão a partir do PDF">
-                        <span class="icon-list-view"></span> Gerar Questões
+                    <!-- Botão Principal de IA -->
+                    <button type="button" id="gw-ai-quiz-settings-btn" class="btn btn-primary" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;" title="Gerar com IA">
+                        <span class="icon-magic"></span>Gerar com IA
                     </button>
 
                     <!-- Overlay do Modal (Bloqueio de tela e desfoque) -->
@@ -40,15 +39,36 @@
 
                     <!-- Conteúdo do Dropdown (Transformado em Modal via JS/CSS) -->
                     <div id="gw-ai-quiz-dropdown" class="gw-ai-dropdown gw-ai-glass-dropdown">
-                        <div class="gw-ai-dropdown-title">Configurar e Gerar Questões</div>
+                        <div class="gw-ai-dropdown-title">Gerar com IA</div>
 
                         <div id="gw-ai-dropdown-params">
-                            <!-- Tipo oculto -->
-                            <input type="hidden" id="gw-ai-qtype" value="dissertativa">
-
-                            <!-- Dificuldade Segmentada -->
+                            <?php if (empty($hideGenerateQuestions)): ?>
+                            <!-- O que gerar? -->
                             <div class="control-group gw-mb-15">
-                                <label class="gw-ai-label-small">Dificuldade</label>
+                                <label class="gw-ai-label-small">Qual conteúdo você deseja gerar?</label>
+                                <div class="gw-ai-segmented-control" role="group" style="display: flex; flex-direction: column; gap: 5px;">
+                                    <div style="width: 100%;">
+                                        <input type="radio" class="btn-check" name="gw_ai_action_type" id="gw-ai-action-desc_ann" value="desc" autocomplete="off" checked>
+                                        <label class="btn btn-outline-primary" style="width: 100%; text-align: center;" for="gw-ai-action-desc_ann">Apenas Aviso</label>
+                                    </div>
+                                    <div style="width: 100%;">
+                                        <input type="radio" class="btn-check" name="gw_ai_action_type" id="gw-ai-action-quest_ann" value="quest" autocomplete="off">
+                                        <label class="btn btn-outline-primary" style="width: 100%; text-align: center;" for="gw-ai-action-quest_ann">Apenas Questões</label>
+                                    </div>
+                                    <div style="width: 100%;">
+                                        <input type="radio" class="btn-check" name="gw_ai_action_type" id="gw-ai-action-ambos_ann" value="ambos" autocomplete="off">
+                                        <label class="btn btn-outline-primary" style="width: 100%; text-align: center;" for="gw-ai-action-ambos_ann">Aviso + Questões</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="gw-ai-quiz-params-container" style="display: none;">
+                                <!-- Tipo oculto -->
+                                <input type="hidden" id="gw-ai-qtype" value="dissertativa">
+
+                                <!-- Dificuldade Segmentada -->
+                                <div class="control-group gw-mb-15">
+                                    <label class="gw-ai-label-small">Dificuldade das Questões</label>
                                 <div class="gw-ai-segmented-control" role="group">
                                     <input type="radio" class="btn-check" name="gw_ai_difficulty_radio" id="gw-ai-diff-facil" value="facil" autocomplete="off">
                                     <label class="btn btn-outline-primary" for="gw-ai-diff-facil">Fácil</label>
@@ -71,18 +91,25 @@
                                 </div>
                             </div>
                             
-                            <!-- Gerar Descrição Antes das Questões -->
-                            <div class="control-group gw-mb-15">
-                                <label class="gw-ai-label-small" style="margin-bottom: 8px;">Incluir resumo do conteúdo antes das questões?</label>
-                                <div class="gw-ai-segmented-control" role="group">
-                                    <input type="radio" class="btn-check" name="gw_ai_include_desc_radio" id="gw-ai-desc-sim" value="1" autocomplete="off">
-                                    <label class="btn btn-outline-primary" for="gw-ai-desc-sim">Sim</label>
-
-                                    <input type="radio" class="btn-check" name="gw_ai_include_desc_radio" id="gw-ai-desc-nao" value="0" autocomplete="off" checked>
-                                    <label class="btn btn-outline-primary" for="gw-ai-desc-nao">Não</label>
-                                </div>
-                                <input type="hidden" id="gw-ai-include-desc" value="0">
                             </div>
+                            <?php else: ?>
+                            <!-- MODO TEXTO: Configuração de Tamanho do Resumo -->
+                            <input type="radio" name="gw_ai_action_type" value="desc" checked style="display:none;">
+                            
+                            <div class="control-group gw-mb-15">
+                                <label class="gw-ai-label-small">Tamanho do Resumo / Texto</label>
+                                <div class="gw-ai-segmented-control" role="group">
+                                    <input type="radio" class="btn-check" name="gw_ai_summary_length" id="gw-ai-sum-curto-ann" value="sucinto" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="gw-ai-sum-curto-ann" title="Curto e direto">Sucinto</label>
+
+                                    <input type="radio" class="btn-check" name="gw_ai_summary_length" id="gw-ai-sum-medio-ann" value="medio" autocomplete="off" checked>
+                                    <label class="btn btn-outline-primary" for="gw-ai-sum-medio-ann" title="Tamanho padrão">Médio</label>
+
+                                    <input type="radio" class="btn-check" name="gw_ai_summary_length" id="gw-ai-sum-longo-ann" value="explicativo" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="gw-ai-sum-longo-ann" title="Muito detalhado">Explicativo</label>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Botão de Ação dentro do Menu -->
@@ -90,13 +117,7 @@
                             <span class="icon-magic"></span> Gerar Agora
                         </button>
                     </div>
-                    <?php endif; ?>
                 </div>
-
-                <!-- Generate Button -->
-                <button type="button" class="btn btn-primary" id="gw-ai-generate-btn" style="height: 100%; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <span class="icon-magic"></span> Gerar Aviso
-                </button>
             </div>
 
         </div>

@@ -1,11 +1,13 @@
 <?php
+require_once __DIR__ . '/auth.php';
+
 /**
  * Script de Geração de Dump do Banco de Dados
  * Usa PHP PDO puro para gerar o dump SQL (não depende de mysqldump externo)
  */
 
-define('_JEXEC', 1);
-define('JPATH_BASE', dirname(__DIR__));
+// define('_JEXEC', 1);
+// define('JPATH_BASE', dirname(__DIR__));
 
 // Define o fuso horário padrão para garantir que o timestamp do dump e nome do arquivo estejam corretos
 date_default_timezone_set('America/Sao_Paulo');

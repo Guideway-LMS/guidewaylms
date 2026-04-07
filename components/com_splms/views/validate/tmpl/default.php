@@ -4,7 +4,15 @@
  */
 defined('_JEXEC') or die;
 ?>
-
+<?php
+// GUIDEWAY CUSTOM - 17/03/2026 - Exibe erro de acesso negado ao certificado
+$erro = isset($_GET['erro']) ? $_GET['erro'] : '';
+if ($erro === 'acesso_negado') {
+    echo '<div style="background:#fee2e2;border:1px solid #dc2626;color:#dc2626;padding:15px;margin:20px;border-radius:6px;">
+        <strong>Acesso negado.</strong> Você não possui este certificado ou ele não é válido.
+    </div>';
+}
+?>
 <div id="splms" class="splms view-validate">
     <div class="container" style="max-width:600px; margin:40px auto; text-align:center;">
 

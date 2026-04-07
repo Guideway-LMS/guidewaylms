@@ -44,9 +44,15 @@ class SplmsViewCertificate extends HtmlView
 		}
 
 		if (is_null($this->item)) {
-			echo '<p class="alert alert-danger">' . Text::_('COM_SPLMS_ERROR_ITEM_NOT_FOUND') . '</p>';
-			return false;	
-		}
+    // GUIDEWAY CUSTOM - 17/03/2026 - Joshua - Redireciona para pagina de erro amigavel
+    $inputLayout = Factory::getApplication()->input->get('layout');
+    if ($inputLayout == 'pdf') {
+        Factory::getApplication()->redirect('index.php?option=com_splms&view=validate&erro=acesso_negado');
+        return;
+    }
+    echo '<p class="alert alert-danger">' . Text::_('COM_SPLMS_ERROR_ITEM_NOT_FOUND') . '</p>';
+    return false;
+}
 
 
 		// Load models
@@ -101,7 +107,13 @@ class SplmsViewCertificate extends HtmlView
 		// Verifica se há um comando na URL para gerar o PDF (ex: &format=pdf)
 $input = Factory::getApplication()->input;
 if ($input->get('layout') == 'pdf') {
-    // GUIDEWAY CUSTOM - Joshua - Suprime avisos para não corromper o PDF
+    // GUIDEWAY CUSTOM - 17/03/2026 - Joshua - Bloqueia acesso direto ao PDF sem ser dono do certificado
+    $user = Factory::getUser();
+    if ($this->item->userid != $user->id && !$user->authorise('core.admin')) {
+        $app = Factory::getApplication();
+        $app->redirect('index.php?option=com_splms&view=validate&erro=acesso_negado');
+        return;
+    }
     error_reporting(0);
     ob_clean();
     JLoader::register('CertificateHelper', JPATH_COMPONENT . '/helpers/CertificateHelper.php');

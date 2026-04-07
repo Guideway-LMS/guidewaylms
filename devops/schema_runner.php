@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . '/auth.php';
+
 /**
  * Schema Runner - Guideway LMS
  * Recebe instruções SQL do Dashboard e as executa e/ou salva como arquivo em database/updates/
  */
-define('_JEXEC', 1);
-define('JPATH_BASE', dirname(__DIR__));
+// define('_JEXEC', 1);
+// define('JPATH_BASE', dirname(__DIR__));
 
 header('Content-Type: application/json');
 

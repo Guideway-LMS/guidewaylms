@@ -50,56 +50,57 @@
 	<administration>
 		<menu view="dashboard">COM_SPLMS</menu>
 		<submenu>
-			<menu link="option=com_splms&amp;view=dashboard" view="dashboard">
+			<menu link="index.php?option=com_splms&amp;view=dashboard" view="dashboard">
 				COM_SPLMS_DASHBOARD
 			</menu>
-			<menu link="option=com_splms&amp;view=announcements" view="announcements">
+			<menu link="index.php?option=com_splms&amp;view=announcements" view="announcements">
                 COM_SPLMS_ANNOUNCEMENTS
             </menu>
-			<menu link="option=com_splms&amp;view=teachers" view="teachers">
+			<menu link="index.php?option=com_splms&amp;view=teachers" view="teachers">
 				COM_SPLMS_TEACHERS
 			</menu>
-			<menu link="option=com_splms&amp;view=coursescategories" view="coursescategories">
+			<menu link="index.php?option=com_splms&amp;view=coursescategories" view="coursescategories">
 				COM_SPLMS_COURSE_CATEGORIES
 			</menu>
-			<menu link="option=com_splms&amp;view=courses" view="courses">
+			<menu link="index.php?option=com_splms&amp;view=courses" view="courses">
 				COM_SPLMS_COURSES
 			</menu>
 			
 			<!-- inserção do mural de avisos -->
-			<menu view="announcements" img="class:megaphone" link="option=com_splms&amp;view=announcements">COM_SPLMS_ANNOUNCEMENTS</menu>
+			<menu view="announcements" img="class:megaphone" link="index.php?option=com_splms&amp;view=announcements">COM_SPLMS_ANNOUNCEMENTS</menu>
 
-			<menu link="option=com_splms&amp;view=lessiontopics" view="lessiontopics">
+			<menu link="index.php?option=com_splms&amp;view=lessiontopics" view="lessiontopics">
 				COM_SPLMS_LESSON_TOPICS
 			</menu>
-			<menu link="option=com_splms&amp;view=lessons" view="lessons">
+			<menu link="index.php?option=com_splms&amp;view=lessons" view="lessons">
 				COM_SPLMS_LESSONS
 			</menu>
-			<menu link="option=com_splms&amp;view=quizquestions" view="quizquestions">
+			<menu link="index.php?option=com_splms&amp;view=quizquestions" view="quizquestions">
 				COM_SPLMS_TITLE_QUIZQUESTIONS
 			</menu>
-			<menu link="option=com_splms&amp;view=quizresults" view="quizresults">
+			<menu link="index.php?option=com_splms&amp;view=quizresults" view="quizresults">
 				COM_SPLMS_TITLE_QUIZRESULTS
 			</menu>
-			<menu link="option=com_splms&amp;view=certificates" view="certificates">
+			<menu link="index.php?option=com_splms&amp;view=certificates" view="certificates">
 				COM_SPLMS_TITLE_CERTIFICATES
 			</menu>
-			<menu link="option=com_splms&amp;view=speakers" view="speakers">
+			<menu link="index.php?option=com_splms&amp;view=speakers" view="speakers">
 				COM_SPLMS_SPEAKERS
 			</menu>
-			<menu link="option=com_splms&amp;view=eventcategories" view="eventcategories">
+			<menu link="index.php?option=com_splms&amp;view=eventcategories" view="eventcategories">
 				COM_SPLMS_EVENT_CATEGORIES
 			</menu>
-			<menu link="option=com_splms&amp;view=events" view="events">
+			<menu link="index.php?option=com_splms&amp;view=events" view="events">
 				COM_SPLMS_EVENTS
 			</menu>
-            <!-- Fórum -->
-            <menu link="option=com_splms&amp;view=forums" view="forums" img="class:comments">Fórum de Dúvidas</menu>
+            <!-- Fórum e Trabalhos -->
+            <menu link="index.php?option=com_splms&amp;view=forums" view="forums" img="class:comments">Fórum de Dúvidas</menu>
+            <menu link="index.php?option=com_splms&amp;view=submissions" view="submissions" img="class:file">Trabalhos Enviados</menu>
 
-			<menu link="option=com_splms&amp;view=reviews" view="reviews">
+			<menu link="index.php?option=com_splms&amp;view=reviews" view="reviews">
 				COM_SPLMS_REVIEWS
 			</menu>
-			<menu link="option=com_splms&amp;view=orders" view="orders">
+			<menu link="index.php?option=com_splms&amp;view=orders" view="orders">
 				COM_SPLMS_ORDERS
 			</menu>
 		</submenu>

@@ -155,10 +155,17 @@ class GuidewayAIHelper
                 // Parsing da resposta (Extração do conteúdo)
                 if (isset($response['choices'][0]['message']['content'])) {
                     $content = $response['choices'][0]['message']['content'];
+
+                    // Extração rigorosa garantida para JSON (Ignora conversação "Aqui estão as questões..." antes ou depois do array)
+                    if ($acao === self::ACTION_CRIAR_QUESTOES) {
+                        if (preg_match('/\[\s*\{.*\}\s*\]/s', $content, $matches)) {
+                            $content = $matches[0];
+                        }
+                    }
                     
                     // Conversão de Markdown para HTML básico (pois o componente devolve para um campo TinyMCE WYSIWYG)
                     // Se a IA não soltou um JSON cru (CRIAR_QUESTOES)
-                    if ($acao !== self::ACTION_CRIAR_QUESTOES) {
+                    if ($acao !== self::ACTION_CRIAR_QUESTOES && $acao !== self::ACTION_CUSTOM) {
                         
                         // 1. Converter títulos Markdown (###)
                         $content = preg_replace('/### (.*?)\n/', '<h3>$1</h3>', $content);

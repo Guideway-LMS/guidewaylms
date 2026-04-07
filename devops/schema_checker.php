@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . '/auth.php';
+
 /**
  * Schema Checker - Guideway LMS
  * Compara o banco de dados atual com o dump mais recente para gerar sugestões.
  */
-define('_JEXEC', 1);
-define('JPATH_BASE', dirname(__DIR__));
+// define('_JEXEC', 1);
+// define('JPATH_BASE', dirname(__DIR__));
 
 header('Content-Type: application/json');
 

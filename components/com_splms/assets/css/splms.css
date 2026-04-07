@@ -3813,14 +3813,17 @@ ul.course-info>li>a {
 }
 
 .view-splms-quiz .cancelQuiz {
-  background: #f1f5f9;
-  color: #64748b;
+  background: #ee1a13da;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(248, 22, 5, 0.589);
   margin-left: 10px;
 }
 
 .view-splms-quiz .cancelQuiz:hover {
-  background: #e2e8f0;
-  color: #334155;
+  background-color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(248, 22, 5, 0.589);
+  color: #ee1a13da;
 }
 
 /* Start Screen Refinement */
@@ -4116,16 +4119,16 @@ ul.course-info>li>a {
   }
 }
 
-.view-splms-quiz .before-start-quiz .btn.startQuiz {
+.view-splms-quiz .before-start-quiz .btn.startQuiz,
+.view-splms-quiz .before-start-quiz .btn.cancelQuiz {
   padding: 16px 48px;
   font-size: 1.1rem;
   border-radius: 50px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-.view-splms-quiz .before-start-quiz .btn.startQuiz:hover {
+.view-splms-quiz .before-start-quiz .btn.startQuiz:hover,
+.view-splms-quiz .before-start-quiz .btn.cancelQuiz:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }

@@ -28,17 +28,23 @@ $colClass = SplmsHelper::getJoomlaVersion() < 4 ? 'span' : 'col-lg-';
   method="post" name="adminForm" id="adminForm" class="form-validate">
   <div class="form-horizontal">
     <div class="<?php echo $rowClass;?>">
+      
       <div class="<?php echo $colClass;?>9">
         <?php echo $this->form->renderFieldset('basic'); ?>
-      </div>
+        
+        <fieldset class="form-vertical" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <legend>Imagens e Assinaturas (Guideway LMS)</legend>
+            <?php echo $this->form->renderFieldset('certificado_imagens'); ?>
+        </fieldset>
+        </div>
 
       <div class="<?php echo $colClass;?>3">
         <fieldset class="form-vertical">
           <?php echo $this->form->renderFieldset('sidebar'); ?>
         </fieldset>
       </div>
+      
     </div>
-
   </div>
 
   <input type="hidden" name="task" value="course.edit" />

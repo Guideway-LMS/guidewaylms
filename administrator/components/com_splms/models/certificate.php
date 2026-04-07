@@ -76,15 +76,19 @@ class SplmsModelCertificate extends AdminModel {
 	*/
 	protected function loadFormData() {
 
-		// Check the session for previously entered form data.
-		$data = Factory::getApplication()->getUserState( 'com_splms.edit.certificate.data', array() );
+    $data = Factory::getApplication()->getUserState( 'com_splms.edit.certificate.data', array() );
 
-		if (empty($data)) {
-			$data = $this->getItem();
-		}
+    if (empty($data)) {
+        $data = $this->getItem();
+    }
 
-		return $data;
-	}
+    // FIX Joomla 5.x — asset_id NULL faz getItem() retornar false
+    if ($data === false || $data === null) {
+        $data = new stdClass();
+    }
+
+    return $data;
+}
 
 	public function save($data) 
 	{
