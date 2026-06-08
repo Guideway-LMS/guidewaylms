@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -105,6 +105,7 @@ class AdminTools extends CMSPlugin implements SubscriberInterface, DatabaseAware
 		Feature\ThirdPartyBlockedRequests::class,
 		Feature\DisablePwdReset::class,
 		Feature\WarnAboutBlockedUsernames::class,
+		Feature\BlockForbiddenUsernameLogin::class,
 		Feature\EmailOnBlockedReminder::class,
 	];
 
@@ -437,8 +438,8 @@ class AdminTools extends CMSPlugin implements SubscriberInterface, DatabaseAware
 		 * We have seen (ticket #25473) such a thing as a host which does not set the HTTP_HOST and SCRIPT_NAME server
 		 * variables. On this kind of server we cannot reliably process WAF Exceptions.
 		 */
-		$httpHost   = $this->getApplication()->input->server->getString('HTTP_HOST', null);
-		$scriptName = $this->getApplication()->input->server->getString('SCRIPT_NAME', null);
+		$httpHost   = $this->getApplication()->getInput()->server->getString('HTTP_HOST', null);
+		$scriptName = $this->getApplication()->getInput()->server->getString('SCRIPT_NAME', null);
 
 		if (is_null($httpHost) && is_null($scriptName))
 		{
@@ -549,7 +550,7 @@ class AdminTools extends CMSPlugin implements SubscriberInterface, DatabaseAware
 		}
 
 		// Store a reference to the global input object
-		$this->input = $this->getApplication()->input;
+		$this->input = $this->getApplication()->getInput();
 
 		// We need to boot the Admin Tools component so that its autoloader is registered throughout the request.
 		$this->getApplication()->bootComponent('com_admintools');

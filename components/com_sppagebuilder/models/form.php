@@ -147,6 +147,15 @@ class SppagebuilderModelForm extends SppagebuilderModelPage
 				$data->og_type = (isset($attribs->og_type) && $attribs->og_type) ? $attribs->og_type : 'website';
 				$data->author = (isset($attribs->author) && $attribs->author) ? $attribs->author : '';
 
+				if (isset($attribs->schema))
+				{
+					$data->schema = json_decode(json_encode($attribs->schema), true);
+				}
+				else
+				{
+					$data->schema = [];
+				}
+
 				$menu = $this->getMenuByPageId($data->id);
 				$data->menuid = (isset($menu->id) && $menu->id) ? $menu->id : 0;
 				$data->menutitle = (isset($menu->title) && $menu->title) ? $menu->title : '';
@@ -357,7 +366,8 @@ class SppagebuilderModelForm extends SppagebuilderModelPage
 			'robots',
 			'seo_spacer',
 			'og_type',
-			'author'
+			'author',
+			'schema',
 		];
 
 		$popupKeys = [
@@ -378,6 +388,11 @@ class SppagebuilderModelForm extends SppagebuilderModelPage
 
 		$existingData = $this->getData($id);
 
+		if (!empty($existingData->attribs))
+		{
+			$decoded = json_decode(json_encode($existingData->attribs), true);
+			$attribs = \is_array($decoded) ? $decoded : [];
+		}
 
 		if (!empty($existingData->extension_view) && $existingData->extension_view === 'popup') {
 			$popupTriggerKeys = [
@@ -452,7 +467,7 @@ class SppagebuilderModelForm extends SppagebuilderModelPage
 			$data['catid'] = 0;
 		}
 
-		$data['view_id'] = $data['view_id'] ?: 0;
+		$data['view_id'] = !empty($data['view_id']) ? $data['view_id'] : 0;
 		$data = (object) $data;
 
 		if (empty($id))

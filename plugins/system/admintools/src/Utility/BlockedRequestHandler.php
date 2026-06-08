@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -246,8 +246,8 @@ class BlockedRequestHandler implements DatabaseAwareInterface
 		if (!$use403View || !$isFrontend)
 		{
 			// Using Joomla!'s error page
-			$app->input->set('template', null);
-			$app->input->set('layout', null);
+			$app->getInput()->set('template', null);
+			$app->getInput()->set('layout', null);
 
 			throw new Exception($message, 403);
 		}
@@ -473,6 +473,76 @@ class BlockedRequestHandler implements DatabaseAwareInterface
 		}
 
 		// Should I send an optional email?
+		if ($this->wafParams->getValue('emailafteripautoban', ''))
+		{
+			$this->sendIPAutoBanEmail($reason, $until);
+		}
+	}
+
+	/**
+	 * Immediately bans the visitor's IP address without waiting for the repeat-offender threshold.
+	 *
+	 * This is intended for clear-cut attack signals (e.g. login with a forbidden username that has no matching user)
+	 * where waiting for the normal strike count would be inappropriate.
+	 *
+	 * Requires IP Blocking of Repeat Offenders to be enabled (tsrenable). Pro version only.
+	 *
+	 * @param   string  $reason  The reason code for the ban
+	 *
+	 * @return  void
+	 */
+	public function immediateIPAutoBan(string $reason): void
+	{
+		if (!defined('ADMINTOOLS_PRO') || !ADMINTOOLS_PRO)
+		{
+			return;
+		}
+
+		if (!$this->wafParams->getValue('tsrenable', 0))
+		{
+			return;
+		}
+
+		$ip = $this->getVisitorIPAddress();
+
+		if (empty($ip) || $ip === '0.0.0.0')
+		{
+			return;
+		}
+
+		try
+		{
+			/** @var DatabaseDriver $db */
+			$db = $this->getDatabase();
+		}
+		catch (Throwable $e)
+		{
+			return;
+		}
+
+		$this->lockTables(
+			['#__admintools_ipautoban', '#__admintools_ipautobanhistory', '#__admintools_ipblock', '#__admintools_log']
+		);
+
+		try
+		{
+			$until   = null;
+			$wasBanned = $this->banIPAddress($db, $ip, $reason, $until);
+		}
+		catch (Exception $e)
+		{
+			$wasBanned = false;
+		}
+		finally
+		{
+			$this->unlockTables();
+		}
+
+		if (!$wasBanned)
+		{
+			return;
+		}
+
 		if ($this->wafParams->getValue('emailafteripautoban', ''))
 		{
 			$this->sendIPAutoBanEmail($reason, $until);
@@ -1007,6 +1077,7 @@ END;
 	 * @param   DatabaseDriver  $db
 	 * @param   string          $ip
 	 * @param   string          $reason
+	 * @param   string|null     $until
 	 *
 	 * @return  bool
 	 */
@@ -1073,7 +1144,24 @@ END;
 			return false;
 		}
 
-		// Block the IP
+		return $this->banIPAddress($db, $ip, $reason, $until);
+	}
+
+	/**
+	 * Bans an IP address by inserting it into the auto-ban table.
+	 *
+	 * Handles ban duration calculation, permaban escalation, and cache invalidation.
+	 * Called by both isRepeatOffender() (after threshold check) and immediateIPAutoBan() (direct ban).
+	 *
+	 * @param   DatabaseDriver  $db
+	 * @param   string          $ip
+	 * @param   string          $reason
+	 * @param   string|null     $until
+	 *
+	 * @return  bool  False if the IP address is not valid.
+	 */
+	private function banIPAddress(DatabaseDriver $db, string $ip, string $reason, ?string &$until): bool
+	{
 		$myIP = @inet_pton($ip);
 
 		if ($myIP === false)
@@ -1083,6 +1171,7 @@ END;
 
 		$myIP = inet_ntop($myIP);
 
+		$jNow      = clone Factory::getDate();
 		$until     = $jNow->toUnix();
 		$numfreq   = $this->wafParams->getValue('tsrbannum', 1);
 		$frequency = $this->wafParams->getValue('tsrbanfrequency', 'hour');
@@ -1300,7 +1389,11 @@ END;
 
 		foreach ($tables as $table)
 		{
-			$db->lockTable($table);
+			/**
+			 * Joomla tries to create a new transaction for each call to lockTable, causing a failure. Therefore, I
+			 * have to run the LOCK TABLE command manually.
+			 */
+			$db->setQuery('LOCK TABLE ' . $db->quoteName($table) . ' IN ACCESS EXCLUSIVE MODE')->execute();
 		}
 	}
 
@@ -1368,7 +1461,7 @@ END;
 		 *
 		 * @see https://www.postgresql.org/docs/current/sql-lock.html
 		 */
-		$db->unlockTables();
+		$db->transactionCommit();
 	}
 
 	/**

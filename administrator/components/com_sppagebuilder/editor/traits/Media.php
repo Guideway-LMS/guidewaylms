@@ -187,7 +187,7 @@ trait Media
 						'image' => array('jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'avif'),
 						'video' => array('mp4', 'mov', 'wmv', 'avi', 'mpg', 'ogv', '3gp', '3g2'),
 						'audio' => array('mp3', 'm4a', 'ogg', 'wav'),
-						'attachment' => array('pdf', 'doc', 'docx', 'key', 'ppt', 'pptx', 'pps', 'ppsx', 'odt', 'xls', 'xlsx', 'zip', 'json'),
+						'attachment' => array('pdf', 'doc', 'docx', 'key', 'ppt', 'pptx', 'pps', 'ppsx', 'odt', 'xls', 'xlsx', 'zip', 'json', 'srt', 'vtt'),
 					);
 
 					// Upload if no error found
@@ -487,7 +487,7 @@ trait Media
 		if(!$this->pathExistsInDB($item['path']))
 		{
 			$error = new stdClass();
-			$error->message = Text::_("COM_SPPAGEBUILDER_MEDIA_MANAGER_MEDIA_RENAME_ERROR");
+			$error->message = Text::_("COM_SPPAGEBUILDER_MEDIA_MANAGER_MEDIA_DELETE_ERROR");
 			$error->status = false;
 
 			$this->sendResponse($error, 500);

@@ -47,6 +47,10 @@ class SppagebuilderAddonTab extends SppagebuilderAddons
 
 		foreach ($settings->sp_tab_item as $key => $tab)
 		{
+			if (isset($tab->item_visibility) && !$tab->item_visibility) {
+				continue;
+			}
+
 			$icon_top = '';
 			$icon_bottom = '';
 			$icon_right = '';
@@ -149,6 +153,10 @@ class SppagebuilderAddonTab extends SppagebuilderAddons
 
 		foreach ($settings->sp_tab_item as $key => $tab)
 		{
+			if (isset($tab->item_visibility) && !$tab->item_visibility) {
+				continue;
+			}
+			
 			$output .= '<div id="sppb-tab-' . ($this->addon->id . $key) . '" class="sppb-tab-pane sppb-fade' . (($key == 0) ? " active in" : "") . '" role="tabpanel" aria-labelledby="sppb-content-' . ($this->addon->id . $key) . '">' . $tab->content . '</div>';
 		}
 

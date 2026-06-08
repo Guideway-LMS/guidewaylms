@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -122,7 +122,7 @@ class Base
 		// If the user is already logged in we don't have a login attempt
 		$user = $this->app->getIdentity();
 
-		if (!$user->guest)
+		if ($user instanceof User && !$user->guest)
 		{
 			return false;
 		}
@@ -173,14 +173,14 @@ class Base
 	 * of the array returns true and breaks the RegEx matching loop. If you pass
 	 * any other data type except an array or string, it returns false.
 	 *
-	 * @param   string    $regex         The regular expressions to feed to preg_match
-	 * @param   mixed     $array         The array to scan
-	 * @param   bool      $striptags     Should I strip tags? Default: no
-	 * @param   callable  $precondition  A callable to precondition each value before preg_match
+	 * @param   string         $regex         The regular expressions to feed to preg_match
+	 * @param   mixed          $array         The array to scan
+	 * @param   bool           $striptags     Should I strip tags? Default: no
+	 * @param   callable|null  $precondition  A callable to precondition each value before preg_match
 	 *
-	 * @return bool|int
+	 * @return  bool|int
 	 */
-	protected function recursiveRegExMatch($regex, $array, $striptags = false, $precondition = null)
+	protected function recursiveRegExMatch(string $regex, $array, bool $striptags = false, ?callable $precondition = null)
 	{
 		$result = false;
 

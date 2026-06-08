@@ -203,7 +203,7 @@ trait ExportTrait
 			'image' => array('jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'avif'),
 			'video' => array('mp4', 'mov', 'wmv', 'avi', 'mpg', 'ogv', '3gp', '3g2'),
 			'audio' => array('mp3', 'm4a', 'ogg', 'wav'),
-			'attachment' => array('pdf', 'doc', 'docx', 'key', 'ppt', 'pptx', 'pps', 'ppsx', 'odt', 'xls', 'xlsx', 'zip', 'json'),
+			'attachment' => array('pdf', 'doc', 'docx', 'key', 'ppt', 'pptx', 'pps', 'ppsx', 'odt', 'xls', 'xlsx', 'zip', 'json', 'srt', 'vtt'),
 		);
 		
 		$srcValues = [];

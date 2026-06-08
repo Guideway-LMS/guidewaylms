@@ -737,7 +737,7 @@ SpAddonsConfig::addonConfig([
                     'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_COLOR'),
                     'std' => 'rgba(236, 67, 15, 0.1)',
                     'depends' => [
-                        ['show_category', '=', '1'],
+                        ['show_tags', '=', '1'],
                         ['tags_status', '=', 'normal'],
                     ],
                 ],

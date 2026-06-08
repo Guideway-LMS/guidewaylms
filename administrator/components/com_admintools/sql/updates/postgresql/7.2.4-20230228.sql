@@ -1,10 +1,13 @@
 /**
  * @package   admintools
- * @copyright Copyright (c)2023 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
-CREATE TABLE IF NOT EXISTS "#__admintools_ipallow"
+-- DO NOT REMOVE THE "USELESS" EMPTY COMMENT.
+-- Joomla! misdetects the table name as "#__admintools_ipallow(" if it's missing.
+
+CREATE TABLE IF NOT EXISTS "#__admintools_ipallow" /**/
 (
     "id"          serial NOT NULL,
     "ip"          character varying(255) DEFAULT NULL,

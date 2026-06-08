@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--~
   ~ @package   admintools
-  ~ @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
   ~ @license   GNU General Public License version 3, or later
   -->
 
@@ -366,6 +366,20 @@
                         recursive="true"
                 />
             </form>
+        </field>
+
+        <field
+                name="blockusernames_immeban"
+                type="list"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_ADMINTOOLS_CONFIGUREWAF_LBL_OPT_BLOCKUSERNAMES_IMMEBAN"
+                description="COM_ADMINTOOLS_CONFIGUREWAF_LBL_OPT_BLOCKUSERNAMES_IMMEBAN_TIP"
+                default="0"
+                validate="options"
+                showon="blockusernames:1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
         </field>
 
         <field

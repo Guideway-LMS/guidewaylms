@@ -118,7 +118,33 @@ class SppagebuilderModelDynamic extends ItemModel
 		{
 			try
 			{
+				$app = Factory::getApplication();
+				$input = $app->input;
+				$itemId = $input->get('collection_item_id');
+				
+				if (is_array($itemId)) {
+					$itemId = (int) $itemId[0];
+				} elseif ($itemId) {
+					$itemId = (int) $itemId;
+				}
+
 				$db = $this->getDbo();
+				
+				if($itemId){	
+					$userAccessLevels = $user->getAuthorisedViewLevels();
+					$query = $db->getQuery(true)
+						->select($db->quoteName('access'))
+						->from($db->quoteName('#__sppagebuilder_collection_items'))
+						->where($db->quoteName('id') . ' = ' . (int) $itemId);
+					$itemAccess = $db->setQuery($query)->loadResult();
+					
+					if(!in_array($itemAccess, $userAccessLevels, true))
+					{
+						$app->enqueueMessage(Text::_('JERROR_ALERTNOAUTHOR'), 'error');
+						return false;
+					}
+				}
+
 				$query = $db->getQuery(true);
 
 				$query->select('a.*')

@@ -13,6 +13,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ItemModel;
 use Joomla\CMS\Table\Table;
 use JoomShaper\SPPageBuilder\DynamicContent\Supports\Date;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -391,11 +392,12 @@ class Comment extends ItemModel
             $db = $this->getDbo();
 			$currentUserId = Factory::getUser()->id;
 			$baseUrl = rtrim(\Joomla\CMS\Uri\Uri::root(), '/');
+			$anonymousPerson = Text::_('COM_SPPAGEBUILDER_ANONYMOUS_PERSON');
 			$query = $db->getQuery(true);
 
 			$query->select([
 					'c.*',
-					'COALESCE(u.name, "Anonymous Person") as created_by',
+					'COALESCE(u.name, ' . $db->quote($anonymousPerson) . ') as created_by',
 					'u.id as created_by_id',
 					'u.email as created_by_email',
 					'COUNT(l.id) as likes_count',

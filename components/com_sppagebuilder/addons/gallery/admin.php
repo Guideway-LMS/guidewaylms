@@ -33,6 +33,11 @@ SpAddonsConfig::addonConfig([
 							'std'   => 'Gallery Item 1'
 						],
 
+						'item_visibility' => [
+							'type' => 'visibility',
+							'std'  => true,
+						],
+
 						'thumb' => [
 							'type'  => 'media',
 							'title' => Text::_('COM_SPPAGEBUILDER_ADDON_GALLERY_THUMB'),
@@ -87,6 +92,27 @@ SpAddonsConfig::addonConfig([
 					'type'    => 'checkbox',
 					'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_GALLERY_FULL_DESC'),
 					'std'     => 0,
+				],
+
+				'show_desc_on_hover' => [
+					'type'    => 'checkbox',
+					'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_GALLERY_DESC_ON_HOVER'),
+					'std'     => 0,
+				],
+
+				'description_typography' => [
+					'type'     => 'typography',
+					'title'  	=> Text::_('COM_SPPAGEBUILDER_GLOBAL_TYPOGRAPHY'),
+					'fallbacks'   => [
+						'font' => 'description_font_family',
+						'size' => 'description_fontsize',
+						'line_height' => 'description_lineheight',
+						'letter_spacing' => 'description_letterspace',
+						'uppercase' => 'description_font_style.uppercase',
+						'italic' => 'description_font_style.italic',
+						'underline' => 'description_font_style.underline',
+						'weight' => 'description_font_style.weight',
+					],
 				],
 
 				'item_alignment' => [

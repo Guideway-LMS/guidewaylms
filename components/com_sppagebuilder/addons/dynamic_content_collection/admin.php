@@ -29,6 +29,18 @@ SpAddonsConfig::addonConfig([
                     'title'  => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_SOURCE_TITLE'),
                     'desc'   => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_SOURCE_DESC'),
                 ],
+                'divider_1' => [
+                    'type' => 'separator',
+                ],
+                'sorting_field_id' => [
+                    'type'   => 'dynamic_field',
+                    'title'  => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_FIELD_SOURCE_TITLE'),
+                    'desc'   => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_FIELD_SOURCE_DESC'),
+                    'excluded_types' => ['image', 'file', 'reference', 'multi-reference', 'gallery', 'switch', 'option', 'video'],
+                    'augmentations' => [['label' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_SORTING_DEFAULT'), 'value' => 'default']],
+                    'is_clearable' => false,
+                    'std' => 'default'
+                ],
                 'direction' => [
                     'type' => 'buttons',
                     'title' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_SORTING_TITLE'),
@@ -39,6 +51,9 @@ SpAddonsConfig::addonConfig([
                     ],
                     'std' => 'asc',
                     'is_clearable' => false,
+                ],
+                'divider_2' => [
+                    'type' => 'separator',
                 ],
                 'filters' => [
                     'type' => 'filter',
@@ -81,9 +96,40 @@ SpAddonsConfig::addonConfig([
                     'values' => [
                         'load-more' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_TYPE_LOAD_MORE'),
                         'infinite-scroll' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_TYPE_INFINITE_SCROLL'),
+                        'numbered' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_TYPE_NUMBERED'),
                     ],
                     'std' => 'load-more',
                     'depends' => [['pagination', '=', 1]],
+                ],
+                'pagination_numbered_visible_pages' => [
+                    'type' => 'slider',
+                    'title' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_NUMBERED_VISIBLE_PAGES_TITLE'),
+                    'desc' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_NUMBERED_VISIBLE_PAGES_DESC'),
+                    'min' => 3,
+                    'max' => 15,
+                    'std' => '5',
+                    'depends' => [['pagination', '=', 1], ['pagination_type', '=', 'numbered']],
+                ],
+                'pagination_numbered_show_arrows' => [
+                    'type' => 'checkbox',
+                    'title' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_NUMBERED_SHOW_ARROWS_TITLE'),
+                    'desc' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_NUMBERED_SHOW_ARROWS_DESC'),
+                    'std' => 1,
+                    'depends' => [['pagination', '=', 1], ['pagination_type', '=', 'numbered']],
+                ],
+                'pagination_numbered_show_first_last' => [
+                    'type' => 'checkbox',
+                    'title' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_NUMBERED_SHOW_FIRST_LAST_TITLE'),
+                    'desc' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_NUMBERED_SHOW_FIRST_LAST_DESC'),
+                    'std' => 1,
+                    'depends' => [['pagination', '=', 1], ['pagination_type', '=', 'numbered']],
+                ],
+                'pagination_numbered_show_dots' => [
+                    'type' => 'checkbox',
+                    'title' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_NUMBERED_SHOW_DOTS_TITLE'),
+                    'desc' => Text::_('COM_SPPAGEBUILDER_ADDON_DYNAMIC_CONTENT_COLLECTION_PAGINATION_NUMBERED_SHOW_DOTS_DESC'),
+                    'std' => 1,
+                    'depends' => [['pagination', '=', 1], ['pagination_type', '=', 'numbered']],
                 ],
                 'pagination_load_more_button_text' => [
                     'type' => 'text',
@@ -102,19 +148,19 @@ SpAddonsConfig::addonConfig([
                     ],
                     'responsive' => true,
                     'std' => 'start',
-                    'depends' => [['pagination', '=', 1], ['pagination_type', '=', 'load-more']],
+                    'depends' => [['pagination', '=', 1], ['pagination_type', '!=', 'infinite-scroll']],
                 ],
                 'pagination_padding' => [
                     'type' => 'padding',
                     'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_PADDING'),
                     'responsive' => true,
-                    'depends' => [['pagination', '=', 1], ['pagination_type', '=', 'load-more']],
+                    'depends' => [['pagination', '=', 1], ['pagination_type', '!=', 'infinite-scroll']],
                 ],
                 'pagination_margin' => [
                     'type' => 'margin',
                     'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_MARGIN'),
                     'responsive' => true,
-                    'depends' => [['pagination', '=', 1], ['pagination_type', '=', 'load-more']],
+                    'depends' => [['pagination', '=', 1], ['pagination_type', '!=', 'infinite-scroll']],
                 ],
                 'pagination_load_more_button_type' => [
                     'type'   => 'select',
@@ -131,7 +177,7 @@ SpAddonsConfig::addonConfig([
                         'link'      => Text::_('COM_SPPAGEBUILDER_GLOBAL_LINK'),
                     ],
                     'std'    => 'default',
-                    'depends' => [['pagination', '=', 1], ['pagination_type', '=', 'load-more']],
+                    'depends' => [['pagination', '=', 1], ['pagination_type', '!=', 'infinite-scroll']],
                 ],
             ]
         ],

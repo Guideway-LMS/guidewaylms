@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -219,7 +219,11 @@ class DatabasetoolsModel extends BaseDatabaseModel
 		try
 		{
 			$method = $refObj->getMethod('executeUnpreparedQuery');
-			$method->setAccessible(true);
+
+			if (version_compare(PHP_VERSION, '8.1.0', 'lt'))
+			{
+				$method->setAccessible(true);
+			}
 
 			return $method->invoke($db, $sql);
 		}

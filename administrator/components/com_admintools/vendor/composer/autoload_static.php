@@ -7,7 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit736b3145a8ce3e551e2a494a8a58966e
 {
     public static $prefixLengthsPsr4 = array (
-        'A' => 
+        'A' =>
         array (
             'Akeeba\\UsageStats\\Collector\\' => 28,
             'Akeeba\\PHPFinder\\' => 17,
@@ -15,11 +15,11 @@ class ComposerStaticInit736b3145a8ce3e551e2a494a8a58966e
     );
 
     public static $prefixDirsPsr4 = array (
-        'Akeeba\\UsageStats\\Collector\\' => 
+        'Akeeba\\UsageStats\\Collector\\' =>
         array (
             0 => __DIR__ . '/..' . '/akeeba/stats_collector/src',
         ),
-        'Akeeba\\PHPFinder\\' => 
+        'Akeeba\\PHPFinder\\' =>
         array (
             0 => __DIR__ . '/..' . '/akeeba/phpfinder/src',
         ),

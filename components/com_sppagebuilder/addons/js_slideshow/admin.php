@@ -868,6 +868,14 @@ SpAddonsConfig::addonConfig(
                         'depends' => [['autoplay', '=', 1]]
                     ],
 
+                    'loop' => [
+                        'type'    => 'checkbox',
+                        'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_JS_SLIDER_LOOP'),
+                        'desc'    => Text::_('COM_SPPAGEBUILDER_ADDON_JS_SLIDER_LOOP_DESC'),
+                        'std'     => 1,
+                        'depends' => [['autoplay', '=', 1]]
+                    ],
+
                     'interval' => [
                         'type'    => 'number',
                         'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_JS_SLIDER_INTERVAL'),
@@ -1308,6 +1316,16 @@ SpAddonsConfig::addonConfig(
                         'desc'    => Text::_('COM_SPPAGEBUILDER_ADDON_JS_SLIDER_TEXT_THUMB_WIDTH_DESC'),
                         'max'        => 100,
                         'responsive' => true,
+                        'depends' => [
+                            ['dot_controllers', '!=', 0],
+                            ['dot_controllers_style', '=', 'with_text'],
+                        ],
+                    ],
+
+                    'text_thumb_ctlr_wrap_bg_img' => [
+                        'type'    => 'checkbox',
+                        'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_JS_SLIDER_TEXT_THUMB_BG_IMG'),
+                        'std'     => 0,
                         'depends' => [
                             ['dot_controllers', '!=', 0],
                             ['dot_controllers_style', '=', 'with_text'],

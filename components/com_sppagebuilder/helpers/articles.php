@@ -28,6 +28,150 @@ if(version_compare($JoomlaVersion, '4.0.0', '<') && !class_exists('ContentHelper
 
 abstract class SppagebuilderHelperArticles
 {
+	/**
+	 * Map Joomla com_fields types to SP Page Builder dynamic field types.
+	 *
+	 * @param string $joomlaType Raw type from #__fields.type
+	 * @return string|null Dynamic type or null when unsupported
+	 *
+	 * @since 6.6.0
+	 */
+	public static function mapComContentCustomFieldTypeToDynamic($joomlaType)
+	{
+		static $map = [
+			'text' => 'text',
+			'textarea' => 'text',
+			'url' => 'link',
+			'editor' => 'rich-text',
+			'media' => 'image',
+			'calendar' => 'date-time',
+			'radio' => 'text',
+			'number' => 'number',
+			'integer' => 'number',
+		];
+
+		$joomlaType = is_string($joomlaType) ? $joomlaType : '';
+
+		return $map[$joomlaType] ?? null;
+	}
+
+	/**
+	 * Published custom fields for articles (#__fields, context com_content.article).
+	 *
+	 * @return array
+	 *
+	 * @since 6.6.0
+	 */
+	public static function getPublishedArticleCustomFieldRows()
+	{
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->quoteName(['id', 'title', 'name', 'type']))
+			->from($db->quoteName('#__fields'))
+			->where($db->quoteName('context') . ' = ' . $db->quote('com_content.article'))
+			->where($db->quoteName('state') . ' = 1')
+			->order($db->quoteName('ordering') . ' ASC');
+
+		$db->setQuery($query);
+
+		return $db->loadObjectList() ?: [];
+	}
+
+	/**
+	 * Attach com_fields values to an article object using each field's machine name (name) as the property key.
+	 *
+	 * @param object $item Article row / object passed to FieldsHelper::getFields
+	 * @param array|null $customFields Optional preloaded array from FieldsHelper::getFields
+	 * @return void
+	 *
+	 * @since 6.6.0
+	 */
+	public static function applyComContentCustomFieldValuesToItem($item, $customFields = null)
+	{
+		if (!is_object($item)) {
+			return;
+		}
+
+		if (!is_array($customFields)) {
+			$customFields = self::loadComContentCustomFieldsForItem($item);
+		}
+
+		foreach ($customFields as $field) {
+			if (empty($field->name)) {
+				continue;
+			}
+
+			$joomlaType = isset($field->type) ? (string) $field->type : '';
+
+			if (self::mapComContentCustomFieldTypeToDynamic($joomlaType) === null) {
+				continue;
+			}
+
+			$raw = isset($field->value) ? $field->value : null;
+			$item->{$field->name} = self::normalizeComContentCustomFieldStoredValue($raw, $joomlaType);
+		}
+	}
+
+	/**
+	 * @param object $item
+	 * @return array
+	 */
+	private static function loadComContentCustomFieldsForItem($item)
+	{
+		$version = new Version();
+		$JoomlaVersion = $version->getShortVersion();
+
+		if ((float) $JoomlaVersion >= 4) {
+			JLoader::registerAlias('FieldsHelper', 'Joomla\Component\Fields\Administrator\Helper\FieldsHelper');
+		} else {
+			JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
+		}
+
+		return FieldsHelper::getFields('com_content.article', $item);
+	}
+
+	/**
+	 * @param mixed $raw
+	 * @param string $joomlaType
+	 * @return string
+	 */
+	private static function normalizeComContentCustomFieldStoredValue($raw, $joomlaType)
+	{
+		if ($raw === null) {
+			return '';
+		}
+
+		if ($joomlaType === 'media') {
+			$path = $raw;
+
+			if (is_string($raw) && $raw !== '') {
+				$decoded = json_decode($raw, true);
+
+				if (is_array($decoded)) {
+					if (!empty($decoded['imagefile'])) {
+						$path = $decoded['imagefile'];
+					} elseif (!empty($decoded['image'])) {
+						$path = $decoded['image'];
+					}
+				}
+			}
+
+			if ($path === null || $path === '') {
+				return '';
+			}
+
+			$path = (string) $path;
+
+			if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
+				return $path;
+			}
+
+			return Uri::root(true) . '/' . ltrim($path, '/');
+		}
+
+		return is_scalar($raw) ? (string) $raw : '';
+	}
+
 	public static function checkAuthorised($id) {
 		if (empty($id)) {
 			return false;
@@ -171,8 +315,13 @@ abstract class SppagebuilderHelperArticles
 
 		// continue query
 		$query->where($db->quoteName('a.access')." IN (" . implode( ',', $authorised ) . ")");
-		$query->order($db->quoteName('a.created') . ' DESC')
-		->setLimit($count, $start);
+		$query->order($db->quoteName('a.created') . ' DESC');
+
+		if ($currentPage === -1){
+			$query->setLimit($count);
+		} else {
+			$query->setLimit($count, $start);
+		}
 		
 		$db->setQuery($query);
 		$items = $db->loadObjectList();
@@ -186,6 +335,7 @@ abstract class SppagebuilderHelperArticles
 			$item->username = Factory::getUser($item->created_by)->name;
 			$item->profile_image = $item->profile_image ?? '';
 			$item->link 	= Route::_(version_compare($JoomlaVersion, '4.0.0', '>=') ? Joomla\Component\Content\Site\Helper\RouteHelper::getArticleRoute($item->slug, $item->catid, $item->language) : ContentHelperRoute::getArticleRoute($item->slug, $item->catid, $item->language));
+			self::applyComContentCustomFieldValuesToItem($item);
 			$attribs 		= json_decode($item->attribs);
 
 			$item->tags = new TagsHelper;
@@ -452,6 +602,23 @@ abstract class SppagebuilderHelperArticles
 					}
 				}
 			}
+
+			// Fetch layout data from SP Page Builder for this article
+			$query = $db->getQuery(true);
+			$query->select($db->quoteName(['content', 'text', 'css']));
+			$query->from($db->quoteName('#__sppagebuilder'));
+			$query->where($db->quoteName('extension') . ' = ' . $db->quote('com_content'));
+			$query->where($db->quoteName('extension_view') . ' = ' . $db->quote('article'));
+			$query->where($db->quoteName('view_id') . ' = ' . (int) $item->id);
+			$query->where($db->quoteName('active') . ' = 1');
+			$db->setQuery($query);
+			$layoutData = $db->loadObject();
+			
+			if (empty($layoutData)) {
+				$item->layout = null;
+				continue;
+			}
+			$item->layout = $layoutData;
 		}
 
 		return $items;

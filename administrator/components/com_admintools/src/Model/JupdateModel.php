@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13,11 +13,11 @@ use Akeeba\Component\AdminTools\Administrator\Extension\AdminToolsComponent;
 use Exception;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Http\HttpFactory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Version;
 use Joomla\Database\ParameterType;
 use Joomla\Database\QueryInterface;
+use Joomla\Http\HttpFactory;
 use Joomla\Registry\Registry;
 
 /**
@@ -51,7 +51,13 @@ final class JupdateModel extends BaseDatabaseModel
 	 * @var    array
 	 * @since  7.6.0
 	 */
-	private const UPDATE_RELEVANT_TABLES = ['#__extensions', '#__update_sites', '#__update_sites_extensions', '#__updates', '#__tuf_metadata'];
+	private const UPDATE_RELEVANT_TABLES = [
+		'#__extensions',
+		'#__update_sites',
+		'#__update_sites_extensions',
+		'#__updates',
+		'#__tuf_metadata',
+	];
 
 	/**
 	 * Resets Joomla! Update.
@@ -196,7 +202,7 @@ final class JupdateModel extends BaseDatabaseModel
 
 		try
 		{
-			$http     = HttpFactory::getHttp($httpOptions);
+			$http     = (new HttpFactory())->getHttp($httpOptions);
 			$response = $http->get(self::JOOMLA_TUF_URL . 'root.json');
 		}
 		catch (Exception $e)
@@ -204,12 +210,12 @@ final class JupdateModel extends BaseDatabaseModel
 			return null;
 		}
 
-		if ($response->code !== 200)
+		if ($response->getStatusCode() !== 200)
 		{
 			return null;
 		}
 
-		$body = trim($response->body ?: '');
+		$body = trim((string) $response->getBody() ?: '');
 
 		if (empty($body))
 		{
@@ -748,7 +754,11 @@ final class JupdateModel extends BaseDatabaseModel
 		try
 		{
 			$method = $refObj->getMethod('executeUnpreparedQuery');
-			$method->setAccessible(true);
+
+			if (version_compare(PHP_VERSION, '8.1.0', 'lt'))
+			{
+				$method->setAccessible(true);
+			}
 
 			return $method->invoke($db, $sql);
 		}

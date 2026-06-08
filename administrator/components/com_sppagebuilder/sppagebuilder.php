@@ -13,11 +13,14 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\MVC\Controller\BaseController;
+use Joomla\CMS\Form\FormHelper;
 
 if (!Factory::getUser()->authorise('core.manage', 'com_sppagebuilder'))
 {
 	throw new NotAllowed(Text::_('JERROR_ALERTNOAUTHOR'), 403);
 }
+
+FormHelper::addFieldPath(__DIR__ . '/models/fields');
 
 // Require helper file
 JLoader::register('SppagebuilderHelper', __DIR__ . '/helpers/sppagebuilder.php');

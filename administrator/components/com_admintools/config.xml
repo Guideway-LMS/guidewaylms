@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--~
   ~ @package   admintools
-  ~ @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
   ~ @license   GNU General Public License version 3, or later
   -->
 <config>
@@ -64,6 +64,32 @@
                class="btn-group btn-group-yesno">
             <option value="0">JNo</option>
             <option value="1">JYes</option>
+        </field>
+
+        <field name="override_server"
+               type="list"
+               default=""
+               label="COM_ADMINTOOLS_JCONFIG_OVERRIDE_SERVER_LABEL"
+               description="COM_ADMINTOOLS_JCONFIG_OVERRIDE_SERVER_DESCRIPTION">
+            <option value="">COM_ADMINTOOLS_JCONFIG_OVERRIDE_SERVER_OPT_AUTO</option>
+            <option value="APACHE">COM_ADMINTOOLS_JCONFIG_OVERRIDE_SERVER_OPT_APACHE</option>
+            <option value="LITESPEED">COM_ADMINTOOLS_JCONFIG_OVERRIDE_SERVER_OPT_LITESPEED</option>
+            <option value="NGINX">COM_ADMINTOOLS_JCONFIG_OVERRIDE_SERVER_OPT_NGINX</option>
+            <option value="IIS">COM_ADMINTOOLS_JCONFIG_OVERRIDE_SERVER_OPT_IIS</option>
+        </field>
+
+        <field name="override_apache"
+               type="list"
+               default=""
+               label="COM_ADMINTOOLS_JCONFIG_OVERRIDE_APACHE_LABEL"
+               description="COM_ADMINTOOLS_JCONFIG_OVERRIDE_APACHE_DESCRIPTION"
+               showon="override_server:APACHE[OR]override_server:"
+        >
+            <option value="">COM_ADMINTOOLS_JCONFIG_OVERRIDE_APACHE_OPT_AUTO</option>
+            <option value="1.3">COM_ADMINTOOLS_JCONFIG_OVERRIDE_APACHE_OPT_1_3</option>
+            <option value="2.0">COM_ADMINTOOLS_JCONFIG_OVERRIDE_APACHE_OPT_2_0</option>
+            <option value="2.2">COM_ADMINTOOLS_JCONFIG_OVERRIDE_APACHE_OPT_2_2</option>
+            <option value="2.4">COM_ADMINTOOLS_JCONFIG_OVERRIDE_APACHE_OPT_2_4</option>
         </field>
 
         <field name="fepexdirsj530update" default="0" type="hidden"/>

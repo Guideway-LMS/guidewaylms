@@ -80,6 +80,24 @@ class SppagebuilderAddonVideo extends SppagebuilderAddons
 			}
 		}
 
+		$video_subtitle = (isset($settings->video_subtitle) && $settings->video_subtitle) ? $settings->video_subtitle : '';
+		$video_subtitle_src = isset($video_subtitle->src) ? $video_subtitle->src : $video_subtitle;
+
+		if ($video_subtitle_src && (strpos($video_subtitle_src, "http://") !== false || strpos($video_subtitle_src, "https://") !== false))
+		{
+			$video_subtitle = $video_subtitle_src;
+		}
+		else
+		{
+			if (!empty($video_subtitle))
+			{
+				$video_subtitle = Uri::base(true) . '/' . ltrim($video_subtitle_src, '/');
+			}
+		}
+
+		$video_subtitle_srclang = (isset($settings->video_subtitle_srclang) && $settings->video_subtitle_srclang) ? $settings->video_subtitle_srclang : 'en';
+		$video_subtitle_label = (isset($settings->video_subtitle_label) && $settings->video_subtitle_label) ? $settings->video_subtitle_label : 'English';
+
 		$show_control = (isset($settings->show_control) && $settings->show_control) ? $settings->show_control : 0;
 		$enable_download = (isset($settings->download_video) && $settings->download_video) ? $settings->download_video : 0;
 		$video_loop = (isset($settings->video_loop) && $settings->video_loop) ? $settings->video_loop : 0;
@@ -93,9 +111,11 @@ class SppagebuilderAddonVideo extends SppagebuilderAddons
 		}
 		else
 		{
-			if (!empty($video_poster))
+			if (!empty($video_poster) && $video_poster_src)
 			{
 				$video_poster = Uri::base(true) . '/' . $video_poster_src;
+			} else {
+				$video_poster = '';
 			}
 		}
 
@@ -183,7 +203,7 @@ class SppagebuilderAddonVideo extends SppagebuilderAddons
 			if ($mp4_video || $ogv_video)
 			{
 				$output .= '<div class="sppb-addon-video-local-video-wrap">';
-				$output .= '<video ' . $preload . ' class="sppb-addon-video-local-source' . ($placeholder ? ' sppb-element-lazy' : '') . '"' . (!empty($video_aria_label) ? ' aria-label="' . $video_aria_label . '"' : '') . (!empty($video_aria_described_by) ? ' aria-describedby="' . $video_aria_described_by . '"' : '') . ($video_loop != 0 ? ' loop' : '') . '' . ($autoplay_video != 0 ? ' autoplay' : '') . '' . ($show_control != 0 ? ' controls' : '') . '' . ($video_mute != 0 ? ' muted' : '') . ' ' . ($lazyload ? 'data-poster="' . $video_poster . '"' : ' poster="' . $video_poster . '"') . ($enable_download ? '' : ' controlsList="nodownload" oncontextmenu="return false;"') . ' playsinline>';
+				$output .= '<video ' . $preload . ' class="sppb-addon-video-local-source' . ($placeholder ? ' sppb-element-lazy' : '') . '"' . (!empty($video_aria_label) ? ' aria-label="' . $video_aria_label . '"' : '') . (!empty($video_aria_described_by) ? ' aria-describedby="' . $video_aria_described_by . '"' : '') . ($video_loop != 0 ? ' loop' : '') . '' . ($autoplay_video != 0 ? ' autoplay' : '') . '' . ($show_control != 0 ? ' controls' : '') . '' . ($video_mute != 0 ? ' muted' : '') . ' ' . ($lazyload ? ($video_poster ? 'data-poster="' . $video_poster . '"' : '') : ($video_poster ? ' poster="' . $video_poster . '"' : '')) . ($enable_download ? '' : ' controlsList="nodownload" oncontextmenu="return false;"') . ' playsinline>';
 				if (!empty($mp4_video))
 				{
 					$output .= '<source ' . ($lazyload ? 'data-large="' . $mp4_video . '"' : 'src="' . $mp4_video . '"') . ' type="video/mp4">';
@@ -191,6 +211,10 @@ class SppagebuilderAddonVideo extends SppagebuilderAddons
 				if (!empty($ogv_video))
 				{
 					$output .= '<source ' . ($lazyload ? 'data-large="' . $ogv_video . '"' : 'src="' . $ogv_video . '"') . ' type="video/ogg">';
+				}
+				if (!empty($video_subtitle))
+				{
+					$output .= '<track src="' . htmlspecialchars($video_subtitle, ENT_QUOTES, 'UTF-8') . '" kind="subtitles" srclang="' . htmlspecialchars($video_subtitle_srclang, ENT_QUOTES, 'UTF-8') . '" label="' . htmlspecialchars($video_subtitle_label, ENT_QUOTES, 'UTF-8') . '" default>';
 				}
 				$output .= '</video>';
 				$output .= '</div>';

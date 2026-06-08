@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -104,7 +104,7 @@ trait ModelCopyTrait
 		}
 
 		// Check that the user has create permission for the component
-		$extension = Factory::getApplication()->input->get('option', '');
+		$extension = Factory::getApplication()->getInput()->get('option', '');
 		$user      = Factory::getApplication()->getIdentity();
 
 		// If the parent table has no asset I will only check if I can create items in the component

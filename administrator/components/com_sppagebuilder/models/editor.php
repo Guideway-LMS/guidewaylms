@@ -14,6 +14,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Dispatcher\Dispatcher as DispatcherDispatcher;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
@@ -223,6 +224,7 @@ class SppagebuilderModelEditor extends AdminModel
         $sortBy        = $pageData->sortBy;
         $category      = (int) $pageData->category;
         $language      = $pageData->language;
+        $access        = $pageData->access ?? '';
         $status        = $pageData->status;
         $extension     = $pageData->extension;
         $extensionView = $pageData->extension_view;
@@ -301,6 +303,12 @@ class SppagebuilderModelEditor extends AdminModel
             if (! empty($language)) {
                 $query->where($db->quoteName('p.language') . ' = :language')
                     ->bind(':language', $language);
+            }
+
+            if ($access !== '' && is_numeric($access)) {
+                $accessLevel = (int) $access;
+                $query->where($db->quoteName('p.access') . ' = :access')
+                    ->bind(':access', $accessLevel, ParameterType::INTEGER);
             }
 
             if (! empty($search)) {
@@ -849,6 +857,23 @@ class SppagebuilderModelEditor extends AdminModel
                 $page = $this->getPageContent($data['id']);
                 $this->addArticleFullText($page->view_id, $page->content);
             }
+
+            $params = ComponentHelper::getParams('com_sppagebuilder');
+            $pageVersioningEnabled = $params->get('enable_page_versioning', 1);
+            $versioningOnSaveDisabled = !$params->get('enable_versioning_on_save', 1);
+            $is_triggered_from_save = !(isset($data['is_triggered_from_versioning']) ? (bool)$data['is_triggered_from_versioning'] : false);
+            $is_pro_version = !((bool)$data['is_free_version']);
+
+            if($is_pro_version && $pageVersioningEnabled) {
+                if($is_triggered_from_save && $versioningOnSaveDisabled) {
+                    return;
+                }
+
+                $versionName = !empty($data['version_name']) ? $data['version_name'] : null;
+                $versionNote = !empty($data['version_note']) ? $data['version_note'] : null;
+                $this->createVersionSnapshot($data['id'], $versionName, $versionNote);
+            }
+            
         } catch (Throwable $error) {
             throw $error;
         }
@@ -1300,6 +1325,134 @@ class SppagebuilderModelEditor extends AdminModel
     }
 
     /**
+     * Get language status and sync with Joomla extensions table.
+     *
+     * @param string $language The language tag to check.
+     *
+     * @return object|false The language object with synced status, false if not found in Joomla.
+     * @since 6.6.0
+     */
+    public function getLanguageStatus($language = 'en-GB')
+    {
+        $db = Factory::getDbo();
+        $elementPattern = $language . '.com_sppagebuilder';
+        
+        $query = $db->getQuery(true);
+        $query->select($db->quoteName(['extension_id', 'enabled', 'name']))
+            ->from($db->quoteName('#__extensions'))
+            ->where($db->quoteName('type') . ' = ' . $db->quote('file'))
+            ->where($db->quoteName('element') . ' = ' . $db->quote($elementPattern));
+        
+        $db->setQuery($query);
+        $extensionRecord = $db->loadObject();
+
+        if (!$extensionRecord)
+        {
+            $this->deleteLanguage($language);
+            return false;
+        }
+
+        $customRecord = $this->checkLanguageIsInstalled($language);
+        
+        if (!$customRecord)
+        {
+            $state = $extensionRecord->enabled ? 1 : 0;
+            $this->createLanguageFromJoomlaExtension($language, $extensionRecord->name, $state);
+            $customRecord = $this->checkLanguageIsInstalled($language);
+            
+            if (!$customRecord)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ($extensionRecord->enabled && (int) $customRecord->state !== 1)
+            {
+                $customRecord->state = 1;
+                $this->updateLanguageState($customRecord->id, 1);
+            }
+            else if (!$extensionRecord->enabled && (int) $customRecord->state !== 0)
+            {
+                $customRecord->state = 0;
+                $this->updateLanguageState($customRecord->id, 0);
+            }
+        }
+
+        return $customRecord;
+    }
+
+    /**
+     * Create a language record in our custom table from Joomla extension.
+     *
+     * @param string $language The language tag.
+     * @param string $name The extension name.
+     * @param int $state The state (0 or 1).
+     *
+     * @return int|false The inserted language ID or false on failure.
+     * @since 6.6.0
+     */
+    private function createLanguageFromJoomlaExtension($language = 'en-GB', $name = '', $state = 1)
+    {
+        $db = Factory::getDbo();
+        
+        $parts = explode('-', $language);
+        $langKey = !empty($parts[0]) ? strtolower($parts[0]) : $language;
+        
+        $object = new \stdClass();
+        $object->title = !empty($name) ? $name : 'SP Page Builder (' . $language . ')';
+        $object->description = 'Language pack for SP Page Builder';
+        $object->lang_tag = $language;
+        $object->lang_key = $langKey;
+        $object->version = '2.0.1';
+        $object->state = $state;
+
+        try
+        {
+            $db->insertObject('#__sppagebuilder_languages', $object);
+            return $db->insertid();
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
+    }
+
+
+    /**
+     * Update language state.
+     *
+     * @param int $id The language record ID.
+     * @param int $state The state value (0 or 1).
+     *
+     * @return bool True on success, false on failure.
+     * @since 6.6.0
+     */
+    private function updateLanguageState($id, $state)
+    {
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->update($db->quoteName('#__sppagebuilder_languages'))
+            ->set($db->quoteName('state') . ' = :state')
+            ->where($db->quoteName('id') . ' = :id')
+            ->bind(':state', $state, ParameterType::INTEGER)
+            ->bind(':id', $id, ParameterType::INTEGER);
+
+        $db->setQuery($query);
+
+        try
+        {
+            $db->execute();
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
+    }
+
+    /**
      * Store language details.
      *
      * @param object $language The language object containing details.
@@ -1320,7 +1473,7 @@ class SppagebuilderModelEditor extends AdminModel
                 'lang_key'    => $language->lang_key,
                 'version'     => $language->version,
             ];
-            $version = $this->updateLanguage($values, $language->lang_key);
+            $version = $this->updateLanguageByTag($values, $language->lang_tag);
         } else {
             $values = [
                 $language->title,
@@ -1395,6 +1548,125 @@ class SppagebuilderModelEditor extends AdminModel
         $db->execute();
 
         return $values['version'];
+    }
+
+    /**
+     * Update language details by lang_tag.
+     *
+     * @param array $values The values to update.
+     * @param string $lang_tag The language tag.
+     *
+     * @return string The updated version.
+     * @since 6.6.0
+     */
+    private function updateLanguageByTag($values = [], $lang_tag = 'en-GB')
+    {
+        $db    = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->update($db->quoteName('#__sppagebuilder_languages'))
+            ->set([
+                $db->quoteName('title') . ' = :title',
+                $db->quoteName('description') . ' = :description',
+                $db->quoteName('lang_key') . ' = :langKey',
+                $db->quoteName('version') . ' = :version',
+            ])
+            ->where($db->quoteName('lang_tag') . ' = :langTag')
+            ->bind(':title', $values['title'])
+            ->bind(':description', $values['description'])
+            ->bind(':langKey', $values['lang_key'])
+            ->bind(':version', $values['version'])
+            ->bind(':langTag', $lang_tag);
+
+        $db->setQuery($query);
+        
+        try
+        {
+            $db->execute();
+            return $values['version'];
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
+    }
+
+
+    /**
+     * Uninstall a language.
+     *
+     * @param string $language The language tag to uninstall.
+     *
+     * @return bool True on success, false on failure.
+     * @since 6.6.0
+     */
+    public function uninstallLanguage($language = 'en-GB')
+    {
+        try
+        {
+            $langRecord = $this->checkLanguageIsInstalled($language);
+            
+            if (!$langRecord)
+            {
+                return false;
+            }
+
+            $installer = Installer::getInstance();
+            
+            $db = Factory::getDbo();
+            $query = $db->getQuery(true);
+            $elementPattern = $language . '.com_sppagebuilder';
+            $query->select($db->quoteName('extension_id'))
+                ->from($db->quoteName('#__extensions'))
+                ->where($db->quoteName('type') . ' = ' . $db->quote('file'))
+                ->where($db->quoteName('element') . ' = ' . $db->quote($elementPattern));
+            
+            $db->setQuery($query);
+            $extensionId = $db->loadResult();
+            
+            if ($extensionId)
+            {
+                $table = Table::getInstance('Extension');
+                $table->load($extensionId);
+                
+                $installer->uninstall('file', $extensionId, $table->element);
+            }
+
+            return $this->deleteLanguage($language);
+        }
+        catch (Exception $e)
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Delete language record from database.
+     *
+     * @param string $language The language tag to delete.
+     *
+     * @return bool True on success, false on failure.
+     * @since 6.6.0
+     */
+    private function deleteLanguage($language = 'en-GB')
+    {
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+        $query->delete($db->quoteName('#__sppagebuilder_languages'))
+            ->where($db->quoteName('lang_tag') . ' = :language')
+            ->bind(':language', $language);
+
+        $db->setQuery($query);
+
+        try
+        {
+            $db->execute();
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
     }
 
     /**
@@ -1517,5 +1789,205 @@ class SppagebuilderModelEditor extends AdminModel
         $article->fulltext = SppagebuilderHelperSite::getPrettyText($data);
 
         Factory::getDbo()->updateObject('#__content', $article, 'id');
+    }
+
+    /**
+     * Create a version snapshot of the page before saving
+     *
+     * @param int $pageId
+     * @param string|null $customName
+     * @param string|null $customNote
+     * @return void
+     * @since 6.2.4
+     */
+    private function createVersionSnapshot($pageId, $customName = null, $customNote = null)
+    {
+        try
+        {
+            // Get current page data before saving
+            $db = Factory::getDbo();
+            $query = $db->getQuery(true);
+            $query->select([
+                $db->quoteName('content'),
+                $db->quoteName('css'),
+                $db->quoteName('attribs'),
+                $db->quoteName('og_title'),
+                $db->quoteName('og_image'),
+                $db->quoteName('og_description')
+            ])
+            ->from($db->quoteName('#__sppagebuilder'))
+            ->where($db->quoteName('id') . ' = ' . (int) $pageId);
+
+            $db->setQuery($query);
+            $pageData = $db->loadObject();
+
+            if (!$pageData)
+            {
+                return; // Page doesn't exist yet, skip version creation
+            }
+
+            // If a custom note is provided, always create a snapshot (manual note addition)
+            // Otherwise, compare with the last active version to see if settings changed
+            if (empty($customNote))
+            {
+                // Get the last active version to compare
+                $versionQuery = $db->getQuery(true);
+                $versionQuery->select([
+                    $db->quoteName('content'),
+                    $db->quoteName('css'),
+                    $db->quoteName('attribs'),
+                    $db->quoteName('og_title'),
+                    $db->quoteName('og_image'),
+                    $db->quoteName('og_description')
+                ])
+                ->from($db->quoteName('#__sppagebuilder_versions'))
+                ->where($db->quoteName('page_id') . ' = ' . (int) $pageId)
+                ->where($db->quoteName('active') . ' = 1')
+                ->order($db->quoteName('created_on') . ' DESC')
+                ->setLimit(1);
+
+                $db->setQuery($versionQuery);
+                $activeVersion = $db->loadObject();
+
+                // If there's an active version, compare settings
+                if ($activeVersion)
+                {
+                    $hasChanges = false;
+
+                    // Normalize and compare content
+                    $currentContent = $pageData->content ?? '';
+                    $activeContent = $activeVersion->content ?? '';
+                    if ($currentContent !== $activeContent)
+                    {
+                        $hasChanges = true;
+                    }
+
+                    // Compare CSS
+                    if (!$hasChanges)
+                    {
+                        $currentCss = $pageData->css ?? '';
+                        $activeCss = $activeVersion->css ?? '';
+                        if ($currentCss !== $activeCss)
+                        {
+                            $hasChanges = true;
+                        }
+                    }
+
+                    // Compare attribs
+                    if (!$hasChanges)
+                    {
+                        $currentAttribs = $pageData->attribs ?? '[]';
+                        $activeAttribs = $activeVersion->attribs ?? '[]';
+                        if ($currentAttribs !== $activeAttribs)
+                        {
+                            $hasChanges = true;
+                        }
+                    }
+
+                    // Compare OG fields
+                    if (!$hasChanges)
+                    {
+                        $currentOgTitle = $pageData->og_title ?? '';
+                        $activeOgTitle = $activeVersion->og_title ?? '';
+                        $currentOgImage = $pageData->og_image ?? '';
+                        $activeOgImage = $activeVersion->og_image ?? '';
+                        $currentOgDescription = $pageData->og_description ?? '';
+                        $activeOgDescription = $activeVersion->og_description ?? '';
+
+                        if ($currentOgTitle !== $activeOgTitle || 
+                            $currentOgImage !== $activeOgImage || 
+                            $currentOgDescription !== $activeOgDescription)
+                        {
+                            $hasChanges = true;
+                        }
+                    }
+
+                    // If no changes detected, skip version creation
+                    if (!$hasChanges)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            // Use custom name if provided, otherwise format date/time for version name: "Feb 13, 2026, 7:06:30 AM"
+            if (!empty($customName))
+            {
+                $versionName = $customName;
+            }
+            else
+            {
+                $date = Factory::getDate();
+                $versionName = $date->format('M j, Y, g:i:s A', true);
+            }
+
+            $maxVersionsForPage = (int) ComponentHelper::getParams('com_sppagebuilder')->get('max_versions_for_page', 10);
+            $maxVersionsForPage = max(3, $maxVersionsForPage);
+
+            $countQuery = $db->getQuery(true);
+            $countQuery->select('COUNT(*)')
+                ->from($db->quoteName('#__sppagebuilder_versions'))
+                ->where($db->quoteName('page_id') . ' = ' . (int) $pageId);
+            $db->setQuery($countQuery);
+            $currentVersionCount = (int) $db->loadResult();
+
+            if ($currentVersionCount >= $maxVersionsForPage)
+            {
+                $oldestVersionQuery = $db->getQuery(true);
+                $oldestVersionQuery->select($db->quoteName('id'))
+                    ->from($db->quoteName('#__sppagebuilder_versions'))
+                    ->where($db->quoteName('page_id') . ' = ' . (int) $pageId)
+                    ->order($db->quoteName('created_on') . ' ASC')
+                    ->setLimit(1);
+                $db->setQuery($oldestVersionQuery);
+                $oldestVersionId = (int) $db->loadResult();
+
+                if ($oldestVersionId > 0)
+                {
+                    $deleteQuery = $db->getQuery(true);
+                    $deleteQuery->delete($db->quoteName('#__sppagebuilder_versions'))
+                        ->where($db->quoteName('id') . ' = ' . $oldestVersionId);
+                    $db->setQuery($deleteQuery);
+                    $db->execute();
+                }
+            }
+
+            // Set all other versions of this page to inactive
+            $updateQuery = $db->getQuery(true);
+            $updateQuery->update($db->quoteName('#__sppagebuilder_versions'))
+                ->set($db->quoteName('active') . ' = 0')
+                ->where($db->quoteName('page_id') . ' = ' . (int) $pageId);
+            $db->setQuery($updateQuery);
+            $db->execute();
+
+            Table::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_sppagebuilder/tables');
+            $versionTable = Table::getInstance('Version', 'SppagebuilderTable');
+
+            $versionData = [
+                'page_id' => $pageId,
+                'name' => $versionName,
+                'content' => $pageData->content ?? '',
+                'css' => $pageData->css ?? '',
+                'attribs' => $pageData->attribs ?? '[]',
+                'og_title' => $pageData->og_title ?? '',
+                'og_image' => $pageData->og_image ?? '',
+                'og_description' => $pageData->og_description ?? '',
+                'active' => 1,
+            ];
+
+            // Add custom note if provided
+            if (!empty($customNote))
+            {
+                $versionData['note'] = $customNote;
+            }
+
+            $versionTable->bind($versionData);
+            $versionTable->store();
+        }
+        catch (Exception $e)
+        {
+            // Silently fail - versioning is not critical for saving
+            // Log error if needed
+        }
     }
 }

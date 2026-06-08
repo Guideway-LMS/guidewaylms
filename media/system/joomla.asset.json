@@ -326,7 +326,7 @@
       "attributes": {
         "defer": true
       },
-      "version": "abfb14"
+      "version": "d64d1d"
     },
     {
       "name": "showon",
@@ -358,7 +358,7 @@
         "defer": true,
         "type": "module"
       },
-      "version": "4bcb00"
+      "version": "a8f254"
     },
     {
       "name": "form.validate",
@@ -436,18 +436,6 @@
     },
     {
       "name": "field.calendar",
-      "type": "style",
-      "uri": "system/fields/calendar.css",
-      "version": "5da368"
-    },
-    {
-      "name": "field.calendar-rtl",
-      "type": "style",
-      "uri": "system/fields/calendar-rtl.css",
-      "version": "1e99b9"
-    },
-    {
-      "name": "field.calendar",
       "type": "script",
       "uri": "system/fields/calendar.min.js",
       "attributes": {
@@ -456,7 +444,16 @@
       "dependencies": [
         "field.calendar.helper"
       ],
-      "version": "b3233a"
+      "version": "973c2a"
+    },
+    {
+      "name": "field.color-slider",
+      "type": "script",
+      "uri": "system/fields/joomla-field-color-slider.min.js",
+      "attributes": {
+        "defer": true
+      },
+      "version": "01c1ec"
     },
     {
       "name": "field.modal-fields",
@@ -473,15 +470,6 @@
       "version": "21a476"
     },
     {
-      "name": "field.color-slider",
-      "type": "script",
-      "uri": "system/fields/joomla-field-color-slider.min.js",
-      "attributes": {
-        "defer": true
-      },
-      "version": "01c1ec"
-    },
-    {
       "name": "webcomponent.field-fancy-select",
       "type": "script",
       "uri": "system/fields/joomla-field-fancy-select.min.js",
@@ -492,13 +480,13 @@
         "choicesjs",
         "webcomponent.field-fancy-select-legacy"
       ],
-      "version": "aad668"
+      "version": "f81ca2"
     },
     {
       "name": "webcomponent.field-media",
       "type": "style",
       "uri": "system/fields/joomla-field-media.min.css",
-      "version": "29a289"
+      "version": "dcc09c"
     },
     {
       "name": "webcomponent.media-select",
@@ -529,7 +517,7 @@
       "dependencies": [
         "webcomponent.field-media-legacy"
       ],
-      "version": "03e20d"
+      "version": "0135a7"
     },
     {
       "name": "webcomponent.field-module-order",
@@ -542,6 +530,12 @@
         "webcomponent.field-module-order-legacy"
       ],
       "version": "1f3de3"
+    },
+    {
+      "name": "field.calendar",
+      "type": "style",
+      "uri": "system/fields/calendar.css",
+      "version": "5da368"
     },
     {
       "name": "webcomponent.field-permissions",

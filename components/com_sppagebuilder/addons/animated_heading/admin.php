@@ -174,7 +174,7 @@ SpAddonsConfig::addonConfig([
 					'type'    => 'select',
 					'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_ANI_HEADING_TEXT_ANI'),
 					'desc'    => Text::_('COM_SPPAGEBUILDER_ADDON_ANI_HEADING_TEXT_ANI_DESC'),
-					'values'  => ['blinds' => 'Blinds', 'clip' => 'Clip', 'delete-typing' => 'Typing', 'flip' => 'Flip', 'fade-in' => 'Fade In', 'loading-bar' => 'Loading Bar', 'scale' => 'Scale', 'slide' => 'Swirl', 'push' => 'Push', 'wave' => 'Twist'],
+					'values'  => ['blinds' => 'Blinds', 'clip' => 'Clip', 'delete-typing' => 'Typing', 'flip' => 'Flip', 'fade-in' => 'Fade In', 'loading-bar' => 'Loading Bar', 'scale' => 'Scale', 'slide' => 'Swirl', 'push' => 'Push', 'wave' => 'Twist', 'marquee' => 'Marquee'],
 					'std'     => 'clip',
 					'depends' => [['heading_style', '=', 'text-animation'], ['animated_text', '!=', '']],
 				],

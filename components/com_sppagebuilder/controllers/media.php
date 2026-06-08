@@ -344,7 +344,7 @@ class SppagebuilderControllerMedia extends FormController
 						'image' => array('jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'avif'),
 						'video' => array('mp4', 'mov', 'wmv', 'avi', 'mpg', 'ogv', '3gp', '3g2'),
 						'audio' => array('mp3', 'm4a', 'ogg', 'wav'),
-						'attachment' => array('pdf', 'doc', 'docx', 'key', 'ppt', 'pptx', 'pps', 'ppsx', 'odt', 'xls', 'xlsx', 'zip', 'json'),
+						'attachment' => array('pdf', 'doc', 'docx', 'key', 'ppt', 'pptx', 'pps', 'ppsx', 'odt', 'xls', 'xlsx', 'zip', 'json', 'srt', 'vtt'),
 					);
 
 					// Upload if no error found
@@ -627,7 +627,7 @@ class SppagebuilderControllerMedia extends FormController
 			$app->setHeader('status', 500, true);
 			$app->sendHeaders();
 			$response = [
-				'data' => Text::_("COM_SPPAGEBUILDER_MEDIA_MANAGER_MEDIA_RENAME_ERROR"),
+				'data' => Text::_("COM_SPPAGEBUILDER_MEDIA_MANAGER_MEDIA_DELETE_ERROR"),
 				'status' => false,
 				'code' => 500
 			];

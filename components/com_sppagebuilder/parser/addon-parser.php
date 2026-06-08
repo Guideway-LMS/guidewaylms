@@ -10,6 +10,7 @@
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Access\Access;
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -272,6 +273,38 @@ class AddonParser
 		return null;
 	}
 
+	/**
+	 * Get layout base path
+	 * @param string $layout
+	 * @return string
+	 */
+	public static function getLayoutBasePath($layout)
+	{
+		$templatePath = JPATH_ROOT . '/templates/' . self::$template;
+		$templateLayoutBase = $templatePath . '/sppagebuilder/layouts';
+		$fullTemplatePath = sprintf('%s/%s.php', $templateLayoutBase, self::parsePath($layout));
+
+		if (file_exists($fullTemplatePath)) {
+			return $templateLayoutBase;
+		} else {
+			return JPATH_ROOT . '/components/com_sppagebuilder/layouts';
+		}
+	}
+
+	/**
+	 * Parse layout path
+	 * @param string $layout
+	 * @return string
+	 */
+	private static function parsePath($layout)
+	{
+		if (strpos($layout, '.')) {
+			return str_replace('.', '/', $layout);
+		}
+
+		return $layout;
+	}
+
 
 	public static function viewAddons($content, $fluid = 0, $pageName = 'none', $level = 1, $newModule = true, $storeData = [], $isReset = false)
 	{
@@ -295,21 +328,19 @@ class AddonParser
 
 		self::$authorised = Access::getAuthorisedViewLevels(Factory::getUser()->get('id'));
 
-		$layout_path = JPATH_ROOT . '/components/com_sppagebuilder/layouts';
-
 		$layouts =  new stdClass;
 
-		$layouts->row_start       = new FileLayout('row.start', $layout_path);
-		$layouts->row_end         = new FileLayout('row.end', $layout_path);
-		$layouts->row_css         = new FileLayout('row.css', $layout_path);
+		$layouts->row_start       = new FileLayout('row.start', self::getLayoutBasePath('row.start'));
+		$layouts->row_end         = new FileLayout('row.end', self::getLayoutBasePath('row.end'));
+		$layouts->row_css         = new FileLayout('row.css', self::getLayoutBasePath('row.css'));
 
-		$layouts->column_start    = new FileLayout('column.start', $layout_path);
-		$layouts->column_end      = new FileLayout('column.end', $layout_path);
-		$layouts->column_css      = new FileLayout('column.css', $layout_path);
+		$layouts->column_start    = new FileLayout('column.start', self::getLayoutBasePath('column.start'));
+		$layouts->column_end      = new FileLayout('column.end', self::getLayoutBasePath('column.end'));
+		$layouts->column_css      = new FileLayout('column.css', self::getLayoutBasePath('column.css'));
 
-		$layouts->addon_start     = new FileLayout('addon.start', $layout_path);
-		$layouts->addon_end       = new FileLayout('addon.end', $layout_path);
-		$layouts->addon_css       = new FileLayout('addon.css', $layout_path);
+		$layouts->addon_start     = new FileLayout('addon.start', self::getLayoutBasePath('addon.start'));
+		$layouts->addon_end       = new FileLayout('addon.end', self::getLayoutBasePath('addon.end'));
+		$layouts->addon_css       = new FileLayout('addon.css', self::getLayoutBasePath('addon.css'));
 
 		$doc = Factory::getDocument();
 		$content = is_object($content) ? (array) $content : $content;
@@ -477,7 +508,7 @@ class AddonParser
 			}
 
 			// interaction js
-			if (count(self::$addon_interactions) > 0 && $pageName != 'none' && $pageName != 'module')
+			if (count(self::$addon_interactions) > 0 && $pageName != 'none')
 			{
 				$doc->addScriptDeclaration('var addonInteraction = ' . json_encode(self::$addon_interactions) . ';');
 			}

@@ -83,6 +83,7 @@ class SppagebuilderAddonArticles extends SppagebuilderAddons
 		}
 
 		$settings = $this->addon->settings;
+		$addon_id = '#sppb-addon-' . $this->addon->id;
 
 
 		$class = (isset($settings->class) && $settings->class) ? $settings->class : '';
@@ -200,27 +201,27 @@ class SppagebuilderAddonArticles extends SppagebuilderAddons
 			if ($layout === 'masonry') {
 				$layoutRowCls .= ' sppb-addon-article-layout-masonry-row ';
 				$output .= '<style>
-				.sppb-addon-articles .sppb-addon-article-layout-masonry-row {
+				'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-masonry-row {
 					display: block;
 					column-count: ' . $columns_lg . ';
 				}
 				@media (max-width: 1200px) {
-					.sppb-addon-articles .sppb-addon-article-layout-masonry-row {
+					'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-masonry-row {
 						column-count: ' . $columns_md . ';
 					}
 				}
 				@media (max-width: 992px) {
-					.sppb-addon-articles .sppb-addon-article-layout-masonry-row {
+					'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-masonry-row {
 						column-count: ' . $columns_sm . '; 
 					}
 				}
 				@media (max-width: 768px) {
-					.sppb-addon-articles .sppb-addon-article-layout-masonry-row {
+					'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-masonry-row {
 						column-count: ' . $columns_xs . '; 
 					}
 				}
 				@media (max-width: 575px) {
-					.sppb-addon-articles .sppb-addon-article-layout-masonry-row {
+					'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-masonry-row {
 						column-count: ' . $columns . '; 
 					}
 				}
@@ -228,27 +229,27 @@ class SppagebuilderAddonArticles extends SppagebuilderAddons
 			} elseif ($layout === 'editorial' || $layout === 'magazine') {
 				$layoutRowCls .= ' sppb-addon-article-layout-' . $layout . '-row ';
 				$output .= '<style>
-				.sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
+				'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
 					display: grid;
 					grid-template-columns: repeat(' . $columns_lg . ', 1fr);
 				}
 				@media (max-width: 1200px) {
-					.sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
+					'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
 						grid-template-columns: repeat(' . $columns_md . ', 1fr);
 					}
 				}
 				@media (max-width: 992px) {
-					.sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
+					'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
 						grid-template-columns: repeat(' . $columns_sm . ', 1fr);
 					}
 				}
 				@media (max-width: 768px) {
-					.sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
+					'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
 						grid-template-columns: repeat(' . $columns_xs . ', 1fr); 
 					}
 				}
 				@media (max-width: 575px) {
-					.sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
+					'.$addon_id.' .sppb-addon-articles .sppb-addon-article-layout-' . $layout . '-row {
 						grid-template-columns: repeat(' . $columns . ', 1fr);
 					}
 				}

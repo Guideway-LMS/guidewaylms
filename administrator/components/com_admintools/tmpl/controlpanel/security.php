@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -22,7 +22,7 @@ $showGraphs = $this->isPro && $this->showstats;
 
 	<div class="akeeba-cpanel-container card-body d-flex flex-row flex-wrap align-items-stretch">
 
-		<?php if (!$showGraphs): ?>
+		<?php if (ADMINTOOLS_PRO && !$showGraphs): ?>
 			<a class="akeeba-cpanel-button text-center align-self-stretch btn btn-outline-success border-0" style="width: 10em"
 			   href="<?= Route::_('index.php?option=com_admintools&view=Controlpanel&task=unblockme'); ?>"
 			   id="selfBlocked"

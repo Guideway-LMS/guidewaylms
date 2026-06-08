@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -68,7 +68,7 @@ class MainpasswordModel extends BaseDatabaseModel
 		// Is this a view protected by the Main Password feature?
 		if (empty($view))
 		{
-			$view = $app->input->getCmd('view', 'Controlpanel');
+			$view = $app->getInput()->getCmd('view', 'Controlpanel');
 		}
 
 		$inflector = (new \Doctrine\Inflector\Rules\English\InflectorFactory())->build();
@@ -122,8 +122,8 @@ class MainpasswordModel extends BaseDatabaseModel
 		}
 
 		// Special case: view=Blockedrequestslog, task=browse, format=json (graphs) is always allowed.
-		$task   = $app->input->get('task', '');
-		$format = $app->input->get('format', 'html');
+		$task   = $app->getInput()->get('task', '');
+		$format = $app->getInput()->get('format', 'html');
 
 		if (
 			(($view == 'blockedrequestslog') || ($view == 'blockedrequestslogs')) &&

@@ -1,4 +1,58 @@
 <?php die() ?>
+Admin Tools 7.8.9
+================================================================================
+~ [LOW] Fix PHP 9 deprecations (gh-326)
++ [LOW] Immediate IP block on failed login with a forbidden username
+# [HIGH] PHP File Change Scanner could fail on PostgreSQL when "Do not report files with a zero Threat Score" is enabled
+# [HIGH] PHP File Change Scanner results page would crash with a fatal error on PostgreSQL sites
+# [HIGH] PHP File Change Scanner list page would crash with a fatal error on PostgreSQL sites
+# [HIGH] PHP File Change Scanner page would crash with a fatal error on PostgreSQL sites
+
+Admin Tools 7.8.8
+================================================================================
++ [LOW] Delete Inactive Users scheduled task: optional User Group filter
+# [HIGH] .htaccess Maker outputs blocked user agents rules before RewriteEngine On
+# [HIGH] Admin Secret URL Parameter override cookie wouldn't work on Joomla 6 without the backwards compatibility plugin enabled
+# [HIGH] Unblock My IP in the Control Panel would fail with a fatal error
+
+Admin Tools 7.8.7
+================================================================================
+# [HIGH] "Cannot use object of type stdClass as array" on some sites
+
+Admin Tools 7.8.6
+================================================================================
++ Override automatic server detection
+# [HIGH] Cannot save .htaccess configuration when "Restrict access by IP" is set to Custom
+# [HIGH] Cannot combine "Restrict access by IP" with "User agents to block"
+# [LOW] Litespeed was incorrectly treated as Apache 2.0 when it supports Apache 2.4 syntax
+
+Admin Tools 7.8.5
+================================================================================
+# [HIGH] Restrict access by IP range could fail on Joomla 6 (core b/c break)
+# [HIGH] Resetting Joomla Update would fail on Joomla 6 (core b/c break)
+# [HIGH] Warn About Leaked Passwords would fail on Joomla 6 (core b/c break)
+# [MEDIUM] Dropdown labels were swapped in the Delete inactive users scheduled task.
+
+Admin Tools 7.8.4
+================================================================================
+~ PHP 8.5 compatiblity
+# [LOW] PHP warning in Web.Config Maker coming from a reference to an obsolete feature
+
+Admin Tools 7.8.3
+================================================================================
+~ Support for Joomla 6
+~ PHP 8.5 compatibility: setAccessible is deprecated for reflection objects
+~ PHP 8.5 compatibility: implicit nullable method parameters are deprecated
+
+Admin Tools 7.8.2
+================================================================================
+~ Preliminary support for Joomla 6
+~ Removed wget and pycurl from the default list of blocked user agent strings
+~ Improve Unicode support in Bad Words filtering
+# [HIGH] Fatal error on blocked request under Joomla 5 and PostgreSQL due to internal J5 changes
+# [LOW] PHP warning 'Attempt to read property "guest" on null' in some rare admin login failure cases
+# [LOW] Misnamed column in the URL redirects table for PostgreSQL
+
 Admin Tools 7.8.1
 ================================================================================
 ~ Preliminary support for Joomla 6

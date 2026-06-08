@@ -34,6 +34,8 @@ class SppagebuilderAddonCarouselpro extends SppagebuilderAddons
 
 		//Addons option
 		$autoplay = (isset($settings->autoplay) && $settings->autoplay) ? 1 : 0;
+		$pause_on_hover = (!isset($settings->pause_on_hover) || $settings->pause_on_hover) ? 1 : 0;
+		$loop = !isset($settings->loop) ? 1 : (int) $settings->loop;
 		$controllers = (isset($settings->controllers) && $settings->controllers) ? $settings->controllers : 0;
 		$arrows = (isset($settings->arrows) && $settings->arrows) ? $settings->arrows : 0;
 
@@ -84,7 +86,7 @@ class SppagebuilderAddonCarouselpro extends SppagebuilderAddons
 
 		//Output start
 		$output = '';
-		$output  .= '<div id="sppb-carousel-' . $this->addon->id . '" data-interval="' . $interval . '" class="sppb-carousel sppb-carousel-pro sppb-slide' . $class . '"' . $carousel_autoplay . '>';
+		$output  .= '<div id="sppb-carousel-' . $this->addon->id . '" data-loop="' . ($loop ? 'true' : 'false') . '" data-interval="' . $interval . '" class="sppb-carousel sppb-carousel-pro sppb-slide' . $class . '" data-pause-on-hover="' . $pause_on_hover . '"' . $carousel_autoplay . '>';
 
 		if(isset($settings->randomize_carousel) && $settings->randomize_carousel)
 		{
@@ -408,6 +410,7 @@ class SppagebuilderAddonCarouselpro extends SppagebuilderAddons
 		{
 			interval = "false";
 		}
+		let pauseOnHover = (data.pause_on_hover === 0 || data.pause_on_hover === "0") ? 0 : 1;
 		
 		#>
 		<style type="text/css">';
@@ -559,7 +562,7 @@ class SppagebuilderAddonCarouselpro extends SppagebuilderAddons
 				data.arrow_position = "default"
 			}
 		#>
-		<div id="sppb-carousel-{{data.id}}" class="sppb-carousel sppb-carousel-pro sppb-slide {{ data.class }}" data-interval="{{ interval }}" {{{ autoplay }}}>
+		<div id="sppb-carousel-{{data.id}}" class="sppb-carousel sppb-carousel-pro sppb-slide {{ data.class }}" data-interval="{{ interval }}" data-pause-on-hover="{{ pauseOnHover }}" {{{ autoplay }}}>
 			<# if (data.controllers) { #>
 				<ol class="sppb-carousel-indicators">
 				<# _.each(data.sp_carouselpro_item, function (carousel_item, key) { #>

@@ -12,7 +12,6 @@ use AddonParser;
 use ApplicationHelper;
 use DateTime;
 use FieldsHelper;
-use IntlDateFormatter;
 use JLoader;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -351,38 +350,186 @@ class CollectionHelper
     public static function getDetailPageDataFromArticles()
     {
         $itemId = static::getCollectionItemIdFromUrl();
-        if (!class_exists('SppagebuilderHelperArticles')) {
-            require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
+        
+        if (empty($itemId)) {
+            return null;
         }
 
-        $articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
-        $articles = \SppagebuilderHelperArticles::getArticles($articlesCount);
+        try {
+            $db = Factory::getDbo();
+            $authorised = \Joomla\CMS\Access\Access::getAuthorisedViewLevels(Factory::getUser()->get('id'));
+            $baseUrl = rtrim(Uri::root(), '/');
+            
+            $query = $db->getQuery(true);
+            $query->select([
+                'a.id', 'a.title', 'a.alias', 'a.introtext', 'a.fulltext',
+                'a.catid', 'a.created', 'a.created_by', 'a.publish_up',
+                'a.images', 'a.attribs', 'a.language', 'a.featured', 'a.hits',
+                'b.title as category', 'b.alias as category_alias',
+                'u.name as username', 'u.email as created_by_email',
+                'CASE WHEN p.profile_value IS NOT NULL THEN CONCAT(' . $db->quote($baseUrl) . ', JSON_UNQUOTE(p.profile_value)) ELSE NULL END as profile_image'
+            ])
+            ->from($db->quoteName('#__content', 'a'))
+            ->join('LEFT', $db->quoteName('#__categories', 'b') . ' ON a.catid = b.id')
+            ->join('LEFT', $db->quoteName('#__users', 'u') . ' ON u.id = a.created_by')
+            ->join('LEFT', $db->quoteName('#__user_profiles', 'p') . ' ON p.user_id = a.created_by AND p.profile_key = ' . $db->quote('profileimage.profile_image'))
+            ->where('a.id = ' . $db->quote($itemId))
+            ->where('a.access IN (' . implode(',', $authorised) . ')');
 
-        $version = new Version();
-        $JoomlaVersion = $version->getShortVersion();
-        if ((float) $JoomlaVersion >= 4) {
-            JLoader::registerAlias('FieldsHelper', 'Joomla\Component\Fields\Administrator\Helper\FieldsHelper');
-        } else {
-            JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
-        }
+            $db->setQuery($query);
+            $article = $db->loadObject();
 
-        foreach ($articles as $article) {
-            $custom_fields = FieldsHelper::getFields('com_content.article', $article);
-            if ($article->id == $itemId) {
-
-                $articleData = (array) $article;
-                $articleData['collection_id'] = -2;
-                
-
-                $articleData['introtext'] = self::replaceFieldShortcodes($articleData['introtext'] ?? '', $custom_fields);
-                $articleData['fulltext'] = self::replaceFieldShortcodes($articleData['fulltext'] ?? '', $custom_fields);
-                $articleData['featured_image'] = $articleData['featured_image'] ?? '';
-                $articleData['image_thumbnail'] = $articleData['image_thumbnail'] ?? $articleData['featured_image'] ?? '';
-                $articleData['username'] = $articleData['username'] ?? '';
-                $articleData['category'] = $articleData['category'] ?? '';
-                
-                return $articleData;
+            if (!$article) {
+                return null;
             }
+
+            $version = new Version();
+            $JoomlaVersion = $version->getShortVersion();
+            if ((float) $JoomlaVersion >= 4) {
+                JLoader::registerAlias('FieldsHelper', 'Joomla\Component\Fields\Administrator\Helper\FieldsHelper');
+            } else {
+                JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
+            }
+
+            $custom_fields = FieldsHelper::getFields('com_content.article', $article);
+
+            $article->introtext = $article->introtext ?? '';
+            $article->fulltext = $article->fulltext ?? '';
+            $article->hits = $article->hits ?? 0;
+
+            if (!\class_exists('SppagebuilderHelperArticles')) {
+                require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
+            }
+            \SppagebuilderHelperArticles::applyComContentCustomFieldValuesToItem($article, $custom_fields);
+
+            $articleData = (array) $article;
+            $articleData['collection_id'] = CollectionIds::ARTICLES_COLLECTION_ID;
+            $articleData['slug'] = $article->id . ':' . $article->alias;
+            $articleData['catslug'] = $article->catid . ':' . $article->category_alias;
+            
+            if (version_compare($JoomlaVersion, '4.0.0', '>=')) {
+                $articleData['link'] = \Joomla\CMS\Router\Route::_(\Joomla\Component\Content\Site\Helper\RouteHelper::getArticleRoute($articleData['slug'], $article->catid, $article->language));
+            } else {
+                if (!class_exists('ContentHelperRoute')) {
+                    require_once JPATH_SITE . '/components/com_content/helpers/route.php';
+                }
+                $articleData['link'] = \Joomla\CMS\Router\Route::_(\ContentHelperRoute::getArticleRoute($articleData['slug'], $article->catid, $article->language));
+            }
+
+            $articleData['introtext'] = self::replaceFieldShortcodes($article->introtext, $custom_fields);
+            $articleData['fulltext'] = self::replaceFieldShortcodes($article->fulltext, $custom_fields);
+
+            $attribs = json_decode($article->attribs ?? '{}');
+            $feature_img = '';
+            if (isset($attribs->helix_ultimate_image) && $attribs->helix_ultimate_image) {
+                $feature_img = $attribs->helix_ultimate_image;
+            } elseif (isset($attribs->spfeatured_image) && $attribs->spfeatured_image) {
+                $feature_img = $attribs->spfeatured_image;
+            }
+
+            if (!empty($feature_img)) {
+                $articleData['featured_image'] = $feature_img;
+                $img_baseurl = basename($feature_img);
+
+                $small = JPATH_ROOT . '/' . dirname($feature_img) . '/' . \Joomla\CMS\Filesystem\File::stripExt($img_baseurl) . '_small.' . \Joomla\CMS\Filesystem\File::getExt($img_baseurl);
+                if (file_exists($small)) {
+                    $articleData['image_small'] = Uri::root(true) . '/' . dirname($feature_img) . '/' . \Joomla\CMS\Filesystem\File::stripExt($img_baseurl) . '_small.' . \Joomla\CMS\Filesystem\File::getExt($img_baseurl);
+                }
+
+                $thumbnail = JPATH_ROOT . '/' . dirname($feature_img) . '/' . \Joomla\CMS\Filesystem\File::stripExt($img_baseurl) . '_thumbnail.' . \Joomla\CMS\Filesystem\File::getExt($img_baseurl);
+                if (file_exists($thumbnail)) {
+                    $articleData['image_thumbnail'] = Uri::root(true) . '/' . dirname($feature_img) . '/' . \Joomla\CMS\Filesystem\File::stripExt($img_baseurl) . '_thumbnail.' . \Joomla\CMS\Filesystem\File::getExt($img_baseurl);
+                } else {
+                    $articleData['image_thumbnail'] = Uri::root(true) . '/' . $articleData['featured_image'];
+                }
+
+                $medium = JPATH_ROOT . '/' . dirname($feature_img) . '/' . \Joomla\CMS\Filesystem\File::stripExt($img_baseurl) . '_medium.' . \Joomla\CMS\Filesystem\File::getExt($img_baseurl);
+                if (file_exists($medium)) {
+                    $articleData['image_medium'] = Uri::root(true) . '/' . dirname($feature_img) . '/' . \Joomla\CMS\Filesystem\File::stripExt($img_baseurl) . '_medium.' . \Joomla\CMS\Filesystem\File::getExt($img_baseurl);
+                }
+
+                $large = JPATH_ROOT . '/' . dirname($feature_img) . '/' . \Joomla\CMS\Filesystem\File::stripExt($img_baseurl) . '_large.' . \Joomla\CMS\Filesystem\File::getExt($img_baseurl);
+                if (file_exists($large)) {
+                    $articleData['image_large'] = Uri::root(true) . '/' . dirname($feature_img) . '/' . \Joomla\CMS\Filesystem\File::stripExt($img_baseurl) . '_large.' . \Joomla\CMS\Filesystem\File::getExt($img_baseurl);
+                }
+            } else {
+                $articleData['featured_image'] = '';
+                $articleData['image_thumbnail'] = '';
+                $images = json_decode($article->images ?? '{}');
+                if (isset($images->image_intro) && $images->image_intro) {
+                    if (strpos($images->image_intro, 'http://') !== false || strpos($images->image_intro, 'https://') !== false) {
+                        $articleData['image_thumbnail'] = $images->image_intro;
+                    } else {
+                        $articleData['image_thumbnail'] = Uri::root(true) . '/' . $images->image_intro;
+                    }
+                } elseif (isset($images->image_fulltext) && $images->image_fulltext) {
+                    if (strpos($images->image_fulltext, 'http://') !== false || strpos($images->image_fulltext, 'https://') !== false) {
+                        $articleData['image_thumbnail'] = $images->image_fulltext;
+                    } else {
+                        $articleData['image_thumbnail'] = Uri::root(true) . '/' . $images->image_fulltext;
+                    }
+                } else {
+                    $articleData['image_thumbnail'] = false;
+                }
+            }
+
+            $keysToAdd = [
+                'image_small',
+                'image_medium',
+                'image_large',
+                'image_intro',
+                'image_intro_alt',
+                'float_intro',
+                'image_intro_caption',
+                'image_fulltext',
+                'image_fulltext_alt',
+                'float_fulltext',
+                'image_fulltext_caption'
+            ];
+            
+            foreach ($keysToAdd as $key) {
+                if (!isset($articleData[$key])) {
+                    $articleData[$key] = '';
+                }
+            }
+
+            if (isset($article->images)) {
+                $images = json_decode($article->images);
+                if (isset($images)) {
+                    foreach ($images as $key => $value) {
+                        $articleData[$key] = $value;
+                    }
+                }
+            }
+
+            $articleData['profile_image'] = $article->profile_image ?? '';
+            if (empty($articleData['profile_image'])) {
+                $enableGravatar = \Joomla\CMS\Component\ComponentHelper::getParams('com_sppagebuilder')->get('enable_gravatar', 1);
+                if ($enableGravatar && !empty($article->created_by_email)) {
+                    $hash = md5(strtolower(trim($article->created_by_email)));
+                    $gravatarUrl = "https://www.gravatar.com/avatar/{$hash}?s=45&d=404";
+                    $articleData['profile_image'] = $gravatarUrl;
+                }
+            }
+
+            $layoutQuery = $db->getQuery(true);
+            $layoutQuery->select($db->quoteName(['content', 'text', 'css']));
+            $layoutQuery->from($db->quoteName('#__sppagebuilder'));
+            $layoutQuery->where($db->quoteName('extension') . ' = ' . $db->quote('com_content'));
+            $layoutQuery->where($db->quoteName('extension_view') . ' = ' . $db->quote('article'));
+            $layoutQuery->where($db->quoteName('view_id') . ' = ' . (int) $article->id);
+            $layoutQuery->where($db->quoteName('active') . ' = 1');
+            $db->setQuery($layoutQuery);
+            $layoutData = $db->loadObject();
+            
+            $articleData['layout'] = !empty($layoutData) ? $layoutData : null;
+            $articleData['username'] = $article->username ?? '';
+            $articleData['category'] = $article->category ?? '';
+            
+            return $articleData;
+        } catch (\Exception $e) {
+            Factory::getApplication()->enqueueMessage('Error fetching article detail: ' . $e->getMessage(), 'error');
+            return null;
         }
     }
 
@@ -647,20 +794,24 @@ class CollectionHelper
         }
 
         $format = $format === 'custom' ? $attribute->date_format_custom : $format;
-        $format = self::phpToIcu($format);
         
         $lang = Factory::getLanguage()->getTag();
         $lang = str_replace('-', '_', $lang);
         $lang .= '@numbers=native';
-
+        
         $dateObj = new DateTime($date);
-    
-        $formatter = new IntlDateFormatter(
+        
+        if(!class_exists('IntlDateFormatter')) {
+            return $dateObj->format($format);
+        }
+        
+        $format = self::phpToIcu($format);
+        $formatter = new \IntlDateFormatter(
             $lang,         
-            IntlDateFormatter::NONE,      
-            IntlDateFormatter::NONE,
+            \IntlDateFormatter::NONE,      
+            \IntlDateFormatter::NONE,
             $dateObj->getTimezone()->getName(),
-            IntlDateFormatter::GREGORIAN,
+            \IntlDateFormatter::GREGORIAN,
             $format
         );
     
@@ -822,7 +973,7 @@ class CollectionHelper
      *
      * @since 6.0.0
      */
-    protected static function buildRouteWithTagItemId($url, $tagId)
+    public static function buildRouteWithTagItemId($url, $tagId)
     {
         $currentRoute = Uri::getInstance($url);
         $currentRoute->setVar('collection_item_id', [$tagId]);
@@ -839,7 +990,7 @@ class CollectionHelper
      *
      * @since 5.5.0
      */
-    protected static function buildRouteWithCollectionItemId($url, $itemId)
+    public static function buildRouteWithCollectionItemId($url, $itemId)
     {
         $currentRoute = Uri::getInstance($url);
         $app = Factory::getApplication();
@@ -947,7 +1098,7 @@ class CollectionHelper
      *
      * @since 6.0.0
      */
-    protected static function getTagsMenuItemId()
+    public static function getTagsMenuItemId()
     {
         $menuItems = Menu::whereLike('link', '%option=com_sppagebuilder%')
             ->where('client_id', 0)
@@ -991,7 +1142,7 @@ class CollectionHelper
      *
      * @since 5.5.0
      */
-    protected static function getCurrentMenuItemId($collectionId)
+    public static function getCurrentMenuItemId($collectionId)
     {
         if (array_key_exists($collectionId, static::$menuItemIdCache)) {
             return static::$menuItemIdCache[$collectionId];

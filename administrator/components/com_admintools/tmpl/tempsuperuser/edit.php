@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13,7 +13,19 @@ use Joomla\CMS\Router\Route;
 
 /** @var \Akeeba\Component\AdminTools\Administrator\View\Tempsuperuser\HtmlView $this */
 
-HTMLHelper::_('behavior.formvalidator');
+/**
+ * HTMLHelper's `behavior.formvalidator` is deprecated in Joomla 6.
+ *
+ * See Joomla PR 45925.
+ */
+if (version_compare(JVERSION, '5.999.999', 'lt'))
+{
+	HTMLHelper::_('behavior.formvalidator');
+}
+else
+{
+	\Joomla\CMS\Factory::getApplication()->getDocument()->getWebAssetManager()->useScript('form.validate');
+}
 
 ?>
 <form action="<?php echo Route::_('index.php?option=com_admintools&view=tempsuperuser&layout=edit&user_id=' . $this->item->user_id); ?>"

@@ -75,6 +75,9 @@ class SppagebuilderAddonAnimated_heading extends SppagebuilderAddons
 				case 'wave':
 					$animated_text_class .= 'letters animation-wave';
 					break;
+				case 'marquee':
+					$animated_text_class .= 'marquee animation-marquee';
+					break;
 				default:
 					$animated_text_class .= 'text-clip is-full-width';
 					break;
@@ -154,9 +157,17 @@ class SppagebuilderAddonAnimated_heading extends SppagebuilderAddons
 		} else {
 			$output .= '<span class="animated-text-words-wrapper">';
 
-			if (is_array($animated_text_chunk)) {
-				foreach ($animated_text_chunk as $key => $item) {
-					$output .= '<span class="animated-text ' . ($key == 0 ? 'is-visible' : '') . '">' . $item . '</span>';
+			if ($text_animation_name === 'marquee' && is_array($animated_text_chunk)) {
+				$marquee_content = implode(' ', $animated_text_chunk);
+				$output .= '<span class="marquee">';
+				$output .= '<span class="marquee__item">' . $marquee_content . '</span>';
+				$output .= '<span class="marquee__item">' . $marquee_content . '</span>';
+				$output .= '</span>';
+			} else {
+				if (is_array($animated_text_chunk)) {
+					foreach ($animated_text_chunk as $key => $item) {
+						$output .= '<span class="animated-text ' . ($key == 0 ? 'is-visible' : '') . '">' . $item . '</span>';
+					}
 				}
 			}
 
@@ -386,6 +397,8 @@ class SppagebuilderAddonAnimated_heading extends SppagebuilderAddons
                 animated_text_class += "push";
             } else if(data.text_animation_name == "wave") {
                 animated_text_class += "letters animation-wave";
+			} else if(data.text_animation_name == "marquee") {
+				animated_text_class += "marquee animation-marquee";
             } else {
                 animated_text_class += "text-clip is-full-width";
             }
@@ -461,18 +474,25 @@ class SppagebuilderAddonAnimated_heading extends SppagebuilderAddons
             <# }
         } else {
             #>
-            <span class="animated-text-words-wrapper">
-            <# if(_.isArray(animated_text_chunk)) {
-                _.each(animated_text_chunk, function(item, key) { 
-                    let visibleClass = "";
-                    if(key==0) {
-                        visibleClass = "is-visible";
-                    }
-            #>
-                    <span class="animated-text {{visibleClass}}">{{item}}</span>
-                <# })
-            } #>
-            </span>
+			<span class="animated-text-words-wrapper">
+			<# if(data.text_animation_name == "marquee" && _.isArray(animated_text_chunk)) {
+				var marquee_content = animated_text_chunk.join(" ");
+			#>
+				<span class="marquee">
+					<span class="marquee__item">{{marquee_content}}</span>
+					<span class="marquee__item">{{marquee_content}}</span>
+				</span>
+			<# } else if(_.isArray(animated_text_chunk)) {
+				_.each(animated_text_chunk, function(item, key) { 
+					let visibleClass = "";
+					if(key==0) {
+						visibleClass = "is-visible";
+					}
+			#>
+					<span class="animated-text {{visibleClass}}">{{item}}</span>
+				<# })
+			} #>
+			</span>
         <# }
         if(data.heading_after_part) {
         #>

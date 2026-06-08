@@ -584,3 +584,4 @@ if ((isset($options->title) && $options->title) || (isset($options->subtitle) &&
 $html .= '<div class="sppb-row' . $row_class . '">';
 
 echo $html;
+

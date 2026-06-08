@@ -76,7 +76,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$commentCountPosition = (isset($settings->comment_count_position) && $settings->comment_count_position) ? $settings->comment_count_position : 'left';
 		$labelText = (isset($settings->label_text) && $settings->label_text) ? $settings->label_text : 'Leave a comment';
 		$isLabelEnabled = (isset($settings->enable_label) && $settings->enable_label) ? $settings->enable_label : 0;
-		$placeHolderText = (isset($settings->comment_field_placeholder) && $settings->comment_field_placeholder) ? $settings->comment_field_placeholder : 'Share your thoughts...';
+		$placeHolderText = (isset($settings->comment_field_placeholder) && $settings->comment_field_placeholder) ? $settings->comment_field_placeholder : Text::_('COM_SPPAGEBUILDER_SHARE_YOUR_THOUGHTS');
 		$enableAnonymousComment = (isset($settings->enable_anonymous_comment) && $settings->enable_anonymous_comment) ? $settings->enable_anonymous_comment : 0;
 
 		$likesIcon = (isset($settings->likes_icon) && $settings->likes_icon) ? $settings->likes_icon : 'fa fa-heart';
@@ -163,10 +163,10 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$words = explode(' ', trim($name));
 		$initials = '';
 		if (count($words) > 1) {
-			$initials .= strtoupper(substr($words[0], 0, 1));
-			$initials .= strtoupper(substr(end($words), 0, 1));
+			$initials .= mb_strtoupper(mb_substr($words[0], 0, 1, 'UTF-8'), 'UTF-8');
+			$initials .= mb_strtoupper(mb_substr(end($words), 0, 1, 'UTF-8'), 'UTF-8');
 		} else {
-			$initials .= strtoupper(substr($name, 0, 1));
+			$initials .= mb_strtoupper(mb_substr($name, 0, 1, 'UTF-8'), 'UTF-8');
 		}
 		return $initials;
 	}
@@ -198,22 +198,22 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$diff = $now - $time;
 		
 		if ($diff < 60) {
-			return 'Just now';
+			return Text::_('COM_SPPAGEBUILDER_JUST_NOW');
 		} elseif ($diff < 3600) {
 			$minutes = floor($diff / 60);
-			return $minutes . ' min ago';
+			return ($minutes > 1 ? Text::sprintf('COM_SPPAGEBUILDER_MINUTES_AGO', $minutes) : Text::sprintf('COM_SPPAGEBUILDER_MINUTE_AGO', $minutes));
 		} elseif ($diff < 86400) {
 			$hours = floor($diff / 3600);
-			return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+			return ($hours > 1 ? Text::sprintf('COM_SPPAGEBUILDER_HOURS_AGO', $hours) : Text::sprintf('COM_SPPAGEBUILDER_HOUR_AGO', $hours));
 		} elseif ($diff < 2592000) {
 			$days = floor($diff / 86400);
-			return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+			return ($days > 1 ? Text::sprintf('COM_SPPAGEBUILDER_DAYS_AGO', $days) : Text::sprintf('COM_SPPAGEBUILDER_DAY_AGO', $days));
 		} elseif ($diff < 31536000) {
 			$months = floor($diff / 2592000);
-			return $months . ' month' . ($months > 1 ? 's' : '') . ' ago';
+			return ($months > 1 ? Text::sprintf('COM_SPPAGEBUILDER_MONTHS_AGO', $months) : Text::sprintf('COM_SPPAGEBUILDER_MONTH_AGO', $months));
 		} else {
 			$years = floor($diff / 31536000);
-			return $years . ' year' . ($years > 1 ? 's' : '') . ' ago';
+			return ($years > 1 ? Text::sprintf('COM_SPPAGEBUILDER_YEARS_AGO', $years) : Text::sprintf('COM_SPPAGEBUILDER_YEAR_AGO', $years));
 		}
 	}
 
@@ -245,7 +245,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 
 			$avatarColor = !empty($settings->commentator_avatar_color) ? $settings->commentator_avatar_color : "#4285F4";
 			$textColor = $this->getTextColor($avatarColor);
-			$initials = $this->getInitials($comment->created_by ?? 'Anonymous Person');
+			$initials = $this->getInitials($comment->created_by ?? Text::_('COM_SPPAGEBUILDER_ANONYMOUS_PERSON'));
 			$gravatarUrl = null;
 			$enableGravatar = ComponentHelper::getParams('com_sppagebuilder')->get('enable_gravatar', 1);
 			if ($enableGravatar && !empty($comment->created_by_email)) {
@@ -260,25 +260,25 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 
 			if (!empty($profileImageUrl)) {
 				$output .= '<div class="sppb-comment-avatar" style="border-radius: 50%; width: 45px; height: 45px; margin-right: 10px; overflow: hidden; flex-shrink: 0;">';
-				$output .= '<img src="' . $profileImageUrl . '" alt="' . htmlspecialchars($comment->created_by ?? 'Anonymous Person') . '" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />';
+				$output .= '<img src="' . htmlspecialchars($profileImageUrl, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($comment->created_by ?? Text::_('COM_SPPAGEBUILDER_ANONYMOUS_PERSON'), ENT_QUOTES, 'UTF-8') . '" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />';
 				$output .= '<div class="sppb-comment-avatar-fallback" style="background-color: ' . $avatarColor . '; padding: 10px; border-radius: 50%; width: 45px; height: 45px; display: none; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: ' . $textColor . '">';
-				$output .= '<span>' . $initials . '</span>';
+				$output .= '<span>' . htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') . '</span>';
 				$output .= '</div>';
 				$output .= '</div>';
 			} elseif (!empty($gravatarUrl)) {
 				$output .= '<div class="sppb-comment-avatar" style="border-radius: 50%; width: 45px; height: 45px; margin-right: 10px; overflow: hidden; flex-shrink: 0;">';
-				$output .= '<img src="' . $gravatarUrl . '" alt="' . htmlspecialchars($comment->created_by ?? 'Anonymous Person') . '" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />';
+				$output .= '<img src="' . htmlspecialchars($gravatarUrl, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($comment->created_by ?? Text::_('COM_SPPAGEBUILDER_ANONYMOUS_PERSON'), ENT_QUOTES, 'UTF-8') . '" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />';
 				$output .= '<div class="sppb-comment-avatar-fallback" style="background-color: ' . $avatarColor . '; padding: 10px; border-radius: 50%; width: 45px; height: 45px; display: none; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: ' . $textColor . '">';
-				$output .= '<span>' . $initials . '</span>';
+				$output .= '<span>' . htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') . '</span>';
 				$output .= '</div>';
 				$output .= '</div>';
 			} else {
 				$output .= '<div class="sppb-comment-avatar" style="background-color: ' . $avatarColor . '; padding: 10px; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; font-weight: 600; margin-right: 10px; color: ' . $textColor . '">';
-				$output .= '<span>' . $initials . '</span>';
+				$output .= '<span>' . htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') . '</span>';
 				$output .= '</div>';
 			}
 			$output .= '<div class="sppb-comment-header-left">';
-			$output .= $this->getHeaderHtml($comment->created_by ?? 'Anonymous Person', $comment, $settings);
+			$output .= $this->getHeaderHtml($comment->created_by ?? Text::_('COM_SPPAGEBUILDER_ANONYMOUS_PERSON'), $comment, $settings);
 			$output .= '</div>';
 
 			if ($isOwnComment) {
@@ -302,10 +302,10 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 			}
 
 			$output .= '<span class="sppb-comment-content-text' . ($needsModeration ? ' sppb-comment-unpublished' : '') . '" style="margin-left: 10px; margin-top: 20px; display: inline-block;">';
-			$output .= '<span>' . nl2br($comment->content) . '</span>';
+			$output .= '<span>' . nl2br(htmlspecialchars($comment->content, ENT_QUOTES, 'UTF-8')) . '</span>';
 			$output .= '</span>';
 			$output .= '<div class="sppb-comment-edit-form sppb-comment-form" data-comment-id="' . $comment->id . '" style="display: none; ' . ($needsModeration ? 'margin-top: -45px;' : '') . '">';
-			$output .= '<textarea type="text" class="sppb-comment-edit-input sppb-comment-field" data-comment-id="' . $comment->id . '">' . $comment->content . '</textarea>';
+			$output .= '<textarea type="text" class="sppb-comment-edit-input sppb-comment-field" data-comment-id="' . $comment->id . '">' . htmlspecialchars($comment->content, ENT_QUOTES, 'UTF-8') . '</textarea>';
 			$output .= $this->renderEditCommentButtons($settings, $comment->id);
 			$output .= '</div>';
 
@@ -315,20 +315,20 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 				$output .= '<div class="sppb-comment-actions" style="margin-left: 10px">';
 				$output .= '<div class="sppb-comment-likes ' . $isLikedClass . '">';
 				$output .= '<i class="sppb-likes-icon ' . $likesIcon . '"></i>';
-				$output .= '<span class="sppb-likes-text">' . ($comment->likes_count ?? 0) . ' likes</span>';
+				$output .= '<span class="sppb-likes-text">' . ($comment->likes_count ?? 0) . ' ' . Text::_('COM_SPPAGEBUILDER_LIKES') . '</span>';
 				$output .= '</div>';
 				$output .= '<div class="sppb-comment-reply-action" data-comment-id="' . $comment->id . '">';
 				$output .= '<i class="sppb-reply-icon ' . $replyIcon . '"></i>';
-				$output .= '<span class="sppb-reply-text">' . $comment->replies . ' reply</span>';
+				$output .= '<span class="sppb-reply-text">' . $comment->replies . ' ' . Text::_('COM_SPPAGEBUILDER_REPLY') . '</span>';
 				$output .= '</div>';
 				$output .= '</div>';
 			}
 
 			$output .= '<div class="sppb-comment-reply-form sppb-comment-form" data-comment-id="' . $comment->id . '" style="display: none;">';
-			$output .= '<textarea type="text" class="sppb-comment-reply-input sppb-comment-field" data-comment-id="' . $comment->id . '" placeholder="Write a reply..."></textarea>';
+			$output .= '<textarea type="text" class="sppb-comment-reply-input sppb-comment-field" data-comment-id="' . $comment->id . '" placeholder="' . Text::_('COM_SPPAGEBUILDER_WRITE_A_REPLY') . '"></textarea>';
 			$output .= '<div class="sppb-comment-btn-wrapper">';
-			$output .= '<button class="sppb-comment-reply-cancel-btn ' . $btnClass . '" data-comment-id="' . $comment->id . '">Cancel</button>';
-			$output .= '<button class="sppb-comment-reply-submit-btn comment-submit-btn ' . $btnClass . '" data-comment-id="' . $comment->id . '" ' . (!$currentUserId && !$enableAnonymousComment ? 'disabled' : '') . ' style="cursor: ' . (!$currentUserId && !$enableAnonymousComment ? 'not-allowed' : 'pointer') . '; ' . (!$currentUserId && !$enableAnonymousComment ? 'opacity: 0.5' : '') . '" ' . (!$currentUserId && !$enableAnonymousComment ? 'title="Please sign in to comment"' : '') . '>Submit</button>';
+			$output .= '<button class="sppb-comment-reply-cancel-btn ' . $btnClass . '" data-comment-id="' . $comment->id . '">' . Text::_('COM_SPPAGEBUILDER_CANCEL') . '</button>';
+			$output .= '<button class="sppb-comment-reply-submit-btn comment-submit-btn ' . $btnClass . '" data-comment-id="' . $comment->id . '" ' . (!$currentUserId && !$enableAnonymousComment ? 'disabled' : '') . ' style="cursor: ' . (!$currentUserId && !$enableAnonymousComment ? 'not-allowed' : 'pointer') . '; ' . (!$currentUserId && !$enableAnonymousComment ? 'opacity: 0.5' : '') . '" ' . (!$currentUserId && !$enableAnonymousComment ? 'title="' . Text::_('COM_SPPAGEBUILDER_PLEASE_SIGN_IN_TO_COMMENT') . '"' : '') . '>' . Text::_('COM_SPPAGEBUILDER_SUBMIT') . '</button>';
 			$output .= '</div>';
 			$output .= '</div>';
 			$output .= '</div>';
@@ -355,7 +355,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 			$btnClass .= (isset($item->edit_comment_button_appearance) && $item->edit_comment_button_appearance) ? ' sppb-btn-' . $item->edit_comment_button_appearance : '';
 			$btnClass .= (isset($item->edit_comment_button_size) && $item->edit_comment_button_size) ? ' sppb-btn-' . $item->edit_comment_button_size : ' sppb-btn-md';
 			$btnClass .= (isset($item->edit_comment_button_shape) && $item->edit_comment_button_shape) ? ' sppb-btn-' . $item->edit_comment_button_shape : ' sppb-btn-rounded';
-			$output .= '<button class="sppb-comment-edit-button ' . ($item->title == 'Update' ? 'sppb-comment-edit-submit-btn' : 'sppb-comment-edit-cancel-btn') . ' ' . $btnClass . '" id="' . $uniqueId . '" data-comment-id="' . $commentId . '">'. $item->title .'</button>';
+			$output .= '<button class="sppb-comment-edit-button ' . ($item->title == 'Update' ? 'sppb-comment-edit-submit-btn' : 'sppb-comment-edit-cancel-btn') . ' ' . $btnClass . '" id="' . $uniqueId . '" data-comment-id="' . $commentId . '">'. ($item->title == 'Update' ? Text::_('COM_SPPAGEBUILDER_UPDATE') : Text::_('COM_SPPAGEBUILDER_CANCEL')) .'</button>';
 		}
 		$output .= '</div>';
 
@@ -377,7 +377,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 			$btnClass .= (isset($item->ellipsis_action_button_appearance) && $item->ellipsis_action_button_appearance) ? ' sppb-btn-' . $item->ellipsis_action_button_appearance : '';
 			$btnClass .= (isset($item->ellipsis_action_button_size) && $item->ellipsis_action_button_size) ? ' sppb-btn-' . $item->ellipsis_action_button_size : ' sppb-btn-md';
 			$btnClass .= (isset($item->ellipsis_action_button_shape) && $item->ellipsis_action_button_shape) ? ' sppb-btn-' . $item->ellipsis_action_button_shape : ' sppb-btn-rounded';
-			$output .= '<button style="width: 100%; text-align: left;" class="sppb-comment-ellipsis-action-button ' . $btnClass . '" id="' . $uniqueId . '">'. $item->title .'</button>';
+			$output .= '<button style="width: 100%; text-align: left;" class="sppb-comment-ellipsis-action-button ' . $btnClass . '" id="' . $uniqueId . '">'. ($item->title === 'Edit' ? Text::_('COM_SPPAGEBUILDER_EDIT') : Text::_('COM_SPPAGEBUILDER_DELETE')) .'</button>';
 		}
 		$output .= '</div>';
 
@@ -397,7 +397,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 			
 			$showEditedTime = (isset($settings->show_edited_time) && $settings->show_edited_time) ? $settings->show_edited_time : 0;
 			if ($showEditedTime && $comment->modified && $comment->modified !== $comment->created_on) {
-				$output .= '<span class="sppb-comment-edited-time"> • Edited ' . $this->getRelativeTime($comment->modified) . '</span>';
+				$output .= '<span class="sppb-comment-edited-time"> • ' . Text::_('COM_SPPAGEBUILDER_COMMENT_EDITED') . ' ' . $this->getRelativeTime($comment->modified) . '</span>';
 			}
 			
 			$output .= '</span>';
@@ -929,9 +929,28 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$collectionType = $collectionType ? $collectionType : 'articles';
 		$avatarColor = !empty($this->addon->settings->commentator_avatar_color) ? $this->addon->settings->commentator_avatar_color : "#4285F4";
 		$currentUserId = Factory::getUser()->id;
+		$anonymousPerson = Text::_('COM_SPPAGEBUILDER_ANONYMOUS_PERSON');
+
+		// Load language strings for JavaScript
+		Text::script('COM_SPPAGEBUILDER_JUST_NOW');
+		Text::script('COM_SPPAGEBUILDER_MINUTE_AGO');
+		Text::script('COM_SPPAGEBUILDER_MINUTES_AGO');
+		Text::script('COM_SPPAGEBUILDER_HOUR_AGO');
+		Text::script('COM_SPPAGEBUILDER_HOURS_AGO');
+		Text::script('COM_SPPAGEBUILDER_DAY_AGO');
+		Text::script('COM_SPPAGEBUILDER_DAYS_AGO');
+		Text::script('COM_SPPAGEBUILDER_MONTH_AGO');
+		Text::script('COM_SPPAGEBUILDER_MONTHS_AGO');
+		Text::script('COM_SPPAGEBUILDER_YEAR_AGO');
+		Text::script('COM_SPPAGEBUILDER_YEARS_AGO');
 
 		$js .= '
-		// It processes comment submissions, updates, and deletions, and returns JSON responses.
+		
+		const escapeHtml = (text) => {
+			const div = document.createElement(\'div\');
+			div.textContent = text;
+			return div.innerHTML;
+		};
 
 		document.addEventListener("DOMContentLoaded", function() {
 			// Handle Gravatar image loading and fallback
@@ -1254,7 +1273,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 							$commentItem.find(".sppb-comment-header .sppb-comment-ellipsis-action").show();
 							$commentItem.find(".sppb-comment-content").show();
 							
-							const formattedContent = commentContent.replace(/\\n/g, \'<br>\');
+							const formattedContent = escapeHtml(commentContent).replace(/\\n/g, \'<br>\');
 							$contentTextWrapper.show();
 							$contentText.html(formattedContent);
 						} else {
@@ -1364,10 +1383,10 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 					success: function (response) {
 						if (response.success) {
 							if ($self.hasClass("liked")) {
-								$likesText.text((currentLikes - 1) + " likes");
+								$likesText.text((currentLikes - 1) + " ' . Text::_('COM_SPPAGEBUILDER_LIKES') . '");
 								$self.removeClass("liked");
 							} else {
-								$likesText.text((currentLikes + 1) + " likes");
+								$likesText.text((currentLikes + 1) + " ' . Text::_('COM_SPPAGEBUILDER_LIKES') . '");
 								$self.addClass("liked");
 							}
 						} else {
@@ -1600,29 +1619,34 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 					const diffInSeconds = Math.floor(diff / 1000);
 					
 					if (diffInSeconds < 60) {
-						return \'Just now\';
+						return Joomla.Text._(\'COM_SPPAGEBUILDER_JUST_NOW\');
 					} else if (diffInSeconds < 3600) {
 						const minutes = Math.floor(diffInSeconds / 60);
-						return minutes + \' min ago\';
+						const key = minutes > 1 ? \'COM_SPPAGEBUILDER_MINUTES_AGO\' : \'COM_SPPAGEBUILDER_MINUTE_AGO\';
+						return Joomla.Text._(key).replace(\'%s\', minutes);
 					} else if (diffInSeconds < 86400) {
 						const hours = Math.floor(diffInSeconds / 3600);
-						return hours + \' hour\' + (hours > 1 ? \'s\' : \'\') + \' ago\';
+						const key = hours > 1 ? \'COM_SPPAGEBUILDER_HOURS_AGO\' : \'COM_SPPAGEBUILDER_HOUR_AGO\';
+						return Joomla.Text._(key).replace(\'%s\', hours);
 					} else if (diffInSeconds < 2592000) {
 						const days = Math.floor(diffInSeconds / 86400);
-						return days + \' day\' + (days > 1 ? \'s\' : \'\') + \' ago\';
+						const key = days > 1 ? \'COM_SPPAGEBUILDER_DAYS_AGO\' : \'COM_SPPAGEBUILDER_DAY_AGO\';
+						return Joomla.Text._(key).replace(\'%s\', days);
 					} else if (diffInSeconds < 31536000) {
 						const months = Math.floor(diffInSeconds / 2592000);
-						return months + \' month\' + (months > 1 ? \'s\' : \'\') + \' ago\';
+						const key = months > 1 ? \'COM_SPPAGEBUILDER_MONTHS_AGO\' : \'COM_SPPAGEBUILDER_MONTH_AGO\';
+						return Joomla.Text._(key).replace(\'%s\', months);
 					} else {
 						const years = Math.floor(diffInSeconds / 31536000);
-						return years + \' year\' + (years > 1 ? \'s\' : \'\') + \' ago\';
+						const key = years > 1 ? \'COM_SPPAGEBUILDER_YEARS_AGO\' : \'COM_SPPAGEBUILDER_YEAR_AGO\';
+						return Joomla.Text._(key).replace(\'%s\', years);
 					}
 				};
 				
 				// Generate avatar and colors
 				const avatarColor = "' . $avatarColor . '";
 				const textColor = getTextColor(avatarColor);
-				const commentatorName = commentRecord.created_by || \'Anonymous Person\';
+				const commentatorName = commentRecord.created_by || \'' . $anonymousPerson . '\';
 				const initials = getInitials(commentatorName);
 				
 				// Generate time display
@@ -1649,8 +1673,8 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 				// Generate edit comment buttons HTML
 				const generateEditCommentButtons = () => {
 					return \'<div class="sppb-comment-edit-buttons-wrapper sppb-comment-btn-wrapper">\' +
-						\'<button class="sppb-comment-edit-button sppb-comment-edit-cancel-btn sppb-btn sppb-btn-md sppb-btn-rounded" id="sppb-comment-edit-button-0" data-comment-id="\' + commentRecord.id + \'">Cancel<\/button>\' +
-						\'<button class="sppb-comment-edit-button sppb-comment-edit-submit-btn sppb-btn sppb-btn-md sppb-btn-rounded" id="sppb-comment-edit-button-1" data-comment-id="\' + commentRecord.id + \'">Update<\/button>\' +
+						\'<button class="sppb-comment-edit-button sppb-comment-edit-cancel-btn sppb-btn sppb-btn-md sppb-btn-rounded" id="sppb-comment-edit-button-0" data-comment-id="\' + commentRecord.id + \'">' . Text::_('COM_SPPAGEBUILDER_CANCEL') . '<\/button>\' +
+						\'<button class="sppb-comment-edit-button sppb-comment-edit-submit-btn sppb-btn sppb-btn-md sppb-btn-rounded" id="sppb-comment-edit-button-1" data-comment-id="\' + commentRecord.id + \'">' . Text::_('COM_SPPAGEBUILDER_UPDATE') . '<\/button>\' +
 						\'<\/div>\';
 				};
 				
@@ -1662,7 +1686,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 				const marginTop = \'-4px\';
 				const contentMarginLeft = level > 0 ? \'style="margin-left: 0; margin-top: 11px;"\' : \'\';
 				
-				const formattedContent = commentRecord.content.replace(/\\n/g, \'<br>\');
+				const formattedContent = escapeHtml(commentRecord.content).replace(/\\n/g, \'<br>\');
 
 				// Build HTML in parts to avoid string concatenation issues
 				const htmlParts = [];
@@ -1679,9 +1703,9 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 				// Avatar section with profile image, Gravatar, and fallback logic
 				if (commentRecord.profile_image) {
 					htmlParts.push(\'<div class="sppb-comment-avatar" style="border-radius: 50%; width: 45px; height: 45px; margin-right: 10px; overflow: hidden; flex-shrink: 0;">\');
-					htmlParts.push(\'<img src="\' + commentRecord.profile_image + \'" alt="\' + commentatorName + \'" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\\\'none\\\'; this.nextElementSibling.style.display=\\\'flex\\\';" />\');
+					htmlParts.push(\'<img src="\' + escapeHtml(commentRecord.profile_image) + \'" alt="\' + escapeHtml(commentatorName) + \'" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\\\'none\\\'; this.nextElementSibling.style.display=\\\'flex\\\';" />\');
 					htmlParts.push(\'<div class="sppb-comment-avatar-fallback" style="background-color: \' + avatarColor + \'; padding: 10px; border-radius: 50%; width: 45px; height: 45px; display: none; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: \' + textColor + \'">\');
-					htmlParts.push(\'<span>\' + initials + \'<\/span>\');
+					htmlParts.push(\'<span>\' + escapeHtml(initials) + \'<\/span>\');
 					htmlParts.push(\'<\/div>\');
 					htmlParts.push(\'<\/div>\');
 				} else if (' . (!empty($this->addon->settings->enable_gravatar) ? 'true' : 'false') . ' && commentRecord.created_by_email) {
@@ -1689,22 +1713,22 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 					const gravatarHash = md5(commentRecord.created_by_email.toLowerCase().trim());
 					const gravatarUrl = \'https://www.gravatar.com/avatar/\' + gravatarHash + \'?s=90&d=404\';
 					htmlParts.push(\'<div class="sppb-comment-avatar" style="border-radius: 50%; width: 45px; height: 45px; margin-right: 10px; overflow: hidden; flex-shrink: 0;">\');
-					htmlParts.push(\'<img src="\' + gravatarUrl + \'" alt="\' + commentatorName + \'" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\\\'none\\\'; this.nextElementSibling.style.display=\\\'flex\\\';" />\');
+					htmlParts.push(\'<img src="\' + gravatarUrl + \'" alt="\' + escapeHtml(commentatorName) + \'" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\\\'none\\\'; this.nextElementSibling.style.display=\\\'flex\\\';" />\');
 					htmlParts.push(\'<div class="sppb-comment-avatar-fallback" style="background-color: \' + avatarColor + \'; padding: 10px; border-radius: 50%; width: 45px; height: 45px; display: none; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: \' + textColor + \'">\');
-					htmlParts.push(\'<span>\' + initials + \'<\/span>\');
+					htmlParts.push(\'<span>\' + escapeHtml(initials) + \'<\/span>\');
 					htmlParts.push(\'<\/div>\');
 					htmlParts.push(\'<\/div>\');
 				} else {
 					// Fallback to initials only
 					htmlParts.push(\'<div class="sppb-comment-avatar" style="background-color: \' + avatarColor + \'; padding: 10px; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; font-weight: 600; margin-right: 10px; color: \' + textColor + \'">\');
-					htmlParts.push(\'<span>\' + initials + \'<\/span>\');
+					htmlParts.push(\'<span>\' + escapeHtml(initials) + \'<\/span>\');
 					htmlParts.push(\'<\/div>\');
 				}
 				
 				// Header left content
 				htmlParts.push(\'<div class="sppb-comment-header-left">\');
 				htmlParts.push(\'<div class="commentator-name-wrapper">\');
-				htmlParts.push(\'<span class="commentator-name">\' + commentatorName + \'<\/span>\');
+				htmlParts.push(\'<span class="commentator-name">\' + escapeHtml(commentatorName) + \'<\/span>\');
 				htmlParts.push(\'<\/div>\');
 				htmlParts.push(\'<div class="sppb-comment-time-wrapper">\');
 				htmlParts.push(\'<span class="sppb-comment-time">\' + createdTime + editedTime + \'<\/span>\');
@@ -1735,7 +1759,7 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 				
 				// Edit form
 				htmlParts.push(\'<div class="sppb-comment-edit-form sppb-comment-form" data-comment-id="\' + commentRecord.id + \'" style="display: none; \' + (needsModeration ? \'margin-top: -45px;\' : \'\') + \'">\');
-				htmlParts.push(\'<textarea type="text" class="sppb-comment-edit-input sppb-comment-field" data-comment-id="\' + commentRecord.id + \'">\' + commentRecord.content + \'<\/textarea>\');
+				htmlParts.push(\'<textarea type="text" class="sppb-comment-edit-input sppb-comment-field" data-comment-id="\' + commentRecord.id + \'">\' + escapeHtml(commentRecord.content) + \'<\/textarea>\');
 				htmlParts.push(generateEditCommentButtons());
 				htmlParts.push(\'<\/div>\');
 				
@@ -1744,21 +1768,21 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 					htmlParts.push(\'<div class="sppb-comment-actions" style="margin-left: 10px">\');
 					htmlParts.push(\'<div class="sppb-comment-likes\' + (commentRecord.user_liked ? \' liked\' : \'\') + \'">\');
 					htmlParts.push(\'<i class="sppb-likes-icon \' + likesIcon + \'"><\/i>\');
-					htmlParts.push(\'<span class="sppb-likes-text">\' + (commentRecord.likes_count || 0) + \' likes<\/span>\');
+					htmlParts.push(\'<span class="sppb-likes-text">\' + (commentRecord.likes_count || 0) + \' ' . Text::_('COM_SPPAGEBUILDER_LIKES') . '<\/span>\');
 					htmlParts.push(\'<\/div>\');
 					htmlParts.push(\'<div class="sppb-comment-reply-action" data-comment-id="\' + commentRecord.id + \'">\');
 					htmlParts.push(\'<i class="sppb-reply-icon \' + replyIcon + \'"><\/i>\');
-					htmlParts.push(\'<span class="sppb-reply-text">\' + (commentRecord.replies || 0) + \' reply<\/span>\');
+					htmlParts.push(\'<span class="sppb-reply-text">\' + (commentRecord.replies || 0) + \' ' . Text::_('COM_SPPAGEBUILDER_REPLY') . '<\/span>\');
 					htmlParts.push(\'<\/div>\');
 					htmlParts.push(\'<\/div>\');
 				}
 				
 				// Reply form
 				htmlParts.push(\'<div class="sppb-comment-reply-form sppb-comment-form" data-comment-id="\' + commentRecord.id + \'" style="display: none;">\');
-				htmlParts.push(\'<textarea type="text" class="sppb-comment-reply-input sppb-comment-field" data-comment-id="\' + commentRecord.id + \'" placeholder="Write a reply..."><\/textarea>\');
+				htmlParts.push(\'<textarea type="text" class="sppb-comment-reply-input sppb-comment-field" data-comment-id="\' + commentRecord.id + \'" placeholder="' . Text::_('COM_SPPAGEBUILDER_WRITE_A_REPLY') . '"><\/textarea>\');
 				htmlParts.push(\'<div class="sppb-comment-btn-wrapper">\');
-				htmlParts.push(\'<button class="sppb-comment-reply-cancel-btn \' + btnClass + \'" data-comment-id="\' + commentRecord.id + \'">Cancel<\/button>\');
-				htmlParts.push(\'<button class="sppb-comment-reply-submit-btn comment-submit-btn \' + btnClass + \'" data-comment-id="\' + commentRecord.id + \'">Submit<\/button>\');
+				htmlParts.push(\'<button class="sppb-comment-reply-cancel-btn \' + btnClass + \'" data-comment-id="\' + commentRecord.id + \'">' . Text::_('COM_SPPAGEBUILDER_CANCEL') . '<\/button>\');
+				htmlParts.push(\'<button class="sppb-comment-reply-submit-btn comment-submit-btn \' + btnClass + \'" data-comment-id="\' + commentRecord.id + \'">' . Text::_('COM_SPPAGEBUILDER_SUBMIT') . '<\/button>\');
 				htmlParts.push(\'<\/div>\');
 				htmlParts.push(\'<\/div>\');
 				
@@ -2331,9 +2355,9 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$output .= '</div>';
 		$output .= '<# if (data.enable_time) { #>';
 		$output .= '<div class="sppb-comment-time-wrapper">';
-		$output .= '<span class="sppb-comment-time">2 hours ago</span>';
+		$output .= '<span class="sppb-comment-time">' . Text::sprintf('COM_SPPAGEBUILDER_HOURS_AGO', 2) . '</span>';
 		$output .= '<# if (data.show_edited_time) { #>';
-		$output .= '<span class="sppb-comment-edited-time"> • Edited 1 hour ago</span>';
+		$output .= '<span class="sppb-comment-edited-time"> • Edited ' . Text::sprintf('COM_SPPAGEBUILDER_HOUR_AGO', 1) . '</span>';
 		$output .= '<# } #>';
 		$output .= '</div>';
 		$output .= '<# } #>';
@@ -2356,8 +2380,8 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$output .= '<div class="sppb-comment-edit-form sppb-comment-form" data-comment-id="1" style="display: none;">';
 		$output .= '<textarea type="text" class="sppb-comment-edit-input sppb-comment-field" data-comment-id="1">This is a great article, Jane! I really enjoyed reading it. Expecting more insightful writings from you.</textarea>';
 		$output .= '<div class="sppb-comment-edit-buttons-wrapper sppb-comment-btn-wrapper">';
-		$output .= '<button class="sppb-comment-edit-button sppb-comment-edit-cancel-btn sppb-btn sppb-btn-md sppb-btn-rounded" data-comment-id="1">Cancel</button>';
-		$output .= '<button class="sppb-comment-edit-button sppb-comment-edit-submit-btn sppb-btn sppb-btn-md sppb-btn-rounded" data-comment-id="1">Update</button>';
+		$output .= '<button class="sppb-comment-edit-button sppb-comment-edit-cancel-btn sppb-btn sppb-btn-md sppb-btn-rounded" data-comment-id="1">' . Text::_('COM_SPPAGEBUILDER_CANCEL') . '</button>';
+		$output .= '<button class="sppb-comment-edit-button sppb-comment-edit-submit-btn sppb-btn sppb-btn-md sppb-btn-rounded" data-comment-id="1">' . Text::_('COM_SPPAGEBUILDER_UPDATE') . '</button>';
 		$output .= '</div>';
 		$output .= '</div>';
 		$output .= '<# if (data.enable_likes || data.enable_reply) { #>';
@@ -2365,22 +2389,23 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$output .= '<# if (data.enable_likes) { #>';
 		$output .= '<div class="sppb-comment-likes">';
 		$output .= '<i class="sppb-likes-icon fa fa-heart"></i>';
-		$output .= '<span class="sppb-likes-text">3 likes</span>';
+		$output .= '<span class="sppb-likes-text">3 ' . Text::_('COM_SPPAGEBUILDER_LIKES') . '</span>';
 		$output .= '</div>';
 		$output .= '<# } #>';
 		$output .= '<# if (data.enable_reply) { #>';
 		$output .= '<div class="sppb-comment-reply-action" data-comment-id="1">';
 		$output .= '<i class="sppb-reply-icon fa fa-reply"></i>';
-		$output .= '<span class="sppb-reply-text">2 reply</span>';
+		$output .= '<span class="sppb-reply-text">2 ' . Text::_('COM_SPPAGEBUILDER_REPLY') . '</span>';
 		$output .= '</div>';
 		$output .= '<# } #>';
 		$output .= '</div>';
 		$output .= '<# } #>';
 		$output .= '<div class="sppb-comment-reply-form sppb-comment-form" data-comment-id="1" style="display: none;">';
-		$output .= '<textarea type="text" class="sppb-comment-reply-input sppb-comment-field" data-comment-id="1" placeholder="Write a reply..."></textarea>';
+		$output .= '<textarea type="text" class="sppb-comment-reply-input sppb-comment-field" data-comment-id="1" placeholder="' . Text::_('COM_SPPAGEBUILDER_WRITE_A_REPLY') . '"></textarea>';
 		$output .= '<div class="sppb-comment-btn-wrapper">';
-		$output .= '<button class="sppb-comment-reply-cancel-btn sppb-btn sppb-btn-default sppb-btn-rounded sppb-btn-md" data-comment-id="1">Cancel</button>';
-		$output .= '<button class="sppb-comment-reply-submit-btn comment-submit-btn {{ data.post_button_type ? \'sppb-btn-\' + data.post_button_type : \'sppb-btn-default\' }} {{ data.post_button_block || \'\' }} {{ data.post_button_shape ? \'sppb-btn-\' + data.post_button_shape : \'sppb-btn-rounded\' }} {{ data.post_button_appearance ? \'sppb-btn-\' + data.post_button_appearance : \'\' }} {{ data.post_button_size ? \'sppb-btn-\' + data.post_button_size : \'sppb-btn-md\' }}" data-comment-id="1">Submit</button>';
+		
+		$output .= '<button class="sppb-comment-reply-cancel-btn sppb-btn sppb-btn-default sppb-btn-rounded sppb-btn-md" data-comment-id="1">' . Text::_('COM_SPPAGEBUILDER_CANCEL') . '</button>';
+		$output .= '<button class="sppb-comment-reply-submit-btn comment-submit-btn {{ data.post_button_type ? \'sppb-btn-\' + data.post_button_type : \'sppb-btn-default\' }} {{ data.post_button_block || \'\' }} {{ data.post_button_shape ? \'sppb-btn-\' + data.post_button_shape : \'sppb-btn-rounded\' }} {{ data.post_button_appearance ? \'sppb-btn-\' + data.post_button_appearance : \'\' }} {{ data.post_button_size ? \'sppb-btn-\' + data.post_button_size : \'sppb-btn-md\' }}" data-comment-id="1">' . Text::_('COM_SPPAGEBUILDER_SUBMIT') . '</button>';
 		$output .= '</div>';
 		$output .= '</div>';
 		$output .= '</div>';
@@ -2419,9 +2444,9 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$output .= '</div>';
 		$output .= '<# if (data.enable_time) { #>';
 		$output .= '<div class="sppb-comment-time-wrapper">';
-		$output .= '<span class="sppb-comment-time">1 hour ago</span>';
+		$output .= '<span class="sppb-comment-time">' . Text::sprintf('COM_SPPAGEBUILDER_HOUR_AGO', 1) . '</span>';
 		$output .= '<# if (data.show_edited_time) { #>';
-		$output .= '<span class="sppb-comment-edited-time"> • Edited 30 min ago</span>';
+		$output .= '<span class="sppb-comment-edited-time"> • Edited ' . Text::sprintf('COM_SPPAGEBUILDER_MINUTE_AGO', 30) . '</span>';
 		$output .= '<# } #>';
 		$output .= '</div>';
 		$output .= '<# } #>';
@@ -2437,13 +2462,13 @@ class SppagebuilderAddonComment extends SppagebuilderAddons
 		$output .= '<# if (data.enable_likes) { #>';
 		$output .= '<div class="sppb-comment-likes">';
 		$output .= '<i class="sppb-likes-icon fa fa-heart"></i>';
-		$output .= '<span class="sppb-likes-text">1 like</span>';
+		$output .= '<span class="sppb-likes-text">1 ' . Text::_('COM_SPPAGEBUILDER_LIKES') . '</span>';
 		$output .= '</div>';
 		$output .= '<# } #>';
 		$output .= '<# if (data.enable_reply) { #>';
 		$output .= '<div class="sppb-comment-reply-action" data-comment-id="2">';
 		$output .= '<i class="sppb-reply-icon fa fa-reply"></i>';
-		$output .= '<span class="sppb-reply-text">0 reply</span>';
+		$output .= '<span class="sppb-reply-text">0 ' . Text::_('COM_SPPAGEBUILDER_REPLY') . '</span>';
 		$output .= '</div>';
 		$output .= '<# } #>';
 		$output .= '</div>';

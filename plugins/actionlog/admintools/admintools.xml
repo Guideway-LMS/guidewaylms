@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--~
   ~ @package   admintools
-  ~ @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
   ~ @license   GNU General Public License version 3, or later
   -->
 
 <extension type="plugin" group="actionlog" method="upgrade">
 	<name>PLG_ACTIONLOG_ADMINTOOLS</name>
-	<version>7.8.2</version>
-	<creationDate>2025-09-01</creationDate>
+	<version>7.8.9</version>
+	<creationDate>2026-06-01</creationDate>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
 	<authorUrl>https://www.akeeba.com</authorUrl>

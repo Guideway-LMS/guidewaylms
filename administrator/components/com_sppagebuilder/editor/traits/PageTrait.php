@@ -105,6 +105,10 @@ trait PageTrait
 		$openGraphDescription = $this->getInput('og_description', '', 'STRING');
 		$openGraphImage = $this->getInput('og_image', '', 'STRING');
 		$customCss = $this->getInput('css', '', 'RAW');
+		$versionName = $this->getInput('version_name', '', 'STRING');
+		$versionNote = $this->getInput('version_note', '', 'STRING');
+		$isTriggedFromVersioning = $this->getInput('is_triggered_from_versioning', false, 'BOOL');
+		$isFreeVersion = $this->getInput('is_free_version', false, 'BOOL');
 		$popupType = !empty(json_decode($attributes)->visibility) ? json_decode($attributes)->visibility : null;
 		$isExcludedPages = !empty(json_decode($attributes)->exclude_pages_toggle) ? json_decode($attributes)->exclude_pages_toggle : null;
 		$isExcludedMenus = !empty(json_decode($attributes)->exclude_menus_toggle) ? json_decode($attributes)->exclude_menus_toggle : null;
@@ -151,6 +155,21 @@ trait PageTrait
 			'modified' => Factory::getDate()->toSql(),
 			'modified_by' => $user->id,
 		];
+
+		// Add version name and note if provided
+		if (!empty($versionName))
+		{
+			$data['version_name'] = $versionName;
+		}
+		if (!empty($versionNote))
+		{
+			$data['version_note'] = $versionNote;
+		}
+		if(!empty($isTriggedFromVersioning)){
+			$data['is_triggered_from_versioning'] = $isTriggedFromVersioning;
+		}
+		
+		$data['is_free_version'] = $isFreeVersion;
 
 		if ($popupType)
 		{
@@ -337,9 +356,9 @@ trait PageTrait
 	public function previewUrl()
 	{
 		$pageId = $this->getInput('id', 0, 'INT');
-		$language = $this->getInput('language', null, 'STRING');
 		$model = $this->getModel('Editor');
-		$response = $model->getPreviewUrl($pageId, $language);
+		$content = $model->getPageContent($pageId);
+		$response = $model->getPreviewUrl($pageId, $content->language);
 		$this->sendResponse($response);
 	}
 

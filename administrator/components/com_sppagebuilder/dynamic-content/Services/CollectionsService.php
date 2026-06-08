@@ -11,12 +11,14 @@ namespace JoomShaper\SPPageBuilder\DynamicContent\Services;
 defined('_JEXEC') or die;
 
 use Exception;
+use Joomla\CMS\Factory;
 use Joomla\String\StringHelper;
 use Joomla\CMS\Language\Text;
 use JoomShaper\SPPageBuilder\DynamicContent\Concerns\Validator;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\CollectionIds;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\FieldTypes;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\Operators;
+use JoomShaper\SPPageBuilder\DynamicContent\Constants\Status;
 use JoomShaper\SPPageBuilder\DynamicContent\Exceptions\ValidatorException;
 use JoomShaper\SPPageBuilder\DynamicContent\Http\Response;
 use JoomShaper\SPPageBuilder\DynamicContent\Models\Collection;
@@ -211,7 +213,7 @@ class CollectionsService
 
         foreach ($collections as $collection) {
             $collection->items = $primaryFieldValues[$collection->id] ?? [];
-            $collection->total_items = CollectionItem::where('collection_id', $collection->id)->count();
+            $collection->total_items = CollectionItem::where('collection_id', $collection->id)->where('published', Status::PUBLISHED)->count();
         }
 
         return $collections;
@@ -340,6 +342,56 @@ class CollectionsService
         })->toArray();
 
         return $fields;
+    }
+
+    /**
+     * Fetch total fields for a collection including reference collections.
+     *
+     * @param int $collectionId
+     * @param array $visited Prevents infinite loops in case of circular references
+     * @return array
+     * @since 6.2.0
+     */
+    public function fetchTotalFieldsByCollection(int $collectionId, array &$visited = [])
+    {
+        if (in_array($collectionId, $visited)) {
+            return [];
+        }
+        $visited[] = $collectionId;
+
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true)
+            ->select(['id', 'collection_id', 'name', 'type', 'reference_collection_id'])
+            ->from('#__sppagebuilder_collection_fields')
+            ->where('collection_id = ' . (int) $collectionId)
+            ->order('ordering ASC');
+        $db->setQuery($query);
+        $fields = $db->loadObjectList();
+        $fields = Arr::make($fields)->map(function ($field) {
+            return [
+                'id' => $field->id,
+                'name' => $field->name,
+                'type' => $field->type,
+                'collection_id' => $field->collection_id,
+                'reference_collection_id' => $field->reference_collection_id,
+            ];
+        })->toArray();
+
+        $orderedFields = [];
+        foreach ($fields as $field) {
+            $orderedFields[] = $field;
+
+            if (empty($field['reference_collection_id'])){
+                continue;
+            }
+
+            $referencedFields = $this->fetchTotalFieldsByCollection((int)$field['reference_collection_id'], $visited);
+            foreach ($referencedFields as $refField) {
+                $orderedFields[] = $refField;
+            }
+        }
+
+        return $orderedFields;
     }
 
     /**
@@ -692,7 +744,32 @@ class CollectionsService
                 'reference_collection_name' => [],
                 'option_field_values' => []
             ],
+            [
+                'id' => -21,
+                'name' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_LAYOUT'),
+                'type' => 'text',
+                'path' => "layout",
+                'reference_items' => [],
+                'reference_collection_name' => [],
+                'option_field_values' => []
+            ],
         ];
+
+        foreach (\SppagebuilderHelperArticles::getPublishedArticleCustomFieldRows() as $customFieldRow) {
+            $dynamicItemType = \SppagebuilderHelperArticles::mapComContentCustomFieldTypeToDynamic($customFieldRow->type ?? '');
+            if ($dynamicItemType === null) {
+                continue;
+            }
+            $fields[] = [
+                'id' => (int) $customFieldRow->id,
+                'name' => $customFieldRow->title,
+                'type' => $dynamicItemType,
+                'path' => $customFieldRow->name,
+                'reference_items' => [],
+                'reference_collection_name' => [],
+                'option_field_values' => []
+            ];
+        }
 
         $fields = Arr::make($fields);
         $fields->prepend([
@@ -849,7 +926,32 @@ class CollectionsService
                 'reference_collection_name' => [],
                 'option_field_values' => []
             ],
+            [
+                'id' => -21,
+                'name' => "SPPB Layout",
+                'type' => 'text',
+                'path' => "layout",
+                'reference_items' => [],
+                'reference_collection_name' => [],
+                'option_field_values' => []
+            ],
         ];
+
+        foreach (\SppagebuilderHelperArticles::getPublishedArticleCustomFieldRows() as $customFieldRow) {
+            $dynamicItemType = \SppagebuilderHelperArticles::mapComContentCustomFieldTypeToDynamic($customFieldRow->type ?? '');
+            if ($dynamicItemType === null) {
+                continue;
+            }
+            $fields[] = [
+                'id' => (int) $customFieldRow->id,
+                'name' => $customFieldRow->title,
+                'type' => $dynamicItemType,
+                'path' => $customFieldRow->name,
+                'reference_items' => [],
+                'reference_collection_name' => [],
+                'option_field_values' => []
+            ];
+        }
 
         $fields = Arr::make($fields);
         $fields->prepend([
@@ -1011,7 +1113,33 @@ class CollectionsService
                 'path' => "hits",
                 'fields' => []
             ],
+            [
+                'id' => -21,
+                'name' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_LAYOUT'),
+                'fullname' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_COLLECTION_ARTICLES') . ' > ' . Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_LAYOUT'),
+                'type' => 'text',
+                'level' => 2,
+                'path' => "layout",
+                'fields' => []
+            ],
         ];
+
+        $articlesGroupTitle = Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_COLLECTION_ARTICLES');
+        foreach (\SppagebuilderHelperArticles::getPublishedArticleCustomFieldRows() as $customFieldRow) {
+            $dynamicItemType = \SppagebuilderHelperArticles::mapComContentCustomFieldTypeToDynamic($customFieldRow->type ?? '');
+            if ($dynamicItemType === null) {
+                continue;
+            }
+            $fields[] = [
+                'id' => (int) $customFieldRow->id,
+                'name' => $customFieldRow->title,
+                'fullname' => $articlesGroupTitle . ' > ' . $customFieldRow->title,
+                'type' => $dynamicItemType,
+                'level' => 2,
+                'path' => $customFieldRow->name,
+                'fields' => []
+            ];
+        }
 
         // Filter fields based on allowed types
         $fields = array_filter($fields, function ($field) use ($allowedTypes) {
@@ -1095,6 +1223,15 @@ class CollectionsService
                 'name' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_HITS'),
                 'type' => 'number',
                 'path' => 'hits',
+                'reference_items' => [],
+                'reference_collection_name' => [],
+                'option_field_values' => []
+            ],
+            [
+                'id' => -21,
+                'name' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_LAYOUT'),
+                'type' => 'text',
+                'path' => "layout",
                 'reference_items' => [],
                 'reference_collection_name' => [],
                 'option_field_values' => []
@@ -1191,6 +1328,15 @@ class CollectionsService
                     'type' => 'rich-text',
                     'level' => 2,
                     'path' => "description",
+                    'fields' => []
+                ],
+                [
+                    'id' => -21,
+                    'name' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_LAYOUT'),
+                    'fullname' => Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_COLLECTION_TAGS') . ' > ' . Text::_('COM_SPPAGEBUILDER_DYNAMIC_CONTENT_FIELD_LAYOUT'),
+                    'type' => 'text',
+                    'level' => 2,
+                    'path' => "layout",
                     'fields' => []
                 ],
             ];
@@ -1526,7 +1672,7 @@ class CollectionsService
                 ->leftJoin(CollectionItemValue::class, 'collection_item_value.field_id', 'collection_field.id')
                 ->leftJoin(CollectionItem::class, 'collection_item_value.item_id', 'collection_item.id')
                 ->orderBy( 'collection_item.ordering', 'ASC')
-                ->where('collection_item.published', 1)
+                ->where('collection_item.published', Status::PUBLISHED)
                 ->get(['collection_field.id', 'collection_field.collection_id', 'collection_item_value.value', 'collection_item_value.item_id']);
             $primaryFieldsMap = [];
             foreach ($fields as $field) {
@@ -1580,7 +1726,9 @@ class CollectionsService
                 'number_step'    => 'number',
                 'number_format'  => 'string|in:' . implode(',', static::NUMBER_FORMATS),
                 'options'        => 'array',
+                'markers'        => 'array',
                 'file_extensions'=> 'array',
+                'is_single_location' => 'integer|in:0,1',
             ]);
         }
     }
@@ -1671,6 +1819,7 @@ class CollectionsService
             'required'                  => !empty($field['required']) ? intval($field['required']) : 0,
             'reference_collection_id'   => !empty($field['reference_collection_id']) ? $field['reference_collection_id'] : null,
             'is_textarea'               => !empty($field['is_textarea']) ? intval($field['is_textarea']) : 0,
+            'is_single_location'        => !empty($field['is_single_location']) ? intval($field['is_single_location']) : 0,
             'show_time'                 => !empty($field['show_time']) ? intval($field['show_time']) : 0,
             'file_extensions'           => $fileExtensions,
             'number_format'             => !empty($field['number_format']) ? $field['number_format'] : null,
@@ -1783,6 +1932,7 @@ class CollectionsService
                 'reference_collection_id'=> !empty($field["reference_collection_id"]) ? $reference_collection_id : null,
                 'is_textarea'            => !empty($field["is_textarea"]) ? intval($field["is_textarea"]) : 0,
                 'show_time'              => !empty($field["show_time"]) ? intval($field["show_time"]) : 0,
+                'is_single_location'     => !empty($field["is_single_location"]) ? intval($field["is_single_location"]) : 0,
                 'file_extensions'        => !empty($field["file_extensions"]) ? $field["file_extensions"] : null,
                 'number_format'          => !empty($field["number_format"]) ? $field["number_format"] : null,
                 'allow_negative'         => !empty($field["allow_negative"]) ? intval($field["allow_negative"]) : 0,
@@ -1841,6 +1991,7 @@ class CollectionsService
                 'reference_collection_id'=> !empty($field->reference_collection_id) ? $field->reference_collection_id : null,
                 'is_textarea'            => !empty($field->is_textarea) ? intval($field->is_textarea) : 0,
                 'show_time'              => !empty($field->show_time) ? intval($field->show_time) : 0,
+                'is_single_location'     => !empty($field->is_single_location) ? intval($field->is_single_location) : 0,
                 'file_extensions'        => !empty($field->file_extensions) ? $field->file_extensions : null,
                 'number_format'          => !empty($field->number_format) ? $field->number_format : null,
                 'allow_negative'         => !empty($field->allow_negative) ? intval($field->allow_negative) : 0,

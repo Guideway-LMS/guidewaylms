@@ -9,7 +9,7 @@
 defined('_JEXEC') or die();
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Filesystem\File;
+use Joomla\Filesystem\File;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
@@ -44,8 +44,6 @@ class JFormFieldHelixgallery extends FormField
 		$helix_plg_url = Uri::root(true) . '/plugins/system/helixultimate';
 		$doc->addScript($helix_plg_url . '/assets/js/admin/jquery-ui.min.js');
 
-		$plg_path = Uri::root(true) . '/plugins/system/helixultimate';
-
 		$values = json_decode($this->value ?? "");
 
 		if (!empty($values))
@@ -71,31 +69,41 @@ class JFormFieldHelixgallery extends FormField
 
 				$basename = basename($src);
 
+				// Check for the image's existence in the media folder
+				$absolutePath = JPATH_ROOT . '/' . $value;
 				$thumbnail = JPATH_ROOT . '/' . dirname($value) . '/' . File::stripExt($basename) . '_thumbnail.' . File::getExt($basename);
 				$small_size = JPATH_ROOT . '/' . dirname($value) . '/' . File::stripExt($basename) . '_small.' . File::getExt($basename);
 
-				if (file_exists($thumbnail))
-				{
-					$src = Uri::root(true) . '/' . dirname($value) . '/' . File::stripExt($basename) . '_thumbnail.' . File::getExt($basename);
-				}
-				elseif (file_exists($small_size))
-				{
-					$src = Uri::root(true) . '/' . dirname($value) . '/' . File::stripExt($basename) . '_small.' . File::getExt($basename);
-				}
+				// Only show images that actually exist (thumbnail or small size)
+				if (file_exists($absolutePath) || file_exists($thumbnail) || file_exists($small_size)) {
+					if (file_exists($thumbnail)) {
+						$src = Uri::root(true) . '/' . dirname($value) . '/' . File::stripExt($basename) . '_thumbnail.' . File::getExt($basename);
+					}
+					elseif (file_exists($small_size)) {
+						$src = Uri::root(true) . '/' . dirname($value) . '/' . File::stripExt($basename) . '_small.' . File::getExt($basename);
+					}
 
-				$output .= '<li class="hu-gallery-item" data-src="' . $data_src . '"><a href="#" class="btn btn-mini btn-danger btn-hu-remove-gallery-image"><span class="fas fa-times" aria-hidden="true"></span></a><img src="' . $src . '" alt=""></li>';
+					$output .= '<li class="hu-gallery-item" data-src="' . $data_src . '">
+						<a href="#" class="btn btn-mini btn-danger btn-hu-remove-gallery-image">
+							<span class="fas fa-times" aria-hidden="true"></span>
+						</a>
+						<img src="' . $src . '" alt="">
+					</li>';
+				}
 			}
 		}
 
 		$output .= '</ul>';
 
 		$output .= '<input type="file" id="hu-gallery-item-upload" accept="image/*" multiple="multiple" style="display:none;">';
-		$output .= '<a class="btn btn-default btn-secondary btn-hu-gallery-item-upload" href="#"><i class="fas fa-plus" aria-hidden="true"></i> ' . Text::_('HELIX_ULTIMATE_UPLOAD_IMAGES') . '</a>';
+		$output .= '<a class="btn btn-default btn-secondary btn-hu-gallery-item-upload" href="#">
+						<i class="fas fa-plus" aria-hidden="true"></i> ' . Text::_('HELIX_ULTIMATE_UPLOAD_IMAGES') . '
+					</a>';
 
-		$output .= '<input type="hidden" name="' . $this->name . '" data-name="' . $this->element['name'] . '_images" id="' . $this->id . '" value="' . htmlspecialchars($this->value ?? "", ENT_COMPAT, 'UTF-8')
-				. '"  class="form-field-hu-gallery">';
+		$output .= '<input type="hidden" name="' . $this->name . '" data-name="' . $this->element['name'] . '_images" id="' . $this->id . '" value="' . htmlspecialchars($this->value ?? "", ENT_COMPAT, 'UTF-8') . '" class="form-field-hu-gallery">';
 		$output .= '</div>';
 
 		return $output;
 	}
 }
+?>

@@ -2,23 +2,23 @@
     "packages": [
         {
             "name": "akeeba/phpfinder",
-            "version": "1.0.0",
-            "version_normalized": "1.0.0.0",
+            "version": "1.0.1",
+            "version_normalized": "1.0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/akeeba/phpfinder.git",
-                "reference": "2dd38e2cbd7ab95e1cb732ba0a246babc10f281e"
+                "reference": "0a00eb712c72000f6dbd4cd3a772bd327c288920"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/akeeba/phpfinder/zipball/2dd38e2cbd7ab95e1cb732ba0a246babc10f281e",
-                "reference": "2dd38e2cbd7ab95e1cb732ba0a246babc10f281e",
+                "url": "https://api.github.com/repos/akeeba/phpfinder/zipball/0a00eb712c72000f6dbd4cd3a772bd327c288920",
+                "reference": "0a00eb712c72000f6dbd4cd3a772bd327c288920",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2.0 <=8.4"
             },
-            "time": "2025-04-25T07:56:05+00:00",
+            "time": "2025-12-22T07:08:43+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -46,7 +46,7 @@
             ],
             "support": {
                 "issues": "https://github.com/akeeba/phpfinder/issues",
-                "source": "https://github.com/akeeba/phpfinder/tree/1.0.0"
+                "source": "https://github.com/akeeba/phpfinder/tree/1.0.1"
             },
             "install-path": "../akeeba/phpfinder"
         },

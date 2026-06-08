@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -16,11 +16,6 @@ use Joomla\CMS\Router\Route;
 $root      = realpath(JPATH_ROOT) ?: '';
 $root      = trim($root);
 $emptyRoot = empty($root);
-
-if (version_compare(JVERSION, '4.999.999', 'lt'))
-{
-	$this->loadAnyTemplate('Controlpanel/joomla_eol');
-}
 
 ?>
 <?php if(($this->debugAllPanels ?? false) || isset($this->jwarnings) && !empty($this->jwarnings)): ?>

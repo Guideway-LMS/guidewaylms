@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,8 +9,11 @@ namespace Akeeba\Component\AdminTools\Administrator\Helper;
 
 defined('_JEXEC') or die;
 
+use Akeeba\Component\AdminTools\Administrator\Extension\AdminToolsComponent;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\Registry\Registry;
 
 abstract class ServerTechnology
 {
@@ -22,7 +25,7 @@ abstract class ServerTechnology
 	public static function isHtaccessSupported(): int
 	{
 		// Get the server string
-		$serverString = $_SERVER['SERVER_SOFTWARE'] ?? '';
+		$serverString = trim(strtoupper(self::getServerString()));
 
 		// Not defined? Return maybe (2)
 		if (empty($serverString))
@@ -30,20 +33,20 @@ abstract class ServerTechnology
 			return 2;
 		}
 
-		// Apache? Yes
-		if (strtoupper(substr($serverString, 0, 6)) == 'APACHE')
+		// Apache or LiteSpeed? Yes
+		if (str_starts_with($serverString, 'APACHE') || str_starts_with($serverString, 'LITESPEED'))
 		{
 			return 1;
 		}
 
 		// NginX? No
-		if (strtoupper(substr($serverString, 0, 5)) == 'NGINX')
+		if (str_starts_with($serverString, 'NGINX'))
 		{
 			return 0;
 		}
 
 		// IIS? No
-		if (strstr($serverString, 'IIS') !== false)
+		if (str_contains($serverString, 'IIS'))
 		{
 			return 0;
 		}
@@ -60,7 +63,7 @@ abstract class ServerTechnology
 	public static function isNginxSupported(): int
 	{
 		// Get the server string
-		$serverString = $_SERVER['SERVER_SOFTWARE'] ?? '';
+		$serverString = trim(strtoupper(self::getServerString()));
 
 		// Not defined? Return maybe (2)
 		if (empty($serverString))
@@ -79,14 +82,14 @@ abstract class ServerTechnology
 	}
 
 	/**
-	 * Does the currect server support web.config files?
+	 * Does the current server support web.config files?
 	 *
 	 * @return  int  0=No, 1=Yes, 2=Maybe
 	 */
 	public static function isWebConfigSupported(): int
 	{
 		// Get the server string
-		$serverString = $_SERVER['SERVER_SOFTWARE'] ?? '';
+		$serverString = trim(strtoupper(self::getServerString()));
 
 		// Not defined? Return maybe (2)
 		if (empty($serverString))
@@ -95,25 +98,65 @@ abstract class ServerTechnology
 		}
 
 		// Apache? No
-		if (strtoupper(substr($serverString, 0, 6)) == 'APACHE')
+		if (str_starts_with($serverString, 'APACHE') || str_starts_with($serverString, 'LITESPEED'))
 		{
 			return 0;
 		}
 
 		// NginX? No
-		if (strtoupper(substr($serverString, 0, 5)) == 'NGINX')
+		if (str_starts_with($serverString, 'NGINX'))
 		{
 			return 0;
 		}
 
 		// IIS? Yes
-		if (strstr($serverString, 'IIS') !== false)
+		if (str_contains($serverString, 'IIS'))
 		{
 			return 1;
 		}
 
 		// Anything else? No.
 		return 0;
+	}
+
+	/**
+	 * Retrieves the server software string, optionally overridden by custom configuration.
+	 *
+	 * @return  string  The server software string.
+	 * @since   7.8.6
+	 */
+	public static function getServerString(): string
+	{
+		$nominalString = trim(strtoupper($_SERVER['SERVER_SOFTWARE'] ?? ''));
+		$params        = ComponentHelper::getParams('com_admintools');
+
+		if (!$params instanceof Registry)
+		{
+			return $nominalString;
+		}
+
+		$overrideServer        = $params->get('override_server', '');
+		$overrideApacheVersion = $params->get('override_apache', '');
+
+		switch ($overrideServer)
+		{
+			case 'APACHE':
+				$version = empty($overrideApacheVersion) ? '2.4' : $overrideApacheVersion;
+
+				return 'Apache/' . $version;
+
+			case 'LITESPEED':
+				return 'LiteSpeed';
+
+			case 'NGINX':
+				return 'NginX/999.999';
+
+			case 'IIS':
+				return 'IIS/999.999';
+
+			default:
+				return $nominalString;
+		}
 	}
 
 	/**

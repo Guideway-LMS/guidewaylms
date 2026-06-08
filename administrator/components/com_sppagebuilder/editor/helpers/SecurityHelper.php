@@ -20,6 +20,7 @@ final class SecurityHelper
 	{
 		$params = ComponentHelper::getParams('com_media');
 		$filesFolderPath = $params->get('file_path', 'images');
+		$imagesFolderPath = $params->get('image_path', 'images');
 
 		$folder = strtolower(Path::clean($folder));
 		$parts = explode(DIRECTORY_SEPARATOR, $folder);
@@ -29,7 +30,7 @@ final class SecurityHelper
 		});
 		$parts = array_values($parts);
 
-		if (empty($parts) || !is_array($parts) || count($parts) < 2 || $parts[0] !== $filesFolderPath)
+		if (empty($parts) || !is_array($parts) || count($parts) < 2 || ($parts[0] !== $filesFolderPath && $parts[0] !== $imagesFolderPath))
 		{
 			return false;
 		}
@@ -41,6 +42,7 @@ final class SecurityHelper
 	{
 		$params = ComponentHelper::getParams('com_media');
 		$filesFolderPath = $params->get('file_path', 'images');
+		$imagesFolderPath = $params->get('image_path', 'images');
 
 		$path = strtolower(Path::clean($path));
 		$pathArray = explode(DIRECTORY_SEPARATOR, $path);
@@ -51,7 +53,7 @@ final class SecurityHelper
 
 		$pathArray = array_values($pathArray);
 
-		if (empty($pathArray) || !is_array($pathArray) || count($pathArray) < 1 || $pathArray[0] !== $filesFolderPath)
+		if (empty($pathArray) || !is_array($pathArray) || count($pathArray) < 1 || ($pathArray[0] !== $filesFolderPath && $pathArray[0] !== $imagesFolderPath))
 		{
 			return false;
 		}

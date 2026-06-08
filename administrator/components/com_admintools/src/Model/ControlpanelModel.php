@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -511,7 +511,7 @@ class ControlpanelModel extends BaseDatabaseModel
 
 		// Do I already have the `files` entry?
 		$configuration = $model->loadConfiguration();
-		$fepexdirs = $configuration['fepexdirs'] ?? [];
+		$fepexdirs = $configuration->fepexdirs ?? [];
 		$fepexdirs = is_array($fepexdirs) ? $fepexdirs : explode(',', $fepexdirs);
 		$fepexdirs = array_filter(array_map('trim', $fepexdirs));
 
@@ -521,7 +521,8 @@ class ControlpanelModel extends BaseDatabaseModel
 		}
 
 		// Add the new entry and save the configuration
-		$configuration['fepexdirs'][] = 'files';
+		$fepexdirs[] = 'files';
+		$configuration->fepexdirs = $fepexdirs;
 
 		$model->saveConfiguration($configuration);
 

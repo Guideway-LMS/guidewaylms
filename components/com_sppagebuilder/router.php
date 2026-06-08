@@ -31,12 +31,24 @@ use JoomShaper\SPPageBuilder\DynamicContent\Constants\CollectionIds;
 
 class SppagebuilderRouterBase
 {
+	private static $aliasFieldCache = [];
+	private static $aliasCache = [];
+	private static $collectionIdCache = [];
+
 	public static function buildRoute(&$query)
 	{
 		$segments = array();
 		/** @var CMSApplication */
 		$app = Factory::getApplication();
 		$menu = $app->getMenu();
+
+		$version = new Version();
+		$joomlaVersion = (float) $version->getShortVersion();
+
+		if ($joomlaVersion >= 6 && isset($query['view']) && $query['view'] === 'form' && isset($query['layout']) && $query['layout'] === 'edit-iframe' && isset($query['lang']))
+		{
+			return $segments;
+		}
 
 		// We need a menu item.  Either the one specified in the query, or the current active one if none specified
 		if (empty($query['Itemid']))
@@ -97,7 +109,7 @@ class SppagebuilderRouterBase
 
 			unset($query['collection_item_id']);
 			unset($query['collection_type']); // Remove collection_type parameter
-
+			
 			// Always generate alias for SEF URLs, regardless of menu item
 			$alias = static::getSlugsByCollectionItemIds($collectionItemId, $collectionType);
 			if (!empty($alias)) {
@@ -135,31 +147,19 @@ class SppagebuilderRouterBase
 
 	private static function getCollectionTypeFromAlias($alias)
 	{
-		if (!\class_exists('SppagebuilderHelperArticles')) {
-			require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select('alias')
+			->from('#__content')
+			->where('state = 1')
+			->where('alias = ' . $db->quote($alias));
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		if ($result) {
+			return 'articles';
 		}
 
-		$articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
-		$articles = \SppagebuilderHelperArticles::getArticles($articlesCount);
-		foreach ($articles as $article) {
-			if ($article->alias === $alias) {
-				return 'articles';
-			}
-		}
-		
-		$db = \Joomla\CMS\Factory::getDbo();
-		$query = $db->getQuery(true)
-			->select('COUNT(*)')
-			->from('#__tags')
-			->where('alias = ' . $db->quote($alias))
-			->where('published = 1');
-		$db->setQuery($query);
-		$tagCount = $db->loadResult();
-		
-		if ($tagCount > 0) {
-			return 'tags';
-		}
-		
 		return 'normal-source';
 	}
 
@@ -205,11 +205,16 @@ class SppagebuilderRouterBase
 			$isValidCollectionPage = $collectionArray->every(function ($element) {
 				return !empty($element);
 			});
+
+			if ($isValidCollectionPage && static::hasConsecutiveSameCollectionItems($collectionItemIds, $collectionType)) {
+				$isValidCollectionPage = false;
+			}
 		}
 
 		// Dynamic Content
 		if (!empty($item) && $item->query['option'] === 'com_sppagebuilder' && $item->query['view'] === 'page' && $isValidCollectionPage) {
 			$vars['view'] = 'dynamic';
+
 			if (!empty($collectionItemIds)) {
 				foreach ($collectionItemIds as $collectionItemId) {
 					$vars['collection_item_id'][] = $collectionItemId;
@@ -235,42 +240,82 @@ class SppagebuilderRouterBase
 		})->toArray();
 	}
 
-	private static function getCollectionItemIdFromSlug($slug)
+	/**
+	 * Check if any two consecutive items in the chain belong to the same collection.
+	 * Such URLs (e.g. /blog/blog) are invalid and should result in 404.
+	 *
+	 * @param array $collectionItemIds The collection item IDs from the URL segments.
+	 * @param string $collectionType The collection type (e.g. 'normal-source', 'articles', 'tags').
+	 * @return bool True if consecutive same-collection items exist.
+	 */
+	private static function hasConsecutiveSameCollectionItems(array $collectionItemIds, string $collectionType)
 	{
-		if (!\class_exists('SppagebuilderHelperArticles')) {
-			require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
+		if (count($collectionItemIds) < 2) {
+			return false;
 		}
 
+		static::ensureCollectionIdCacheForItemIds($collectionItemIds);
+
+		for ($i = 0; $i < count($collectionItemIds) - 1; $i++) {
+			$collectionId1 = static::getCollectionIdFromItemId($collectionItemIds[$i], $collectionType);
+			$collectionId2 = static::getCollectionIdFromItemId($collectionItemIds[$i + 1], $collectionType);
+
+			if ($collectionId1 !== null && $collectionId2 !== null && $collectionId1 === $collectionId2) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Preload collection_id for the given item IDs into the cache.
+	 *
+	 * @param array $itemIds The item IDs to cache.
+	 * @return void
+	 */
+	private static function ensureCollectionIdCacheForItemIds(array $itemIds)
+	{
+		$itemIds = array_filter(array_map('intval', $itemIds));
+		if (empty($itemIds)) {
+			return;
+		}
+
+		$missingIds = [];
+		foreach ($itemIds as $id) {
+			if (!isset(self::$collectionIdCache[$id])) {
+				$missingIds[] = $id;
+			}
+		}
+
+		if (empty($missingIds)) {
+			return;
+		}
+
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select('id, collection_id')
+			->from('#__sppagebuilder_collection_items')
+			->where('id IN (' . implode(',', array_map('intval', $missingIds)) . ')');
+		$db->setQuery($query);
+		$rows = $db->loadObjectList();
+
+		foreach ($rows as $row) {
+			self::$collectionIdCache[$row->id] = $row->collection_id;
+		}
+	}
+
+	private static function getCollectionItemIdFromSlug($slug)
+	{
 		try {
-			$articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
-			$articles = \SppagebuilderHelperArticles::getArticles($articlesCount);
-			foreach ($articles as $article) {
-				$articleAlias = !empty($article->alias) ? $article->alias : OutputFilter::stringURLSafe($article->title);
-				if ($articleAlias === $slug) {
-					return $article->id;
-				}
+			$articleId = self::getArticleIdBySlug($slug);
+			if ($articleId) {
+				return $articleId;
 			}
 		} catch (\Exception $e) {
 		}
 
 		if (preg_match('/^article-(\d+)$/', $slug, $matches)) {
-			return (int) $matches[1];
-		}
-		
-		$db = \Joomla\CMS\Factory::getDbo();
-		$query = $db->getQuery(true)
-			->select('id')
-			->from('#__tags')
-			->where('alias = ' . $db->quote($slug))
-			->where('published = 1');
-		$db->setQuery($query);
-		$tagId = $db->loadResult();
-		
-		if ($tagId) {
-			return (int) $tagId;
-		}
-		
-		if (preg_match('/^tag-(\d+)$/', $slug, $matches)) {
 			return (int) $matches[1];
 		}
 				
@@ -296,9 +341,51 @@ class SppagebuilderRouterBase
 			return [];
 		}
 
+		if(empty(self::$aliasCache)){
+			$db = Factory::getDbo();
+			$query = $db->getQuery(true)
+				->select('value, field_id, item_id')
+				->from('#__sppagebuilder_collection_item_values')
+				->whereIn('field_id', $db->setQuery(
+					$db->getQuery(true)
+						->select('id')
+						->from('#__sppagebuilder_collection_fields')
+						->where('type = ' . $db->quote(FieldTypes::ALIAS))
+				)->loadColumn());
+			$db->setQuery($query);
+			$aliasItems = $db->loadObjectList();
+			
+			foreach (Arr::make($aliasItems) as $element) { 
+				$key = $element->item_id . '_' . $element->field_id;
+				self::$aliasCache[$key] = $element;
+			}
+		}
+
+		if(empty(self::$collectionIdCache)){
+			$db = Factory::getDbo();
+			$query = $db->getQuery(true)
+				->select('id, collection_id')
+				->from('#__sppagebuilder_collection_items');
+			$db->setQuery($query);
+			$collectionItems = $db->loadObjectList(); 
+			
+			foreach (Arr::make($collectionItems) as $element) { 
+				self::$collectionIdCache[$element->id] = $element->collection_id;
+			}
+		}
+
 		return Arr::make($collectionItemIds)->map(function ($id) use ($collectionType) {
 			return static::getItemAliasByCollectionItemId(static::getCollectionIdFromItemId($id, $collectionType), $id);
 		})->toArray();
+	}
+
+	private static function getCollectionIdFromCache($itemId)
+	{
+		if (isset(self::$collectionIdCache[$itemId])) {
+			return self::$collectionIdCache[$itemId];
+		}
+
+		return null;
 	}
 
 	private static function getCollectionIdFromItemId($itemId, $collectionType = 'normal-source')
@@ -311,23 +398,15 @@ class SppagebuilderRouterBase
 			return CollectionIds::TAGS_COLLECTION_ID;
 		}
 		
-		$collectionItem = CollectionItem::where('id', $itemId)->first(['collection_id']);
+		$collectionId = self::getCollectionIdFromCache($itemId);
 
-		if (!$collectionItem->isEmpty()) {
-			return $collectionItem->collection_id;
-		}
-
-		if (!\class_exists('SppagebuilderHelperArticles')) {
-			require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
+		if ($collectionId) {
+			return $collectionId;
 		}
 
 		try {
-			$articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
-			$articles = \SppagebuilderHelperArticles::getArticles($articlesCount);
-			foreach ($articles as $article) {
-				if ($article->id == $itemId) {
-					return CollectionIds::ARTICLES_COLLECTION_ID;
-				}
+			if (self::articleExists($itemId)) {
+				return CollectionIds::ARTICLES_COLLECTION_ID;
 			}
 		} catch (\Exception $e) {
 		}
@@ -348,6 +427,25 @@ class SppagebuilderRouterBase
 		return null;
 	}
 
+	private static function getAliasFieldFromCache($collectionId)
+	{
+		if (isset(self::$aliasFieldCache[$collectionId])) {
+			return self::$aliasFieldCache[$collectionId];
+		}
+
+		$aliasField = CollectionField::where('collection_id', $collectionId)
+			->where('type', FieldTypes::ALIAS)
+			->first(['id']);
+
+		if ($aliasField->isEmpty()) {
+			self::$aliasFieldCache[$collectionId] = null;
+			return null;
+		}
+
+		self::$aliasFieldCache[$collectionId] = $aliasField;
+		return $aliasField;
+	}
+
 	private static function getItemAliasByCollectionItemId($collectionId, $collectionItemId)
 	{
 		if (empty($collectionId) || empty($collectionItemId)) {
@@ -360,13 +458,10 @@ class SppagebuilderRouterBase
 			}
 
 			try {
-				$articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
-				$articles = \SppagebuilderHelperArticles::getArticles($articlesCount);
-				foreach ($articles as $article) {
-					if ($article->id == $collectionItemId) {
-						$alias = !empty($article->alias) ? $article->alias : OutputFilter::stringURLSafe($article->title);
-						return $alias;
-					}
+				$article = self::getArticleByCollectionItemId($collectionItemId);
+				if ($article) {
+					$alias = !empty($article->alias) ? $article->alias : OutputFilter::stringURLSafe($article->title);
+					return $alias;
 				}
 			} catch (\Exception $e) {
 				return 'article-' . $collectionItemId;
@@ -397,127 +492,82 @@ class SppagebuilderRouterBase
 			return 'tag-' . $collectionItemId;
 		}
 
-		$aliasField = CollectionField::where('collection_id', $collectionId)
-			->where('type', FieldTypes::ALIAS)
-			->first(['id']);
+		$aliasField = self::getAliasFieldFromCache($collectionId);
 
 		if ($aliasField->isEmpty()) {
 			return null;
 		}
 
-		$alias = CollectionItemValue::where('item_id', $collectionItemId)
-			->where('field_id', $aliasField->id)
-			->first(['value']);
+		$alias = self::getAliasFromCache($collectionItemId, $aliasField->id);
 
-		if ($alias->isEmpty()) {
+		if (empty($alias)) {
 			return null;
 		}
 
 		return $alias->value;
 	}
 
-	private static function getCollectionItemIdByAlias($collectionId, $alias)
+	private static function getAliasFromCache($itemId, $fieldId)
 	{
-		if ($collectionId === CollectionIds::ARTICLES_COLLECTION_ID) {
-			if (!\class_exists('SppagebuilderHelperArticles')) {
-				require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
-			}
+		$cacheKey = $itemId . '_' . $fieldId;
 
-			try {
-				$articlesCount = \SppagebuilderHelperArticles::getArticlesCount();
-				$articles = \SppagebuilderHelperArticles::getArticles($articlesCount);
-				foreach ($articles as $article) {
-					$articleAlias = !empty($article->alias) ? $article->alias : OutputFilter::stringURLSafe($article->title);
-					if ($articleAlias === $alias) {
-						return $article->id;
-					}
-				}
-			} catch (\Exception $e) {
-				return null;
-			}
-
-			return null;
+		if (isset(self::$aliasCache[$cacheKey])) {
+			return self::$aliasCache[$cacheKey];
 		}
 
-		if ($collectionId === CollectionIds::TAGS_COLLECTION_ID) {
-			try {
-				$db = \Joomla\CMS\Factory::getDbo();
-				$query = $db->getQuery(true)
-					->select('id, alias, title')
-					->from('#__tags')
-					->where('published = 1');
-				$db->setQuery($query);
-				$tags = $db->loadObjectList();
-				
-				foreach ($tags as $tag) {
-					$tagAlias = !empty($tag->alias) ? $tag->alias : OutputFilter::stringURLSafe($tag->title);
-					if ($tagAlias === $alias) {
-						return $tag->id;
-					}
-				}
-			} catch (\Exception $e) {
-				return null;
-			}
+		return null;
+	}
 
-			return null;
-		}
+	private static function getArticleByCollectionItemId($collectionItemId){
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select('alias, title')
+			->from('#__content')
+			->where('id = ' . (int) $collectionItemId)
+			->where('state = 1');
+		$db->setQuery($query);
+		return $db->loadObject();
+	}
 
-		$aliasField = CollectionField::where('collection_id', $collectionId)
-			->where('type', FieldTypes::ALIAS)
-			->first(['id']);
+	private static function getArticleIdBySlug($slug){
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select('id')
+			->from('#__content')
+			->where('state = 1')
+			->where('alias = ' . $db->quote($slug));
+		$db->setQuery($query);
+		$articleId = $db->loadResult();
 		
-		if ($aliasField->isEmpty()) {
-			return null;
+		if ($articleId) {
+			return $articleId;
 		}
-
-		$collectionItem = CollectionItemValue::where('field_id', $aliasField->id)
-			->where('value', $alias)
-			->first(['item_id']);
-
-		if ($collectionItem->isEmpty()) {
-			return null;
+		
+		$query = $db->getQuery(true)
+			->select('id, title')
+			->from('#__content')
+			->where('state = 1');
+		$db->setQuery($query);
+		$articles = $db->loadObjectList();
+		
+		foreach ($articles as $article) {
+			if (OutputFilter::stringURLSafe($article->title ?? '') === $slug) {
+				return $article->id;
+			}
 		}
-
-		return $collectionItem->item_id;
+		
+		return null;
 	}
 
-	private static function getDetailPageIdByCollectionId($collectionId)
-	{
-		if (empty($collectionId)) {
-			return null;
-		}
-
-		$page = Page::where('view_id', $collectionId)
-			->where('extension_view', 'dynamic_content:detail')
-			->first(['id']);
-
-		if ($page->isEmpty()) {
-			return null;
-		}
-
-		return $page->id;
-	}
-
-	private static function getCollectionAlias($collectionId)
-	{
-		$collection = Collection::where('id', $collectionId)->first(['alias']);
-
-		if ($collection->isEmpty()) {
-			return null;
-		}
-
-		return $collection->alias;
-	}
-
-	private static function getCollectionIdByAlias($alias)
-	{
-		$collection = Collection::where('alias', $alias)->first(['id']);
-
-		if ($collection->isEmpty()) {
-			return null;
-		}
-
-		return $collection->id;
+	private static function articleExists($articleId){
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select('COUNT(*)')
+			->from('#__content')
+			->where('id = ' . (int) $articleId)
+			->where('state = 1');
+		$db->setQuery($query);
+		return (bool) $db->loadResult();
 	}
 }
 

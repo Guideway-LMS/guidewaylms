@@ -96,6 +96,11 @@ final class PHPFinder
 		{
 			$info = $this->analyzePHPVersion($path);
 
+			if ($info->version === null)
+			{
+				continue;
+			}
+
 			if ($this->configuration->validateVersion && strpos($info->version, $version) === false)
 			{
 				continue;

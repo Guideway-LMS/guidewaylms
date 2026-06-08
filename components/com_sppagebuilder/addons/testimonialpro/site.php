@@ -22,6 +22,8 @@ class SppagebuilderAddonTestimonialpro extends SppagebuilderAddons
 
         //Options
         $autoplay = (isset($settings->autoplay) && $settings->autoplay) ? ' data-sppb-ride="sppb-carousel"' : '';
+        $loop = !isset($settings->loop) ? 1 : (int) $settings->loop;
+        $pause_on_hover = (isset($settings->pause_on_hover) && (int) $settings->pause_on_hover === 0) ? 0 : 1;
         $controls = (isset($settings->controls) && $settings->controls) ? $settings->controls : 0;
         $arrow_controls = (isset($settings->arrow_controls) && $settings->arrow_controls) ? $settings->arrow_controls : 0;
         $interval = (isset($settings->interval) && $settings->interval) ? ((int) $settings->interval * 1000) : 5000;
@@ -54,7 +56,7 @@ class SppagebuilderAddonTestimonialpro extends SppagebuilderAddons
         }
 
         //Output
-        $output = '<div id="sppb-testimonial-pro-' . $this->addon->id . '" data-interval="' . $interval . '" class="sppb-carousel sppb-testimonial-pro sppb-slide ' . $class . '"' . $autoplay . '>';
+        $output = '<div id="sppb-testimonial-pro-' . $this->addon->id . '" data-interval="' . $interval . '" data-pause-on-hover="' . $pause_on_hover . '" data-loop="' . ($loop ? 'true' : 'false') . '" class="sppb-carousel sppb-testimonial-pro sppb-slide ' . $class . '"' . $autoplay . '>';
 
         if(isset($settings->randomize_carousel) && $settings->randomize_carousel)
         {
@@ -248,6 +250,7 @@ class SppagebuilderAddonTestimonialpro extends SppagebuilderAddons
             <#  
                 let interval = (data.interval)? (data.interval*1000):5000
                 let autoplay = (data.autoplay)? \'data-sppb-ride="sppb-carousel"\':""
+                let pauseOnHover = (_.isUndefined(data.pause_on_hover) || data.pause_on_hover) ? 1 : 0
                 let avatar_size = data.avatar_width || 32
                 let avatar_shape = data.avatar_shape || "sppb-avatar-circle"
                 let arrow_icon = (!_.isEmpty(data.arrow_icon)) ? data.arrow_icon : "chevron";
@@ -369,7 +372,7 @@ class SppagebuilderAddonTestimonialpro extends SppagebuilderAddons
 		$output .= $lodash->generateTransformCss('.sppb-testimonial-pro', 'data.transform');
         $output .= '
             </style>
-            <div id="sppb-testimonial-pro-{{ data.id }}" data-interval="{{ interval }}" class="sppb-carousel sppb-testimonial-pro sppb-slide {{ data.class }}" {{{ autoplay }}}>
+            <div id="sppb-testimonial-pro-{{ data.id }}" data-interval="{{ interval }}" data-pause-on-hover="{{ pauseOnHover }}" class="sppb-carousel sppb-testimonial-pro sppb-slide {{ data.class }}" {{{ autoplay }}}>
 
             <# if(data.randomize_carousel)
                 {

@@ -32,6 +32,11 @@ SpAddonsConfig::addonConfig([
                             'std'   => 'Accordion Title',
                         ],
 
+                        'item_visibility' => [
+                            'type' => 'visibility',
+                            'std'  => true,
+                        ],
+
                         'visual_item_type' => [
                             'type'   => 'buttons',
                             'std'    => 'icon',
@@ -45,6 +50,68 @@ SpAddonsConfig::addonConfig([
                             'type'  => 'media',
                             'title' => Text::_('COM_SPPAGEBUILDER_GLOBAL_IMAGE'),
                             'depends' => [['visual_item_type', '=', 'image']],
+                        ],
+
+                        'image_as_background' => [
+                            'type'  => 'checkbox',
+                            'title' => Text::_('COM_SPPAGEBUILDER_ADDON_ACCORDION_IMAGE_AS_BACKGROUND'),
+                            'desc'  => Text::_('COM_SPPAGEBUILDER_ADDON_ACCORDION_IMAGE_AS_BACKGROUND_DESC'),
+                            'std'   => 0,
+                            'depends' => [['visual_item_type', '=', 'image']],
+                        ],
+
+                        'image_background_size' => [
+                            'type'   => 'select',
+                            'title'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_SIZE'),
+                            'desc'   => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_SIZE_DESC'),
+                            'values' => [
+                                'cover'    => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_SIZE_COVER'),
+                                'contain'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_SIZE_CONTAIN'),
+                                'auto'     => Text::_('COM_SPPAGEBUILDER_ADDON_MODAL_OVERFLOW_AUTO'),
+                                '100% 100%' => Text::_('COM_SPPAGEBUILDER_ADDON_ACCORDION_IMAGE_BG_SIZE_FILL'),
+                            ],
+                            'std'    => 'cover',
+                            'depends' => [
+                                ['visual_item_type', '=', 'image'],
+                                ['image_as_background', '=', 1],
+                            ],
+                        ],
+
+                        'image_background_position' => [
+                            'type'   => 'select',
+                            'title'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_POSITION'),
+                            'values' => [
+                                '0 0'       => Text::_('COM_SPPAGEBUILDER_LEFT_TOP'),
+                                '0 50%'     => Text::_('COM_SPPAGEBUILDER_LEFT_CENTER'),
+                                '0 100%'    => Text::_('COM_SPPAGEBUILDER_LEFT_BOTTOM'),
+                                '50% 0'     => Text::_('COM_SPPAGEBUILDER_CENTER_TOP'),
+                                '50% 50%'   => Text::_('COM_SPPAGEBUILDER_CENTER_CENTER'),
+                                '50% 100%'  => Text::_('COM_SPPAGEBUILDER_CENTER_BOTTOM'),
+                                '100% 0'    => Text::_('COM_SPPAGEBUILDER_RIGHT_TOP'),
+                                '100% 50%'  => Text::_('COM_SPPAGEBUILDER_RIGHT_CENTER'),
+                                '100% 100%' => Text::_('COM_SPPAGEBUILDER_RIGHT_BOTTOM'),
+                            ],
+                            'std'    => '50% 50%',
+                            'depends' => [
+                                ['visual_item_type', '=', 'image'],
+                                ['image_as_background', '=', 1],
+                            ],
+                        ],
+
+                        'image_background_repeat' => [
+                            'type'   => 'select',
+                            'title'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_REPEAT'),
+                            'values' => [
+                                'no-repeat' => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_NO_REPEAT'),
+                                'repeat'    => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_REPEAT_ALL'),
+                                'repeat-x'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_REPEAT_HORIZONTALLY'),
+                                'repeat-y'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_BACKGROUND_REPEAT_VERTICALLY'),
+                            ],
+                            'std'    => 'no-repeat',
+                            'depends' => [
+                                ['visual_item_type', '=', 'image'],
+                                ['image_as_background', '=', 1],
+                            ],
                         ],
 
                         'icon' => [
@@ -95,6 +162,12 @@ SpAddonsConfig::addonConfig([
                         'panel-custom'  => Text::_('COM_SPPAGEBUILDER_GLOBAL_CUSTOM'),
                     ],
                     'std' => 'panel-custom'
+                ],
+
+                'keep_item_open' => [
+                    'type' => 'checkbox',
+                    'title' => Text::_('COM_SPPAGEBUILDER_ADDON_ACCORDION_KEEP_ITEM_OPEN'),
+                    'desc' => Text::_('COM_SPPAGEBUILDER_ADDON_ACCORDION_KEEP_ITEM_OPEN_DESC'),
                 ],
             ],
         ],

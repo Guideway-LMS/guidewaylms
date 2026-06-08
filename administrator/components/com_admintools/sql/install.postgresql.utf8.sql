@@ -1,6 +1,6 @@
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS "#__admintools_customperms"
     PRIMARY KEY ("id")
 );
 
-CREATE INDEX "#__admintools_customperms_path" ON "#__admintools_customperms" ("path");
+CREATE INDEX IF NOT EXISTS "#__admintools_customperms_path" ON "#__admintools_customperms" ("path");
 
 CREATE TABLE IF NOT EXISTS "#__admintools_filescache"
 (
@@ -83,18 +83,18 @@ CREATE INDEX "#__admintools_log_logdate_reason" ON "#__admintools_log" ("logdate
 
 CREATE TABLE IF NOT EXISTS "#__admintools_redirects"
 (
-    "id"             serial                      NOT NULL,
-    "source"         character varying(255)               DEFAULT NULL,
-    "dest"           character varying(255)               DEFAULT NULL,
-    "ordering"       bigint                      NOT NULL DEFAULT '0',
-    "published"      smallint                    NOT NULL DEFAULT '1',
-    "created"        TIMESTAMP without time zone NULL     DEFAULT NULL,
-    "created_by"     bigint                      NOT NULL DEFAULT '0',
-    "modified"       TIMESTAMP without time zone NULL     DEFAULT NULL,
-    "modified_by"    bigint                      NOT NULL DEFAULT '0',
-    "checked_out"    bigint                      NOT NULL DEFAULT '0',
-    "checked_out_by" TIMESTAMP without time zone NULL     DEFAULT NULL,
-    "keepurlparams"  smallint                    NOT NULL DEFAULT '1',
+    "id"               serial                      NOT NULL,
+    "source"           character varying(255)               DEFAULT NULL,
+    "dest"             character varying(255)               DEFAULT NULL,
+    "ordering"         bigint                      NOT NULL DEFAULT '0',
+    "published"        smallint                    NOT NULL DEFAULT '1',
+    "created"          TIMESTAMP without time zone NULL     DEFAULT NULL,
+    "created_by"       bigint                      NOT NULL DEFAULT '0',
+    "modified"         TIMESTAMP without time zone NULL     DEFAULT NULL,
+    "modified_by"      bigint                      NOT NULL DEFAULT '0',
+    "checked_out"      bigint                      NOT NULL DEFAULT '0',
+    "checked_out_time" TIMESTAMP without time zone NULL     DEFAULT NULL,
+    "keepurlparams"    smallint                    NOT NULL DEFAULT '1',
     PRIMARY KEY ("id")
 );
 
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS "#__admintools_scans"
     PRIMARY KEY ("id")
 );
 
-CREATE INDEX "#__admintools_idx_stale" ON "#__admintools_scans" ("status", "origin");
+CREATE INDEX IF NOT EXISTS "#__admintools_idx_stale" ON "#__admintools_scans" ("status", "origin");
 
 CREATE TABLE IF NOT EXISTS "#__admintools_storage"
 (

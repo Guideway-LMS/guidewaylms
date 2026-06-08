@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -126,11 +126,12 @@ class ControlpanelController extends BaseController
 
 	public function unblockme()
 	{
-		$unblockIP[] = [$this->input->getString('ip', '')];
-
 		/** @var ControlpanelModel $model */
-		$model       = $this->getModel();
-		$unblockIP[] = $model->getVisitorIP();
+		$model     = $this->getModel();
+		$unblockIP = [
+			$this->input->getString('ip', ''),
+			$model->getVisitorIP(),
+		];
 
 		/** @var UnblockipModel $unblockModel */
 		$unblockModel = $this->getModel('Unblockip', 'Administrator');

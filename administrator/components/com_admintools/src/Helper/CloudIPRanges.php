@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -66,16 +66,35 @@ final class CloudIPRanges
 
 			case 'custom':
 				/** @var ServerconfigmakerModel $model */
-				$model = $serverconfigmakerModel ?? Factory::getApplication()->bootComponent('com_admintools')->getMVCFactory()->createModel('HtaccessmakerModel', 'Administrator');
+				$model = Factory::getApplication()->bootComponent('com_admintools')->getMVCFactory()->createModel('Htaccessmaker', 'Administrator');
 				$config = $model->loadConfiguration();
-				$ips = $config->restrictpip_custom ?: [];
+				$ips = $config->restrictip_custom ?: [];
 
 				if (empty($ips) || !is_array($ips))
 				{
 					return [];
 				}
 
-				return $ips;
+				$ips = array_map(function($entry) {
+					if (is_string($entry))
+					{
+						return $entry;
+					}
+
+					if (is_object($entry))
+					{
+						return $entry->item ?? null;
+					}
+
+					if (is_array($entry))
+					{
+						return $entry['item'] ?? null;
+					}
+
+					return null;
+				}, $ips);
+
+				return array_values(array_filter($ips) ?: []);
 
 			case 'internal':
 				return [
@@ -429,7 +448,7 @@ final class CloudIPRanges
 			return null;
 		}
 
-		return $response->body ?: null;
+		return (string) $response->getBody() ?: null;
 	}
 
 	/**

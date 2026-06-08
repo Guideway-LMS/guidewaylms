@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2023 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -15,6 +15,8 @@
 
 namespace Akeeba\Component\AdminTools\Administrator\Model;
 
+
+use Akeeba\Component\AdminTools\Administrator\Helper\ServerTechnology;
 
 defined('_JEXEC') or die;
 
@@ -34,7 +36,7 @@ trait ApacheVersionTrait
 		}
 
 		// Get the server string
-		$serverString = $_SERVER['SERVER_SOFTWARE'] ?? '';
+		$serverString = ServerTechnology::getServerString();
 
 		// Not defined? Assume Apache 2.0.
 		if (empty($serverString))
@@ -45,7 +47,7 @@ trait ApacheVersionTrait
 		// LiteSpeed? Fake it.
 		if (strtoupper(substr($serverString, 0, 9)) == 'LITESPEED')
 		{
-			return '2.0';
+			return '2.4';
 		}
 
 		// Not Apache? Return 0.0

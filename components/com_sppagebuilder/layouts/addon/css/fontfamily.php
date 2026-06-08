@@ -29,7 +29,7 @@ $system = array(
 
 if(!in_array($font, $system))
 {
-	$google_font = '//fonts.googleapis.com/css?family="' . str_replace(' ', '+', $font) . '":100,100italic,200,200italic,300,300italic,400,400italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic&display=swap';
+	$google_font = '//fonts.googleapis.com/css?family=' . str_replace(' ', '+', $font) . ':100,100italic,200,200italic,300,300italic,400,400italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic&display=swap';
 	$disableGoogleFonts = ComponentHelper::getParams("com_sppagebuilder")->get('google_fonts', 0);
 	if ($disableGoogleFonts != 1)
 	{

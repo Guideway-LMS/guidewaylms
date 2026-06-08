@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -28,7 +28,7 @@ use RuntimeException;
  */
 class WafdenylistTable extends AbstractTable
 {
-	public function __construct(DatabaseDriver $db, DispatcherInterface $dispatcher = null)
+	public function __construct(DatabaseDriver $db, ?DispatcherInterface $dispatcher = null)
 	{
 		parent::__construct('#__admintools_wafblacklists', 'id', $db, $dispatcher);
 

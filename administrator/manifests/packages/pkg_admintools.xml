@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--~
   ~ @package   admintools
-  ~ @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
   ~ @license   GNU General Public License version 3, or later
   -->
 
 <extension type="package" method="upgrade">
     <name>pkg_admintools</name>
     <author>Nicholas K. Dionysopoulos</author>
-    <creationDate>2025-09-01</creationDate>
+    <creationDate>2026-06-01</creationDate>
     <packagename>admintools</packagename>
-    <version>7.8.2</version>
+    <version>7.8.9</version>
     <url>https://www.akeeba.com</url>
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeeba.com</packagerurl>
-    <copyright>Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd</copyright>
+    <copyright>Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd</copyright>
     <license>GNU GPL v3 or later</license>
     <description>PKG_ADMINTOOLS_XML_DESCRIPTION</description>
     <blockChildUninstall>true</blockChildUninstall>

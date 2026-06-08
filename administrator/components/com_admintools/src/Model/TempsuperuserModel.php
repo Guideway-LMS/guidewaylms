@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -44,7 +44,7 @@ class TempsuperuserModel extends AdminModel
 	protected $superUserGroups = [];
 
 	public function __construct(
-		$config = [], MVCFactoryInterface $factory = null, FormFactoryInterface $formFactory = null
+		$config = [], ?MVCFactoryInterface $factory = null, ?FormFactoryInterface $formFactory = null
 	)
 	{
 		parent::__construct($config, $factory, $formFactory);

@@ -150,7 +150,7 @@ $doc->addScriptDeclaration('jQuery(document).ready(function($) {
 
 		const addonName = e.target?.getAttribute("data-addon") || null;
 
-		if (addonName !== "text-block") return;
+		if (addonName !== "text-block" && addonName !== "dynamic-content-text" && addonName !== "dynamic_content_text") return;
 		
 		const isTruncated = e.target?.getAttribute("data-is-truncated") || "false";
 		const fullText = e.target?.getAttribute("data-full-text") || "";
@@ -174,7 +174,7 @@ $doc->addScriptDeclaration('jQuery(document).ready(function($) {
 
 		const addonName = e.target?.getAttribute("data-addon") || null;
 
-		if (addonName !== "text-block") return;
+		if (addonName !== "text-block" && addonName !== "dynamic-content-text" && addonName !== "dynamic_content_text") return;
 		
 		const isTruncated = e.target?.getAttribute("data-is-truncated") || "false";
 		const isShowBtn = e.target?.querySelector(".sppb-btn-container");

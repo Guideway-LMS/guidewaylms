@@ -116,6 +116,18 @@ class SppagebuilderControllerDynamic_content extends FormController
         return response()->json($fields);
     }
 
+    public function totalFieldsByCollection(){
+        $id = $this->input->getInt('collection_id', null);
+
+        if (empty($id)) {
+            return response()->json(['message' => 'Collection ID is required']);
+        }
+
+        $fields = $this->collectionService->fetchTotalFieldsByCollection($id);
+
+        return response()->json($fields);
+    }
+
     public function referenceCollectionFields()
     {
         $ownCollectionId = $this->input->getInt('own_collection_id');
@@ -306,6 +318,7 @@ class SppagebuilderControllerDynamic_content extends FormController
         $id = $data->collection_id;
         $limit = $data->limit ?? 20;
         $page = $data->page ?? 1;
+        $sortingColumn = $data->sortingColumn ?? null;
         $direction = $data->direction ?? 'ASC';
         $currentLink = $data->currentLink;
         $isSite = $data->isSite ?? true;
@@ -336,70 +349,45 @@ class SppagebuilderControllerDynamic_content extends FormController
 
         // Handle articles and tags sources differently
         if ($id === CollectionIds::ARTICLES_COLLECTION_ID || $id === CollectionIds::TAGS_COLLECTION_ID) {
+            $hasFilters = !empty($filters) && !empty($filters->conditions);
+
             if ($id === CollectionIds::ARTICLES_COLLECTION_ID) {
-                if (!\class_exists('SppagebuilderHelperArticles')) {
-                    require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
-                }
-
-                try {
-                    $ordering = $direction === 'desc' ? 'latest' : 'oldest';
-                    $offset = ($page - 1) * $limit;
-                    $articles = \SppagebuilderHelperArticles::getArticles($limit + $offset, $ordering);
-                    $articles = array_slice($articles, $offset, $limit);
+                $renderer = new CollectionRenderer($addon);
+                
+                if ($hasFilters) {
+                    $allItems = $renderer->fetchArticleItems(\SppagebuilderHelperArticles::getArticlesCount(), strtolower($direction), 0);
                     
-                    $items = array_map(function ($article) {
-                        $article->collection_id = CollectionIds::ARTICLES_COLLECTION_ID;
-                        $article->introtext = $article->introtext ?? '';
-                        $article->fulltext = $article->fulltext ?? '';
-                        $article->featured_image = $article->featured_image ?? '';
-                        $article->image_thumbnail = $article->image_thumbnail ?? $article->featured_image ?? '';
-                        $article->username = $article->username ?? '';
-                        $article->category = $article->category ?? '';
-                        return (array) $article;
-                    }, $articles);
-                } catch (\Exception $e) {
-                    $items = [];
+                    $collectionData = (new CollectionData())
+                        ->setData($allItems)
+                        ->applyArticleOrTagsFilter($id, $parentItem, $filters)
+                        ->setLimit($limit)
+                        ->setDirection($direction)
+                        ->setPage($page);
+                    
+                    $data = $collectionData->getData();
+                } else {
+                    $offset = ($page - 1) * $limit;
+                    $items = $renderer->fetchArticleItems($limit, strtolower($direction), $offset);
+                    $data = $items;
                 }
             } else {
-                try {
-                    $db = \Joomla\CMS\Factory::getDbo();
-                    $offset = ($page - 1) * $limit;
-                    $query = $db->getQuery(true)
-                        ->select('*')
-                        ->from('#__tags')
-                        ->where('published = 1')
-                        ->order('title ' . $direction);
-                    $db->setQuery($query, $offset, $limit);
-                    $tags = $db->loadObjectList();
-                    
-                    $items = array_map(function ($tag) {
-                        $tag->collection_id = CollectionIds::TAGS_COLLECTION_ID;
-                        $tag->title = $tag->title ?? '';
-                        $tag->alias = $tag->alias ?? '';
-                        $tag->description = $tag->description ?? '';
-                        return (array) $tag;
-                    }, $tags);
-                } catch (\Exception $e) {
-                    $items = [];
+                if (!empty($isSite)) {
+                    $data = (new CollectionData())
+                        ->setLimit($limit)
+                        ->setDirection($direction)
+                        ->setPage($page)
+                        ->loadDataBySourceForArticlesTags($id)
+                        ->applyArticleOrTagsFilter($id, $parentItem, $filters)
+                        ->getData();
+                } else {
+                    $data = (new CollectionData())
+                        ->setLimit($limit)
+                        ->loadDataBySourceForArticlesTags($id)
+                        ->setDirection($direction)
+                        ->setPage($page)
+                        ->applyArticleOrTagsFilter($id, $parentItem, $filters)
+                        ->getData();
                 }
-            }
-
-            if (!empty($isSite)) {
-                $data = (new CollectionData())
-                    ->loadDataBySourceForArticlesTags($id)
-                    ->setLimit($limit)
-                    ->setDirection($direction)
-                    ->setPage($page)
-                    ->applyArticleOrTagsFilter($id, $parentItem, $filters)
-                    ->getData();
-            } else {
-                $data = (new CollectionData())
-                    ->loadDataBySourceForArticlesTags($id)
-                    ->setLimit($limit)
-                    ->setDirection($direction)
-                    ->setPage($page)
-                    ->applyArticleOrTagsFilter($id, $parentItem, $filters)
-                    ->getData();
             }
         } else {
             $allPaths = array_map(function ($item) {
@@ -417,6 +405,7 @@ class SppagebuilderControllerDynamic_content extends FormController
                     $data = (new CollectionData())
                         ->setData($items)
                         ->setLimit($limit)
+                        ->setSortingColumn($sortingColumn)
                         ->setDirection($direction)
                         ->setPage($page)
                         ->applyFilters($regularFilters, $allPaths)
@@ -425,6 +414,7 @@ class SppagebuilderControllerDynamic_content extends FormController
                         ->getData();
                 } else {
             $data = (new CollectionData())
+                    ->setSortingColumn($sortingColumn)
                     ->setDirection($direction)
                     ->loadDataBySource($id)
                     ->setLimit($limit)
@@ -436,6 +426,7 @@ class SppagebuilderControllerDynamic_content extends FormController
                 }
             } else {
                 $data = (new CollectionData())
+                    ->setSortingColumn($sortingColumn)
                     ->setDirection($direction)
                     ->loadDataBySource($id)
                     ->setLimit($limit)

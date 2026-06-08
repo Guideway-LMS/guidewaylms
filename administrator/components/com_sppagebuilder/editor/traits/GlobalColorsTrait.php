@@ -144,4 +144,187 @@ trait GlobalColorsTrait
 		$this->sendResponse($colorVariables);
 
 	}
+
+	public function importColorPresets()
+	{
+		$method = $this->getInputMethod();
+		$this->checkNotAllowedMethods(['GET', 'PUT', 'PATCH', 'DELETE'], $method);
+
+		if ($method === 'POST')
+		{
+			$this->importColorPresetsHandler();
+		}
+	}
+
+	public function exportColorPresets()
+	{
+		$method = $this->getInputMethod();
+		$this->checkNotAllowedMethods(['POST', 'DELETE', 'PUT', 'PATCH'], $method);
+
+		if ($method === 'GET') {
+			$this->exportColorPresetsHandler();
+		}
+	}
+
+	/**
+	 * Import color presets handler
+	 *
+	 * @return void
+	 *
+	 * @since 6.1.3
+	 */
+	private function importColorPresetsHandler()
+	{
+		$input = Factory::getApplication()->input;
+		$file = $input->files->get('file');
+		$override = $input->post->get('override', 'false', 'STRING');
+		$override = in_array($override, ['true', '1', 1], true);
+		
+		if (!$file || $file['error'] !== UPLOAD_ERR_OK)
+		{
+			$this->sendResponse(['success' => false, 'message' => Text::_('COM_SPPAGEBUILDER_EDITOR_INVALID_COLOR_PRESETS_FILE')], 400);
+			return;
+		}
+
+		$importedColors = json_decode(file_get_contents($file['tmp_name']), true);
+
+		if (!$this->validateColorData($importedColors))
+		{
+			$this->sendResponse(['success' => false, 'message' => Text::_('COM_SPPAGEBUILDER_EDITOR_INVALID_COLOR_PRESETS_FILE')], 400);
+			return;
+		}
+
+		$params = ComponentHelper::getParams('com_sppagebuilder');
+		$finalColors = $override ? $importedColors : $this->mergeColorPresets($params, $importedColors);
+
+		$params->set('sppb_color_variables', $finalColors);
+		$table = \Joomla\CMS\Table\Table::getInstance('extension');
+		$table->load(['element' => 'com_sppagebuilder']);
+		$table->bind(['params' => $params->toString()]);
+		$table->store();
+
+		$this->sendResponse(['success' => true, 'message' => Text::_('COM_SPPAGEBUILDER_EDITOR_IMPORT_COLOR_PRESETS_SUCCESS_MESSAGE')]);
+	}
+
+	private function validateColorData($colors)
+	{
+		if (!is_array($colors)) return false;
+
+		foreach ($colors as $color)
+		{
+			if (!is_array($color) || !isset($color['path'], $color['value'])) return false;
+			if (!is_array($color['path']) || !is_string($color['value'])) return false;
+		}
+
+		return true;
+	}
+
+	private function ensureArray($data)
+	{
+		if (is_object($data)) return json_decode(json_encode($data), true);
+		return is_array($data) ? $data : [];
+	}
+
+	private function groupColorsByVariable($colors, $buildMaps = false)
+	{
+		$grouped = [];
+		$variableMap = [];
+		$presetMap = [];
+		
+		foreach ($colors as $color)
+		{
+			$color = $this->ensureArray($color);
+			if (!isset($color['path']) || !is_array($color['path']) || count($color['path']) < 2) continue;
+
+			$variable = $color['path'][0];
+			$preset = $color['path'][1];
+			$variableLower = strtolower($variable);
+			$presetLower = strtolower($preset);
+			
+			if ($buildMaps)
+			{
+				if (!isset($variableMap[$variableLower])) $variableMap[$variableLower] = $variable;
+				if (!isset($presetMap[$presetLower])) $presetMap[$presetLower] = $preset;
+			}
+			
+			$grouped[$variable][$preset] = $color['value'];
+		}
+
+		return $buildMaps ? [$grouped, $variableMap, $presetMap] : $grouped;
+	}
+
+	private function mergeColorPresets($params, $importedColors)
+	{
+		$existingColors = $this->ensureArray($params->get('sppb_color_variables', []));
+		list($existing, $existingVarMap, $existingPresetMap) = $this->groupColorsByVariable($existingColors, true);
+		$imported = $this->groupColorsByVariable($importedColors);
+
+		foreach ($imported as $variableName => $presets)
+		{
+			$variableLower = strtolower($variableName);
+			$newName = $variableName;
+			$suffix = 1;
+			
+			while (isset($existingVarMap[$variableLower]))
+			{
+				$newName = $variableName . '_' . $suffix++;
+				$variableLower = strtolower($newName);
+			}
+			
+			$mappedPresets = [];
+			foreach ($presets as $preset => $value)
+			{
+				$presetLower = strtolower($preset);
+				$canonicalPreset = isset($existingPresetMap[$presetLower]) ? $existingPresetMap[$presetLower] : $preset;
+				$mappedPresets[$canonicalPreset] = $value;
+				
+				if (!isset($existingPresetMap[$presetLower]))
+				{
+					$existingPresetMap[$presetLower] = $canonicalPreset;
+				}
+			}
+			
+			$existing[$newName] = $mappedPresets;
+			$existingVarMap[$variableLower] = $newName;
+		}
+
+		$allPresets = array_values($existingPresetMap);
+		foreach ($existing as $variable => $presets)
+		{
+			foreach ($allPresets as $preset)
+			{
+				if (!isset($presets[$preset])) $existing[$variable][$preset] = '#7A7C85';
+			}
+		}
+
+		$result = [];
+		foreach ($existing as $variable => $presets)
+		{
+			foreach ($presets as $preset => $value)
+			{
+				$result[] = ['path' => [$variable, $preset], 'value' => $value];
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Export color presets handler
+	 *
+	 * @return void
+	 *
+	 * @since 6.1.3
+	 */
+	private function exportColorPresetsHandler(){
+		$params = ComponentHelper::getParams('com_sppagebuilder');
+		$colorVariables = [];
+
+		if ($params->exists('sppb_color_variables'))
+		{
+			$colorVariables = $params->get('sppb_color_variables');
+		}
+
+		$this->sendResponse($colorVariables);
+	}
 }

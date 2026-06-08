@@ -13,14 +13,16 @@ defined('_JEXEC') or die();
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\Registry\Registry;
-use Joomla\CMS\Filesystem\File;
+use Joomla\Filesystem\File;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Session\Session;
-use Joomla\CMS\Filesystem\Folder;
+use Joomla\Filesystem\Folder;
 use Joomla\CMS\Uri\Uri;
+use Joomla\Filesystem\Path;
 use HelixUltimate\Framework\Platform\Classes\Image;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Helper\MediaHelper;
+use Joomla\Database\DatabaseInterface;
 
 /**
  * Blog class.
@@ -46,7 +48,7 @@ class Blog
 		$tplParams = $tplRegistry->loadString(self::getTemplate()->params);
 
 		// User is not authorised
-		if (!Factory::getUser()->authorise('core.create', 'com_media'))
+		if (!Factory::getApplication()->getIdentity()->authorise('core.create', 'com_media'))
 		{
 			$report['status'] = false;
 			$report['output'] = Text::_('You are not authorised to upload file.');
@@ -61,6 +63,7 @@ class Blog
 				$error = false;
 
 				$params = ComponentHelper::getParams('com_media');
+				$image_path = $params->get('image_path', 'images');
 
 				$contentLength 	= (int) $_SERVER['CONTENT_LENGTH'];
 				$mediaHelper 	= new MediaHelper;
@@ -90,9 +93,33 @@ class Blog
 					$date = Factory::getDate();
 					$folder = HTMLHelper::_('date', $date, 'Y') . '/' . HTMLHelper::_('date', $date, 'm') . '/' . HTMLHelper::_('date', $date, 'd');
 
-					if (!file_exists(JPATH_ROOT . '/images/' . $folder))
+					$target_folder = Path::clean(JPATH_ROOT . '/' . $image_path . '/' . $folder);
+
+					if (!file_exists($target_folder))
 					{
-						Folder::create(\JPATH_ROOT . '/images/' . $folder, 0755);
+						try
+						{
+							Folder::create($target_folder, 0755);
+						}
+						catch (\Throwable $e)
+						{
+							// Fallback to native mkdir
+							if (!file_exists($target_folder))
+							{
+								if (!@mkdir($target_folder, 0755, true))
+								{
+									$error = error_get_last();
+									$report['status'] = false;
+									$report['output'] = Text::_('Failed to create directory. ');
+									$report['output'] .= 'Path: ' . $target_folder;
+									$report['output'] .= ' | Native Error: ' . ($error['message'] ?? 'Unknown');
+									$report['output'] .= ' | Joomla Error: ' . $e->getMessage();
+									
+									echo json_encode($report);
+									die();
+								}
+							}
+						}
 					}
 
 					$name = $image['name'];
@@ -108,9 +135,9 @@ class Blog
 						$ext        = $file['extension'];
 						$image_name = $base_name . "." . $ext;
 						$i++;
-						$dest = JPATH_ROOT . '/images/' . $folder . '/' . $image_name;
-						$src = 'images/' . $folder . '/' . $image_name;
-						$data_src = 'images/' . $folder . '/' . $image_name;
+						$dest = Path::clean(JPATH_ROOT . '/' . $image_path . '/' . $folder . '/' . $image_name);
+						$src = Path::clean($image_path . '/' . $folder . '/' . $image_name, '/');
+						$data_src = Path::clean($image_path . '/' . $folder . '/' . $image_name, '/');
 					}
 					while (file_exists($dest));
 
@@ -143,9 +170,9 @@ class Blog
 							$sources = Image::createThumbs($dest, $sizes, $folder, $base_name, $ext, $image_quality);
 						}
 
-						if (File::exists(JPATH_ROOT . '/images/' . $folder . '/' . $base_name . '_thumbnail.' . $ext))
+						if (\file_exists(Path::clean(JPATH_ROOT . '/' . $image_path . '/' . $folder . '/' . $base_name . '_thumbnail.' . $ext)))
 						{
-							$src = 'images/' . $folder . '/' . $base_name . '_thumbnail.' . $ext;
+							$src = Path::clean($image_path . '/' . $folder . '/' . $base_name . '_thumbnail.' . $ext, '/');
 						}
 
 						$report['status'] = true;
@@ -182,66 +209,71 @@ class Blog
 	public static function remove_image()
 	{
 		$report = array();
-		$report['status'] = false;
-		$report['output'] = 'Invalid Token';
-		Session::checkToken() or die(json_encode($report));
+	    $report['status'] = false;
+	    $report['output'] = 'Invalid Token';
+	    Session::checkToken() or die(json_encode($report));
+	
+	    if (!Factory::getApplication()->getIdentity()->authorise('core.delete', 'com_media'))
+	    {
+	        $report['status'] = false;
+	        $report['output'] = Text::_('You are not authorised to delete file.');
+	        echo json_encode($report);
+	        die();
+	    }
+	
+	    $input = Factory::getApplication()->input;
+	    $src = $input->post->get('src', '', 'STRING');
+	    $articleId = $input->get('id', 0, 'INT');
+	
+	    $path = JPATH_ROOT . '/' . $src;
+	
+	    if (\file_exists($path))
+	    {
+	        $db = Factory::getContainer()->get(DatabaseInterface::class);
+	
+	        $query = $db->getQuery(true)
+	            ->select($db->quoteName('attribs'))
+	            ->from($db->quoteName('#__content'))
+	            ->where('id = ' . $db->quote($articleId));
+	        $db->setQuery($query);
+	        $attribs = $db->loadResult();
+	
+		    $attribsDecoded = json_decode($attribs, true);
 
-		if (!Factory::getUser()->authorise('core.delete', 'com_media'))
-		{
-			$report['status'] = false;
-			$report['output'] = Text::_('You are not authorised to delete file.');
-			echo json_encode($report);
-			die();
-		}
-
-		$input = Factory::getApplication()->input;
-		$src = $input->post->get('src', '', 'STRING');
-
-		$path = JPATH_ROOT . '/' . $src;
-
-		if (File::exists($path))
-		{
-			if (File::delete($path))
-			{
-				$basename 	= basename($src);
-				$small 		= JPATH_ROOT . '/' . dirname($src) . '/' . File::stripExt($basename) . '_small.' . File::getExt($basename);
-				$thumbnail 	= JPATH_ROOT . '/' . dirname($src) . '/' . File::stripExt($basename) . '_thumbnail.' . File::getExt($basename);
-				$medium 	= JPATH_ROOT . '/' . dirname($src) . '/' . File::stripExt($basename) . '_medium.' . File::getExt($basename);
-				$large 		= JPATH_ROOT . '/' . dirname($src) . '/' . File::stripExt($basename) . '_large.' . File::getExt($basename);
-
-				if (File::exists($small))
-				{
-					File::delete($small);
-				}
-
-				if (File::exists($thumbnail))
-				{
-					File::delete($thumbnail);
-				}
-
-				if (File::exists($medium))
-				{
-					File::delete($medium);
-				}
-
-				if (File::exists($large))
-				{
-					File::delete($large);
-				}
-
-				$report['status'] = true;
-			}
-			else
-			{
-				$report['status'] = false;
-				$report['output'] = Text::_('Delete failed');
-			}
+		    if (isset($attribsDecoded['helix_ultimate_image']) && $attribsDecoded['helix_ultimate_image'] === $src) {
+		        $attribsDecoded['helix_ultimate_image'] = "";
+		    }
+		    
+		    if (isset($attribsDecoded['helix_ultimate_gallery'])) {
+		        $galleryImages = json_decode($attribsDecoded['helix_ultimate_gallery'], true);
+		        if (is_array($galleryImages['helix_ultimate_gallery_images'])) {
+		            foreach ($galleryImages['helix_ultimate_gallery_images'] as $key => $image) {
+		                if ($image === $src) {
+		                    unset($galleryImages['helix_ultimate_gallery_images'][$key]);
+		                }
+		            }
+		    
+		            $attribsDecoded['helix_ultimate_gallery'] = json_encode($galleryImages);
+		        }
+		    }
+		
+		    $updateQuery = $db->getQuery(true)
+		        ->update($db->quoteName('#__content'))
+		        ->set($db->quoteName('attribs') . ' = ' . $db->quote(json_encode($attribsDecoded)))
+		        ->where('id = ' . $db->quote($articleId));
+		    $db->setQuery($updateQuery);
+		    if ($db->execute()) {
+		        $report['status'] = true;
+		    } else {
+		        $report['status'] = false;
+		        $report['output'] = Text::_('Database update failed');
+		    }
 		}
 		else
 		{
-			$report['status'] = true;
+		    $report['status'] = false;
+		    $report['output'] = Text::_('Delete failed');
 		}
-
 		die(json_encode($report));
 	}
 
@@ -254,7 +286,7 @@ class Blog
 	private static function getTemplate()
 	{
 
-		$db = Factory::getDbo();
+		$db = Factory::getContainer()->get(DatabaseInterface::class);
 		$query = $db->getQuery(true);
 
 		$query->select($db->quoteName(array('template', 'params')));

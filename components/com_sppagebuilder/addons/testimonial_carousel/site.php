@@ -22,6 +22,8 @@ class SppagebuilderAddonTestimonial_carousel extends SppagebuilderAddons
         $class = (isset($settings->class) && $settings->class) ? ' ' . $settings->class : '';
         $testimonial_carousel_layout = (isset($settings->testimonial_carousel_layout) && $settings->testimonial_carousel_layout) ? $settings->testimonial_carousel_layout : '';
         $carousel_autoplay = (isset($settings->carousel_autoplay) && $settings->carousel_autoplay) ? $settings->carousel_autoplay : 0;
+        $loop = !isset($settings->loop) ? 1 : (int) $settings->loop;
+        $carousel_pause_on_hover = (isset($settings->carousel_pause_on_hover) && $settings->carousel_pause_on_hover) ? 1 : 0;
         $carousel_speed = (isset($settings->carousel_speed) && $settings->carousel_speed) ? $settings->carousel_speed : 1500;
         $carousel_interval = (isset($settings->carousel_interval) && $settings->carousel_interval) ? $settings->carousel_interval : 4500;
 
@@ -92,7 +94,9 @@ class SppagebuilderAddonTestimonial_carousel extends SppagebuilderAddons
 		data-arrow="' . $carousel_arrow . '"
 		data-dots="' . $carousel_bullet . '"
 		data-testi-layout="' . $testimonial_carousel_layout . '"
+		data-loop="' . ($loop ? 'true' : 'false') . '"
 		data-autoplay="' . $carousel_autoplay . '"
+		data-pause-on-hover="' . $carousel_pause_on_hover . '"
 		data-speed="' . $carousel_speed . '"
 		data-interval="' . $carousel_interval . '"
 		data-margin-xl="' . $carousel_margin_xl . '"
@@ -797,6 +801,7 @@ class SppagebuilderAddonTestimonial_carousel extends SppagebuilderAddons
 				data-dots="{{data.carousel_bullet}}"
 				data-testi-layout="{{data.testimonial_carousel_layout}}"
 				data-autoplay="{{data.carousel_autoplay}}"
+				data-pause-on-hover="{{data.carousel_pause_on_hover}}"
 				data-speed="{{data.carousel_speed}}"
 				data-interval="{{data.carousel_interval}}"
 				data-margin-xl="{{carousel_margin_xl}}"

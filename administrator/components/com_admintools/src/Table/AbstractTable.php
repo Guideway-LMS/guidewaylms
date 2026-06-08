@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -21,7 +21,7 @@ abstract class AbstractTable extends Table
 	use TriggerEventTrait;
 	use GetPropertiesAwareTrait;
 
-	public function __construct($table, $key, DatabaseDriver $db, DispatcherInterface $dispatcher = null)
+	public function __construct($table, $key, DatabaseDriver $db, ?DispatcherInterface $dispatcher = null)
 	{
 		parent::__construct($table, $key, $db, $dispatcher);
 

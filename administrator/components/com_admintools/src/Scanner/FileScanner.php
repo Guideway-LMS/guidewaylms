@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -153,7 +153,7 @@ class FileScanner
 				->select('*')
 				->from($db->quoteName('#__admintools_filescache'))
 				->where($db->qn('path') . ' = :relativePath')
-				->setLimit(0, 1)
+				->setLimit(1, 0)
 				->bind(':relativePath', $relativePath);
 			$oldRecord = $db->setQuery($sql)->loadObject();
 		}
@@ -209,7 +209,7 @@ class FileScanner
 					->from($db->quoteName('#__admintools_scanalerts'))
 					->where($db->quoteName('path') . ' = :relativePath')
 					->order($db->qn('scan_id') . ' DESC')
-					->setLimit(0, 1)
+					->setLimit(1, 0)
 					->bind(':relativePath', $relativePath);
 
 				$db->setQuery($sql);
@@ -328,7 +328,12 @@ ENDFILEDATA;
 			}
 
 			$property = $mirror->getProperty('monitor');
-			$property->setAccessible(true);
+
+			if (version_compare(PHP_VERSION, '8.1.0', 'lt'))
+			{
+				$property->setAccessible(true);
+			}
+
 			$property->setValue($db, null);
 
 			return;
@@ -566,11 +571,15 @@ ENDFILEDATA;
 
 		foreach ($tokens as $token)
 		{
-			if (is_array($token)) {
-				if (in_array($token[0], [
+			if (is_array($token))
+			{
+				if (in_array(
+					$token[0], [
 					T_COMMENT,
-					T_DOC_COMMENT
-				])) {
+					T_DOC_COMMENT,
+				]
+				))
+				{
 					continue;
 				}
 

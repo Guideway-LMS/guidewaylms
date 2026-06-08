@@ -449,6 +449,22 @@ SpAddonsConfig::addonConfig([
 					'std'  	  	=> 0
 				],
 
+				'carousel_pause_on_hover' => [
+					'type'    	=> 'checkbox',
+					'title'   	=> Text::_('COM_SPPAGEBUILDER_ADDON_CAROUSEL_PAUSE_ON_HOVER'),
+					'desc'    	=> Text::_('COM_SPPAGEBUILDER_ADDON_CAROUSEL_PAUSE_ON_HOVER_DESC'),
+					'std'  	  	=> 0,
+					'depends'	=> [['carousel_autoplay', '=', 1]],
+				],
+
+				'loop' => [
+                        'type'    => 'checkbox',
+                        'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_JS_SLIDER_LOOP'),
+                        'desc'    => Text::_('COM_SPPAGEBUILDER_ADDON_JS_SLIDER_LOOP_DESC'),
+                        'std'     => 1,
+                        'depends' => [['carousel_autoplay', '=', 1]]
+                ],
+
 				'carousel_interval' => [
 					'type'    	=> 'slider',
 					'title'   	=> Text::_('COM_SPPAGEBUILDER_ADDON_CAROUSEL_INTERVAL'),

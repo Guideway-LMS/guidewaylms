@@ -63,8 +63,8 @@ $loginDescription = TplMaestroHelper::checkNull($this->params->get('login_descri
                         </div>
                     <?php endif; ?>
                 <?php endforeach; ?>
-
-                <?php if ($this->tfa) : ?>
+                
+                <?php if (!empty($this->tfa ?? null)) : ?>    
                     <div class="mb-3">
                         <?php echo $this->form->getField('secretkey')->label; ?>
                         <?php echo $this->form->getField('secretkey')->input; ?>

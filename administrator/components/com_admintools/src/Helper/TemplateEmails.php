@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -348,7 +348,7 @@ abstract class TemplateEmails
 	 * @return  bool True if the email was sent.
 	 * @throws  Exception When $throw === true and there's an error sending the email
 	 */
-	public static function sendMail(string $key, array $data, User $user = null, string $forceLanguage = null, bool $throw = false): bool
+	public static function sendMail(string $key, array $data, ?User $user = null, ?string $forceLanguage = null, bool $throw = false): bool
 	{
 		$app  = Factory::getApplication();
 

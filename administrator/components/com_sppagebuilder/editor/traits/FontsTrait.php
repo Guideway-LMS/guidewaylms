@@ -458,7 +458,7 @@ trait FontsTrait
 		$familyName = $this->generateFamily($fontData);
 
 
-		$url = 'https://fonts.googleapis.com/css2?family=' . $familyName . '&display=swap';
+		$url = "https://fonts.googleapis.com/css2?family=" . $familyName;
 
 		$options  = [
 			'ssl' => [

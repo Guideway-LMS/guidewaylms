@@ -23,7 +23,7 @@ class SppagebuilderAddonDynamic_content_collection extends SppagebuilderAddons
     {
         $addon = $this->addon;
         
-        if(!$addon->settings->source){
+        if(empty($addon->settings->source)) {
             return '';
         }
 

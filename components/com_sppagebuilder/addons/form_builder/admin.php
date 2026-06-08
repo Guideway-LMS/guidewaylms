@@ -200,6 +200,24 @@ SpAddonsConfig::addonConfig([
                                     ],
                                     'std'     => 'First Name',
                                 ],
+                                'date_formatter'                       => [
+                                    'type'    => 'select',
+                                    'is_clearable' => false,
+                                    'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_FORM_BUILDER_FIELD_DATE_FORMATTER'),
+                                    'desc'    => Text::_('COM_SPPAGEBUILDER_ADDON_FORM_BUILDER_FIELD_DATE_FORMATTER_DESC'),
+                                    'values' => [
+                                        'Y-m-d'         => 'YYYY-MM-DD (2024-12-31)',
+                                        'd/m/Y'         => 'DD/MM/YYYY (31/12/2024)',
+                                        'm/d/Y'         => 'MM/DD/YYYY (12/31/2024)',
+                                        'd-m-Y'         => 'DD-MM-YYYY (31-12-2024)',
+                                        'd M, Y'        => 'DD MMM, YYYY (31 Dec, 2024)',
+                                        'F j, Y'        => 'Month DD, YYYY (Dec 31, 2024)',
+                                    ],
+                                    'depends' => [
+                                        ['field_type', '=', 'date'],
+                                    ],
+                                    'std'     => 'Y-m-d',
+                                ],
                                 'field_width'                         => [
                                     'type'       => 'slider',
                                     'title'      => Text::_('COM_SPPAGEBUILDER_ADDON_FORM_BUILDER_FIELD_WIDTH'),
@@ -820,7 +838,7 @@ SpAddonsConfig::addonConfig([
                     'title'      => Text::_('COM_SPPAGEBUILDER_GLOBAL_PADDING'),
                     'responsive' => true,
                     'std'        => ['xl' => '8px 22px 10px 22px', 'lg' => '', 'md' => '', 'sm' => '', 'xs' => ''],
-                    'depends'    => [['btn_type', '=', 'custom']],
+                    'depends'    => [['btn_size', '=', 'custom']],
                 ],
 
                 'btn_margin'                     => [

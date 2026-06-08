@@ -68,6 +68,32 @@ SpAddonsConfig::addonConfig([
                     'depends'      => [['mp4_enable', '=', 1]],
                 ],
 
+                'video_subtitle' => [
+                    'type'          => 'media',
+                    'hide_alt_text' => true,
+                    'format'        => 'attachment',
+                    'title'         => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_SUBTITLE_FILE'),
+                    'desc'          => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_SUBTITLE_FILE_DESC'),
+                    'hide_preview'  => true,
+                    'depends'       => [['mp4_enable', '=', 1]],
+                ],
+
+                'video_subtitle_srclang' => [
+                    'type'    => 'text',
+                    'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_SUBTITLE_LANG'),
+                    'desc'    => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_SUBTITLE_LANG_DESC'),
+                    'std'     => 'en',
+                    'depends' => [['mp4_enable', '=', 1]],
+                ],
+
+                'video_subtitle_label' => [
+                    'type'    => 'text',
+                    'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_SUBTITLE_LABEL'),
+                    'desc'    => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_SUBTITLE_LABEL_DESC'),
+                    'std'     => 'English',
+                    'depends' => [['mp4_enable', '=', 1]],
+                ],
+
                 'video_aria_label' => [
                     'type'    => 'text',
                     'title'   => Text::_('COM_SPPAGEBUILDER_ADDON_VIDEO_ARIA_LABEL'),

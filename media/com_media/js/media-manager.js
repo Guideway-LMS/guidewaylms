@@ -7200,6 +7200,7 @@ class Api {
     this.canCreate = options.canCreate || false;
     this.canEdit = options.canEdit || false;
     this.canDelete = options.canDelete || false;
+    this.hasMediaActionPlugins = options.hasMediaActionPlugins !== false;
   }
 
   /**
@@ -8122,7 +8123,7 @@ var script$m = {
     },
     canOpenEditView() {
       // @TODO pass the array of allowed to edit files from PHP
-      return ['jpg', 'jpeg', 'png'].includes(this.item.extension.toLowerCase());
+      return api.hasMediaActionPlugins && ['jpg', 'jpeg', 'png'].includes(this.item.extension.toLowerCase());
     },
   },
   watch: {
@@ -9632,7 +9633,7 @@ function render$d(_ctx, _cache, $props, $setup, $data, $options) {
           role: "treeitem",
           "aria-level": $props.level,
           "aria-setsize": $options.directories.length,
-          "aria-posinset": index,
+          "aria-posinset": index + 1,
           tabindex: $options.getTabindex(item),
           onClick: withModifiers($event => ($options.onItemClick(item)), ["stop","prevent"]),
           onKeyup: [

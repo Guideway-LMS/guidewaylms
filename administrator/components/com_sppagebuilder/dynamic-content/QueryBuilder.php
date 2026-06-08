@@ -1264,13 +1264,17 @@ class QueryBuilder
             return 'NULL';
         }
 
+        if (is_array($value)) {
+            return $this->db->quote(json_encode($value));
+        }
+
         if (is_integer($value) || is_float($value)) {
             return $value;
         }
 
         if (is_numeric($value)) {
             $isFloat = strpos(strval($value), '.') !== false;
-            return $isFloat ? floatval($value) : intval($value);
+            return $isFloat ? $value : intval($value);
         }
 
         if (is_bool($value)) {

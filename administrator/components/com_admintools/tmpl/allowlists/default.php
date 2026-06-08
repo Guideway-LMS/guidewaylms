@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -17,7 +17,23 @@ use Joomla\Database\DatabaseInterface;
 
 /** @var \Akeeba\Component\AdminTools\Administrator\View\Allowlists\HtmlView $this */
 
-HTMLHelper::_('behavior.multiselect');
+/**
+ * HTMLHelper's `behavior.multiselect` is deprecated in Joomla 6.
+ *
+ * See Joomla PR 45925.
+ */
+call_user_func(function(string $formName = 'adminForm') {
+	if (version_compare(JVERSION, '5.999.999', 'lt'))
+	{
+		HTMLHelper::_('behavior.multiselect');
+
+		return;
+	}
+
+	$doc       = \Joomla\CMS\Factory::getApplication()->getDocument();
+	$doc->addScriptOptions('js-multiselect', ['formName' => $formName]);
+	$doc->getWebAssetManager()->useScript('multiselect');
+});
 
 $this->tableColumnsAutohide();
 $this->tableColumnsMultiselect('#articleList');

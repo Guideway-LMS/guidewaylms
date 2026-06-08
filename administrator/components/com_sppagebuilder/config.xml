@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-	<fieldset name="component" addfieldpath="/administrator/components/com_sppagebuilder/models/fields/">
+	<fieldset name="component">
 
 		<field name="production_mode"
 			type="radio"

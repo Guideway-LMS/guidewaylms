@@ -162,6 +162,13 @@ trait AppConfig
 		$version = new Version();
 		$JoomlaVersion = $version->getShortVersion();
 
+		$filePath = trim($mediaParams->get('file_path', 'images'), '/');
+		$imagePath = trim($mediaParams->get('image_path', 'images'), '/');
+		$mediaRootPaths = array_values(array_unique(array_filter([
+			'/' . ($filePath !== '' ? $filePath : 'images'),
+			'/' . ($imagePath !== '' ? $imagePath : 'images'),
+		])));
+
 		$response = (object) [
 			'pages' => $pages,
 			'menus' => $this->convertToOptions($menus),
@@ -178,7 +185,8 @@ trait AppConfig
 			'editor' => (object) [
 				'theme' => $JoomlaVersion < 4 ? 'modern' : 'silver',
 			],
-			'media_path' => '/' . $mediaParams->get('file_path', 'images'),
+			'media_path' => '/' . ($filePath !== '' ? $filePath : 'images'),
+			'media_root_paths' => $mediaRootPaths,
 			'media_upload_max_size' => $mediaParams->get('upload_maxsize', 0) * 1024 * 1024,
 			'is_pre_release' => $isPreRelease,
 			'google_font_categories' => $googleFontCategories,

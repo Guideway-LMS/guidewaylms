@@ -8,9 +8,13 @@
 
 namespace JoomShaper\SPPageBuilder\DynamicContent\Site;
 
+use DateTime;
+use DateTimeZone;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\CollectionIds;
 use JoomShaper\SPPageBuilder\DynamicContent\Constants\Conditions;
+use JoomShaper\SPPageBuilder\DynamicContent\Constants\FieldTypes;
 use JoomShaper\SPPageBuilder\DynamicContent\Models\CollectionItemValue;
 use JoomShaper\SPPageBuilder\DynamicContent\Services\CollectionDataService;
 use JoomShaper\SPPageBuilder\DynamicContent\Services\CollectionItemsService;
@@ -46,6 +50,15 @@ class CollectionData
      * @since 5.5.0
      */
     protected $page = 1;
+
+    /**
+     * Id of the field to sort the collection items by.
+     *
+     * @var int|null
+     *
+     * @since 6.2.3
+     */
+    protected $sortingColumn = null;
 
     /**
      * The direction of the collection items.
@@ -322,6 +335,20 @@ class CollectionData
     }
 
     /**
+     * Set the sorting column.
+     *
+     * @param int|null $sortingColumn The sorting column to set.
+     * @return self
+     *
+     * @since 6.2.3
+     */
+    public function setSortingColumn($sortingColumn)
+    {
+        $this->sortingColumn = $sortingColumn;
+        return $this;
+    }
+
+    /**
      * Set the direction.
      *
      * @param string $direction The direction to set.
@@ -332,6 +359,20 @@ class CollectionData
     public function setDirection($direction)
     {
         $this->direction = $direction;
+        return $this;
+    }
+
+    /**
+     * Set the total items count.
+     *
+     * @param int $count The total items count.
+     * @return self
+     *
+     * @since 6.3.0
+     */
+    public function setTotalItems($count)
+    {
+        $this->totalItems = $count;
         return $this;
     }
 
@@ -352,19 +393,54 @@ class CollectionData
         $checker = $condition->condition ?? '';
         $isCaseSensitive = $condition->is_case_sensitive ?? 0;
         $value = $item[$key] ?? null;
+        $fieldType = $condition->field->type ?? '';
+        $dateOffset = (isset($condition->date_offset) && $condition->date_offset) ? (int)$condition->date_offset : 0;
+        $includeTime = (isset($condition->include_time) && $condition->include_time) ? $condition->include_time : 0;
 
-        if (in_array($key, $allPaths) && !isset($value)) {
+        if (!isset($value)) {
+            return $checker === Conditions::IS_NOT_SET;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $singleValue) {
+                $testValue = $singleValue;
+                $testConditionValue = $conditionValue;
+                
+                if (!$isCaseSensitive) {
+                    $testValue = !empty($testValue) ? mb_strtolower($testValue, 'UTF-8') : $testValue;
+                    $testConditionValue = !empty($testConditionValue) ? mb_strtolower($testConditionValue, 'UTF-8') : $testConditionValue;
+                }
+                
+                $matches = $this->checkSingleValue($testValue, $testConditionValue, $checker, $key, $item, $fieldType, $dateOffset, $includeTime);
+                if ($matches) {
+                    return true;
+                }
+            }
             return false;
-        } else if (!isset($value)) {
-            return true;
-        }
-        
-
-        if (!$isCaseSensitive) {
-            $value = !empty($value) ? strtolower($value) : $value;
-            $conditionValue = !empty($conditionValue) ? strtolower($conditionValue) : $conditionValue;
         }
 
+        if (!$isCaseSensitive && !is_object($conditionValue)) {
+            $value = !empty($value) ? mb_strtolower($value, 'UTF-8') : $value;
+            $conditionValue = !empty($conditionValue) ? mb_strtolower($conditionValue, 'UTF-8') : $conditionValue;
+        }
+
+        return $this->checkSingleValue($value, $conditionValue, $checker, $key, $item, $fieldType, $dateOffset, $includeTime);
+    }
+
+    /**
+     * Check a single value against a condition.
+     *
+     * @param mixed $value The value to check.
+     * @param mixed $conditionValue The condition value to check against.
+     * @param string $checker The condition checker.
+     * @param string $key The field key.
+     * @param array $item The item being checked.
+     * @return bool
+     *
+     * @since 6.0.0
+     */
+    protected function checkSingleValue($value, $conditionValue, $checker, $key, $item, $fieldType = '', $dateOffset = 0, $includeTime = 0)
+    {
         switch ($checker) {
             case Conditions::IS_SET:
                 return isset($item[$key]);
@@ -375,8 +451,28 @@ class CollectionData
             case Conditions::IS_NO:
                 return (int) $value === 0;
             case Conditions::EQUALS:
+                if($conditionValue === 'current-date' && ($fieldType === FieldTypes::DATETIME)) {
+                    [$visitorNow, $valueDate] = $this->getComparableDates($value);
+                    if ($dateOffset !== 0) {
+                        return $this->isDateWithinOffset($valueDate, $visitorNow, $dateOffset);
+                    }
+                    if ($includeTime) {
+                        return $visitorNow === $valueDate;
+                    }
+                    return $visitorNow->format('Y-m-d') === $valueDate->format('Y-m-d');
+                }
                 return $value === $conditionValue;
             case Conditions::NOT_EQUALS:
+                if($conditionValue === 'current-date' && ($fieldType === FieldTypes::DATETIME)) {
+                    [$visitorNow, $valueDate] = $this->getComparableDates($value);
+                    if ($dateOffset !== 0) {
+                        return !$this->isDateWithinOffset($valueDate, $visitorNow, $dateOffset);
+                    }
+                    if ($includeTime) {
+                        return $visitorNow !== $valueDate;
+                    }
+                    return $visitorNow->format('Y-m-d') !== $valueDate->format('Y-m-d');
+                }
                 return $value !== $conditionValue;
             case Conditions::CONTAINS:
                 return strpos($value, $conditionValue) !== false;
@@ -399,20 +495,111 @@ class CollectionData
             case Conditions::IS_LESS_THAN_OR_EQUAL_TO:
                 return $value <= $conditionValue;
             case Conditions::IS_BEFORE:
+                if($conditionValue === 'current-date' && $fieldType === FieldTypes::DATETIME) {
+                    [$visitorNow, $valueDate] = $this->getComparableDates($value);
+                    if ($dateOffset !== 0) {
+                        $compareDate = clone $visitorNow;
+                        $compareDate->modify(($dateOffset > 0 ? '+' : '') . $dateOffset . ' days');
+                        if ($includeTime) {
+                            return $valueDate < $compareDate;
+                        }
+                        return $valueDate->format('Y-m-d') < $compareDate->format('Y-m-d');
+                    }
+                    return $valueDate < $visitorNow;
+                }
                 return strtotime($value) < strtotime($conditionValue);
             case Conditions::IS_BEFORE_OR_EQUAL:
                 return strtotime($value) <= strtotime($conditionValue);
             case Conditions::IS_AFTER:
+                if($conditionValue === 'current-date' && $fieldType === FieldTypes::DATETIME) {
+                    [$visitorNow, $valueDate] = $this->getComparableDates($value);
+                    if ($dateOffset !== 0) {
+                        $compareDate = clone $visitorNow;
+                        $compareDate->modify(($dateOffset > 0 ? '+' : '') . $dateOffset . ' days');
+                        if ($includeTime) {
+                            return $valueDate > $compareDate;
+                        }
+                        return $valueDate->format('Y-m-d') > $compareDate->format('Y-m-d');
+                    }
+                    return $valueDate > $visitorNow;
+                }
                 return strtotime($value) > strtotime($conditionValue);
             case Conditions::IS_AFTER_OR_EQUAL:
                 return strtotime($value) >= strtotime($conditionValue);
             case Conditions::IS_BETWEEN_DATE:
-                return strtotime($value) >= strtotime($conditionValue[0]) && strtotime($value) <= strtotime($conditionValue[1]);
+                if(!isset($conditionValue->from) || !isset($conditionValue->to)) {
+                    return false;
+                }
+                $valueDate = date('Y-m-d', strtotime($value));
+                $fromDate  = date('Y-m-d', strtotime($conditionValue->from));
+                $toDate    = date('Y-m-d', strtotime($conditionValue->to));
+                return strtotime($valueDate) >= strtotime($fromDate) && strtotime($valueDate) <= strtotime($toDate);
             case Conditions::IS_NOT_BETWEEN_DATE:
-                return strtotime($value) < strtotime($conditionValue[0]) || strtotime($value) > strtotime($conditionValue[1]);
+                return strtotime($value) < strtotime($conditionValue[0]) || strtotime($value) > strtotime($conditionValue[1]);       
             default:
                 return true;
         }
+    }
+
+    /**
+     * Get comparable dates for date-time field type.
+     *
+     * @param string $value The date value to compare.
+     * @return array An array containing visitor's current date and the value date in visitor's timezone.
+     *
+     * @since 6.2.3
+     */
+    protected function getComparableDates($value){
+        $app = Factory::getApplication();
+
+        $visitorTimeZone = $app->input->cookie->get(
+            'sppb_user_timezone',
+            'UTC',
+            'STRING'
+        );
+
+        if(!$visitorTimeZone){
+            $visitorTimeZone = 'UTC';
+        }
+        
+        $serverTZ = new DateTimeZone(Factory::getConfig()->get('offset', 'UTC'));
+        $visitorTZ = new DateTimeZone($visitorTimeZone);
+        $visitorNow = new DateTime('now', $visitorTZ);
+        $valueDate = new DateTime($value, $serverTZ);
+        $valueDate->setTimezone($visitorTZ);
+
+        return [$visitorNow, $valueDate];
+    }
+
+    /**
+     * Check if a value date is within the current date plus offset range.
+     *
+     * @param DateTime $valueDate The value date in visitor timezone.
+     * @param DateTime $visitorNow The current date in visitor timezone.
+     * @param int $dateOffset The date offset in days.
+     * @return bool
+     *
+     * @since 6.5.0
+     */
+    protected function isDateWithinOffset(DateTime $valueDate, DateTime $visitorNow, int $dateOffset)
+    {
+        $startDate = clone $visitorNow;
+        $endDate = clone $visitorNow;
+
+        if ($dateOffset !== 0) {
+            $endDate->modify(($dateOffset > 0 ? '+' : '') . $dateOffset . ' days');
+        }
+
+        if ($endDate < $startDate) {
+            $temp = $startDate;
+            $startDate = $endDate;
+            $endDate = $temp;
+        }
+
+        $startDate->setTime(0, 0, 0);
+        $endDate->setTime(23, 59, 59);
+
+        return $valueDate >= $startDate && $valueDate <= $endDate;
     }
 
     /**
@@ -434,6 +621,7 @@ class CollectionData
 
         if ($fieldType === 'self') {
             return $this->checkForSelfReference($item, $condition);
+            
         }
 
         if ($fieldType === 'multi-reference') {
@@ -609,14 +797,61 @@ class CollectionData
                 return false;
             }
 
+            if(isset($condition->reference_type) && $condition->reference_type === FieldTypes::REFERENCE){
+                $referenceField = CollectionItemValue::where('field_id', $associatedFieldPath)
+                    ->where('item_id', $currentItem['id'])
+                    ->first(['reference_item_id']);
+
+                $currentItemValue = empty($referenceField) ? null : ($referenceField->reference_item_id ?? null);
+
+                 if (empty($currentItemValue)) {
+                    return false;
+                }
+
+                $referenceFieldValue = $item['reference_store']['field_' . $associatedFieldPath] ?? null;
+
+                if (empty($referenceFieldValue)) {
+                    return false;
+                }
+
+                return $currentItemValue == $referenceFieldValue;
+            }
+
+            if(isset($condition->reference_type) && $condition->reference_type === FieldTypes::MULTI_REFERENCE){
+                $match = isset($condition->match_multi_reference) ? $condition->match_multi_reference : 'all';
+                $rereferenceFields = CollectionItemValue::where('field_id', $associatedFieldPath)
+                    ->where('item_id', $currentItem['id'])
+                    ->get(['reference_item_id']);
+
+                $currentItemValues = empty($rereferenceFields) ? [] : Arr::make($rereferenceFields)->pluck('reference_item_id')->toArray();
+                if (empty($currentItemValues)) {
+                    return false;
+                }
+
+                $referenceFieldValues = $item['multi_reference_store']['field_' . $associatedFieldPath] ?? null;
+                if (empty($referenceFieldValues)) {
+                    return false;
+                }
+
+                $currentItemValues = array_values(array_unique($currentItemValues));
+                $referenceFieldValues = is_array($referenceFieldValues) ? $referenceFieldValues : [$referenceFieldValues];
+                $referenceFieldValues = array_values(array_unique($referenceFieldValues));
+                $matchedValues = array_intersect($currentItemValues, $referenceFieldValues);
+
+                if ($match === 'all') {
+                    return count($matchedValues) === count($currentItemValues)
+                        && count($matchedValues) === count($referenceFieldValues);
+                }
+
+                return !empty($matchedValues);
+            }
+
             $currentItemValue = $this->getFieldValueFromItem($currentItem, $associatedFieldPath);
-            
             if ($currentItemValue === null) {
                 return false;
             }
-
-            $itemValue = $this->getFieldValueFromItem($item, $associatedFieldPath);
             
+            $itemValue = $this->getFieldValueFromItem($item, $associatedFieldPath);
             if ($itemValue === null) {
                 return false;
             }
@@ -841,7 +1076,7 @@ class CollectionData
     public function loadDataBySource($collectionId)
     {
         try {
-            $items = (new CollectionDataService)->fetchCollectionItems($collectionId, $this->direction);
+            $items = (new CollectionDataService)->fetchCollectionItems($collectionId, $this->direction, $this->sortingColumn);
         } catch (Throwable $error) {
             $items = [];
         }
@@ -1030,7 +1265,49 @@ class CollectionData
             if (empty($conditions)) {
                 continue;
             }
-            $items = Arr::make($items)->filter(function ($item) use ($conditions, $match, $allPaths) {
+
+            $db = Factory::getDbo();
+            $query = $db->getQuery(true)
+                ->select([
+                    'a.item_id AS original_item_id',
+                    'a.reference_item_id',
+                    'b.field_id',
+                    'b.value'
+                ])
+                ->from($db->quoteName('#__sppagebuilder_collection_item_values', 'a'))
+                ->join('INNER', $db->quoteName('#__sppagebuilder_collection_item_values', 'b') . ' ON a.reference_item_id = b.item_id')
+                ->where('a.reference_item_id IS NOT NULL')
+                ->where('a.reference_item_id != 0');
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            $referenceMap = [];
+            foreach ($results as $result) {
+                $itemId = $result['original_item_id'];
+                $refId = $result['reference_item_id'];
+                $fieldId = $result['field_id'];
+                $value = $result['value'];
+                
+                if (!isset($referenceMap[$itemId]['references'][$refId])) {
+                    $referenceMap[$itemId]['references'][$refId] = [];
+                }
+                $referenceMap[$itemId]['references'][$refId][$fieldId] = $value;
+            }
+
+            $itemToReferenceFieldsMap = [];
+            foreach (array_keys($referenceMap) as $itemId) {
+                $visited = [];
+                $itemToReferenceFieldsMap[$itemId] = $this->accumulateReferenceFields($itemId, $referenceMap, $visited);
+            }
+
+            $items = Arr::make($items)->filter(function ($item) use ($conditions, $match, $allPaths, $itemToReferenceFieldsMap) {
+                if($item['id'] && isset($itemToReferenceFieldsMap[$item['id']])){
+                    foreach ($itemToReferenceFieldsMap[$item['id']] as $fieldId => $value) {
+                        $fieldKey = CollectionItemsService::createFieldKey($fieldId);
+                        $item[$fieldKey] = $value;
+                    }
+                }
+                
                 return $match === Conditions::MATCH_ALL
                     ? $this->isMatchForAllConditions($item, $conditions, $allPaths)
                     : $this->isMatchForAnyConditions($item, $conditions, $allPaths);
@@ -1044,6 +1321,49 @@ class CollectionData
 
         return $this;
     }
+
+    private function accumulateReferenceFields($itemId, &$referenceMap, &$visited = []) {
+        if (isset($visited[$itemId])) {
+            return [];
+        }
+
+        $visited[$itemId] = true;
+        $allFields = [];
+        
+        if (isset($referenceMap[$itemId]['references'])) {
+            foreach ($referenceMap[$itemId]['references'] as $refId => $fields) {
+                foreach ($fields as $fieldId => $value) {
+                    if (isset($allFields[$fieldId])) {
+                        if (!is_array($allFields[$fieldId])) {
+                            $allFields[$fieldId] = [$allFields[$fieldId]];
+                        }
+                        $allFields[$fieldId][] = $value;
+                    } else {
+                        $allFields[$fieldId] = $value;
+                    }
+                }
+                
+                $nestedFields = $this->accumulateReferenceFields($refId, $referenceMap, $visited);
+                foreach ($nestedFields as $fieldId => $value) {
+                    if (isset($allFields[$fieldId])) {
+                        if (!is_array($allFields[$fieldId])) {
+                            $allFields[$fieldId] = [$allFields[$fieldId]];
+                        }
+                        if (is_array($value)) {
+                            $allFields[$fieldId] = array_merge($allFields[$fieldId], $value);
+                        } else {
+                            $allFields[$fieldId][] = $value;
+                        }
+                    } else {
+                        $allFields[$fieldId] = $value;
+                    }
+                }
+            }
+        }
+
+        return $allFields;
+    }
+
     public function applyUserSearchFilters($collectionId, $path, $allPaths = [], $currentLink = '', $resume = true)
     {
         if (empty($resume)) {
@@ -1242,8 +1562,8 @@ class CollectionData
         }
 
         if (!$isCaseSensitive && is_string($value) && is_string($conditionValue)) {
-            $value = strtolower($value);
-            $conditionValue = strtolower($conditionValue);
+            $value = mb_strtolower($value, 'UTF-8');
+            $conditionValue = mb_strtolower($conditionValue, 'UTF-8');
         }
 
         switch ($checker) {
@@ -1612,7 +1932,7 @@ class CollectionData
     {
         try {
             if ($collectionId === CollectionIds::ARTICLES_COLLECTION_ID) {
-                $items = $this->fetchArticleItems($this->limit, $this->direction);
+                $items = $this->fetchArticleItems($this->limit, $this->direction, -1);
             } elseif ($collectionId === CollectionIds::TAGS_COLLECTION_ID) {
                 $items = $this->fetchTagItems($this->limit, $this->direction);
             } else {
@@ -1637,15 +1957,15 @@ class CollectionData
      * 
      * @since 6.0.0
      */
-    protected function fetchArticleItems($limit, $direction)
+    protected function fetchArticleItems($limit, $direction, $page = 1)
     {
         if (!\class_exists('SppagebuilderHelperArticles')) {
             require_once JPATH_ROOT . '/components/com_sppagebuilder/helpers/articles.php';
         }
 
         try {
-            $ordering = $direction === 'DESC' ? 'latest' : 'oldest';
-            $articles = \SppagebuilderHelperArticles::getArticles($limit, $ordering);
+            $ordering = strtoupper($direction) === 'DESC' ? 'latest' : 'oldest';
+            $articles = \SppagebuilderHelperArticles::getArticles(\SppagebuilderHelperArticles::getArticlesCount(), $ordering, '', true, '', [], 1, $page);
             
             return array_map(function ($article) {
                 $article->collection_id = CollectionIds::ARTICLES_COLLECTION_ID;

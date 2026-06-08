@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2026 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -67,7 +67,7 @@ class RescueUrl
 		}
 
 		// Do I have an email address?
-		$email = trim($app->input->get('admintools_rescue', '', 'raw') ?: '');
+		$email = trim($app->getInput()->get('admintools_rescue', '', 'raw') ?: '');
 
 		if (empty($email))
 		{
@@ -145,7 +145,7 @@ class RescueUrl
 		}
 
 		// Do we have a token?
-		$token    = $app->input->getCmd('admintools_rescue_token', '');
+		$token    = $app->getInput()->getCmd('admintools_rescue_token', '');
 		$username = null;
 
 		// In case there is a token we need to process it.
